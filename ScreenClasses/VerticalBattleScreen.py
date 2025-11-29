@@ -5,7 +5,7 @@ from Controller.KeyBoardControls import KeyBoardControls
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.StarShip import StarShip
 from Movement.MoveRectangle import MoveRectangle
-from Weapons.Beam import Beam
+from Weapons.Bullet import Bullet
 
 
 class VerticalBattleScreen:
@@ -22,6 +22,7 @@ class VerticalBattleScreen:
         self.ENEMY_HORIZONTAL_CENTER_DIVISOR: int = 2
         self.ENEMY_TOP_OFFSET: int = 50
         self.player_bullets: list = []
+        self.enemy_bullets: list = []
         self.BEAM_FIRE_INTERVAL_SECONDS: float = 1.0
         self.beam_timer: Timer = Timer(self.BEAM_FIRE_INTERVAL_SECONDS)
 
@@ -91,11 +92,11 @@ class VerticalBattleScreen:
             beam_x = (
                     self.starship.x
                     + self.starship.width // 2
-                    - Beam.DEFAULT_WIDTH // 2
+                    - Bullet.DEFAULT_WIDTH // 2
             )
             beam_y = self.starship.y
 
-            new_beam = Beam(beam_x, beam_y)
+            new_beam = Bullet(beam_x, beam_y)
             self.player_bullets.append(new_beam)
             for beam in list(self.player_bullets):  # iterate over a copy
                 beam.update()
@@ -109,6 +110,18 @@ class VerticalBattleScreen:
         for beam in self.player_bullets:
             beam.update()
 
+        # --- enemy bullet cleanup ---
+        window_width, window_height = GlobalConstants.WINDOWS_SIZE
+
+        # keep only bullets that are still on-screen
+        self.enemy_bullets = [
+            bullet
+            for bullet in self.enemy_bullets
+            if 0 <= bullet.x <= window_width and 0 <= bullet.y <= window_height
+        ]
+        for enemy_bullet in self.enemy_bullets:
+            enemy_bullet.upate()
+
     def draw(self, state):
         state.DISPLAY.fill(GlobalConstants.BLACK)
 
@@ -120,6 +133,9 @@ class VerticalBattleScreen:
         for beam in self.player_bullets:
             beam.draw(state.DISPLAY)
 
+
+        for enemy_bullet in self.enemy_bullets:
+            enemy_bullet.draw(state.DISPLAY)
 
         # single flip at the end
         pygame.display.flip()

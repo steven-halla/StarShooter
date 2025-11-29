@@ -20,6 +20,7 @@ class Enemy():
         self.credits: int = 0
 
 
+
     def update(self):
        pass
 

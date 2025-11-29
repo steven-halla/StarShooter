@@ -1,6 +1,6 @@
 import pygame
 
-class Beam:
+class Bullet:
     DEFAULT_WIDTH: int = 5
     DEFAULT_HEIGHT: int = 5
     DEFAULT_SPEED: float = -9.0
