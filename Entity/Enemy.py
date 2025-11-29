@@ -6,13 +6,16 @@ from Movement.MoveRectangle import MoveRectangle
 
 class Enemy():
     def __init__(self):
-        self.height: int = 50
-        self.width: int = 50
+        self.height: int = 0
+        self.width: int = 0
         self.color: tuple = GlobalConstants.RED
         self.x: int = 0
         self.y: int = 0
-        self.moveStarShip = MoveRectangle()
-        self.speed: float = 2.0
+        self.moveEnemy = MoveRectangle()
+        self.speed: float = 0.0
+        self.exp: int = 0
+        self.credits: int = 0
+
 
     def update(self):
        pass

@@ -13,6 +13,8 @@ class VerticalBattleScreen:
         self.controller: KeyBoardControls = KeyBoardControls()
         self.STARSHIP_HORIZONTAL_CENTER_DIVISOR: int = 2
         self.STARSHIP_BOTTOM_OFFSET: int = 100
+        self.MIN_X: int = 0
+        self.MIN_Y: int = 0
 
     def start(self, state):
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
@@ -20,7 +22,30 @@ class VerticalBattleScreen:
         self.starship.x = window_width // self.STARSHIP_HORIZONTAL_CENTER_DIVISOR
         self.starship.y = window_height - self.STARSHIP_BOTTOM_OFFSET
 
+
+    def _clamp_starship_to_screen(self) -> None:
+        window_width, window_height = GlobalConstants.WINDOWS_SIZE
+
+        max_x: int = window_width - self.starship.width
+        max_y: int = window_height - self.starship.height
+
+        # clamp X
+        if self.starship.x < self.MIN_X:
+            self.starship.x = self.MIN_X
+        elif self.starship.x > max_x:
+            self.starship.x = max_x
+
+        # clamp Y
+        if self.starship.y < self.MIN_Y:
+            self.starship.y = self.MIN_Y
+        elif self.starship.y > max_y:
+            self.starship.y = max_y
+
     def update(self, state):
+        window_width, window_height = GlobalConstants.WINDOWS_SIZE
+
+        if self.starship.x > window_width:
+            self.starship.x = 0
         if self.isStart:
             self.start(state)
             self.isStart = False
@@ -47,6 +72,7 @@ class VerticalBattleScreen:
         # dy = self.starship.y - old_y
         # frame_distance = (dx ** 2 + dy ** 2) ** 0.5
         # print(f"x={self.starship.x}, y={self.starship.y}, dx={dx}, dy={dy}, frame_distance={frame_distance}")
+        self._clamp_starship_to_screen()
 
     def draw(self, state):
         state.DISPLAY.fill(GlobalConstants.BLACK)
