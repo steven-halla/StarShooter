@@ -36,7 +36,7 @@ class KeyBoardControls:
 
     @property
     def left_button(self) -> bool:
-        return self.isLeftPressed   # <- true as long as key is held
+        return self.isLeftPressed
 
     @property
     def right_button(self) -> bool:

@@ -24,10 +24,19 @@ class VerticalBattleScreen:
 
         # update keyboard state
         self.controller.update()
+        print(self.starship.speed)
 
         # move once per press using the controller's edge-triggered property
         if self.controller.left_button:
             self.mover.move_left(self.starship)
+        if self.controller.right_button:
+            self.mover.move_right(self.starship)
+        if self.controller.up_button:
+            self.mover.move_up(self.starship)
+        if self.controller.down_button:
+            self.mover.move_down(self.starship)
+
+
 
     def draw(self, state):
         state.DISPLAY.fill(GlobalConstants.BLACK)
