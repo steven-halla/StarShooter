@@ -86,16 +86,7 @@ class VerticalBattleScreen:
         self._clamp_starship_to_screen()
 
 
-        # handle shooting
-        # if self.controller.beam_button:
-        #     beam_x = (
-        #             self.starship.x
-        #             + self.starship.width // 2
-        #             - Beam.DEFAULT_WIDTH // 2
-        #     )
-        #     beam_y = self.starship.y
-        #     new_beam = Beam(beam_x, beam_y)
-        #     self.player_bullets.append(new_beam)
+
         if self.controller.beam_button:
             beam_x = (
                     self.starship.x
@@ -111,9 +102,6 @@ class VerticalBattleScreen:
                 if beam.y + beam.height < 0:  # off the top of the screen
                     self.player_bullets.remove(beam)
 
-            # # every 20 bullets, wipe them all
-            # if len(self.player_bullets) >= 20:
-            #     self.player_bullets.clear()
 
             print(f"player_bullets count = {len(self.player_bullets)}")
 

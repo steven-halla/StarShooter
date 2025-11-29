@@ -3,7 +3,7 @@ import pygame
 class Beam:
     DEFAULT_WIDTH: int = 5
     DEFAULT_HEIGHT: int = 5
-    DEFAULT_SPEED: float = -10.0
+    DEFAULT_SPEED: float = -9.0
     DEFAULT_DAMAGE: int = 1
 
     def __init__(self, x: float, y: float) -> None:
