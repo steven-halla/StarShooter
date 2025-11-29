@@ -18,4 +18,3 @@ class Screen():
 
     def draw(self,state):
         state.DISPLAY.fill(GlobalConstants.BLACK)
-        print("mew")

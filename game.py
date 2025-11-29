@@ -22,7 +22,8 @@ class Game:
         clock = pygame.time.Clock()
         # print(clock)
 
-        self.state.currentScreen.start(self.state)
+        # will need to add this in later
+        # self.state.currentScreen.start(self.state)
 
         while self.state.isRunning:
 
@@ -30,6 +31,7 @@ class Game:
 
             # will need to move this to Screen class
             # TODO maintain framerate pygame.
+
             self.state.currentScreen.update(self.state)
             self.state.currentScreen.draw(self.state)
             # self.textBox.update(self.state)
