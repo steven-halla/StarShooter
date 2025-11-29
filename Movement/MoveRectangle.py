@@ -18,28 +18,28 @@ class MoveRectangle:
             return 1 / math.sqrt(2)
         return 1.0
 
-    def move_left(self, obj) -> None:
+    def player_move_left(self, obj) -> None:
         if not isinstance(obj.speed, float):
             raise TypeError("speed must be a float")
         modifier = self._check_multi_input()
         obj.x -= obj.speed * modifier
         print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
 
-    def move_right(self, obj) -> None:
+    def player_move_right(self, obj) -> None:
         if not isinstance(obj.speed, float):
             raise TypeError("speed must be a float")
         modifier = self._check_multi_input()
         obj.x += obj.speed * modifier
         print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
 
-    def move_up(self, obj) -> None:
+    def player_move_up(self, obj) -> None:
         if not isinstance(obj.speed, float):
             raise TypeError("speed must be a float")
         modifier = self._check_multi_input()
         obj.y -= obj.speed * modifier
         print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
 
-    def move_down(self, obj) -> None:
+    def player_move_down(self, obj) -> None:
         if not isinstance(obj.speed, float):
             raise TypeError("speed must be a float")
         modifier = self._check_multi_input()

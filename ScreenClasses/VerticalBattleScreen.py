@@ -30,13 +30,13 @@ class VerticalBattleScreen:
 
         # handle movement
         if self.controller.left_button:
-            self.mover.move_left(self.starship)
+            self.mover.player_move_left(self.starship)
         if self.controller.right_button:
-            self.mover.move_right(self.starship)
+            self.mover.player_move_right(self.starship)
         if self.controller.up_button:
-            self.mover.move_up(self.starship)
+            self.mover.player_move_up(self.starship)
         if self.controller.down_button:
-            self.mover.move_down(self.starship)
+            self.mover.player_move_down(self.starship)
 
         # measure frame distance (shows acceleration when diagonal)
         dx = self.starship.x - old_x
