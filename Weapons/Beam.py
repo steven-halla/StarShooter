@@ -13,6 +13,7 @@ class Beam:
         self.height: int = self.DEFAULT_HEIGHT
         self.speed: float = self.DEFAULT_SPEED
         self.damage: int = self.DEFAULT_DAMAGE
+        self.rateOfFire: float = 1.0
 
         self.rect: pygame.Rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
