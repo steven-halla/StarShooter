@@ -1,5 +1,7 @@
 import pygame
 import logging
+
+from Constants.GlobalConstants import GlobalConstants
 from game_state import GameState
 
 # logging.basicConfig(
@@ -27,7 +29,8 @@ class Game:
 
         while self.state.isRunning:
 
-            self.state.delta = clock.tick(60)
+            self.state.delta = clock.tick(GlobalConstants.FPS)
+
 
             # will need to move this to Screen class
             # TODO maintain framerate pygame.
