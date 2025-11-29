@@ -1,0 +1,299 @@
+
+
+Star shooter will have The following:
+
+Start Screen
+- No need to create other transition screens until game is complete
+- Has Continue (top) and start ( bottom) Will have game name and company logo
+Town screen
+- Walk around, talk to NPCS, enter shops
+- Look at status screen of hero
+- Doors to enter other areas
+Buy Screen
+- UX/UI for buy/sell/leave
+- 10 items per screen
+- Let cursor go below if more than 10 items to go further odwn the list
+- Text box for npc
+- Portrait  box for npc
+- Yes/No Menu to confirm purchase
+- Description box for items
+Home Base
+- Start next mission
+- Screen - Status
+- Screen- Level up - Distribute stat points
+Equipment Screen:
+- Set up Beam slots
+- Set up Missile slots
+- Set up Armor slots
+- Set up Magic slots
+- Set up Shield Slots
+- Set up Accessory Slots
+Battle Screen top/down
+- Screen scrolls bottom to top
+- Enemies come from any direction but mostly from straight ahead
+- Gain exp and money by killing enemies
+- Pausing freezes game there is no menu during battles
+- When you level up you gain stats
+- Every level has a boss
+- Every level will have a unique twist
+- 90% of screen is battle screen
+- 10%  bottom fo screen is player stats
+- 3 boxes
+
+- HP/Max HP
+- Ki/Max Ki
+
+- Heat - if 0 weapon and shields go offline till cool down
+- Shield Meter
+
+- Credits
+- Exp current/ Exp next level
+
+Battle Screen Left/Right
+- Screen scrolls left to right
+- Same as above
+- These levels are a low priory and are a special bonus
+- None of these levels will have anything special they serve as a break for the player
+
+Iteration 1 of game:
+This will have 3 levels
+Each level will be unique
+Most of this phase is building infrastructure of project
+Will need to build about 3 bosses, and 5 Enemies
+Each stage will host a unique enemy
+
+All Levels have 3 check points infinite amount of continues for time being
+Reloads from auto save
+- Auto load should have Continue/Load section
+- After load play unique get ready music for 3 seconds
+- Keep exp from between loads (ignore anything in docs that may suggest otherwise)
+
+Level 1:
+Escort mission
+There is a ship that is "attached" to the right side, and your mission is to protect it.
+
+Ship will have its own HP and shields
+
+Enemies - 3
+Suicide GLiders
+- These creatures lock on to a ship and attack it with a bonzai charge
+- Low HP
+Bile Spitters - These flying creatures shoot out giant balls at player and can move left to right
+- Balls are fast and low width
+- Medium HP
+Manta Rays
+ - Shoots out lightning that has 3 prongs.
+ -Slow and wide shots
+ - Can fly diagonal left or right up or down
+ - High HP
+ - Status effect Sield short out - drains shields 100%
+
+Obstacles
+-Have a narrow passage at some point
+
+Boss
+Stage 1
+- Infested ship
+- Has 4 compartments
+- Destroy 3 to get to inner compartment which starts stage 2 of boss
+Stage 2
+- Giant eye in compartment
+- Fly's around  a little faster
+- Can shoot eye beams and ball splitters which branch into 3
+
+Level 2
+- Destroy the undead monster before it absorbs a super nova
+- Intense heat is a drain on Ki and power core
+- Intense gravity wells decrease speed
+- Speed down by 25%
+- Ki Drain increase by 10%
+
+Obstacles
+- Platforms
+
+Enemies
+Same as above +
+Platform lasher
+- Tentacles that can shoot out across screen to attach to player and drag ship to them
+- Medium HP
+- Drains ki per hit
+- Status element missile lock down
+
+Boss
+Stage 1
+- Ki Wizard
+- Ki burst - Shining blast INSTANT speed but has a preflash as warning
+- First breath reaches to bottom of screen and can go left or right SLOW speed
+
+Stage 2
+- Rage
+- Speed and damage +25%
+- Summons an swarm of enemies
+- Star waves - stars come at player at high speeds from top and  bottom of screen
+
+
+Stage 3
+Save the Children
+A Giant ship full of refugee children was attacked, all the kids are in space pods
+- Touch the pod and give them a receiver for pickup
+- Missing pods will count against player
+- 30 pods total
+- Can only miss 5 pods
+- Player can destroy the pods
+- Player can use their ship to protect pods from incoming asteroids
+
+Enemies
+- Same as above +
+
+Ball spinner
+Defense enemy that has balls spinning you have to kill these to hit core
+- high hp
+- slow moving
+- black out - causes screen to go black for  1 second
+- Can shoot a ball to attack player that does not take away from spinnign balls
+
+Obstacles
+- Ship Debree so lots of corridors and tight spaces
+- Ship pods needs a  ki recharge
+- flaming balls that come at player from top of screen dodge or instant shield drain
+
+Boss
+Collector
+Stage 1
+- Can shoot seeker swarms from mouth
+- Corrision bile -Ticks HP/Shields Down SLOWLY Thin line breath weapon
+
+Stage 2
+- Arms reach down to bottom of screen
+- Narrow part of boss fight
+- Moves left to right
+- Bullet hell
+
+Stage 3
+- Boss is hurting arms retract
+- Grenade blaster - horizontal line of death pre flash random
+- Lurker reinforcement
+- Grenade fragments - explosions fragment out
+
+Beams
+1 type
+Bullets
+- Shots bullets from duel linked guns
+- Can fire up to 3 shots at a time
+- Uses 1 heat per use
+
+Missiles
+1 type
+seeks nearest enemy
+- Uses 10 heat per use
+
+Magic
+Shield Ball
+- A ball spins around rapidly doing damage to anything it comes into contact with
+- This can block all beams
+- Has 1 HP
+- 20 second duration
+- Uses 25 Ki per use
+- Have ball flash for final 3 seconds before it vanish
+
+Shield
+- Every 1 shield uses 1 heat
+- Will Recharge Constantly as long as Shields not max
+- If heat is in "cool down" phase then shields will not recharge.
+- The higher Heat level the slower shield will recharge
+- Every 25 points of Heat equals +1 shield per second
+
+Armor
+Father Coat
+- High Speed
+- High HP
+- High Shields
+- High Heat
+
+Levels
+6 levels 2 per stage
+Gain a stat point per level up
+
+
+Accessory
+2 for now
+Shield Recharge
+- +10% recharge rate
+Missile battery
+- adds +2 missiles
+
+Important functions to add + Classes
+Timer
+- This will be used for many things need to build this
+- Need to build Timer end
+Time Class
+- In Game timer
+Load function
+ - Need to create a json file and have save write, and load read
+ Save function
+- Can save at home base
+Text box
+- Global text box
+- Can be used for NPCS, Shop Keepers, or any other reason for having text in conversations.
+Build Boss Class
+- Phases
+- Enemy swarms(always, the undead are many) this fun calls specific enemies
+- Special var to handle next level
+- Power
+- HP
+- Rect size
+Build Enemy Class
+- Enemy Swarm call ( this is for mind slavers)
+if self.enemy isMindSlaver == True:
+    self.swarmCall
+else:
+    return
+- EXP giving
+- HP
+- attack 1
+- attack 2
+- attack 3
+Build Player class
+- 5 stats
+- Power - Increase in HP and Beam Damage
+- Magic - Increase in Ki and Magic Damage
+- Speed - Increase in Speed and missile damage
+- Shield - Increase in Shield max and recharge
+- Heat - increase in heat points and recovery time
+- HP
+- Ki
+- Beam Damage
+- Beam Width
+- Beam Speed
+- Magic damage
+- Missile damage
+- Missile Count
+- Missile speed
+- Shield Points
+- Shield CoolDown duration
+- Shield Recovery speed
+- Heat Points
+- Heat recovery speed
+- Heat Cooldown duration
+- Level - 9 total
+- Exp - 100 exp to reach next level
+    - There is no need to have different amounts of exp as this is a linear game
+    - This makes is easier to balance the game
+Menu Class
+Everything From 5 stats section above here
+Credits
+Time
+- There is no sub menus just info display similar to metroid
+- If I do end up using more than 1 screen to display it will be similar to super metroid
+- Use L/R buttons to scroll, just like super metroid
+- 2 screens under super metroid method
+- Ship
+- Player
+NPC Class
+- Image
+- hit box
+- Calls text box class
+Build Tranistion screen class
+-Black screen
+- Uses Text screen class to display a message about things if needed
+
