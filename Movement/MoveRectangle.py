@@ -7,6 +7,8 @@ class MoveRectangle:
         if not isinstance(obj.speed, float):
             raise TypeError("speed must be a float")
         obj.x -= obj.speed
+        print(f"x={obj.x}, y={obj.y}")
+
 
     def move_right(self, obj) -> None:
         if not isinstance(obj.speed, float):

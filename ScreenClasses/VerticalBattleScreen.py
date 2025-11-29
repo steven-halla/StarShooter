@@ -13,20 +13,22 @@ class VerticalBattleScreen:
         self.controller: KeyBoardControls = KeyBoardControls()
 
     def start(self, state):
-        # Center X in the window, place near bottom
         self.starship.x = GlobalConstants.WINDOWS_SIZE[0] // 2
         self.starship.y = GlobalConstants.WINDOWS_SIZE[1] - 100
 
-    def update(self, state):  # ✅ removed ", controller"
+    def update(self, state):
         if self.isStart:
             self.start(state)
             self.isStart = False
 
-        # update keyboard state
+        # update keyboard input
         self.controller.update()
-        print(self.starship.speed)
 
-        # move once per press using the controller's edge-triggered property
+        # record old position BEFORE moving
+        old_x = self.starship.x
+        old_y = self.starship.y
+
+        # handle movement
         if self.controller.left_button:
             self.mover.move_left(self.starship)
         if self.controller.right_button:
@@ -36,7 +38,11 @@ class VerticalBattleScreen:
         if self.controller.down_button:
             self.mover.move_down(self.starship)
 
-
+        # measure frame distance (shows acceleration when diagonal)
+        dx = self.starship.x - old_x
+        dy = self.starship.y - old_y
+        frame_distance = (dx ** 2 + dy ** 2) ** 0.5
+        print(f"x={self.starship.x}, y={self.starship.y}, dx={dx}, dy={dy}, frame_distance={frame_distance}")
 
     def draw(self, state):
         state.DISPLAY.fill(GlobalConstants.BLACK)
