@@ -7,8 +7,8 @@ from Entity.Enemy import Enemy
 class BileSpitter(Enemy):
     def __init__(self) -> None:
         super().__init__()
-        self.width: int = 30
-        self.height: int = 30
+        self.width: int = 40
+        self.height: int = 40
         self.color: tuple[int, int, int] = GlobalConstants.RED
 
 

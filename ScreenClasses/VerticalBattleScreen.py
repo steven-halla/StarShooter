@@ -1,9 +1,11 @@
 import pygame
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Controller.KeyBoardControls import KeyBoardControls
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.StarShip import StarShip
 from Movement.MoveRectangle import MoveRectangle
+from Weapons.Beam import Beam
 
 
 class VerticalBattleScreen:
@@ -19,6 +21,9 @@ class VerticalBattleScreen:
         self.bile_spitter: BileSpitter = BileSpitter()
         self.ENEMY_HORIZONTAL_CENTER_DIVISOR: int = 2
         self.ENEMY_TOP_OFFSET: int = 50
+        self.player_bullets: list = []
+        self.BEAM_FIRE_INTERVAL_SECONDS: float = 1.0
+        self.beam_timer: Timer = Timer(self.BEAM_FIRE_INTERVAL_SECONDS)
 
     def start(self, state):
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
@@ -80,12 +85,33 @@ class VerticalBattleScreen:
         # print(f"x={self.starship.x}, y={self.starship.y}, dx={dx}, dy={dy}, frame_distance={frame_distance}")
         self._clamp_starship_to_screen()
 
+
+        # handle shooting
+        if self.controller.beam_button:
+            beam_x = (
+                    self.starship.x
+                    + self.starship.width // 2
+                    - Beam.DEFAULT_WIDTH // 2
+            )
+            beam_y = self.starship.y
+            new_beam = Beam(beam_x, beam_y)
+            self.player_bullets.append(new_beam)
+
+        # update bullets
+        for beam in self.player_bullets:
+            beam.update()
+
     def draw(self, state):
         state.DISPLAY.fill(GlobalConstants.BLACK)
 
         # draw all entities once
         self.starship.draw(state.DISPLAY)
         self.bile_spitter.draw(state.DISPLAY)
+
+
+        for beam in self.player_bullets:
+            beam.draw(state.DISPLAY)
+
 
         # single flip at the end
         pygame.display.flip()
