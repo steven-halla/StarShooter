@@ -21,8 +21,6 @@ class BileSpitter(Enemy):
         self.credits: int = 5
         self.bileSpeed: int = 15  # projectile speed
 
-        # enemyBullets already exists in Enemy; we’ll use it like:
-        # [{"x": float, "y": float, "vx": float, "vy": float}, ...]
 
     def fire_at_player(
         self,
