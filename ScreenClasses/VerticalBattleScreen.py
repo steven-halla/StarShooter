@@ -1,6 +1,7 @@
 import pygame
 from Constants.GlobalConstants import GlobalConstants
 from Controller.KeyBoardControls import KeyBoardControls
+from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.StarShip import StarShip
 from Movement.MoveRectangle import MoveRectangle
 
@@ -15,12 +16,17 @@ class VerticalBattleScreen:
         self.STARSHIP_BOTTOM_OFFSET: int = 100
         self.MIN_X: int = 0
         self.MIN_Y: int = 0
+        self.bile_spitter: BileSpitter = BileSpitter()
+        self.ENEMY_HORIZONTAL_CENTER_DIVISOR: int = 2
+        self.ENEMY_TOP_OFFSET: int = 50
 
     def start(self, state):
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
 
         self.starship.x = window_width // self.STARSHIP_HORIZONTAL_CENTER_DIVISOR
         self.starship.y = window_height - self.STARSHIP_BOTTOM_OFFSET
+        self.bile_spitter.x = window_width // self.ENEMY_HORIZONTAL_CENTER_DIVISOR
+        self.bile_spitter.y = self.ENEMY_TOP_OFFSET
 
 
     def _clamp_starship_to_screen(self) -> None:
@@ -76,5 +82,10 @@ class VerticalBattleScreen:
 
     def draw(self, state):
         state.DISPLAY.fill(GlobalConstants.BLACK)
+
+        # draw all entities once
         self.starship.draw(state.DISPLAY)
+        self.bile_spitter.draw(state.DISPLAY)
+
+        # single flip at the end
         pygame.display.flip()
