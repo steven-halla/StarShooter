@@ -56,3 +56,4 @@ class StarShip():
             self.was_hit = True
             print("j;fdlsajlfjdsajfl;jsa;f")
             self.color = GlobalConstants.YELLOW  # permanently yellow
+

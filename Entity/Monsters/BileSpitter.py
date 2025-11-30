@@ -34,7 +34,6 @@ class BileSpitter(Enemy):
         self.enemyHealth: int = 10
         self.exp: int = 1
         self.credits: int = 5
-        self.bileDamage: int = 100
 
         # bullets held locally until battle screen copies them
         self.enemyBullets: list[Bullet] = []
@@ -67,6 +66,7 @@ class BileSpitter(Enemy):
         bullet.rect.height = bullet.height
 
         self.enemyBullets.append(bullet)
+        bullet.damage = 100  # 👈 THIS is your enemy damage
 
     def update(self) -> None:
         super().update()

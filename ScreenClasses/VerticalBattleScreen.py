@@ -92,18 +92,19 @@ class VerticalBattleScreen:
 
         self.controller.update()
 
-        if self.controller.left_button:
-            self.mover.player_move_left(self.starship)
-        if self.controller.right_button:
-            self.mover.player_move_right(self.starship)
-        if self.controller.up_button:
-            self.mover.player_move_up(self.starship)
-        if self.controller.down_button:
-            self.mover.player_move_down(self.starship)
+        if self.playerDead == False:
+            if self.controller.left_button:
+                self.mover.player_move_left(self.starship)
+            if self.controller.right_button:
+                self.mover.player_move_right(self.starship)
+            if self.controller.up_button:
+                self.mover.player_move_up(self.starship)
+            if self.controller.down_button:
+                self.mover.player_move_down(self.starship)
 
-        if self.controller.q_button and not self.was_q_pressed_last_frame:
-            # Q was just pressed this frame
-            self.scrollScreen = not self.scrollScreen
+            if self.controller.q_button and not self.was_q_pressed_last_frame:
+                # Q was just pressed this frame
+                self.scrollScreen = not self.scrollScreen
 
         # remember Q state for next frame
         self.was_q_pressed_last_frame = self.controller.q_button
@@ -123,7 +124,7 @@ class VerticalBattleScreen:
 
         # NEED weapon types later on
         # NEED weapon types later on
-        if self.controller.main_weapon_button and self.starship.bullet_timer.is_ready():
+        if self.controller.main_weapon_button and self.starship.bullet_timer.is_ready() and self.playerDead == False:
             center_x = self.starship.x + self.starship.width // 2 + 14
             bullet_y = self.starship.y
 
@@ -253,7 +254,11 @@ class VerticalBattleScreen:
 
             # 3. Collision with player
             if self.starship.hitbox.colliderect(bullet.rect):
+                self.starship.shipHealth -= bullet.damage
+                print(f"Ship HP = {self.starship.shipHealth}")
+
                 self.starship.on_hit()
+
                 # optionally remove bullet
                 # self.enemy_bullets.remove(bullet)
                 continue
