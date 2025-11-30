@@ -1,4 +1,6 @@
 import pygame
+from pygame import Surface
+
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Controller.KeyBoardControls import KeyBoardControls
@@ -18,36 +20,36 @@ class VerticalBattleScreen:
         self.STARSHIP_BOTTOM_OFFSET: int = 100
         self.MIN_X: int = 0
         self.MIN_Y: int = 0
+
         self.bile_spitter: BileSpitter = BileSpitter()
         self.ENEMY_HORIZONTAL_CENTER_DIVISOR: int = 2
         self.ENEMY_TOP_OFFSET: int = 50
+
         self.player_bullets: list = []
-        self.enemy_bullets: list = []
-        self.BEAM_FIRE_INTERVAL_SECONDS: float = 1.0
-        self.beam_timer: Timer = Timer(self.BEAM_FIRE_INTERVAL_SECONDS)
+        self.enemy_bullets: list = []   # Bullet objects ONLY
+
+        self.BULLET_FIRE_INTERVAL_SECONDS: float = 1.0
+        self.bullet_timer: Timer = Timer(self.BULLET_FIRE_INTERVAL_SECONDS)
 
     def start(self, state):
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
 
         self.starship.x = window_width // self.STARSHIP_HORIZONTAL_CENTER_DIVISOR
         self.starship.y = window_height - self.STARSHIP_BOTTOM_OFFSET
+
         self.bile_spitter.x = window_width // self.ENEMY_HORIZONTAL_CENTER_DIVISOR
         self.bile_spitter.y = self.ENEMY_TOP_OFFSET
 
-
     def _clamp_starship_to_screen(self) -> None:
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
+        max_x = window_width - self.starship.width
+        max_y = window_height - self.starship.height
 
-        max_x: int = window_width - self.starship.width
-        max_y: int = window_height - self.starship.height
-
-        # clamp X
         if self.starship.x < self.MIN_X:
             self.starship.x = self.MIN_X
         elif self.starship.x > max_x:
             self.starship.x = max_x
 
-        # clamp Y
         if self.starship.y < self.MIN_Y:
             self.starship.y = self.MIN_Y
         elif self.starship.y > max_y:
@@ -56,20 +58,12 @@ class VerticalBattleScreen:
     def update(self, state):
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
 
-        if self.starship.x > window_width:
-            self.starship.x = 0
         if self.isStart:
             self.start(state)
             self.isStart = False
 
-        # update keyboard input
         self.controller.update()
 
-        # record old position BEFORE moving
-        # old_x = self.starship.x
-        # old_y = self.starship.y
-
-        # handle movement
         if self.controller.left_button:
             self.mover.player_move_left(self.starship)
         if self.controller.right_button:
@@ -79,63 +73,61 @@ class VerticalBattleScreen:
         if self.controller.down_button:
             self.mover.player_move_down(self.starship)
 
-        # # measure frame distance (shows acceleration when diagonal)
-        # dx = self.starship.x - old_x
-        # dy = self.starship.y - old_y
-        # frame_distance = (dx ** 2 + dy ** 2) ** 0.5
-        # print(f"x={self.starship.x}, y={self.starship.y}, dx={dx}, dy={dy}, frame_distance={frame_distance}")
         self._clamp_starship_to_screen()
 
-
-
+        # -------------------------
+        # PLAYER BULLET LOGIC (UNCHANGED)
+        # -------------------------
         if self.controller.beam_button:
-            beam_x = (
-                    self.starship.x
-                    + self.starship.width // 2
-                    - Bullet.DEFAULT_WIDTH // 2
+            bullet_x = (
+                self.starship.x
+                + self.starship.width // 2
+                - Bullet.DEFAULT_WIDTH // 2
             )
-            beam_y = self.starship.y
+            bullet_y = self.starship.y
 
-            new_beam = Bullet(beam_x, beam_y)
-            self.player_bullets.append(new_beam)
-            for beam in list(self.player_bullets):  # iterate over a copy
+            new_bullet = Bullet(bullet_x, bullet_y)
+            self.player_bullets.append(new_bullet)
+
+            for beam in list(self.player_bullets):
                 beam.update()
-                if beam.y + beam.height < 0:  # off the top of the screen
+                if beam.y + beam.height < 0:
                     self.player_bullets.remove(beam)
-
 
             print(f"player_bullets count = {len(self.player_bullets)}")
 
-        # update bullets
         for beam in self.player_bullets:
             beam.update()
 
-        # --- enemy bullet cleanup ---
-        window_width, window_height = GlobalConstants.WINDOWS_SIZE
+        # -------------------------
+        # ENEMY SHOOTING (FIXED)
+        # -------------------------
+        self.bile_spitter.update()
 
-        # keep only bullets that are still on-screen
-        self.enemy_bullets = [
-            bullet
-            for bullet in self.enemy_bullets
-            if 0 <= bullet.x <= window_width and 0 <= bullet.y <= window_height
-        ]
-        for enemy_bullet in self.enemy_bullets:
-            enemy_bullet.upate()
+        # Transfer NEW enemy bullets to the battle screen
+        if self.bile_spitter.enemyBullets:
+            self.enemy_bullets.extend(self.bile_spitter.enemyBullets)
+            self.bile_spitter.enemyBullets.clear()
+
+        # Update enemy bullets and remove off-screen
+        for bullet in list(self.enemy_bullets):
+            bullet.update()
+
+            if bullet.y > window_height:
+                self.enemy_bullets.remove(bullet)
 
     def draw(self, state):
         state.DISPLAY.fill(GlobalConstants.BLACK)
 
-        # draw all entities once
         self.starship.draw(state.DISPLAY)
         self.bile_spitter.draw(state.DISPLAY)
 
-
+        # draw player bullets
         for beam in self.player_bullets:
             beam.draw(state.DISPLAY)
 
+        # draw enemy bullets
+        for bullet in self.enemy_bullets:
+            bullet.draw(state.DISPLAY)
 
-        for enemy_bullet in self.enemy_bullets:
-            enemy_bullet.draw(state.DISPLAY)
-
-        # single flip at the end
         pygame.display.flip()

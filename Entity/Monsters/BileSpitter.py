@@ -1,87 +1,68 @@
-import math
 import pygame
 
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Enemy import Enemy
+from Weapons.Bullet import Bullet
 
 
 class BileSpitter(Enemy):
-    BULLET_WIDTH: int = 8
-    BULLET_HEIGHT: int = 8
-
     def __init__(self) -> None:
         super().__init__()
+
+        # enemy appearance
         self.width: int = 40
         self.height: int = 40
         self.color: tuple[int, int, int] = GlobalConstants.RED
 
+        # bullet appearance
+        self.bulletColor: tuple[int, int, int] = GlobalConstants.YELLOW
+        self.bulletWidth: int = 20
+        self.bulletHeight: int = 20
+
+        # firing + bullet movement
+        self.bileSpeed: int = 15          # speed of bullet moving DOWN
+        self.fire_interval_ms: int = 3000 # shoot every 3 seconds
+        self.last_shot_time: int = pygame.time.get_ticks()
+
+        # gameplay stats (not used yet)
         self.speed: float = 1.0
         self.enemyHealth: int = 10
         self.exp: int = 1
         self.credits: int = 5
-        self.bileSpeed: int = 15  # projectile speed
 
+        # bullets held locally until battle screen copies them
+        self.enemyBullets: list[Bullet] = []
 
-    def fire_at_player(
-        self,
-        player_x: float,
-        player_y: float,
-        player_width: int,
-        player_height: int,
-    ) -> None:
-        """Snapshot-lock on to player and create one bile shot."""
+    def _shoot_bile(self) -> None:
+        """Create a Bullet object and add it to local bullet list."""
+        bullet_x = self.x + self.width // 2 - self.bulletWidth // 2
+        bullet_y = self.y + self.height
 
-        # enemy center
-        enemy_center_x: float = self.x + self.width / 2
-        enemy_center_y: float = self.y + self.height / 2
-
-        # player center
-        player_center_x: float = player_x + player_width / 2
-        player_center_y: float = player_y + player_height / 2
-
-        # direction enemy -> player
-        dx: float = player_center_x - enemy_center_x
-        dy: float = player_center_y - enemy_center_y
-
-        length: float = math.hypot(dx, dy)
-        if length == 0:
-            length = 1.0  # avoid divide-by-zero if somehow overlapping
-
-        vx: float = (dx / length) * self.bileSpeed
-        vy: float = (dy / length) * self.bileSpeed
-
-        bullet: dict[str, float] = {
-            "x": enemy_center_x - self.BULLET_WIDTH / 2,
-            "y": enemy_center_y - self.BULLET_HEIGHT / 2,
-            "vx": vx,
-            "vy": vy,
-        }
+        bullet = Bullet(bullet_x, bullet_y)
+        bullet.color = self.bulletColor
+        bullet.width = self.bulletWidth
+        bullet.height = self.bulletHeight
+        bullet.speed = self.bileSpeed   # positive — travels downward
 
         self.enemyBullets.append(bullet)
 
-    def update_bullets(self) -> None:
-        """Move all bile shots."""
-        for bullet in self.enemyBullets:
-            bullet["x"] += bullet["vx"]
-            bullet["y"] += bullet["vy"]
-
-    def draw_bullets(self, surface: "pygame.Surface") -> None:
-        """Draw all bile shots."""
-        for bullet in self.enemyBullets:
-            pygame.draw.rect(
-                surface,
-                self.color,  # or a bile-specific color later
-                (
-                    bullet["x"],
-                    bullet["y"],
-                    self.BULLET_WIDTH,
-                    self.BULLET_HEIGHT,
-                ),
-            )
-
     def update(self) -> None:
-        # enemy movement / AI goes here later
-        pass
+        """Handle firing every 3 seconds + move bullets."""
+        now = pygame.time.get_ticks()
+
+        # Time to shoot?
+        if now - self.last_shot_time >= self.fire_interval_ms:
+            self._shoot_bile()
+            self.last_shot_time = now
+
+        # Move all bullets DOWN
+        for bullet in self.enemyBullets:
+            bullet.y += bullet.speed
 
     def draw(self, surface: "pygame.Surface") -> None:
-        pygame.draw.rect(surface, self.color, (self.x, self.y, self.width, self.height))
+        """Draw the enemy rectangle."""
+        pygame.draw.rect(
+            surface,
+            self.color,
+            (self.x, self.y, self.width, self.height)
+        )
