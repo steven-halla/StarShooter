@@ -50,3 +50,8 @@ class MoveRectangle:
         if not isinstance(enemy.moveSpeed, float):
             raise TypeError("moveSpeed must be a float")
         enemy.x += enemy.moveSpeed
+
+    def enemy_move_left(self, enemy) -> None:
+        if not isinstance(enemy.moveSpeed, float):
+            raise TypeError("moveSpeed must be a float")
+        enemy.x -= enemy.moveSpeed

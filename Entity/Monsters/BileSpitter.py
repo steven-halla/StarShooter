@@ -1,13 +1,17 @@
+import random
+
 import pygame
 
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Enemy import Enemy
+from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 
 
 class BileSpitter(Enemy):
     def __init__(self) -> None:
         super().__init__()
+        self.mover: MoveRectangle = MoveRectangle()
 
         # enemy appearance
         self.width: int = 40
@@ -41,6 +45,8 @@ class BileSpitter(Enemy):
         self.move_interval_ms: int = 3000        # 3 seconds
         self.last_move_toggle: int = pygame.time.get_ticks()
         self.is_moving: bool = True      # move for 3 seconds, then pause 3 seconds, etc.
+
+        self.move_direction = random.choice([-1, 1])
 
     def _shoot_bile(self) -> None:
         """Create a Bullet object and add it to local bullet list."""
@@ -86,26 +92,32 @@ class BileSpitter(Enemy):
         )
 
     def moveAI(self) -> None:
-        """Simple AI: move left/right, bounce near edges, with 3s move / 3s pause."""
+        """Simple AI: move left/right using MoveRectangle helpers."""
         window_width, _ = GlobalConstants.WINDOWS_SIZE
         now = pygame.time.get_ticks()
 
-        # every 3 seconds, toggle between "moving" and "not moving"
+        # every 3 seconds, toggle moving / not moving
         if now - self.last_move_toggle >= self.move_interval_ms:
             self.is_moving = not self.is_moving
             self.last_move_toggle = now
 
-        # if we're in the "not moving" phase, do nothing
+            # when we start moving, pick left/right (50/50)
+            if self.is_moving:
+                self.move_direction = random.choice([-1, 1])
+
         if not self.is_moving:
             return
 
-        # move horizontally based on moveSpeed & direction
-        self.x += self.moveSpeed * self.move_direction
+        # 🔹 use YOUR helpers instead of touching x directly
+        if self.move_direction > 0:
+            self.mover.enemy_move_right(self)
+        else:
+            self.mover.enemy_move_left(self)
 
-        # if we are within 30px of left/right edge, flip direction
+        # edge check: if within 30px of left/right edge, flip direction
         if self.x <= self.edge_padding:
             self.x = self.edge_padding
-            self.move_direction = 1      # go right
+            self.move_direction = 1  # go right
         elif self.x + self.width >= window_width - self.edge_padding:
             self.x = window_width - self.edge_padding - self.width
-            self.move_direction = -1     # go left
+            self.move_direction = -1  # go left
