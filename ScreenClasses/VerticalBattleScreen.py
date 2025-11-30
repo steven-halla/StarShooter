@@ -154,8 +154,21 @@ class VerticalBattleScreen:
             bullet.update()
             if bullet.y + bullet.height < 0:
                 self.player_bullets.remove(bullet)
-            # print(self.player_bullets)
-        print("player_bullets count =", len(self.player_bullets))
+
+        for bullet in list(self.enemy_bullets):
+            bullet.update()
+
+            # Remove off-screen enemy bullets
+            if bullet.y > window_height:
+                self.enemy_bullets.remove(bullet)
+                continue
+
+            # Collision with starship hitbox
+            if self.starship.hitbox.colliderect(bullet.rect):
+                self.starship.on_hit()
+                # remove bullet after hit IF you want
+                # self.enemy_bullets.remove(bullet)
+        # print("player_bullets count =", len(self.player_bullets))
 
         # -------------------------
         # ENEMY SHOOTING (FIXED)
