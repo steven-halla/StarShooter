@@ -1,5 +1,6 @@
 import pygame
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Movement.MoveRectangle import MoveRectangle
 
 
@@ -12,6 +13,8 @@ class StarShip():
         self.y: int = 0
         self.moveStarShip = MoveRectangle()
         self.speed: float = 5.0
+        self.bullet_fire_interval_seconds: float = 1.0
+        self.bullet_timer: Timer = Timer(self.bullet_fire_interval_seconds)
 
     def update(self):
        pass
