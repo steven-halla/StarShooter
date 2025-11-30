@@ -56,7 +56,7 @@ class KeyBoardControls:
         return self.isDownPressed
 
     @property
-    def beam_button(self) -> bool:
+    def main_weapon_button(self) -> bool:
         return self.isFPressed
 
 

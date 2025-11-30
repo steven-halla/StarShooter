@@ -78,7 +78,7 @@ class VerticalBattleScreen:
         # -------------------------
         # PLAYER BULLET LOGIC (UNCHANGED)
         # -------------------------
-        if self.controller.beam_button:
+        if self.controller.main_weapon_button:
             bullet_x = (
                 self.starship.x
                 + self.starship.width // 2
@@ -89,15 +89,15 @@ class VerticalBattleScreen:
             new_bullet = Bullet(bullet_x, bullet_y)
             self.player_bullets.append(new_bullet)
 
-            for beam in list(self.player_bullets):
-                beam.update()
-                if beam.y + beam.height < 0:
-                    self.player_bullets.remove(beam)
+            for bullet in list(self.player_bullets):
+                bullet.update()
+                if bullet.y + bullet.height < 0:
+                    self.player_bullets.remove(bullet)
 
             print(f"player_bullets count = {len(self.player_bullets)}")
 
-        for beam in self.player_bullets:
-            beam.update()
+        for bullet in self.player_bullets:
+            bullet.update()
 
         # -------------------------
         # ENEMY SHOOTING (FIXED)
@@ -123,8 +123,8 @@ class VerticalBattleScreen:
         self.bile_spitter.draw(state.DISPLAY)
 
         # draw player bullets
-        for beam in self.player_bullets:
-            beam.draw(state.DISPLAY)
+        for bullet in self.player_bullets:
+            bullet.draw(state.DISPLAY)
 
         # draw enemy bullets
         for bullet in self.enemy_bullets:
