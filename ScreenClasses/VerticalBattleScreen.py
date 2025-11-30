@@ -214,53 +214,43 @@ class VerticalBattleScreen:
             hit_something = False
 
             for enemy in list(self.bileSpitterGroup):
-                enemy.update_hitbox()  # make sure hitbox matches enemy.x / enemy.y
-
-                if enemy.hitbox.colliderect(bullet.rect):
-                    print("HIT ENEMY!")
-
-                    # turn yellow (Enemy.on_hit())
-                    enemy.on_hit()
-
-                    # apply damage
+                enemy.update_hitbox()
+                if bullet.collide_with_rect(enemy.hitbox):
                     enemy.enemyHealth -= self.starship.bulletDamage
-                    print(f"Enemy HP = {enemy.enemyHealth}")
+                    print("Enemy HP =", enemy.enemyHealth)
 
-                    # remove the bullet that hit
-                    self.player_bullets.remove(bullet)
-                    hit_something = True
+                    if not bullet.is_active:
+                        self.player_bullets.remove(bullet)
 
-                    # if HP <= 0, delete enemy from the list (true removal)
                     if enemy.enemyHealth <= 0:
-                        print("Enemy destroyed, removing from bileSpitterGroup")
                         self.bileSpitterGroup.remove(enemy)
-
-                    # this bullet is done, stop checking other enemies
-                    break
+                    break  # stop checking this bullet vs other enemies
 
             if hit_something:
                 continue
 
         # Update enemy bullets and remove off-screen
+        # Update enemy bullets and remove off-screen
         for bullet in list(self.enemy_bullets):
-
-            # 1. Move bullet first
             bullet.update()
 
-            # 2. Remove if off-screen
+            # 1) Off-screen cleanup
             if bullet.y > window_height:
                 self.enemy_bullets.remove(bullet)
                 continue
 
-            # 3. Collision with player
-            if self.starship.hitbox.colliderect(bullet.rect):
+            # 2) Collision with player
+            if bullet.collide_with_rect(self.starship.hitbox):
+                # apply damage
                 self.starship.shipHealth -= bullet.damage
                 print(f"Ship HP = {self.starship.shipHealth}")
 
+                # color / hit reaction
                 self.starship.on_hit()
 
-                # optionally remove bullet
-                # self.enemy_bullets.remove(bullet)
+                # if bullet deactivates itself, also yank it from the list
+                if not bullet.is_active:
+                    self.enemy_bullets.remove(bullet)
                 continue
         # ...after bullets / enemy updates
         # inside update(...), AFTER self.controller.update()

@@ -66,7 +66,7 @@ class BileSpitter(Enemy):
         bullet.rect.height = bullet.height
 
         self.enemyBullets.append(bullet)
-        bullet.damage = 100  # 👈 THIS is your enemy damage
+        bullet.damage = 10  # 👈 THIS is your enemy damage
 
     def update(self) -> None:
         super().update()

@@ -31,3 +31,13 @@ class Bullet:
 
     def draw(self, surface: "pygame.Surface") -> None:
         pygame.draw.rect(surface, (128, 0, 128), self.rect)  # or GlobalConstants.PURPLE
+
+    def collide_with_rect(self, other: pygame.Rect) -> bool:
+        """
+        Returns True if this bullet hits `other`.
+        Also sets is_active = False so the owner can remove it.
+        """
+        if self.rect.colliderect(other):
+            self.is_active = False
+            return True
+        return False
