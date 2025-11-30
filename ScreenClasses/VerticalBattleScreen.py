@@ -21,6 +21,7 @@ class VerticalBattleScreen:
         self.MIN_X: int = 0
         self.MIN_Y: int = 0
         self.scrollScreen: bool = False
+        self.bileSpitterGroup: list[BileSpitter] = []
 
         self.bile_spitter: BileSpitter = BileSpitter()
         self.ENEMY_HORIZONTAL_CENTER_DIVISOR: int = 2
@@ -58,6 +59,9 @@ class VerticalBattleScreen:
 
         self.bile_spitter.x = window_width // self.ENEMY_HORIZONTAL_CENTER_DIVISOR
         self.bile_spitter.y = self.ENEMY_TOP_OFFSET
+
+        if self.bile_spitter not in self.bileSpitterGroup:
+            self.bileSpitterGroup.append(self.bile_spitter)
 
     def clamp_starship_to_screen(self) -> None:
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
@@ -163,28 +167,70 @@ class VerticalBattleScreen:
         # -------------------------
         # ENEMY SHOOTING (FIXED)
         # -------------------------
-        self.bile_spitter.update()
+        # self.bile_spitter.update()
+        for enemy in self.bileSpitterGroup:
+            enemy.update()
 
         # Transfer NEW enemy bullets to the battle screen
         if self.bile_spitter.enemyBullets:
             self.enemy_bullets.extend(self.bile_spitter.enemyBullets)
             self.bile_spitter.enemyBullets.clear()
 
+        # # --- PLAYER BULLETS ---
+        # for bullet in list(self.player_bullets):
+        #
+        #     bullet.update()  # FIRST move the bullet
+        #
+        #     # remove if offscreen
+        #     if bullet.y + bullet.height < 0:
+        #         self.player_bullets.remove(bullet)
+        #         continue
+        #
+        #     # NOW collision works because bullet.rect is correct
+        #     if self.bile_spitter.hitbox.colliderect(bullet.rect):
+        #         print("HIT ENEMY!")
+        #         self.bile_spitter.on_hit()
+        #         self.player_bullets.remove(bullet)
+        #         continue
         # --- PLAYER BULLETS ---
         for bullet in list(self.player_bullets):
+            # 1) move the bullet first
+            bullet.update()
 
-            bullet.update()  # FIRST move the bullet
-
-            # remove if offscreen
+            # 2) remove if off the top of the screen
             if bullet.y + bullet.height < 0:
                 self.player_bullets.remove(bullet)
                 continue
 
-            # NOW collision works because bullet.rect is correct
-            if self.bile_spitter.hitbox.colliderect(bullet.rect):
-                print("HIT ENEMY!")
-                self.bile_spitter.on_hit()
-                self.player_bullets.remove(bullet)
+            # 3) check collision against ALL bile spitters in the group
+            hit_something = False
+
+            for enemy in list(self.bileSpitterGroup):
+                enemy.update_hitbox()  # make sure hitbox matches enemy.x / enemy.y
+
+                if enemy.hitbox.colliderect(bullet.rect):
+                    print("HIT ENEMY!")
+
+                    # turn yellow (Enemy.on_hit())
+                    enemy.on_hit()
+
+                    # apply damage
+                    enemy.enemyHealth -= self.starship.bulletDamage
+                    print(f"Enemy HP = {enemy.enemyHealth}")
+
+                    # remove the bullet that hit
+                    self.player_bullets.remove(bullet)
+                    hit_something = True
+
+                    # if HP <= 0, delete enemy from the list (true removal)
+                    if enemy.enemyHealth <= 0:
+                        print("Enemy destroyed, removing from bileSpitterGroup")
+                        self.bileSpitterGroup.remove(enemy)
+
+                    # this bullet is done, stop checking other enemies
+                    break
+
+            if hit_something:
                 continue
 
         # Update enemy bullets and remove off-screen
@@ -215,7 +261,9 @@ class VerticalBattleScreen:
         self.draw_scrolling_background(state.DISPLAY)
 
         self.starship.draw(state.DISPLAY)
-        self.bile_spitter.draw(state.DISPLAY)
+        # self.bile_spitter.draw(state.DISPLAY)
+        for enemy in self.bileSpitterGroup:
+            enemy.draw(state.DISPLAY)
 
         # draw player bullets
         for bullet in self.player_bullets:

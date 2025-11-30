@@ -24,6 +24,7 @@ class StarShip():
         self.bullet_vertical_spacing: int = 22  # how far apart they are vertically
         self.bullet_fire_interval_seconds = .05 # .05 is 20 bullets per second
         self.bullet_timer = Timer(self.bullet_fire_interval_seconds)
+        self.bulletDamage: int = 1
 
         self.hitbox: pygame.Rect = pygame.Rect(
             int(self.x),
@@ -32,6 +33,7 @@ class StarShip():
             self.height
         )
         self.was_hit: bool = False
+
 
     # new ability : Dodge using shimmer ability you can dodge incoming fire
     # heat this afffects all ship systems Weapon systems off line, no shiels, but can use magic

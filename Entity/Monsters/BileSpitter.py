@@ -12,6 +12,7 @@ class BileSpitter(Enemy):
     def __init__(self) -> None:
         super().__init__()
         self.mover: MoveRectangle = MoveRectangle()
+        self.id = 0
 
         # enemy appearance
         self.width: int = 40
@@ -47,6 +48,7 @@ class BileSpitter(Enemy):
         self.is_moving: bool = True      # move for 3 seconds, then pause 3 seconds, etc.
 
         self.move_direction = random.choice([-1, 1])
+        self.enemyHealth: int = 5
 
     def _shoot_bile(self) -> None:
         """Create a Bullet object and add it to local bullet list."""
