@@ -25,8 +25,32 @@ class StarShip():
         self.bullet_fire_interval_seconds = .05 # .05 is 20 bullets per second
         self.bullet_timer = Timer(self.bullet_fire_interval_seconds)
 
+        self.hitbox: pygame.Rect = pygame.Rect(
+            int(self.x),
+            int(self.y),
+            self.width,
+            self.height
+        )
+        self.was_hit: bool = False
+
+    # new ability : Dodge using shimmer ability you can dodge incoming fire
+    # heat this afffects all ship systems Weapon systems off line, no shiels, but can use magic
+
+    # New mission - Grand master general tags along, you must touch all enemy bullets so he can
+    # deflect them, use your ship to protect the base while shields and weapons come back online.
+
     def update(self) -> None:
         pass
 
     def draw(self, surface: "pygame.Surface") -> None:
         pygame.draw.rect(surface, self.color, (self.x, self.y, self.width, self.height))
+
+    def update_hitbox(self) -> None:
+        self.hitbox.topleft = (int(self.x), int(self.y))
+
+    def on_hit(self) -> None:
+        """Called when any bullet collides with the player."""
+        if not self.was_hit:
+            self.was_hit = True
+            print("j;fdlsajlfjdsajfl;jsa;f")
+            self.color = GlobalConstants.YELLOW  # permanently yellow

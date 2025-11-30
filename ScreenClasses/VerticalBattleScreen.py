@@ -66,6 +66,7 @@ class VerticalBattleScreen:
 
         if self.starship.x < self.MIN_X:
             self.starship.x = self.MIN_X
+
         elif self.starship.x > max_x:
             self.starship.x = max_x
 
@@ -106,6 +107,7 @@ class VerticalBattleScreen:
 
 
         self.clamp_starship_to_screen()
+        self.starship.update_hitbox()
 
 
 
@@ -150,6 +152,10 @@ class VerticalBattleScreen:
 
         for bullet in self.player_bullets:
             bullet.update()
+            if bullet.y + bullet.height < 0:
+                self.player_bullets.remove(bullet)
+            # print(self.player_bullets)
+        print("player_bullets count =", len(self.player_bullets))
 
         # -------------------------
         # ENEMY SHOOTING (FIXED)

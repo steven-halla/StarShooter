@@ -23,28 +23,28 @@ class MoveRectangle:
             raise TypeError("speed must be a float")
         modifier = self._check_multi_input()
         obj.x -= obj.speed * modifier
-        print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
+        # print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
 
     def player_move_right(self, obj) -> None:
         if not isinstance(obj.speed, float):
             raise TypeError("speed must be a float")
         modifier = self._check_multi_input()
         obj.x += obj.speed * modifier
-        print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
+        # print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
 
     def player_move_up(self, obj) -> None:
         if not isinstance(obj.speed, float):
             raise TypeError("speed must be a float")
         modifier = self._check_multi_input()
         obj.y -= obj.speed * modifier
-        print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
+        # print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
 
     def player_move_down(self, obj) -> None:
         if not isinstance(obj.speed, float):
             raise TypeError("speed must be a float")
         modifier = self._check_multi_input()
         obj.y += obj.speed * modifier
-        print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
+        # print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
 
     def enemy_move_right(self, enemy) -> None:
         if not isinstance(enemy.moveSpeed, float):
@@ -55,3 +55,5 @@ class MoveRectangle:
         if not isinstance(enemy.moveSpeed, float):
             raise TypeError("moveSpeed must be a float")
         enemy.x -= enemy.moveSpeed
+
+
