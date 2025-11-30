@@ -42,7 +42,11 @@ class BileSpitter(Enemy):
         bullet.color = self.bulletColor
         bullet.width = self.bulletWidth
         bullet.height = self.bulletHeight
-        bullet.speed = self.bileSpeed   # positive — travels downward
+        bullet.speed = self.bileSpeed  # positive — travels downward
+
+        # 🔹 keep the rect in sync with the new size
+        bullet.rect.width = bullet.width
+        bullet.rect.height = bullet.height
 
         self.enemyBullets.append(bullet)
 
