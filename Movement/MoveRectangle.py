@@ -45,3 +45,8 @@ class MoveRectangle:
         modifier = self._check_multi_input()
         obj.y += obj.speed * modifier
         print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
+
+    def enemy_move_right(self, enemy) -> None:
+        if not isinstance(enemy.moveSpeed, float):
+            raise TypeError("moveSpeed must be a float")
+        enemy.x += enemy.moveSpeed

@@ -33,6 +33,15 @@ class BileSpitter(Enemy):
         # bullets held locally until battle screen copies them
         self.enemyBullets: list[Bullet] = []
 
+        # --- AI movement state ---
+        self.moveSpeed: float = 2.0      # how fast BileSpitter moves horizontally
+        self.edge_padding: int = 30      # distance from screen edge before turning
+        self.move_direction: int = 1     # 1 = right, -1 = left
+
+        self.move_interval_ms: int = 3000        # 3 seconds
+        self.last_move_toggle: int = pygame.time.get_ticks()
+        self.is_moving: bool = True      # move for 3 seconds, then pause 3 seconds, etc.
+
     def _shoot_bile(self) -> None:
         """Create a Bullet object and add it to local bullet list."""
         bullet_x = self.x + self.width // 2 - self.bulletWidth // 2
@@ -52,7 +61,10 @@ class BileSpitter(Enemy):
 
     def update(self) -> None:
         """Handle firing every 3 seconds + move bullets."""
+        self.moveAI()
+
         now = pygame.time.get_ticks()
+
 
         # Time to shoot?
         if now - self.last_shot_time >= self.fire_interval_ms:
@@ -63,6 +75,8 @@ class BileSpitter(Enemy):
         for bullet in self.enemyBullets:
             bullet.y += bullet.speed
 
+
+
     def draw(self, surface: "pygame.Surface") -> None:
         """Draw the enemy rectangle."""
         pygame.draw.rect(
@@ -70,3 +84,28 @@ class BileSpitter(Enemy):
             self.color,
             (self.x, self.y, self.width, self.height)
         )
+
+    def moveAI(self) -> None:
+        """Simple AI: move left/right, bounce near edges, with 3s move / 3s pause."""
+        window_width, _ = GlobalConstants.WINDOWS_SIZE
+        now = pygame.time.get_ticks()
+
+        # every 3 seconds, toggle between "moving" and "not moving"
+        if now - self.last_move_toggle >= self.move_interval_ms:
+            self.is_moving = not self.is_moving
+            self.last_move_toggle = now
+
+        # if we're in the "not moving" phase, do nothing
+        if not self.is_moving:
+            return
+
+        # move horizontally based on moveSpeed & direction
+        self.x += self.moveSpeed * self.move_direction
+
+        # if we are within 30px of left/right edge, flip direction
+        if self.x <= self.edge_padding:
+            self.x = self.edge_padding
+            self.move_direction = 1      # go right
+        elif self.x + self.width >= window_width - self.edge_padding:
+            self.x = window_width - self.edge_padding - self.width
+            self.move_direction = -1     # go left

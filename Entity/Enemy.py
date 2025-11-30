@@ -12,7 +12,7 @@ class Enemy():
         self.x: int = 0
         self.y: int = 0
         self.moveEnemy = MoveRectangle()
-        self.speed: float = 0.0
+        self.moveSpeed: float = 0.0
         self.enemyHealth: int = 0
         self.enemySpecialMoves: list = []
         self.enemyBullets: list = []
