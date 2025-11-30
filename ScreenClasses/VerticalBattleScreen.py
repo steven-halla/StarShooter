@@ -85,7 +85,6 @@ class VerticalBattleScreen:
         self.controller.update()
 
         if self.controller.left_button:
-            print("Pew")
             self.mover.player_move_left(self.starship)
         if self.controller.right_button:
             self.mover.player_move_right(self.starship)
@@ -150,22 +149,13 @@ class VerticalBattleScreen:
         #
         #     print(f"player_bullets count = {len(self.player_bullets)}")
 
+
         for bullet in self.player_bullets:
             bullet.update()
             if bullet.y + bullet.height < 0:
                 self.player_bullets.remove(bullet)
 
-        for bullet in list(self.enemy_bullets):
-            bullet.update()
 
-            # Remove off-screen enemy bullets
-            if bullet.y > window_height:
-                self.enemy_bullets.remove(bullet)
-                continue
-
-            # Collision with starship hitbox
-            if self.starship.hitbox.colliderect(bullet.rect):
-                self.starship.on_hit()
                 # remove bullet after hit IF you want
                 # self.enemy_bullets.remove(bullet)
         # print("player_bullets count =", len(self.player_bullets))
@@ -180,15 +170,44 @@ class VerticalBattleScreen:
             self.enemy_bullets.extend(self.bile_spitter.enemyBullets)
             self.bile_spitter.enemyBullets.clear()
 
+        # --- PLAYER BULLETS ---
+        for bullet in list(self.player_bullets):
+
+            bullet.update()  # FIRST move the bullet
+
+            # remove if offscreen
+            if bullet.y + bullet.height < 0:
+                self.player_bullets.remove(bullet)
+                continue
+
+            # NOW collision works because bullet.rect is correct
+            if self.bile_spitter.hitbox.colliderect(bullet.rect):
+                print("HIT ENEMY!")
+                self.bile_spitter.on_hit()
+                self.player_bullets.remove(bullet)
+                continue
+
         # Update enemy bullets and remove off-screen
         for bullet in list(self.enemy_bullets):
+
+            # 1. Move bullet first
             bullet.update()
 
+            # 2. Remove if off-screen
             if bullet.y > window_height:
                 self.enemy_bullets.remove(bullet)
+                continue
 
+            # 3. Collision with player
+            if self.starship.hitbox.colliderect(bullet.rect):
+                self.starship.on_hit()
+                # optionally remove bullet
+                # self.enemy_bullets.remove(bullet)
+                continue
         # ...after bullets / enemy updates
         # inside update(...), AFTER self.controller.update()
+
+
 
 
     def draw(self, state):

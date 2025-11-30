@@ -18,13 +18,25 @@ class Enemy():
         self.enemyBullets: list = []
         self.exp: int = 0
         self.credits: int = 0
+        self.hitbox = pygame.Rect(self.x, self.y, self.width, self.height)
+
 
 
 
     def update(self):
-       pass
+        self.update_hitbox()
 
     def draw(self, surface: "pygame.Surface") -> None:
         pygame.draw.rect(surface, self.color, (self.x, self.y, self.width, self.height))
 
+    def update_hitbox(self) -> None:
+        self.hitbox.update(
+            int(self.x),
+            int(self.y),
+            int(self.width),
+            int(self.height),
+        )
 
+    def on_hit(self):
+        print("ENEMY HIT!")
+        self.color = (255, 255, 0)  # yellow forever

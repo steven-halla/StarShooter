@@ -66,6 +66,7 @@ class BileSpitter(Enemy):
         self.enemyBullets.append(bullet)
 
     def update(self) -> None:
+        super().update()
         """Handle firing every 3 seconds + move bullets."""
         self.moveAI()
 
