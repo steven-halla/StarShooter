@@ -10,6 +10,7 @@ class KeyBoardControls:
         self.isExitPressed: bool = False
         self.isFPressed: bool = False
         self.isQPressed: bool = False
+        self.isQProcessed: bool = False
 
     def update(self) -> None:
         for event in pygame.event.get():
@@ -43,6 +44,7 @@ class KeyBoardControls:
                     self.isFPressed = False
                 elif event.key == pygame.K_q:
                     self.isQPressed = False
+                    self.isQProcessed = False
 
     @property
     def left_button(self) -> bool:
@@ -67,4 +69,7 @@ class KeyBoardControls:
 
     @property
     def q_button(self) -> bool:
-        return self.isQPressed
+        if self.isQPressed and not self.isQProcessed:
+            self.isQProcessed = True
+            return True
+        return False

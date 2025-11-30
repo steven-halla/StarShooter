@@ -25,6 +25,7 @@ class VerticalBattleScreen:
         self.bile_spitter: BileSpitter = BileSpitter()
         self.ENEMY_HORIZONTAL_CENTER_DIVISOR: int = 2
         self.ENEMY_TOP_OFFSET: int = 50
+        self.was_q_pressed_last_frame: bool = False
 
         self.player_bullets: list = []
         self.enemy_bullets: list = []   # Bullet objects ONLY
@@ -58,7 +59,7 @@ class VerticalBattleScreen:
         self.bile_spitter.x = window_width // self.ENEMY_HORIZONTAL_CENTER_DIVISOR
         self.bile_spitter.y = self.ENEMY_TOP_OFFSET
 
-    def _clamp_starship_to_screen(self) -> None:
+    def clamp_starship_to_screen(self) -> None:
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
         max_x = window_width - self.starship.width
         max_y = window_height - self.starship.height
@@ -91,31 +92,58 @@ class VerticalBattleScreen:
             self.mover.player_move_up(self.starship)
         if self.controller.down_button:
             self.mover.player_move_down(self.starship)
-        if self.controller.q_button:
-            print("Mew")
 
-        self._clamp_starship_to_screen()
+        if self.controller.q_button and not self.was_q_pressed_last_frame:
+            # Q was just pressed this frame
+            self.scrollScreen = not self.scrollScreen
 
-        # -------------------------
-        # PLAYER BULLET LOGIC (UNCHANGED)
-        # -------------------------
+        # remember Q state for next frame
+        self.was_q_pressed_last_frame = self.controller.q_button
+
+        # --- scroll while scrollScreen is True ---
+        if self.scrollScreen:
+            self.update_camera_scroll(state)
+
+
+        self.clamp_starship_to_screen()
+
+
+
+        # NEED weapon types later on
         if self.controller.main_weapon_button:
-            bullet_x = (
-                self.starship.x
-                + self.starship.width // 2
-                - Bullet.DEFAULT_WIDTH // 2
-            )
+            center_x = self.starship.x + self.starship.width // 2 + 14
             bullet_y = self.starship.y
 
-            new_bullet = Bullet(bullet_x, bullet_y)
-            self.player_bullets.append(new_bullet)
+            spread = self.starship.bullet_spread_offset
+            count = self.starship.bullets_per_shot
 
-            for bullet in list(self.player_bullets):
-                bullet.update()
-                if bullet.y + bullet.height < 0:
-                    self.player_bullets.remove(bullet)
+            # Example: 3 bullets = [-1, 0, +1]
+            # Example: 5 bullets = [-2, -1, 0, +1, +2]
+            start_index = -(count // 2)
 
-            print(f"player_bullets count = {len(self.player_bullets)}")
+            for i in range(count):
+                offset = (start_index + i) * spread
+                bullet_x = center_x + offset - Bullet.DEFAULT_WIDTH // 2
+
+                new_bullet = Bullet(bullet_x, bullet_y)
+                self.player_bullets.append(new_bullet)
+        # if self.controller.main_weapon_button:
+        #     bullet_x = (
+        #         self.starship.x
+        #         + self.starship.width // 2
+        #         - Bullet.DEFAULT_WIDTH // 2
+        #     )
+        #     bullet_y = self.starship.y
+        #
+        #     new_bullet = Bullet(bullet_x, bullet_y)
+        #     self.player_bullets.append(new_bullet)
+        #
+        #     for bullet in list(self.player_bullets):
+        #         bullet.update()
+        #         if bullet.y + bullet.height < 0:
+        #             self.player_bullets.remove(bullet)
+        #
+        #     print(f"player_bullets count = {len(self.player_bullets)}")
 
         for bullet in self.player_bullets:
             bullet.update()
