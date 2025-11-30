@@ -48,6 +48,7 @@ class VerticalBattleScreen:
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
         # start at the BOTTOM of the world
         self.camera_y: float = self.WORLD_HEIGHT - window_height
+        self.playerDead: bool = False
 
 
 
@@ -80,6 +81,9 @@ class VerticalBattleScreen:
             self.starship.y = max_y
 
     def update(self, state):
+        print(self.starship.shipHealth)
+        if self.starship.shipHealth <= 0:
+            self.playerDead = True
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
 
         if self.isStart:
@@ -110,7 +114,10 @@ class VerticalBattleScreen:
 
 
         self.clamp_starship_to_screen()
-        self.starship.update_hitbox()
+        if self.playerDead == False:
+            self.starship.update()
+
+        self.starship.update()
 
 
 
@@ -260,7 +267,8 @@ class VerticalBattleScreen:
         # state.DISPLAY.fill(GlobalConstants.BLACK)
         self.draw_scrolling_background(state.DISPLAY)
 
-        self.starship.draw(state.DISPLAY)
+        if self.playerDead == False:
+            self.starship.draw(state.DISPLAY)
         # self.bile_spitter.draw(state.DISPLAY)
         for enemy in self.bileSpitterGroup:
             enemy.draw(state.DISPLAY)

@@ -34,6 +34,7 @@ class BileSpitter(Enemy):
         self.enemyHealth: int = 10
         self.exp: int = 1
         self.credits: int = 5
+        self.bileDamage: int = 100
 
         # bullets held locally until battle screen copies them
         self.enemyBullets: list[Bullet] = []

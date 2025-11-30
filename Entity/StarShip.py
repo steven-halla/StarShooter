@@ -33,6 +33,7 @@ class StarShip():
             self.height
         )
         self.was_hit: bool = False
+        self.shipHealth: int = 50
 
 
     # new ability : Dodge using shimmer ability you can dodge incoming fire
@@ -42,8 +43,7 @@ class StarShip():
     # deflect them, use your ship to protect the base while shields and weapons come back online.
 
     def update(self) -> None:
-        pass
-
+        self.update_hitbox()
     def draw(self, surface: "pygame.Surface") -> None:
         pygame.draw.rect(surface, self.color, (self.x, self.y, self.width, self.height))
 
