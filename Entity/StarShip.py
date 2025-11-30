@@ -21,6 +21,9 @@ class StarShip():
         # spread stats
         self.bullet_spread_offset: int = 30   # distance left/right from center
         self.bullets_per_shot: int = 2       # e.g. left, center, right
+        self.bullet_vertical_spacing: int = 22  # how far apart they are vertically
+        self.bullet_fire_interval_seconds = .05 # .05 is 20 bullets per second
+        self.bullet_timer = Timer(self.bullet_fire_interval_seconds)
 
     def update(self) -> None:
         pass

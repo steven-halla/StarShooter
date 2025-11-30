@@ -110,15 +110,13 @@ class VerticalBattleScreen:
 
 
         # NEED weapon types later on
-        if self.controller.main_weapon_button:
+        # NEED weapon types later on
+        if self.controller.main_weapon_button and self.starship.bullet_timer.is_ready():
             center_x = self.starship.x + self.starship.width // 2 + 14
             bullet_y = self.starship.y
 
             spread = self.starship.bullet_spread_offset
             count = self.starship.bullets_per_shot
-
-            # Example: 3 bullets = [-1, 0, +1]
-            # Example: 5 bullets = [-2, -1, 0, +1, +2]
             start_index = -(count // 2)
 
             for i in range(count):
@@ -127,6 +125,11 @@ class VerticalBattleScreen:
 
                 new_bullet = Bullet(bullet_x, bullet_y)
                 self.player_bullets.append(new_bullet)
+
+            print(f"player_bullets count = {len(self.player_bullets)}")
+
+            # VERY IMPORTANT: reset the timer after firing
+            self.starship.bullet_timer.reset()
         # if self.controller.main_weapon_button:
         #     bullet_x = (
         #         self.starship.x
