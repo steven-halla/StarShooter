@@ -81,7 +81,8 @@ class VerticalBattleScreen:
             self.starship.y = max_y
 
     def update(self, state):
-        print(self.starship.shipHealth)
+        # print(self.starship.shipHealth)
+        # print("SCREEN SIZE =", GlobalConstants.WINDOWS_SIZE)
         if self.starship.shipHealth <= 0:
             self.playerDead = True
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
@@ -139,7 +140,7 @@ class VerticalBattleScreen:
                 new_bullet = Bullet(bullet_x, bullet_y)
                 self.player_bullets.append(new_bullet)
 
-            print(f"player_bullets count = {len(self.player_bullets)}")
+            # print(f"player_bullets count = {len(self.player_bullets)}")
 
             # VERY IMPORTANT: reset the timer after firing
             self.starship.bullet_timer.reset()
@@ -217,7 +218,7 @@ class VerticalBattleScreen:
                 enemy.update_hitbox()
                 if bullet.collide_with_rect(enemy.hitbox):
                     enemy.enemyHealth -= self.starship.bulletDamage
-                    print("Enemy HP =", enemy.enemyHealth)
+                    # print("Enemy HP =", enemy.enemyHealth)
 
                     if not bullet.is_active:
                         self.player_bullets.remove(bullet)
@@ -243,7 +244,7 @@ class VerticalBattleScreen:
             if bullet.collide_with_rect(self.starship.hitbox):
                 # apply damage
                 self.starship.shipHealth -= bullet.damage
-                print(f"Ship HP = {self.starship.shipHealth}")
+                # print(f"Ship HP = {self.starship.shipHealth}")
 
                 # color / hit reaction
                 self.starship.on_hit()
@@ -259,6 +260,7 @@ class VerticalBattleScreen:
 
 
     def draw(self, state):
+
         # state.DISPLAY.fill(GlobalConstants.BLACK)
         self.draw_scrolling_background(state.DISPLAY)
 

@@ -38,5 +38,5 @@ class Enemy():
         )
 
     def on_hit(self):
-        print("ENEMY HIT!")
+        # print("ENEMY HIT!")
         self.color = (255, 255, 0)  # yellow forever

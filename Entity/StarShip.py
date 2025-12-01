@@ -54,6 +54,6 @@ class StarShip():
         """Called when any bullet collides with the player."""
         if not self.was_hit:
             self.was_hit = True
-            print("j;fdlsajlfjdsajfl;jsa;f")
+            # print("j;fdlsajlfjdsajfl;jsa;f")
             self.color = GlobalConstants.YELLOW  # permanently yellow
 
