@@ -13,23 +13,40 @@ class LevelOne(VerticalBattleScreen):
 
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level1.tmx")
 
+
+        window_width, window_height = GlobalConstants.WINDOWS_SIZE
+
+        # self.camera_y = self.WORLD_HEIGHT - window_height
+        # if self.camera_y < 0:
+        #     self.camera_y = 0
+
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
 
+        # below is y POosition of map
+        self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
 
+        window_width, window_height = GlobalConstants.WINDOWS_SIZE
 
+        # look at the bottom of the map
+        self.camera_y = self.WORLD_HEIGHT - window_height
+
+        # keep the Camera object in sync too
+        self.camera.world_height = self.WORLD_HEIGHT
+        self.camera.y = float(self.camera_y)
 
 
 
 
     def start(self, state) -> None:
+
         tile_size: int = self.tiled_map.tileheight
         map_width_tiles: int = self.tiled_map.width
         map_height_tiles: int = self.tiled_map.height
 
-        # you can still tweak these later; leaving your current logic as-is
-        bottom_row: int = map_height_tiles + 100
+        # below is player position on map
+        bottom_row: int = map_height_tiles - 180
         start_col: int = map_width_tiles // 20
 
         player_start_x: int = tile_size * start_col
@@ -42,6 +59,22 @@ class LevelOne(VerticalBattleScreen):
             f"Starship start at: col={start_col}, row={bottom_row} | "
             f"x={self.starship.x}, y={self.starship.y}, map={map_width_tiles}x{map_height_tiles} tiles"
         )
+        # print(
+        #     f"Map = {self.map_width_tiles}x{self.map_height_tiles} tiles, "
+        #     f"world height = {self.WORLD_HEIGHT}"
+        # )
+        # line camera up with player, clamped to world
+        window_width, window_height = GlobalConstants.WINDOWS_SIZE
+
+        # self.camera_y = max(
+        #     0,
+        #     min(
+        #         self.starship.y - (window_height - self.starship.height),
+        #         self.WORLD_HEIGHT - window_height,
+        #     ),
+        # )
+        # self.camera.y = float(self.camera_y)
+
 
     def draw(self, state):
         super().draw(state)
@@ -103,21 +136,19 @@ class LevelOne(VerticalBattleScreen):
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
         bg_layer = self.tiled_map.get_layer_by_name("background")
 
-        zoom = self.camera.zoom
-        scaled_size = int(tile_size * zoom)
-
         for col, row, image in bg_layer.tiles():
             world_x = col * tile_size
             world_y = row * tile_size
 
-            screen_x = self.camera.world_to_screen_x(world_x)
-            screen_y = self.camera.world_to_screen_y(world_y)
+            # only apply vertical camera offset, NO zoom here
+            screen_x = world_x
+            screen_y = world_y - self.camera_y
 
-            if screen_y + scaled_size < 0 or screen_y > window_height:
+            # cull off-screen tiles
+            if screen_y + tile_size < 0 or screen_y > window_height:
                 continue
 
-            scaled_image = pygame.transform.scale(image, (scaled_size, scaled_size))
-            surface.blit(scaled_image, (screen_x, screen_y))
+            surface.blit(image, (screen_x, screen_y))
 
     def draw_background(self, surface: Surface) -> None:
         # use the tiled background instead of bands
