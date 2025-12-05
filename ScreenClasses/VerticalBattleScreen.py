@@ -69,12 +69,17 @@ class VerticalBattleScreen:
 
     def clamp_starship_to_screen(self) -> None:
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
-        max_x = window_width - self.starship.width
-        max_y = window_height - self.starship.height
+        zoom = self.camera.zoom
+
+        # visible world size given the zoom
+        visible_width = window_width / zoom
+        visible_height = window_height / zoom
+
+        max_x = visible_width - self.starship.width
+        max_y = visible_height - self.starship.height
 
         if self.starship.x < self.MIN_X:
             self.starship.x = self.MIN_X
-
         elif self.starship.x > max_x:
             self.starship.x = max_x
 
