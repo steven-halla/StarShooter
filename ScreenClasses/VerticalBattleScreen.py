@@ -266,6 +266,9 @@ class VerticalBattleScreen:
         # 1) draw everything onto an off-screen surface at normal size
         scene_surface = pygame.Surface((window_width, window_height))
 
+        # 🔹 NEW: let child pick the background (tiles or bands)
+        self.draw_background(scene_surface)
+
         # background
         # self.draw_scrolling_background(scene_surface)
 
@@ -293,7 +296,11 @@ class VerticalBattleScreen:
         state.DISPLAY.fill(GlobalConstants.BLACK)
         state.DISPLAY.blit(scaled_scene, (0, 0))
 
-        pygame.display.flip()
+        # pygame.display.flip()
+
+    def draw_background(self, surface: Surface) -> None:
+        """Default background = the old scrolling bands."""
+        self.draw_scrolling_background(surface)
 
     def update_camera_scroll(self, state) -> None:
         _, window_height = GlobalConstants.WINDOWS_SIZE

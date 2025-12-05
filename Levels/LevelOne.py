@@ -1,5 +1,6 @@
 import pygame
 import pytmx
+from pygame import Surface
 
 from Constants.GlobalConstants import GlobalConstants
 from ScreenClasses.Camera import Camera
@@ -44,7 +45,7 @@ class LevelOne(VerticalBattleScreen):
 
     def draw(self, state):
         super().draw(state)
-        self.draw_tiled_background(state)
+        # self.draw_tiled_background(state)
 
         # if not self.playerDead:
         #     self.starship.draw(state.DISPLAY)
@@ -97,7 +98,7 @@ class LevelOne(VerticalBattleScreen):
 
         pygame.display.flip()
 
-    def draw_tiled_background(self, state) -> None:
+    def draw_tiled_background(self, surface: Surface) -> None:
         tile_size = self.tile_size
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
         bg_layer = self.tiled_map.get_layer_by_name("background")
@@ -109,13 +110,15 @@ class LevelOne(VerticalBattleScreen):
             world_x = col * tile_size
             world_y = row * tile_size
 
-            # 🔹 world -> screen using camera pattern we stole
             screen_x = self.camera.world_to_screen_x(world_x)
             screen_y = self.camera.world_to_screen_y(world_y)
 
-            # cull if completely off-screen
             if screen_y + scaled_size < 0 or screen_y > window_height:
                 continue
 
             scaled_image = pygame.transform.scale(image, (scaled_size, scaled_size))
-            state.DISPLAY.blit(scaled_image, (screen_x, screen_y))
+            surface.blit(scaled_image, (screen_x, screen_y))
+
+    def draw_background(self, surface: Surface) -> None:
+        # use the tiled background instead of bands
+        self.draw_tiled_background(surface)
