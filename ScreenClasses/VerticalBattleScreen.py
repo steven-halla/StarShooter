@@ -7,6 +7,7 @@ from Controller.KeyBoardControls import KeyBoardControls
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.StarShip import StarShip
 from Movement.MoveRectangle import MoveRectangle
+from ScreenClasses.Camera import Camera
 from Weapons.Bullet import Bullet
 
 
@@ -14,6 +15,7 @@ class VerticalBattleScreen:
     def __init__(self):
         self.starship: StarShip = StarShip()
         self.isStart: bool = True
+        self.playerDead: bool = False
         self.mover: MoveRectangle = MoveRectangle()
         self.controller: KeyBoardControls = KeyBoardControls()
         self.STARSHIP_HORIZONTAL_CENTER_DIVISOR: int = 2
@@ -34,23 +36,24 @@ class VerticalBattleScreen:
         self.WORLD_HEIGHT: int = GlobalConstants.WINDOWS_SIZE[1] * 3  # 3 screens tall
         self.SCROLL_SPEED_PER_SECOND: float = 100.0
         self.camera_y: float = 0.0
+        self.SCROLL_SPEED_PER_FRAME: float = 2.0
 
-        self.BAND_COLORS: list[tuple[int, int, int]] = [
-            GlobalConstants.PINK,
-            GlobalConstants.GREY,
-            GlobalConstants.BLACK,
-        ]
+        # self.BAND_COLORS: list[tuple[int, int, int]] = [
+        #     GlobalConstants.PINK,
+        #     GlobalConstants.GREY,
+        #     GlobalConstants.BLACK,
+        # ]
 
-        self.WORLD_HEIGHT: int = GlobalConstants.WINDOWS_SIZE[1] * 3  # 3 screens tall
-
-        # scrolling
-        self.SCROLL_SPEED_PER_FRAME: float = 2.0  # same as: scroll_speed = 2.0
+        self.WORLD_HEIGHT = GlobalConstants.WINDOWS_SIZE[1] * 3
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
-        # start at the BOTTOM of the world
-        self.camera_y: float = self.WORLD_HEIGHT - window_height
-        self.playerDead: bool = False
 
-
+        self.camera = Camera(
+            window_width=window_width,
+            window_height=window_height,
+            world_height=self.WORLD_HEIGHT,
+            scroll_speed_per_frame=self.SCROLL_SPEED_PER_FRAME,
+            initial_zoom=2.0,  # 🔥 everything 2x by default
+        )
 
     def start(self, state):
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
@@ -256,27 +259,39 @@ class VerticalBattleScreen:
         # ...after bullets / enemy updates
         # inside update(...), AFTER self.controller.update()
 
+    def draw(self, state) -> None:
+        window_width, window_height = GlobalConstants.WINDOWS_SIZE
+        zoom: float = self.camera.zoom  # 👈 uses your zoom value (2.0)
 
+        # 1) draw everything onto an off-screen surface at normal size
+        scene_surface = pygame.Surface((window_width, window_height))
 
+        # background
+        # self.draw_scrolling_background(scene_surface)
 
-    def draw(self, state):
+        # player / enemies / bullets
+        if not self.playerDead:
+            self.starship.draw(scene_surface)
 
-        # state.DISPLAY.fill(GlobalConstants.BLACK)
-        self.draw_scrolling_background(state.DISPLAY)
-
-        if self.playerDead == False:
-            self.starship.draw(state.DISPLAY)
-        # self.bile_spitter.draw(state.DISPLAY)
         for enemy in self.bileSpitterGroup:
-            enemy.draw(state.DISPLAY)
+            enemy.draw(scene_surface)
 
-        # draw player bullets
         for bullet in self.player_bullets:
-            bullet.draw(state.DISPLAY)
+            bullet.draw(scene_surface)
 
-        # draw enemy bullets
         for bullet in self.enemy_bullets:
-            bullet.draw(state.DISPLAY)
+            bullet.draw(scene_surface)
+
+        # 2) scale that whole scene by zoom (2×)
+        scaled_width = int(window_width * zoom)
+        scaled_height = int(window_height * zoom)
+        scaled_scene = pygame.transform.scale(
+            scene_surface, (scaled_width, scaled_height)
+        )
+
+        # 3) blit the zoomed scene to the real display (top-left; you can center if you want)
+        state.DISPLAY.fill(GlobalConstants.BLACK)
+        state.DISPLAY.blit(scaled_scene, (0, 0))
 
         pygame.display.flip()
 
@@ -298,21 +313,21 @@ class VerticalBattleScreen:
 
         band_height: float = window_height  # each band is one screen tall
 
-        for index, color in enumerate(self.BAND_COLORS):
-            band_top: float = index * band_height
-            band_bottom: float = band_top + band_height
-
-            visible_top: float = max(band_top, top_world_y)
-            visible_bottom: float = min(band_bottom, bottom_world_y)
-
-            if visible_bottom <= visible_top:
-                continue
-
-            screen_y: float = visible_top - top_world_y
-            rect_height: float = visible_bottom - visible_top
-
-            pygame.draw.rect(
-                surface,
-                color,
-                pygame.Rect(0, int(screen_y), window_width, int(rect_height)),
-            )
+        # for index, color in enumerate(self.BAND_COLORS):
+        #     band_top: float = index * band_height
+        #     band_bottom: float = band_top + band_height
+        #
+        #     visible_top: float = max(band_top, top_world_y)
+        #     visible_bottom: float = min(band_bottom, bottom_world_y)
+        #
+        #     if visible_bottom <= visible_top:
+        #         continue
+        #
+        #     screen_y: float = visible_top - top_world_y
+        #     rect_height: float = visible_bottom - visible_top
+        #
+        #     pygame.draw.rect(
+        #         surface,
+        #         color,
+        #         pygame.Rect(0, int(screen_y), window_width, int(rect_height)),
+        #     )

@@ -6,8 +6,8 @@ from Movement.MoveRectangle import MoveRectangle
 
 class StarShip():
     def __init__(self):
-        self.height: int = 50
-        self.width: int = 50
+        self.height: int = 16
+        self.width: int = 16
         self.color: tuple[int, int, int] = GlobalConstants.BLUE
         self.x: int = 0
         self.y: int = 0
