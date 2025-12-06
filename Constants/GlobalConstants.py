@@ -8,7 +8,7 @@ class GlobalConstants():
     BASE_WINDOW_HEIGHT: int = 800
     BASE_WINDOW_WIDTH: int = 896
     WINDOWS_SIZE: tuple[int, int] = (BASE_WINDOW_WIDTH, BASE_WINDOW_HEIGHT)
-
+    #colors
     BLACK: tuple[int, int, int] = (0, 0, 0)
     BLUE: tuple[int, int, int] = (0, 0, 255)
     RED: tuple[int, int, int] = (255, 0, 0)
@@ -16,6 +16,8 @@ class GlobalConstants():
     YELLOW: tuple[int, int, int] = (255, 255, 0)
     GREY: tuple[int, int, int] = (128, 128, 128)
     PINK: tuple[int, int, int] = (255, 105, 180)
+    SKYBLUE = (135, 206, 235)
+
     FPS: int = 60
     LOWEXP: int = 10
     MEDIUMEXP: int = 20

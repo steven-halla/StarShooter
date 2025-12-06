@@ -26,8 +26,8 @@ class Enemy():
     def update(self):
         self.update_hitbox()
 
-    def draw(self, surface: "pygame.Surface") -> None:
-        pygame.draw.rect(surface, self.color, (self.x, self.y, self.width, self.height))
+    # def draw(self, surface: "pygame.Surface") -> None:
+    #     pygame.draw.rect(surface, self.color, (self.x, self.y, self.width, self.height))
 
     def update_hitbox(self) -> None:
         self.hitbox.update(

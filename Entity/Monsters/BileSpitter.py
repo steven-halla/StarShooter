@@ -20,7 +20,7 @@ class BileSpitter(Enemy):
         self.color: tuple[int, int, int] = GlobalConstants.RED
 
         # bullet appearance
-        self.bulletColor: tuple[int, int, int] = GlobalConstants.YELLOW
+        self.bulletColor: tuple[int, int, int] = GlobalConstants.SKYBLUE
         self.bulletWidth: int = 20
         self.bulletHeight: int = 20
 
@@ -85,15 +85,17 @@ class BileSpitter(Enemy):
         for bullet in self.enemyBullets:
             bullet.y += bullet.speed
 
+        self.update_hitbox()
 
 
-    def draw(self, surface: "pygame.Surface") -> None:
-        """Draw the enemy rectangle."""
-        pygame.draw.rect(
-            surface,
-            self.color,
-            (self.x, self.y, self.width, self.height)
-        )
+
+    # def draw(self, surface: "pygame.Surface") -> None:
+    #     """Draw the enemy rectangle."""
+    #     pygame.draw.rect(
+    #         surface,
+    #         self.color,
+    #         (self.x, self.y, self.width, self.height)
+    #     )
 
     def moveAI(self) -> None:
         """Simple AI: move left/right using MoveRectangle helpers."""
@@ -125,3 +127,6 @@ class BileSpitter(Enemy):
         elif self.x + self.width >= window_width - self.edge_padding:
             self.x = window_width - self.edge_padding - self.width
             self.move_direction = -1  # go left
+
+
+
