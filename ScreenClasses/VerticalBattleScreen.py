@@ -23,28 +23,19 @@ class VerticalBattleScreen:
         self.MIN_X: int = 0
         self.MIN_Y: int = 0
         self.scrollScreen: bool = False
-        self.bileSpitterGroup: list[BileSpitter] = []
 
-        self.bile_spitter: BileSpitter = BileSpitter()
         self.ENEMY_HORIZONTAL_CENTER_DIVISOR: int = 2
         self.ENEMY_TOP_OFFSET: int = 50
         self.was_q_pressed_last_frame: bool = False
 
         self.player_bullets: list = []
-        self.enemy_bullets: list = []   # Bullet objects ONLY
+        self.enemy_bullets: list = []     # All enemy bullets go here
 
-        self.WORLD_HEIGHT: int = GlobalConstants.WINDOWS_SIZE[1] * 3  # 3 screens tall
+        self.WORLD_HEIGHT: int = GlobalConstants.WINDOWS_SIZE[1] * 3
         self.SCROLL_SPEED_PER_SECOND: float = 100.0
         self.camera_y: float = 0.0
-        self.SCROLL_SPEED_PER_FRAME: float = 2.0
+        self.SCROLL_SPEED_PER_FRAME: float = 111.0
 
-        # self.BAND_COLORS: list[tuple[int, int, int]] = [
-        #     GlobalConstants.PINK,
-        #     GlobalConstants.GREY,
-        #     GlobalConstants.BLACK,
-        # ]
-
-        self.WORLD_HEIGHT = GlobalConstants.WINDOWS_SIZE[1] * 3
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
 
         self.camera = Camera(
@@ -52,8 +43,13 @@ class VerticalBattleScreen:
             window_height=window_height,
             world_height=self.WORLD_HEIGHT,
             scroll_speed_per_frame=self.SCROLL_SPEED_PER_FRAME,
-            initial_zoom=2.0,  # 🔥 everything 2x by default
+            initial_zoom=2.0,
         )
+
+        # IMPORTANT: we no longer have a default enemy
+        # Level classes (like LevelOne) define bileSpitterGroup
+        # so VerticalBattleScreen does NOT create enemies here.
+
 
     def start(self, state):
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
@@ -61,17 +57,11 @@ class VerticalBattleScreen:
         self.starship.x = window_width // self.STARSHIP_HORIZONTAL_CENTER_DIVISOR
         self.starship.y = window_height - self.STARSHIP_BOTTOM_OFFSET
 
-        self.bile_spitter.x = window_width // self.ENEMY_HORIZONTAL_CENTER_DIVISOR
-        self.bile_spitter.y = self.ENEMY_TOP_OFFSET
-
-        if self.bile_spitter not in self.bileSpitterGroup:
-            self.bileSpitterGroup.append(self.bile_spitter)
 
     def clamp_starship_to_screen(self) -> None:
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
         zoom = self.camera.zoom
 
-        # visible world size given the zoom
         visible_width = window_width / zoom
         visible_height = window_height / zoom
 
@@ -88,12 +78,10 @@ class VerticalBattleScreen:
         elif self.starship.y > max_y:
             self.starship.y = max_y
 
+
     def update(self, state):
-        # print(self.starship.shipHealth)
-        # print("SCREEN SIZE =", GlobalConstants.WINDOWS_SIZE)
         if self.starship.shipHealth <= 0:
             self.playerDead = True
-        window_width, window_height = GlobalConstants.WINDOWS_SIZE
 
         if self.isStart:
             self.start(state)
@@ -101,7 +89,7 @@ class VerticalBattleScreen:
 
         self.controller.update()
 
-        if self.playerDead == False:
+        if not self.playerDead:
             if self.controller.left_button:
                 self.mover.player_move_left(self.starship)
             if self.controller.right_button:
@@ -112,28 +100,22 @@ class VerticalBattleScreen:
                 self.mover.player_move_down(self.starship)
 
             if self.controller.q_button and not self.was_q_pressed_last_frame:
-                # Q was just pressed this frame
                 self.scrollScreen = not self.scrollScreen
 
-        # remember Q state for next frame
         self.was_q_pressed_last_frame = self.controller.q_button
 
-        # --- scroll while scrollScreen is True ---
-        if self.scrollScreen:
-            self.update_camera_scroll(state)
-
-
         self.clamp_starship_to_screen()
-        if self.playerDead == False:
+        if not self.playerDead:
             self.starship.update()
 
-        self.starship.update()
-
-
-
-        # NEED weapon types later on
-        # NEED weapon types later on
-        if self.controller.main_weapon_button and self.starship.bullet_timer.is_ready() and self.playerDead == False:
+        # -------------------------
+        # PLAYER SHOOTING
+        # -------------------------
+        if (
+            self.controller.main_weapon_button and
+            self.starship.bullet_timer.is_ready() and
+            not self.playerDead
+        ):
             center_x = self.starship.x + self.starship.width // 2 + 14
             bullet_y = self.starship.y
 
@@ -148,141 +130,82 @@ class VerticalBattleScreen:
                 new_bullet = Bullet(bullet_x, bullet_y)
                 self.player_bullets.append(new_bullet)
 
-            # print(f"player_bullets count = {len(self.player_bullets)}")
-
-            # VERY IMPORTANT: reset the timer after firing
             self.starship.bullet_timer.reset()
-        # if self.controller.main_weapon_button:
-        #     bullet_x = (
-        #         self.starship.x
-        #         + self.starship.width // 2
-        #         - Bullet.DEFAULT_WIDTH // 2
-        #     )
-        #     bullet_y = self.starship.y
-        #
-        #     new_bullet = Bullet(bullet_x, bullet_y)
-        #     self.player_bullets.append(new_bullet)
-        #
-        #     for bullet in list(self.player_bullets):
-        #         bullet.update()
-        #         if bullet.y + bullet.height < 0:
-        #             self.player_bullets.remove(bullet)
-        #
-        #     print(f"player_bullets count = {len(self.player_bullets)}")
 
-
-        for bullet in self.player_bullets:
-            bullet.update()
-            if bullet.y + bullet.height < 0:
-                self.player_bullets.remove(bullet)
-
-
-                # remove bullet after hit IF you want
-                # self.enemy_bullets.remove(bullet)
-        # print("player_bullets count =", len(self.player_bullets))
-
-        # -------------------------
-        # ENEMY SHOOTING (FIXED)
-        # -------------------------
-        # self.bile_spitter.update()
-        for enemy in self.bileSpitterGroup:
-            enemy.update()
-
-        # Transfer NEW enemy bullets to the battle screen
-        if self.bile_spitter.enemyBullets:
-            self.enemy_bullets.extend(self.bile_spitter.enemyBullets)
-            self.bile_spitter.enemyBullets.clear()
-
-        # # --- PLAYER BULLETS ---
-        # for bullet in list(self.player_bullets):
-        #
-        #     bullet.update()  # FIRST move the bullet
-        #
-        #     # remove if offscreen
-        #     if bullet.y + bullet.height < 0:
-        #         self.player_bullets.remove(bullet)
-        #         continue
-        #
-        #     # NOW collision works because bullet.rect is correct
-        #     if self.bile_spitter.hitbox.colliderect(bullet.rect):
-        #         print("HIT ENEMY!")
-        #         self.bile_spitter.on_hit()
-        #         self.player_bullets.remove(bullet)
-        #         continue
-        # --- PLAYER BULLETS ---
+        # Move player bullets
         for bullet in list(self.player_bullets):
-            # 1) move the bullet first
             bullet.update()
+            if bullet.y + bullet.height < 0:
+                self.player_bullets.remove(bullet)
 
-            # 2) remove if off the top of the screen
+        # -------------------------
+        # ENEMY UPDATE + SHOOTING
+        # -------------------------
+        if hasattr(self, "bileSpitterGroup"):
+            for enemy in self.bileSpitterGroup:
+                enemy.update()
+                # Transfer bullets from each enemy
+                if enemy.enemyBullets:
+                    self.enemy_bullets.extend(enemy.enemyBullets)
+                    enemy.enemyBullets.clear()
+
+        # -------------------------
+        # BULLET COLLISION (PLAYER → ENEMY)
+        # -------------------------
+        for bullet in list(self.player_bullets):
+            bullet.update()
             if bullet.y + bullet.height < 0:
                 self.player_bullets.remove(bullet)
                 continue
 
-            # 3) check collision against ALL bile spitters in the group
-            hit_something = False
+            if hasattr(self, "bileSpitterGroup"):
+                for enemy in list(self.bileSpitterGroup):
+                    enemy.update_hitbox()
+                    if bullet.collide_with_rect(enemy.hitbox):
+                        enemy.enemyHealth -= self.starship.bulletDamage
 
-            for enemy in list(self.bileSpitterGroup):
-                enemy.update_hitbox()
-                if bullet.collide_with_rect(enemy.hitbox):
-                    enemy.enemyHealth -= self.starship.bulletDamage
-                    # print("Enemy HP =", enemy.enemyHealth)
+                        if not bullet.is_active:
+                            self.player_bullets.remove(bullet)
 
-                    if not bullet.is_active:
-                        self.player_bullets.remove(bullet)
+                        if enemy.enemyHealth <= 0:
+                            self.bileSpitterGroup.remove(enemy)
 
-                    if enemy.enemyHealth <= 0:
-                        self.bileSpitterGroup.remove(enemy)
-                    break  # stop checking this bullet vs other enemies
+                        break
 
-            if hit_something:
-                continue
+        # -------------------------
+        # ENEMY BULLETS → PLAYER
+        # -------------------------
+        _, window_height = GlobalConstants.WINDOWS_SIZE
 
-        # Update enemy bullets and remove off-screen
-        # Update enemy bullets and remove off-screen
         for bullet in list(self.enemy_bullets):
             bullet.update()
 
-            # 1) Off-screen cleanup
             if bullet.y > window_height:
                 self.enemy_bullets.remove(bullet)
                 continue
 
-            # 2) Collision with player
             if bullet.collide_with_rect(self.starship.hitbox):
-                # apply damage
                 self.starship.shipHealth -= bullet.damage
-                # print(f"Ship HP = {self.starship.shipHealth}")
-
-                # color / hit reaction
                 self.starship.on_hit()
 
-                # if bullet deactivates itself, also yank it from the list
                 if not bullet.is_active:
                     self.enemy_bullets.remove(bullet)
-                continue
-        # ...after bullets / enemy updates
-        # inside update(...), AFTER self.controller.update()
+
 
     def draw(self, state) -> None:
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
-        zoom: float = self.camera.zoom  # 👈 uses your zoom value (2.0)
+        zoom = self.camera.zoom
 
-        # 1) draw everything onto an off-screen surface at normal size
         scene_surface = pygame.Surface((window_width, window_height))
 
-        # 🔹 NEW: let child pick the background (tiles or bands)
         self.draw_background(scene_surface)
 
-        # background
-        # self.draw_scrolling_background(scene_surface)
-
-        # player / enemies / bullets
         if not self.playerDead:
             self.starship.draw(scene_surface)
 
-        for enemy in self.bileSpitterGroup:
-            enemy.draw(scene_surface)
+        if hasattr(self, "bileSpitterGroup"):
+            for enemy in self.bileSpitterGroup:
+                enemy.draw(scene_surface)
 
         for bullet in self.player_bullets:
             bullet.draw(scene_surface)
@@ -290,56 +213,31 @@ class VerticalBattleScreen:
         for bullet in self.enemy_bullets:
             bullet.draw(scene_surface)
 
-        # 2) scale that whole scene by zoom (2×)
         scaled_width = int(window_width * zoom)
         scaled_height = int(window_height * zoom)
         scaled_scene = pygame.transform.scale(
             scene_surface, (scaled_width, scaled_height)
         )
 
-        # 3) blit the zoomed scene to the real display (top-left; you can center if you want)
         state.DISPLAY.fill(GlobalConstants.BLACK)
         state.DISPLAY.blit(scaled_scene, (0, 0))
 
-        # pygame.display.flip()
 
     def draw_background(self, surface: Surface) -> None:
-        """Default background = the old scrolling bands."""
         self.draw_scrolling_background(surface)
+
 
     def update_camera_scroll(self, state) -> None:
         _, window_height = GlobalConstants.WINDOWS_SIZE
 
-        max_camera_y: float = self.WORLD_HEIGHT - window_height
-        min_camera_y: float = 0.0
+        max_camera_y = self.WORLD_HEIGHT - window_height
+        min_camera_y = 0.0
 
-        # move camera UP in world space (so you fly “up” the map),
-        # but don’t go past the top
         self.camera_y = max(min_camera_y, self.camera_y - self.SCROLL_SPEED_PER_FRAME)
+
 
     def draw_scrolling_background(self, surface: "Surface") -> None:
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
 
-        top_world_y: float = self.camera_y
-        bottom_world_y: float = self.camera_y + window_height
-
-        band_height: float = window_height  # each band is one screen tall
-
-        # for index, color in enumerate(self.BAND_COLORS):
-        #     band_top: float = index * band_height
-        #     band_bottom: float = band_top + band_height
-        #
-        #     visible_top: float = max(band_top, top_world_y)
-        #     visible_bottom: float = min(band_bottom, bottom_world_y)
-        #
-        #     if visible_bottom <= visible_top:
-        #         continue
-        #
-        #     screen_y: float = visible_top - top_world_y
-        #     rect_height: float = visible_bottom - visible_top
-        #
-        #     pygame.draw.rect(
-        #         surface,
-        #         color,
-        #         pygame.Rect(0, int(screen_y), window_width, int(rect_height)),
-        #     )
+        top_world_y = self.camera_y
+        bottom_world_y = self.camera_y + window_height

@@ -3,6 +3,7 @@ import pytmx
 from pygame import Surface
 
 from Constants.GlobalConstants import GlobalConstants
+from Entity.Monsters.BileSpitter import BileSpitter
 from ScreenClasses.Camera import Camera
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
@@ -10,16 +11,9 @@ from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 class LevelOne(VerticalBattleScreen):
     def __init__(self):
         super().__init__()
+        print("LEVEL ONE INIT EXECUTED")
 
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level1.tmx")
-
-
-        window_width, window_height = GlobalConstants.WINDOWS_SIZE
-
-        # self.camera_y = self.WORLD_HEIGHT - window_height
-        # if self.camera_y < 0:
-        #     self.camera_y = 0
-
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
@@ -35,6 +29,14 @@ class LevelOne(VerticalBattleScreen):
         # keep the Camera object in sync too
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
+        # self.move_screen_speed: float = .5
+        # how many pixels the camera moves up per frame
+        self.map_scroll_speed_per_frame: float = 2
+
+        self.bileSpitterGroup: list[BileSpitter] = []
+
+        self.load_bile_spitters()
+
 
 
 
@@ -73,6 +75,47 @@ class LevelOne(VerticalBattleScreen):
         #         self.WORLD_HEIGHT - window_height,
         #     ),
         # )
+        # self.camera.y = float(self.camera_y)
+
+    def update(self, state) -> None:
+        # run all the normal gameplay logic from the parent
+        super().update(state)
+        # super().update(state)
+
+        # now handle map scroll ONLY in LevelOne
+        _, window_height = GlobalConstants.WINDOWS_SIZE
+
+        # move camera UP in world space (so map scrolls down)
+        self.camera_y -= self.map_scroll_speed_per_frame
+
+        # clamp so we never scroll past top or bottom of the map
+        max_camera_y = self.WORLD_HEIGHT - window_height
+        if max_camera_y < 0:
+            max_camera_y = 0
+
+        if self.camera_y < 0:
+            self.camera_y = 0
+        elif self.camera_y > max_camera_y:
+            self.camera_y = max_camera_y
+
+        # keep Camera object in sync
+        self.camera.y = float(self.camera_y)
+
+        # # 🔹 auto-scroll camera UP by move_screen_speed each frame
+        # _, window_height = GlobalConstants.WINDOWS_SIZE
+        #
+        # max_camera_y: float = self.WORLD_HEIGHT - window_height
+        # min_camera_y: float = 0.0
+        #
+        # self.camera_y -= self.move_screen_speed
+        #
+        # # clamp to world
+        # if self.camera_y < min_camera_y:
+        #     self.camera_y = min_camera_y
+        # elif self.camera_y > max_camera_y:
+        #     self.camera_y = max_camera_y
+        #
+        # # keep Camera object in sync
         # self.camera.y = float(self.camera_y)
 
 
@@ -153,3 +196,18 @@ class LevelOne(VerticalBattleScreen):
     def draw_background(self, surface: Surface) -> None:
         # use the tiled background instead of bands
         self.draw_tiled_background(surface)
+
+    def load_bile_spitters(self):
+        print("LOAD BILE SPITTERS FUNCTION RAN!")
+
+        for obj in self.tiled_map.objects:
+            print("--- OBJECT FOUND:", obj.name, obj.type, obj.x, obj.y)
+
+            if obj.properties.get("Type") == "bile_spitter":
+                print("MATCH FOUND — Creating Bile Spitter!")
+                enemy = BileSpitter()
+                enemy.x = obj.x
+                enemy.y = obj.y
+                self.bileSpitterGroup.append(enemy)
+
+        print("Bile spitter count =", len(self.bileSpitterGroup))
