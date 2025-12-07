@@ -136,16 +136,33 @@ class VerticalBattleScreen:
                 bullet_world_y = bullet_y
 
                 self.player_bullets.append(Bullet(bullet_world_x, bullet_world_y))
-                print(f"SHIP WORLD POS: ({self.starship.x}, {self.starship.y})")
-                print(f"BULLET SPAWN POS: ({bullet_x}, {bullet_y})")
+                # print(f"SHIP WORLD POS: ({self.starship.x}, {self.starship.y})")
+                # print(f"BULLET SPAWN POS: ({bullet_x}, {bullet_y})")
 
             self.starship.bullet_timer.reset()
 
         # Update player bullets
+        # for bullet in list(self.player_bullets):
+        #     bullet.update()
+        #     if bullet.y + bullet.height < 0:
+        #         self.player_bullets.remove(bullet)
+        # Update player bullets
+        # Update player bullets
         for bullet in list(self.player_bullets):
             bullet.update()
-            if bullet.y + bullet.height < 0:
+
+            # Convert to screen space
+            screen_y = bullet.y - self.camera.y
+
+            # If bullet is above the visible screen area → delete
+            if screen_y + bullet.height < 0:
+                print(f"[DELETE] Bullet removed at world_y={bullet.y}, screen_y={screen_y}")
                 self.player_bullets.remove(bullet)
+
+        # AFTER updating everything — print all bullets still alive
+        print("[PLAYER BULLETS IN ARRAY]:")
+        for i, bullet in enumerate(self.player_bullets):
+            print(f"   #{i}: x={bullet.x:.2f}, y={bullet.y:.2f}")
 
 
         # -------------------------
