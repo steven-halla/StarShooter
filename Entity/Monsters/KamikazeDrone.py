@@ -64,9 +64,11 @@ class KamikazeDrone(Enemy):
 
         self.update_hitbox()
 
+        # explosion check
         if self.hitbox.colliderect(self.target_player.hitbox):
-            self.is_exploding = True
-            self.enemyHealth = 0
+            self.on_hit_player()
+
+
     def draw(self, surface: pygame.Surface, camera):
         sprite_rect = pygame.Rect(10, 425, 32, 32)
         sprite = self.kamikaze_drone_image.subsurface(sprite_rect)
@@ -94,3 +96,9 @@ class KamikazeDrone(Enemy):
         hb_h = int(self.hitbox.height * camera.zoom)
 
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
+
+    def on_hit_player(self):
+        """Handle drone impact damage."""
+        if self.target_player:
+            self.target_player.shipHealth -= self.explosion_damage
+        self.enemyHealth = 0  # mark for removal

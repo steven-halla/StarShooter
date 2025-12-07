@@ -35,6 +35,7 @@ class LevelOne(VerticalBattleScreen):
         self.map_scroll_speed_per_frame: float = .8
 
         self.bileSpitterGroup: list[BileSpitter] = []
+        self.kamikazeDroneGroup: list[KamikazeDrone] = []
 
         self.load_bile_spitters()
 
@@ -77,6 +78,7 @@ class LevelOne(VerticalBattleScreen):
     def update(self, state) -> None:
         # run all the normal gameplay logic from the parent
         super().update(state)
+        print(self.starship.shipHealth)
 
         # super().update(state)
 
@@ -102,6 +104,30 @@ class LevelOne(VerticalBattleScreen):
         # -------------------------------------------------------------
         # 🔥 ADDED: ENEMY UPDATE + ENEMY SHOOTING
         # -------------------------------------------------------------
+        # -------------------------------------------------------------
+        # 🔥 UPDATE KAMIKAZE DRONES
+        # -------------------------------------------------------------
+        for drone in list(self.kamikazeDroneGroup):
+            drone.update()
+
+            if drone.enemyHealth <= 0:
+                self.kamikazeDroneGroup.remove(drone)
+                continue
+        # for drone in list(self.kamikazeDroneGroup):
+        #     drone.update()
+        #
+        #     # remove drone when health reaches zero
+        #     if drone.enemyHealth <= 0:
+        #         self.kamikazeDroneGroup.remove(drone)
+        #         continue
+        #
+        #     # collision with player (kamikaze impact)
+        #     if self.starship.hitbox.colliderect(drone.hitbox):
+        #         self.starship.shipHealth -= drone.explosion_damage
+        #         drone.enemyHealth = 0  # force removal next frame
+        #         if drone in self.kamikazeDroneGroup:
+        #             self.kamikazeDroneGroup.remove(drone)
+
         for enemy in self.bileSpitterGroup:
             enemy.update()
             # print("PLAYER HITBOX:", self.starship.hitbox)
@@ -253,6 +279,10 @@ class LevelOne(VerticalBattleScreen):
             )
             pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
 
+        # --- 4b. Draw kamikaze drones ---
+        for drone in self.kamikazeDroneGroup:
+            drone.draw(state.DISPLAY, self.camera)
+
         pygame.display.flip()
 
 
@@ -303,10 +333,12 @@ class LevelOne(VerticalBattleScreen):
                 drone.height = obj.height
                 drone.update_hitbox()
 
-                # add to same enemy group (or make a new one later)
-                self.bileSpitterGroup.append(drone)
-                drone.camera = self.camera  # REAL CAMERA
-                drone.target_player = self.starship  # LOCK ON TO PLAYER
+                # ⭐ Add to the *correct* group
+                self.kamikazeDroneGroup.append(drone)
+
+                # ⭐ Set required references
+                drone.camera = self.camera
+                drone.target_player = self.starship
 
                 continue
 
