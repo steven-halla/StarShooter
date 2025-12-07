@@ -161,6 +161,7 @@ class VerticalBattleScreen:
                     self.enemy_bullets.remove(bullet)
 
     def draw(self, state) -> None:
+
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
         zoom = self.camera.zoom
 
@@ -173,11 +174,11 @@ class VerticalBattleScreen:
         # if not self.playerDead:
         #     self.starship.draw(scene_surface, self.camera)
         # Bullets
-        for bullet in self.player_bullets:
-            bullet.draw(scene_surface)
-
-        for bullet in self.enemy_bullets:
-            bullet.draw(scene_surface)
+        # for bullet in self.player_bullets:
+        #     bullet.draw(scene_surface)
+        #
+        # for bullet in self.enemy_bullets:
+        #     bullet.draw(scene_surface)
 
         # Scale + present
         scaled_scene = pygame.transform.scale(
