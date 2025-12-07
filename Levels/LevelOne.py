@@ -31,7 +31,7 @@ class LevelOne(VerticalBattleScreen):
         self.camera.y = float(self.camera_y)
         # self.move_screen_speed: float = .5
         # how many pixels the camera moves up per frame
-        self.map_scroll_speed_per_frame: float = 1
+        self.map_scroll_speed_per_frame: float = .8
 
         self.bileSpitterGroup: list[BileSpitter] = []
 
@@ -177,8 +177,8 @@ class LevelOne(VerticalBattleScreen):
             first_enemy = self.bileSpitterGroup[0]
             enemy_row = int(first_enemy.y // tile_h)
 
-            print(f"[ROW CHECK] Player row={player_row} | Enemy row={enemy_row}")
-            print(f"[Y PIXEL] Player Y={self.starship.y} | Enemy Y={first_enemy.y}")
+            # print(f"[ROW CHECK] Player row={player_row} | Enemy row={enemy_row}")
+            # print(f"[Y PIXEL] Player Y={self.starship.y} | Enemy Y={first_enemy.y}")
 
         # print(f"[ROW CHECK] Player row={player_row} | Enemy row={enemy_row}")
         # print(f"[Y PIXEL] Player Y={self.starship.y} | Enemy Y={enemy.y}")
@@ -187,7 +187,7 @@ class LevelOne(VerticalBattleScreen):
         #     print(f"🔥 MATCH! Player and enemy are on SAME Y ROW at row={player_row}")
 
     def draw(self, state):
-        print("DRAWING INSTANCE:", id(self.starship))
+        # print("DRAWING INSTANCE:", id(self.starship))
         # --- 1. Call parent draw (this draws background + bullets) ---
         super().draw(state)
 

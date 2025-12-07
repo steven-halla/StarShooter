@@ -56,18 +56,29 @@ class StarShip():
         sprite_rect = pygame.Rect(10, 220, 32, 32)
         sprite = self.player_image.subsurface(sprite_rect)
 
-        # ⭐ scale ship by zoom
+        # scale ship with zoom
         scale = camera.zoom
         scaled_sprite = pygame.transform.scale(
             sprite,
             (int(self.width * scale), int(self.height * scale))
         )
 
-        # ⭐ world → screen conversion
+        # convert world → screen
         screen_x = camera.world_to_screen_x(self.x)
         screen_y = camera.world_to_screen_y(self.y)
 
+        # draw ship
         surface.blit(scaled_sprite, (screen_x, screen_y))
+
+        # ================================
+        #  DRAW PLAYER HITBOX (DEBUG)
+        # ================================
+        hb_x = camera.world_to_screen_x(self.hitbox.x)
+        hb_y = camera.world_to_screen_y(self.hitbox.y)
+        hb_w = int(self.hitbox.width * camera.zoom)
+        hb_h = int(self.hitbox.height * camera.zoom)
+
+        pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
 
     def update_hitbox(self) -> None:
         self.hitbox.topleft = (int(self.x), int(self.y))

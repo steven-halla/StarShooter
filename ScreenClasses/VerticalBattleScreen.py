@@ -80,7 +80,7 @@ class VerticalBattleScreen:
 
     def update(self, state):
         # print("PLAYER UPDATE Y:", self.starship.y)
-        print("STARSHIP INSTANCE:", id(self.starship))
+        # print("STARSHIP INSTANCE:", id(self.starship))
 
         if not hasattr(self, "start_has_run"):
             self.start(state)  # This calls LevelOne.start()
@@ -152,20 +152,38 @@ class VerticalBattleScreen:
         # ENEMY BULLETS ONLY
         # (LevelOne puts bullets into self.enemy_bullets)
         # -------------------------
-        _, window_height = GlobalConstants.WINDOWS_SIZE
+        # -------------------------
+        # ENEMY BULLETS ONLY
+        # -------------------------
+        screen_top = self.camera.y
+        screen_bottom = self.camera.y + (self.window_height / self.camera.zoom)
 
         for bullet in list(self.enemy_bullets):
             bullet.update()
 
-            if bullet.y > window_height:
+            # delete only when bullet leaves visible WORLD range
+            if bullet.y < screen_top or bullet.y > screen_bottom:
                 self.enemy_bullets.remove(bullet)
                 continue
 
             if bullet.collide_with_rect(self.starship.hitbox):
                 self.starship.shipHealth -= bullet.damage
-                self.starship.on_hit()
-                if not bullet.is_active:
-                    self.enemy_bullets.remove(bullet)
+                bullet.is_active = False
+                self.enemy_bullets.remove(bullet)
+        # _, window_height = GlobalConstants.WINDOWS_SIZE
+        #
+        # for bullet in list(self.enemy_bullets):
+        #     bullet.update()
+        #
+        #     if bullet.y > window_height:
+        #         self.enemy_bullets.remove(bullet)
+        #         continue
+        #
+        #     if bullet.collide_with_rect(self.starship.hitbox):
+        #         self.starship.shipHealth -= bullet.damage
+        #         self.starship.on_hit()
+        #         if not bullet.is_active:
+        #             self.enemy_bullets.remove(bullet)
 
     def draw(self, state) -> None:
 
