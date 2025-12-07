@@ -48,7 +48,7 @@ class StarShip():
     def draw(self, surface: "pygame.Surface") -> None:
         sprite_rect = pygame.Rect(10, 220, 32, 32)  # Adjust if needed
         sprite = self.player_image.subsurface(sprite_rect)
-        scaled_sprite = pygame.transform.scale(sprite, (50, 50))
+        scaled_sprite = pygame.transform.scale(sprite, (16, 16))
         sprite_x = self.x - 20
         sprite_y = self.y - 10
         surface.blit(scaled_sprite, (sprite_x, sprite_y))

@@ -31,7 +31,7 @@ class LevelOne(VerticalBattleScreen):
         self.camera.y = float(self.camera_y)
         # self.move_screen_speed: float = .5
         # how many pixels the camera moves up per frame
-        self.map_scroll_speed_per_frame: float = 1
+        self.map_scroll_speed_per_frame: float = .1
 
         self.bileSpitterGroup: list[BileSpitter] = []
 
@@ -168,7 +168,17 @@ class LevelOne(VerticalBattleScreen):
                     self.playerDead = True
 
                 self.enemy_bullets.remove(bullet)
+        # DEBUG: Check if player & enemy share same Y tile
+        tile_h = self.tile_size
 
+        player_row = int(self.starship.y // tile_h)
+        enemy_row = int(enemy.y // tile_h)
+
+        print(f"[ROW CHECK] Player row={player_row} | Enemy row={enemy_row}")
+        print(f"[Y PIXEL] Player Y={self.starship.y} | Enemy Y={enemy.y}")
+
+        if player_row == enemy_row:
+            print(f"🔥 MATCH! Player and enemy are on SAME Y ROW at row={player_row}")
 
 
 
@@ -177,16 +187,33 @@ class LevelOne(VerticalBattleScreen):
 
     def draw(self, state):
         super().draw(state)
-        for layer in self.tiled_map.visible_layers:
-            if isinstance(layer, pytmx.TiledTileLayer):
-                for x, y, gid in layer:
-                    tile = self.tiled_map.get_tile_image_by_gid(gid)
-                    if tile:
-                        world_x = x * self.tiled_map.tilewidth
-                        world_y = y * self.tiled_map.tileheight
-                        screen_x = self.camera.world_to_screen_x(world_x)
-                        screen_y = self.camera.world_to_screen_y(world_y)
-                        state.DISPLAY.blit(tile, (screen_x, screen_y))
+        # Draw ONLY the background layer from the tilemap
+        # if "background" in self.tiled_map.layernames:
+        #     bg_layer = self.tiled_map.get_layer_by_name("background")
+        #
+        #     tile_w = self.tiled_map.tilewidth
+        #     tile_h = self.tiled_map.tileheight
+        #
+        #     for x, y, gid in bg_layer:
+        #         tile = self.tiled_map.get_tile_image_by_gid(gid)
+        #         if tile:
+        #             world_x = x * tile_w
+        #             world_y = y * tile_h
+        #
+        #             screen_x = self.camera.world_to_screen_x(world_x)
+        #             screen_y = self.camera.world_to_screen_y(world_y)
+        #
+        #             state.DISPLAY.blit(tile, (screen_x, screen_y))
+        # for layer in self.tiled_map.visible_layers:
+        #     if isinstance(layer, pytmx.TiledTileLayer):
+        #         for x, y, gid in layer:
+        #             tile = self.tiled_map.get_tile_image_by_gid(gid)
+        #             if tile:
+        #                 world_x = x * self.tiled_map.tilewidth
+        #                 world_y = y * self.tiled_map.tileheight
+        #                 screen_x = self.camera.world_to_screen_x(world_x)
+        #                 screen_y = self.camera.world_to_screen_y(world_y)
+        #                 state.DISPLAY.blit(tile, (screen_x, screen_y))
 
             # Draw objects (like player, shops, etc.)
         for obj in self.tiled_map.objects:
