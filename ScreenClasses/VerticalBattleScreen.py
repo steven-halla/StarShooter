@@ -30,11 +30,14 @@ class VerticalBattleScreen:
         self.enemy_bullets: list = []     # LevelOne can append to this list
 
         self.WORLD_HEIGHT: int = GlobalConstants.WINDOWS_SIZE[1] * 3
+
         self.SCROLL_SPEED_PER_SECOND: float = 100.0
         self.camera_y: float = 0.0
         self.SCROLL_SPEED_PER_FRAME: float = 111.0
 
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
+        self.window_width = window_width
+        self.window_height = window_height
 
         self.camera = Camera(
             window_width=window_width,
@@ -51,25 +54,29 @@ class VerticalBattleScreen:
         # self.starship.x = window_width // self.STARSHIP_HORIZONTAL_CENTER_DIVISOR
         # self.starship.y = window_height - self.STARSHIP_BOTTOM_OFFSET
 
-    def clamp_starship_to_screen(self) -> None:
-        # ❌ DO NOT CLAMP TO SCREEN
-        # Screen is camera-space, NOT world-space.
-        # This function should either be removed or rewritten to clamp to MAP bounds only.
+    def clamp_starship_to_screen(self):
+        zoom = self.camera.zoom
+        ship_w = self.starship.width
+        ship_h = self.starship.height
 
-        map_width_px = self.tiled_map.width * self.tiled_map.tilewidth
-        map_height_px = self.tiled_map.height * self.tiled_map.tileheight
-
-        # Clamp starship inside WORLD / MAP, not screen!
+        # --- HORIZONTAL (NO CAMERA X), EASY ---
+        max_x = self.window_width / zoom - ship_w
         if self.starship.x < 0:
             self.starship.x = 0
-        elif self.starship.x > map_width_px - self.starship.width:
-            self.starship.x = map_width_px - self.starship.width
+        elif self.starship.x > max_x:
+            self.starship.x = max_x
 
-        if self.starship.y < 0:
-            self.starship.y = 0
-        elif self.starship.y > map_height_px - self.starship.height:
-            self.starship.y = map_height_px - self.starship.height
+        # --- VERTICAL (CAMERA Y ACTIVE) ---
+        cam_y = self.camera.y
+        win_h = self.window_height
 
+        min_y = cam_y
+        max_y = cam_y + (win_h / zoom) - ship_h
+
+        if self.starship.y < min_y:
+            self.starship.y = min_y
+        elif self.starship.y > max_y:
+            self.starship.y = max_y
 
     def update(self, state):
         # print("PLAYER UPDATE Y:", self.starship.y)
@@ -102,7 +109,7 @@ class VerticalBattleScreen:
 
         self.was_q_pressed_last_frame = self.controller.q_button
 
-        # # self.clamp_starship_to_screen()
+        self.clamp_starship_to_screen()
         # if not self.playerDead:
         #     self.starship.update()
 

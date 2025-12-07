@@ -31,7 +31,7 @@ class LevelOne(VerticalBattleScreen):
         self.camera.y = float(self.camera_y)
         # self.move_screen_speed: float = .5
         # how many pixels the camera moves up per frame
-        self.map_scroll_speed_per_frame: float = 2
+        self.map_scroll_speed_per_frame: float = 1
 
         self.bileSpitterGroup: list[BileSpitter] = []
 
