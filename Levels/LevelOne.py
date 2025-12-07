@@ -248,7 +248,7 @@ class LevelOne(VerticalBattleScreen):
                 state.DISPLAY,
                 (255, 255, 0),  # yellow hitbox
                 (bx, by, bw, bh),
-                1  # thin line
+                3  # thin line
             )
 
 
