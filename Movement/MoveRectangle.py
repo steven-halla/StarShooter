@@ -59,12 +59,15 @@ class MoveRectangle:
             raise TypeError("moveSpeed must be a float")
         enemy.x -= enemy.moveSpeed
 
-    def enemy_on_screen(self, enemy, camera) -> bool:
-        """Returns True when enemy is visible on screen, also prints once."""
+    def enemy_on_screen(self, enemy, camera):
+        """Return True if enemy is visible on the screen."""
+        if camera is None:
+            return False
+
         screen_y = camera.world_to_screen_y(enemy.y)
 
         if 0 <= screen_y <= GlobalConstants.WINDOWS_SIZE[1]:
-            print(f"[DRONE VISIBLE] Enemy at ({enemy.x:.1f}, {enemy.y:.1f})")
+            print(f"[ENEMY ON SCREEN] x={enemy.x:.2f}, y={enemy.y:.2f}")
             return True
 
         return False

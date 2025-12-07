@@ -36,39 +36,37 @@ class KamikazeDrone(Enemy):
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
 
+        self.is_on_screen = False
+
     def update(self):
-        """Move toward the player and detect collision."""
         self.update_hitbox()
 
         # check if visible first
-        self.mover.enemy_on_screen(self, self.camera)
+        self.is_on_screen = self.mover.enemy_on_screen(self, self.camera)
 
-
+        # do NOT track if drone is not yet visible
+        if not self.is_on_screen:
+            return
 
         if self.target_player is None:
-            return  # no target yet
+            return
 
-        # --- Convert positions to world space ---
+        # direction vector toward player
         px = self.target_player.x
         py = self.target_player.y
 
-        # direction vector toward player
         dx = px - self.x
         dy = py - self.y
-
         dist = max(1, (dx * dx + dy * dy) ** 0.5)
 
-        # normalize direction
         self.x += (dx / dist) * self.speed
         self.y += (dy / dist) * self.speed
 
         self.update_hitbox()
 
-        # explosion check
         if self.hitbox.colliderect(self.target_player.hitbox):
             self.is_exploding = True
-            self.enemyHealth = 0  # mark for removal
-
+            self.enemyHealth = 0
     def draw(self, surface: pygame.Surface, camera):
         sprite_rect = pygame.Rect(10, 425, 32, 32)
         sprite = self.kamikaze_drone_image.subsurface(sprite_rect)
