@@ -49,6 +49,9 @@ class BileSpitter(Enemy):
 
         self.move_direction = random.choice([-1, 1])
         self.enemyHealth: int = 5
+        self.bile_spitter_image = pygame.image.load(
+            "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
+        ).convert_alpha()
 
     def _shoot_bile(self) -> None:
         """Create a Bullet object and add it to local bullet list."""
@@ -128,5 +131,30 @@ class BileSpitter(Enemy):
             self.x = window_width - self.edge_padding - self.width
             self.move_direction = -1  # go left
 
+    def draw(self, surface: pygame.Surface, camera):
+        sprite_rect = pygame.Rect(0, 344, 32, 32)
+        sprite = self.bile_spitter_image.subsurface(sprite_rect)
 
+        # scale ship with zoom
+        scale = camera.zoom
+        scaled_sprite = pygame.transform.scale(
+            sprite,
+            (int(self.width * scale), int(self.height * scale))
+        )
 
+        # convert world → screen
+        screen_x = camera.world_to_screen_x(self.x)
+        screen_y = camera.world_to_screen_y(self.y)
+
+        # draw ship
+        surface.blit(scaled_sprite, (screen_x, screen_y))
+
+        # ================================
+        #  DRAW PLAYER HITBOX (DEBUG)
+        # ================================
+        hb_x = camera.world_to_screen_x(self.hitbox.x)
+        hb_y = camera.world_to_screen_y(self.hitbox.y)
+        hb_w = int(self.hitbox.width * camera.zoom)
+        hb_h = int(self.hitbox.height * camera.zoom)
+
+        pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)

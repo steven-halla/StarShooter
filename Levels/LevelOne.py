@@ -206,13 +206,17 @@ class LevelOne(VerticalBattleScreen):
             self.starship.draw(state.DISPLAY, self.camera)
 
         # --- 4. Draw enemies ---
+        # --- 4. Draw enemies using their sprite method ---
         for enemy in self.bileSpitterGroup:
-            enemy_x = self.camera.world_to_screen_x(enemy.x)
-            enemy_y = self.camera.world_to_screen_y(enemy.y)
-            enemy_w = int(enemy.width * zoom)
-            enemy_h = int(enemy.height * zoom)
-            rect = pygame.Rect(enemy_x, enemy_y, enemy_w, enemy_h)
-            pygame.draw.rect(state.DISPLAY, enemy.color, rect)
+            enemy.draw(state.DISPLAY, self.camera)
+        # for enemy in self.bileSpitterGroup:
+        #     enemy_x = self.camera.world_to_screen_x(enemy.x)
+        #     enemy_y = self.camera.world_to_screen_y(enemy.y)
+        #     enemy_w = int(enemy.width * zoom)
+        #     enemy_h = int(enemy.height * zoom)
+        #     rect = pygame.Rect(enemy_x, enemy_y, enemy_w, enemy_h)
+        #     pygame.draw.rect(state.DISPLAY, enemy.color, rect)
+
 
         # --- 5. Draw bullets (world → screen) ---
         for bullet in self.player_bullets:
