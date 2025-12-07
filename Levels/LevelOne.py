@@ -156,6 +156,33 @@ class LevelOne(VerticalBattleScreen):
                 int(bullet.height * self.camera.zoom)
             )
 
+            # ---------------------------------------------
+            # 🔥 PLAYER BULLET → KAMIKAZE DRONE COLLISION
+            # ---------------------------------------------
+            for drone in list(self.kamikazeDroneGroup):
+
+                # convert drone to screen rect
+                d_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(drone.x),
+                    self.camera.world_to_screen_y(drone.y),
+                    int(drone.width * self.camera.zoom),
+                    int(drone.height * self.camera.zoom)
+                )
+
+                if b_rect.colliderect(d_rect):
+                    drone.enemyHealth -= self.starship.bulletDamage
+                    bullet.is_active = False
+
+                    print("DRONE HIT! New HP =", drone.enemyHealth)
+
+                    if bullet in self.player_bullets:
+                        self.player_bullets.remove(bullet)
+
+                    if drone.enemyHealth <= 0:
+                        self.kamikazeDroneGroup.remove(drone)
+
+                    break
+
 
             for enemy in list(self.bileSpitterGroup):
 

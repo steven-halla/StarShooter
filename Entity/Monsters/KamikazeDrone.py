@@ -23,7 +23,7 @@ class KamikazeDrone(Enemy):
         self.speed: float = 5.0
 
         # gameplay stats
-        self.enemyHealth: int = 5
+        self.enemyHealth: int = 1
         self.exp: int = 1
         self.credits: int = 5
 
