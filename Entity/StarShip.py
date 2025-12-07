@@ -52,15 +52,14 @@ class StarShip():
     #     sprite_x = self.x - 20
     #     sprite_y = self.y - 10
     #     surface.blit(scaled_sprite, (sprite_x, sprite_y))
-
-    def draw(self, surface: "pygame.Surface", camera) -> None:
+    def draw(self, surface: pygame.Surface, camera):
         sprite_rect = pygame.Rect(10, 220, 32, 32)
         sprite = self.player_image.subsurface(sprite_rect)
         scaled_sprite = pygame.transform.scale(sprite, (16, 16))
 
-        # Convert world → screen using the camera
-        screen_x = camera.world_to_screen_x(self.x - 20)
-        screen_y = camera.world_to_screen_y(self.y - 10)
+        # Convert world → screen
+        screen_x = camera.world_to_screen_x(self.x) - 20
+        screen_y = camera.world_to_screen_y(self.y) - 10
 
         surface.blit(scaled_sprite, (screen_x, screen_y))
 

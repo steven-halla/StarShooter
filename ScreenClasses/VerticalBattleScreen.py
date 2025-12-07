@@ -73,10 +73,12 @@ class VerticalBattleScreen:
 
     def update(self, state):
         # print("PLAYER UPDATE Y:", self.starship.y)
+        print("STARSHIP INSTANCE:", id(self.starship))
+
         if not hasattr(self, "start_has_run"):
             self.start(state)  # This calls LevelOne.start()
             self.start_has_run = True
-        self.starship.update()
+        # self.starship.update()
         if self.starship.shipHealth <= 0:
             self.playerDead = True
         #
@@ -96,12 +98,13 @@ class VerticalBattleScreen:
                 self.mover.player_move_up(self.starship)
             if self.controller.down_button:
                 self.mover.player_move_down(self.starship)
+        self.starship.update()
 
         self.was_q_pressed_last_frame = self.controller.q_button
 
-        # self.clamp_starship_to_screen()
-        if not self.playerDead:
-            self.starship.update()
+        # # self.clamp_starship_to_screen()
+        # if not self.playerDead:
+        #     self.starship.update()
 
         # -------------------------
         # PLAYER SHOOTING ONLY
@@ -167,8 +170,8 @@ class VerticalBattleScreen:
         self.draw_background(scene_surface)
 
         # Starship SECOND (only sliced sprite)
-        if not self.playerDead:
-            self.starship.draw(scene_surface, self.camera)
+        # if not self.playerDead:
+        #     self.starship.draw(scene_surface, self.camera)
         # Bullets
         for bullet in self.player_bullets:
             bullet.draw(scene_surface)

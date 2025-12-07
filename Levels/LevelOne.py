@@ -31,7 +31,7 @@ class LevelOne(VerticalBattleScreen):
         self.camera.y = float(self.camera_y)
         # self.move_screen_speed: float = .5
         # how many pixels the camera moves up per frame
-        self.map_scroll_speed_per_frame: float = 1
+        self.map_scroll_speed_per_frame: float = 2
 
         self.bileSpitterGroup: list[BileSpitter] = []
 
@@ -49,10 +49,10 @@ class LevelOne(VerticalBattleScreen):
                 break
 
         # SAFETY: If player object not found, fallback
-        if player_x is None or player_y is None:
-            print("ERROR: No 'player' object found in Tiled map!")
-            player_x = 300
-            player_y = 355
+        # if player_x is None or player_y is None:
+        #     print("ERROR: No 'player' object found in Tiled map!")
+        #     player_x = 300
+        #     player_y = 355
 
         # APPLY PLAYER POSITION
         self.starship.x = player_x
@@ -187,6 +187,7 @@ class LevelOne(VerticalBattleScreen):
         #     print(f"🔥 MATCH! Player and enemy are on SAME Y ROW at row={player_row}")
 
     def draw(self, state):
+        print("DRAWING INSTANCE:", id(self.starship))
         # --- 1. Call parent draw (this draws background + bullets) ---
         super().draw(state)
 
