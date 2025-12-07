@@ -44,6 +44,7 @@ class StarShip():
 
     def update(self) -> None:
         self.update_hitbox()
+        print(self.shipHealth)
 
     # def draw(self, surface: "pygame.Surface") -> None:
     #     sprite_rect = pygame.Rect(10, 220, 32, 32)  # Adjust if needed
