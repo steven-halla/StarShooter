@@ -213,7 +213,6 @@
   </object>
  </objectgroup>
  <objectgroup id="3" name="collision"/>
- <objectgroup id="4" name="player"/>
  <layer id="5" name="player" width="30" height="200">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

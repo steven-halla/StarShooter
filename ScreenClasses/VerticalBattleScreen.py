@@ -72,6 +72,7 @@ class VerticalBattleScreen:
 
     def update(self, state):
         # print("PLAYER UPDATE Y:", self.starship.y)
+        self.starship.update()
         if self.starship.shipHealth <= 0:
             self.playerDead = True
 
@@ -152,28 +153,27 @@ class VerticalBattleScreen:
                 if not bullet.is_active:
                     self.enemy_bullets.remove(bullet)
 
-
-
-
     def draw(self, state) -> None:
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
         zoom = self.camera.zoom
 
         scene_surface = pygame.Surface((window_width, window_height))
 
+        # Background FIRST
         self.draw_background(scene_surface)
 
+        # Starship SECOND (only sliced sprite)
         if not self.playerDead:
             self.starship.draw(scene_surface)
 
-        # LevelOne draws enemies — not this class.
-
+        # Bullets
         for bullet in self.player_bullets:
             bullet.draw(scene_surface)
 
         for bullet in self.enemy_bullets:
             bullet.draw(scene_surface)
 
+        # Scale + present
         scaled_scene = pygame.transform.scale(
             scene_surface,
             (int(window_width * zoom), int(window_height * zoom))
@@ -181,6 +181,33 @@ class VerticalBattleScreen:
 
         state.DISPLAY.fill(GlobalConstants.BLACK)
         state.DISPLAY.blit(scaled_scene, (0, 0))
+
+    # def draw(self, state) -> None:
+    #     window_width, window_height = GlobalConstants.WINDOWS_SIZE
+    #     zoom = self.camera.zoom
+    #
+    #     scene_surface = pygame.Surface((window_width, window_height))
+    #
+    #     self.draw_background(scene_surface)
+    #
+    #     if not self.playerDead:
+    #         self.starship.draw(scene_surface)
+    #
+    #     # LevelOne draws enemies — not this class.
+    #
+    #     for bullet in self.player_bullets:
+    #         bullet.draw(scene_surface)
+    #
+    #     for bullet in self.enemy_bullets:
+    #         bullet.draw(scene_surface)
+    #
+    #     scaled_scene = pygame.transform.scale(
+    #         scene_surface,
+    #         (int(window_width * zoom), int(window_height * zoom))
+    #     )
+    #
+    #     state.DISPLAY.fill(GlobalConstants.BLACK)
+    #     state.DISPLAY.blit(scaled_scene, (0, 0))
 
 
     def draw_background(self, surface: Surface) -> None:

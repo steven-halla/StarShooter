@@ -102,8 +102,8 @@ class LevelOne(VerticalBattleScreen):
         # -------------------------------------------------------------
         for enemy in self.bileSpitterGroup:
             enemy.update()
-            print("PLAYER HITBOX:", self.starship.hitbox)
-            print("ENEMY HITBOX:", enemy.hitbox)
+            # print("PLAYER HITBOX:", self.starship.hitbox)
+            # print("ENEMY HITBOX:", enemy.hitbox)
             if self.starship.hitbox.colliderect(enemy.hitbox):
                 print("jf;dlajflsa")
                 enemy.color = (135, 206, 235)  # SKYBLUE
@@ -177,6 +177,23 @@ class LevelOne(VerticalBattleScreen):
 
     def draw(self, state):
         super().draw(state)
+        for layer in self.tiled_map.visible_layers:
+            if isinstance(layer, pytmx.TiledTileLayer):
+                for x, y, gid in layer:
+                    tile = self.tiled_map.get_tile_image_by_gid(gid)
+                    if tile:
+                        world_x = x * self.tiled_map.tilewidth
+                        world_y = y * self.tiled_map.tileheight
+                        screen_x = self.camera.world_to_screen_x(world_x)
+                        screen_y = self.camera.world_to_screen_y(world_y)
+                        state.DISPLAY.blit(tile, (screen_x, screen_y))
+
+            # Draw objects (like player, shops, etc.)
+        for obj in self.tiled_map.objects:
+            if hasattr(obj, "image") and obj.image:
+                screen_x = self.camera.world_to_screen_x(obj.x)
+                screen_y = self.camera.world_to_screen_y(obj.y)
+                state.DISPLAY.blit(obj.image, (screen_x, screen_y))
 
         # self.draw_tiled_background(state)
 
