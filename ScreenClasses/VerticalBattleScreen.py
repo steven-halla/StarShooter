@@ -13,7 +13,7 @@ from Weapons.Bullet import Bullet
 class VerticalBattleScreen:
     def __init__(self):
         self.starship: StarShip = StarShip()
-        self.isStart: bool = True
+        # self.isStart: bool = True
         self.playerDead: bool = False
 
         self.mover: MoveRectangle = MoveRectangle()
@@ -46,9 +46,10 @@ class VerticalBattleScreen:
 
 
     def start(self, state):
+        pass
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
-        self.starship.x = window_width // self.STARSHIP_HORIZONTAL_CENTER_DIVISOR
-        self.starship.y = window_height - self.STARSHIP_BOTTOM_OFFSET
+        # self.starship.x = window_width // self.STARSHIP_HORIZONTAL_CENTER_DIVISOR
+        # self.starship.y = window_height - self.STARSHIP_BOTTOM_OFFSET
 
     def clamp_starship_to_screen(self) -> None:
         # ❌ DO NOT CLAMP TO SCREEN
@@ -72,13 +73,16 @@ class VerticalBattleScreen:
 
     def update(self, state):
         # print("PLAYER UPDATE Y:", self.starship.y)
+        if not hasattr(self, "start_has_run"):
+            self.start(state)  # This calls LevelOne.start()
+            self.start_has_run = True
         self.starship.update()
         if self.starship.shipHealth <= 0:
             self.playerDead = True
-
-        if self.isStart:
-            self.start(state)
-            self.isStart = False
+        #
+        # if self.isStart:
+        #     self.start(state)
+        #     self.isStart = False
 
         self.controller.update()
 
@@ -95,7 +99,7 @@ class VerticalBattleScreen:
 
         self.was_q_pressed_last_frame = self.controller.q_button
 
-        self.clamp_starship_to_screen()
+        # self.clamp_starship_to_screen()
         if not self.playerDead:
             self.starship.update()
 
@@ -164,8 +168,7 @@ class VerticalBattleScreen:
 
         # Starship SECOND (only sliced sprite)
         if not self.playerDead:
-            self.starship.draw(scene_surface)
-
+            self.starship.draw(scene_surface, self.camera)
         # Bullets
         for bullet in self.player_bullets:
             bullet.draw(scene_surface)
