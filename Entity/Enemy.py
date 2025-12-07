@@ -4,7 +4,7 @@ from Constants.GlobalConstants import GlobalConstants
 from Movement.MoveRectangle import MoveRectangle
 
 
-class Enemy():
+class Enemy:
     def __init__(self):
         self.height: int = 0
         self.width: int = 0
@@ -25,6 +25,7 @@ class Enemy():
 
     def update(self):
         self.update_hitbox()
+
 
     # def draw(self, surface: "pygame.Surface") -> None:
     #     pygame.draw.rect(surface, self.color, (self.x, self.y, self.width, self.height))

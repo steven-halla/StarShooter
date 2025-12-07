@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="200" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="47">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="200" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="48">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="background" width="30" height="200">
   <data encoding="csv">
@@ -271,6 +271,7 @@
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
+  <object id="47" name="kamikazi_drone" x="184.688" y="2806.99" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="3" name="collision"/>
  <objectgroup id="6" name="player">

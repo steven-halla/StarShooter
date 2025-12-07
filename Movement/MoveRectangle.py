@@ -1,6 +1,9 @@
 import pygame
 import math
 
+from Constants.GlobalConstants import GlobalConstants
+
+
 class MoveRectangle:
     def __init__(self):
         pass
@@ -55,5 +58,14 @@ class MoveRectangle:
         if not isinstance(enemy.moveSpeed, float):
             raise TypeError("moveSpeed must be a float")
         enemy.x -= enemy.moveSpeed
+
+    def enemy_on_screen(self, enemy, camera):
+        """Check if this enemy is visible on screen."""
+        screen_y = camera.world_to_screen_y(enemy.y)
+
+        if 0 <= screen_y <= GlobalConstants.WINDOWS_SIZE[1]:
+            print(f"[ENEMY ON SCREEN]  x={enemy.x:.2f}, y={enemy.y:.2f}")
+
+
 
 

@@ -4,6 +4,7 @@ from pygame import Surface
 
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Monsters.BileSpitter import BileSpitter
+from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from ScreenClasses.Camera import Camera
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
@@ -106,7 +107,6 @@ class LevelOne(VerticalBattleScreen):
             # print("PLAYER HITBOX:", self.starship.hitbox)
             # print("ENEMY HITBOX:", enemy.hitbox)
             if self.starship.hitbox.colliderect(enemy.hitbox):
-                print("jf;dlajflsa")
                 enemy.color = (135, 206, 235)  # SKYBLUE
             else:
 
@@ -205,18 +205,9 @@ class LevelOne(VerticalBattleScreen):
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
 
-        # --- 4. Draw enemies ---
         # --- 4. Draw enemies using their sprite method ---
         for enemy in self.bileSpitterGroup:
             enemy.draw(state.DISPLAY, self.camera)
-        # for enemy in self.bileSpitterGroup:
-        #     enemy_x = self.camera.world_to_screen_x(enemy.x)
-        #     enemy_y = self.camera.world_to_screen_y(enemy.y)
-        #     enemy_w = int(enemy.width * zoom)
-        #     enemy_h = int(enemy.height * zoom)
-        #     rect = pygame.Rect(enemy_x, enemy_y, enemy_w, enemy_h)
-        #     pygame.draw.rect(state.DISPLAY, enemy.color, rect)
-
 
         # --- 5. Draw bullets (world → screen) ---
         for bullet in self.player_bullets:
@@ -264,106 +255,6 @@ class LevelOne(VerticalBattleScreen):
 
         pygame.display.flip()
 
-    # def draw(self, state):
-    #     super().draw(state)
-    #     # Draw ONLY the background layer from the tilemap
-    #     # if "background" in self.tiled_map.layernames:
-    #     #     bg_layer = self.tiled_map.get_layer_by_name("background")
-    #     #
-    #     #     tile_w = self.tiled_map.tilewidth
-    #     #     tile_h = self.tiled_map.tileheight
-    #     #
-    #     #     for x, y, gid in bg_layer:
-    #     #         tile = self.tiled_map.get_tile_image_by_gid(gid)
-    #     #         if tile:
-    #     #             world_x = x * tile_w
-    #     #             world_y = y * tile_h
-    #     #
-    #     #             screen_x = self.camera.world_to_screen_x(world_x)
-    #     #             screen_y = self.camera.world_to_screen_y(world_y)
-    #     #
-    #     #             state.DISPLAY.blit(tile, (screen_x, screen_y))
-    #     # for layer in self.tiled_map.visible_layers:
-    #     #     if isinstance(layer, pytmx.TiledTileLayer):
-    #     #         for x, y, gid in layer:
-    #     #             tile = self.tiled_map.get_tile_image_by_gid(gid)
-    #     #             if tile:
-    #     #                 world_x = x * self.tiled_map.tilewidth
-    #     #                 world_y = y * self.tiled_map.tileheight
-    #     #                 screen_x = self.camera.world_to_screen_x(world_x)
-    #     #                 screen_y = self.camera.world_to_screen_y(world_y)
-    #     #                 state.DISPLAY.blit(tile, (screen_x, screen_y))
-    #
-    #         # Draw objects (like player, shops, etc.)
-    #     for obj in self.tiled_map.objects:
-    #         if hasattr(obj, "image") and obj.image:
-    #             screen_x = self.camera.world_to_screen_x(obj.x)
-    #             screen_y = self.camera.world_to_screen_y(obj.y)
-    #             state.DISPLAY.blit(obj.image, (screen_x, screen_y))
-    #
-    #     # self.draw_tiled_background(state)
-    #
-    #     # if not self.playerDead:
-    #     #     self.starship.draw(state.DISPLAY)
-    #
-    #     # if not self.playerDead:
-    #     #     zoom = self.camera.zoom
-    #     #
-    #     #     ship_screen_x = self.camera.world_to_screen_x(self.starship.x)
-    #     #     ship_screen_y = self.camera.world_to_screen_y(self.starship.y)
-    #     #
-    #     #     ship_width = int(self.starship.width * zoom)
-    #     #     ship_height = int(self.starship.height * zoom)
-    #     #
-    #     #     ship_rect = pygame.Rect(
-    #     #         ship_screen_x,
-    #     #         ship_screen_y,
-    #     #         ship_width,
-    #     #         ship_height,
-    #     #     )
-    #     #     pygame.draw.rect(state.DISPLAY, self.starship.color, ship_rect)
-    #
-    #     # enemies
-    #     for enemy in self.bileSpitterGroup:
-    #         zoom = self.camera.zoom
-    #         enemy_x = self.camera.world_to_screen_x(enemy.x)
-    #         enemy_y = self.camera.world_to_screen_y(enemy.y)
-    #         enemy_w = int(enemy.width * zoom)
-    #         enemy_h = int(enemy.height * zoom)
-    #         rect = pygame.Rect(enemy_x, enemy_y, enemy_w, enemy_h)
-    #         pygame.draw.rect(state.DISPLAY, enemy.color, rect)
-    #
-    #     # bullets
-    #     for bullet in self.player_bullets:
-    #         zoom = self.camera.zoom
-    #         bx = self.camera.world_to_screen_x(bullet.x)
-    #         by = self.camera.world_to_screen_y(bullet.y)
-    #         bw = int(bullet.width * zoom)
-    #         bh = int(bullet.height * zoom)
-    #         rect = pygame.Rect(bx, by, bw, bh)
-    #         pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
-    #
-    #     for bullet in self.enemy_bullets:
-    #         zoom = self.camera.zoom
-    #         bx = self.camera.world_to_screen_x(bullet.x)
-    #         by = self.camera.world_to_screen_y(bullet.y)
-    #         bw = int(bullet.width * zoom)
-    #         bh = int(bullet.height * zoom)
-    #         rect = pygame.Rect(bx, by, bw, bh)
-    #         pygame.draw.rect(state.DISPLAY, bullet.color, rect)
-    #
-    #     # DEBUG: draw enemy hitboxes correctly
-    #     zoom = self.camera.zoom
-    #     for enemy in self.bileSpitterGroup:
-    #         hb = pygame.Rect(
-    #             self.camera.world_to_screen_x(enemy.hitbox.x),
-    #             self.camera.world_to_screen_y(enemy.hitbox.y),
-    #             int(enemy.hitbox.width * zoom),
-    #             int(enemy.hitbox.height * zoom)
-    #         )
-    #         pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
-    #
-    #     pygame.display.flip()
 
     def draw_tiled_background(self, surface: Surface) -> None:
         tile_size = self.tile_size
@@ -392,15 +283,6 @@ class LevelOne(VerticalBattleScreen):
         print("LOAD BILE SPITTERS FUNCTION RAN!")
 
         for obj in self.tiled_map.objects:
-            print("--- OBJECT FOUND:", obj.name, obj.type, obj.x, obj.y)
-
-            # ⭐ LOAD PLAYER FROM TILED
-            # if obj.name == "player":
-            #     print(">>> PLAYER FOUND IN TILED <<<")
-            #     self.starship.x = obj.x
-            #     self.starship.y = obj.y
-            #     continue  # don't treat player as enemy
-
             # ⭐ LOAD ENEMIES (existing code)
             if obj.properties.get("Type") == "bile_spitter":
                 enemy = BileSpitter()
@@ -413,5 +295,17 @@ class LevelOne(VerticalBattleScreen):
 
                 self.bileSpitterGroup.append(enemy)
 
-        print("Bile spitter count =", len(self.bileSpitterGroup))
-        print(f"Player loaded at X={self.starship.x}, Y={self.starship.y}")
+            if obj.name == "kamikazi_drone":
+                drone = KamikazeDrone()
+                drone.x = obj.x
+                drone.y = obj.y
+                drone.width = obj.width
+                drone.height = obj.height
+                drone.update_hitbox()
+
+                # add to same enemy group (or make a new one later)
+                self.bileSpitterGroup.append(drone)
+                continue
+
+
+
