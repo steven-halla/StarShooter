@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="200" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="48">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="200" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="73">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="background" width="30" height="200">
   <data encoding="csv">
@@ -241,22 +241,7 @@
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
-  <object id="43" name="bile_spitter" type="BileSpitter" x="189.508" y="683.586" width="16" height="16">
-   <properties>
-    <property name="Type" value="bile_spitter"/>
-   </properties>
-  </object>
-  <object id="46" name="bile_spitter" type="BileSpitter" x="179.685" y="794.923" width="16" height="16">
-   <properties>
-    <property name="Type" value="bile_spitter"/>
-   </properties>
-  </object>
-  <object id="44" name="bile_spitter" type="BileSpitter" x="106.988" y="138.692" width="16" height="16">
-   <properties>
-    <property name="Type" value="bile_spitter"/>
-   </properties>
-  </object>
-  <object id="45" name="bile_spitter" type="BileSpitter" x="179.685" y="794.923" width="16" height="16">
+  <object id="43" name="bile_spitter" type="BileSpitter" x="182.304" y="1358.16" width="16" height="16">
    <properties>
     <property name="Type" value="bile_spitter"/>
    </properties>
@@ -271,7 +256,7 @@
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
-  <object id="47" name="kamikazi_drone" x="184.688" y="2806.99" width="16" height="16"/>
+  <object id="59" name="kamikazi_drone" x="167.005" y="2529.96" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="3" name="collision"/>
  <objectgroup id="6" name="player">

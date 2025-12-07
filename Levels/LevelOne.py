@@ -305,6 +305,9 @@ class LevelOne(VerticalBattleScreen):
 
                 # add to same enemy group (or make a new one later)
                 self.bileSpitterGroup.append(drone)
+                drone.camera = self.camera  # REAL CAMERA
+                drone.target_player = self.starship  # LOCK ON TO PLAYER
+
                 continue
 
 

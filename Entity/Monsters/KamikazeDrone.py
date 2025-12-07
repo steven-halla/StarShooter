@@ -12,6 +12,7 @@ class KamikazeDrone(Enemy):
 
         # movement helper
         self.mover: MoveRectangle = MoveRectangle()
+        self.camera = None
 
         # appearance
         self.width: int = 16
@@ -38,6 +39,11 @@ class KamikazeDrone(Enemy):
     def update(self):
         """Move toward the player and detect collision."""
         self.update_hitbox()
+
+        # check if visible first
+        self.mover.enemy_on_screen(self, self.camera)
+
+
 
         if self.target_player is None:
             return  # no target yet
