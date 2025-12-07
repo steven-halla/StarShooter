@@ -156,13 +156,13 @@ class VerticalBattleScreen:
 
             # If bullet is above the visible screen area → delete
             if screen_y + bullet.height < 0:
-                print(f"[DELETE] Bullet removed at world_y={bullet.y}, screen_y={screen_y}")
+                # print(f"[DELETE] Bullet removed at world_y={bullet.y}, screen_y={screen_y}")
                 self.player_bullets.remove(bullet)
 
-        # AFTER updating everything — print all bullets still alive
-        print("[PLAYER BULLETS IN ARRAY]:")
-        for i, bullet in enumerate(self.player_bullets):
-            print(f"   #{i}: x={bullet.x:.2f}, y={bullet.y:.2f}")
+        # # AFTER updating everything — print all bullets still alive
+        # print("[PLAYER BULLETS IN ARRAY]:")
+        # for i, bullet in enumerate(self.player_bullets):
+        #     print(f"   #{i}: x={bullet.x:.2f}, y={bullet.y:.2f}")
 
 
         # -------------------------
@@ -174,19 +174,36 @@ class VerticalBattleScreen:
         # -------------------------
         screen_top = self.camera.y
         screen_bottom = self.camera.y + (self.window_height / self.camera.zoom)
-
         for bullet in list(self.enemy_bullets):
             bullet.update()
 
-            # delete only when bullet leaves visible WORLD range
-            if bullet.y < screen_top or bullet.y > screen_bottom:
+            # WORLD-SPACE BOUNDS (same logic as player bullets)
+            world_top_delete = self.camera.y - 200
+            world_bottom_delete = self.camera.y + self.window_height + 200
+
+            if bullet.y < world_top_delete or bullet.y > world_bottom_delete:
+                print(f"[DELETE ENEMY] y={bullet.y}, cam_y={self.camera.y}")
                 self.enemy_bullets.remove(bullet)
                 continue
 
+            # Collision check
             if bullet.collide_with_rect(self.starship.hitbox):
                 self.starship.shipHealth -= bullet.damage
                 bullet.is_active = False
                 self.enemy_bullets.remove(bullet)
+
+        # for bullet in list(self.enemy_bullets):
+        #     bullet.update()
+        #
+        #     # delete only when bullet leaves visible WORLD range
+        #     if bullet.y < screen_top or bullet.y > screen_bottom:
+        #         self.enemy_bullets.remove(bullet)
+        #         continue
+        #
+        #     if bullet.collide_with_rect(self.starship.hitbox):
+        #         self.starship.shipHealth -= bullet.damage
+        #         bullet.is_active = False
+        #         self.enemy_bullets.remove(bullet)
         # _, window_height = GlobalConstants.WINDOWS_SIZE
         #
         # for bullet in list(self.enemy_bullets):
