@@ -206,12 +206,12 @@
 </data>
  </layer>
  <objectgroup id="2" name="enemies">
-  <object id="13" name="bile_spitter" type="BileSpitter" x="82.7561" y="2952.24" width="16" height="16">
+  <object id="13" name="bile_spitter" type="BileSpitter" x="170.516" y="2637.22" width="16" height="16">
    <properties>
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
-  <object id="33" name="bile_spitter" type="BileSpitter" x="56.5593" y="2819.29" width="16" height="16">
+  <object id="33" name="bile_spitter" type="BileSpitter" x="44.1158" y="2665.38" width="16" height="16">
    <properties>
     <property name="Type" value="bile_spitter"/>
    </properties>
@@ -258,8 +258,8 @@
   </object>
   <object id="59" name="kamikazi_drone" x="262.624" y="2641.95" width="16" height="16"/>
   <object id="76" name="kamikazi_drone" x="139.498" y="1664.81" width="16" height="16"/>
-  <object id="73" name="tri_spitter" x="19.6477" y="2683.21" width="16" height="16"/>
-  <object id="74" name="tri_spitter" x="23.5772" y="2729.06" width="16" height="16"/>
+  <object id="73" name="tri_spitter" x="16.373" y="2739.54" width="16" height="16"/>
+  <object id="74" name="tri_spitter" x="13.7534" y="2799.14" width="16" height="16"/>
   <object id="75" name="tri_spitter" x="141.463" y="2013.88" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="3" name="collision"/>

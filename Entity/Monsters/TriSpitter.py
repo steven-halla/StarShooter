@@ -13,6 +13,8 @@ class TriSpitter(Enemy):
         super().__init__()
         self.mover: MoveRectangle = MoveRectangle()
         self.id = 0
+        self.freeze_start_time = None
+        self.freeze_duration_ms = 2000  # 2 seconds
 
         # enemy appearance
         self.width: int = 40
@@ -74,29 +76,52 @@ class TriSpitter(Enemy):
     def update(self) -> None:
         super().update()
 
-        # Smooth movement toward player X
-        if hasattr(self, "target_player") and self.target_player is not None:
-            if self.target_player.x > self.x:
-                self.mover.enemy_move_right(self)
-            elif self.target_player.x < self.x:
-                self.mover.enemy_move_left(self)
-
-        # Move normally (side to side) too
-        self.moveAI()
-
         now = pygame.time.get_ticks()
 
-        # -----------------------------------------
-        # 🔥 SHOOT ONLY WHEN X IS ALIGNED WITH PLAYER
-        # -----------------------------------------
-        aligned = abs(self.x - self.target_player.x) <= 5  # 5 px tolerance
+        # -------------------------------
+        # 🔥 If frozen, stay frozen
+        # -------------------------------
+        if self.freeze_start_time is not None:
+            if now - self.freeze_start_time < self.freeze_duration_ms:
+                # Still frozen → don't move
+                # (still update bullets + hitbox)
+                pass
+            else:
+                # Freeze complete
+                self.freeze_start_time = None
 
-        if aligned:
+        else:
+            # -------------------------------
+            # 🔥 Not frozen → move normally
+            # -------------------------------
+            if hasattr(self, "target_player") and self.target_player is not None:
+                # Move toward player's X only if NOT frozen
+                if self.target_player.x > self.x:
+                    self.mover.enemy_move_right(self)
+                elif self.target_player.x < self.x:
+                    self.mover.enemy_move_left(self)
+
+                # ----------------------------------
+                # 🔥 Check if aligned → start freeze
+                # ----------------------------------
+                aligned = abs(self.x - self.target_player.x) <= 5
+                if aligned:
+                    self.freeze_start_time = now
+                    print("Tri Spitter is LOCKED ON and FREEZING for 2 seconds!")
+
+            # Keep using the horizontal AI movement when not locked
+            self.moveAI()
+
+        # -------------------------------
+        # Shooting only allowed if aligned
+        # -------------------------------
+        aligned = abs(self.x - self.target_player.x) <= 5
+        if aligned and self.freeze_start_time is not None:
             if now - self.last_shot_time >= self.fire_interval_ms:
                 self.shoot_triple_bullets()
                 self.last_shot_time = now
 
-        # Move bullets
+        # Move all bullets
         for bullet in self.enemyBullets:
             bullet.y += bullet.speed
 
