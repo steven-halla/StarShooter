@@ -55,12 +55,11 @@ class TriSpitter(Enemy):
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
 
-    def shoot_triple_bullets(self) -> None:
-        """Tri Spitter fires three bullets in a horizontal line."""
+    def shoot_triple_bullets(self):
         base_x = self.x + self.width // 2 - self.bulletWidth // 2
         bullet_y = self.y + self.height
 
-        offsets = [-15, 0, 15]  # 5 pixels apart
+        offsets = [-15, 0, 15]  # left, center, right
 
         for offset in offsets:
             bullet_x = base_x + offset
@@ -69,14 +68,22 @@ class TriSpitter(Enemy):
             bullet.color = self.bulletColor
             bullet.width = self.bulletWidth
             bullet.height = self.bulletHeight
+            bullet.damage = 10
+
+            # Vertical speed (always same)
             bullet.speed = self.bileSpeed
 
-            bullet.rect.width = bullet.width
-            bullet.rect.height = bullet.height
+            # 🔥 YOUR PATTERN: “offset[0] x + 5”
+            # Translation: drift sideways by 5
+            if offset < 0:
+                bullet.dx = -3  # left diagonal
+            elif offset > 0:
+                bullet.dx = 3  # right diagonal
+            else:
+                bullet.dx = 0  # center straight
 
-            bullet.damage = 10
+            bullet.update_rect()
             self.enemyBullets.append(bullet)
-
     def update(self) -> None:
         super().update()
 

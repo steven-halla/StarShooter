@@ -5,6 +5,8 @@ class Bullet:
     DEFAULT_HEIGHT: int = 5
     DEFAULT_SPEED: float = -9.0
     DEFAULT_DAMAGE: int = 1
+    DEFAULT_VERTICAL_SPEED: float = 3.0
+
 
     def __init__(self, x: float, y: float) -> None:
         self.x: float = x
@@ -17,6 +19,10 @@ class Bullet:
 
         # HITBOX RECT — matches position + size
         self.rect: pygame.Rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        # --- Explicit diagonal movement names ---
+        self.diag_speed_x: float = 0.0  # left/right diagonal velocity
+        self.diag_speed_y: float = self.DEFAULT_VERTICAL_SPEED  # downward velocity
+        self.dx = 0   # horizontal movement per frame
 
     # 🔸 NEW helper (keeps hitbox synced)
     def update_rect(self) -> None:
@@ -26,6 +32,7 @@ class Bullet:
         self.rect.height = self.height
 
     def update(self) -> None:
+        self.x += self.dx  # horizontal drift
         self.y += self.speed
         self.update_rect()      # <-- ALWAYS keep hitbox matched
 
