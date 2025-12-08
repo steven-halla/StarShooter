@@ -80,6 +80,7 @@ class LevelOne(VerticalBattleScreen):
     def update(self, state) -> None:
         # run all the normal gameplay logic from the parent
         super().update(state)
+
         # print(self.starship.shipHealth)
 
         # super().update(state)
@@ -281,6 +282,25 @@ class LevelOne(VerticalBattleScreen):
 
         # if player_row == enemy_row:
         #     print(f"🔥 MATCH! Player and enemy are on SAME Y ROW at row={player_row}")
+        # 🔥 HAZARD TILE COLLISION
+        # HAZARD TILE COLLISION (WORLD → WORLD, CORRECT)
+        hazard_layer = self.tiled_map.get_layer_by_name("hazard")
+        player_rect = self.starship.hitbox  # already in WORLD coordinates
+
+        for col, row, tile in hazard_layer.tiles():
+
+            tile_rect = pygame.Rect(
+                col * self.tile_size,
+                row * self.tile_size,
+                self.tile_size,
+                self.tile_size
+            )
+
+            if player_rect.colliderect(tile_rect):
+                self.starship.shipHealth -= 1
+                print("⚠️ Player took hazard damage! Health =", self.starship.shipHealth)
+                break
+
 
     def draw(self, state):
         # print("DRAWING INSTANCE:", id(self.starship))
@@ -394,6 +414,23 @@ class LevelOne(VerticalBattleScreen):
             screen_y = world_y - self.camera_y
 
             # cull off-screen tiles
+            if screen_y + tile_size < 0 or screen_y > window_height:
+                continue
+
+            surface.blit(image, (screen_x, screen_y))
+
+            # -----------------------------
+            # Draw HAZARD layer
+            # -----------------------------
+        hazard_layer = self.tiled_map.get_layer_by_name("hazard")
+
+        for col, row, image in hazard_layer.tiles():
+            world_x = col * tile_size
+            world_y = row * tile_size
+
+            screen_x = world_x
+            screen_y = world_y - self.camera_y
+
             if screen_y + tile_size < 0 or screen_y > window_height:
                 continue
 
