@@ -67,7 +67,7 @@ class MoveRectangle:
         screen_y = camera.world_to_screen_y(enemy.y)
 
         if 0 <= screen_y <= GlobalConstants.WINDOWS_SIZE[1]:
-            print(f"[ENEMY ON SCREEN] x={enemy.x:.2f}, y={enemy.y:.2f}")
+            # print(f"[ENEMY ON SCREEN] x={enemy.x:.2f}, y={enemy.y:.2f}")
             return True
 
         return False

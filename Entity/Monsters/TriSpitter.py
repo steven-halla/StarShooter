@@ -74,25 +74,60 @@ class TriSpitter(Enemy):
     def update(self) -> None:
         super().update()
 
-        # self.mover.player_x_cordinate_lock_on()
+        # Smooth movement toward player X
+        if hasattr(self, "target_player") and self.target_player is not None:
+            if self.target_player.x > self.x:
+                self.mover.enemy_move_right(self)
+            elif self.target_player.x < self.x:
+                self.mover.enemy_move_left(self)
 
-        """Handle firing every 3 seconds + move bullets."""
+        # Move normally (side to side) too
         self.moveAI()
 
         now = pygame.time.get_ticks()
 
+        # -----------------------------------------
+        # 🔥 SHOOT ONLY WHEN X IS ALIGNED WITH PLAYER
+        # -----------------------------------------
+        aligned = abs(self.x - self.target_player.x) <= 5  # 5 px tolerance
 
-        # Time to shoot?
-        if now - self.last_shot_time >= self.fire_interval_ms:
-            self.shoot_triple_bullets()
-            self.last_shot_time = now
+        if aligned:
+            if now - self.last_shot_time >= self.fire_interval_ms:
+                self.shoot_triple_bullets()
+                self.last_shot_time = now
 
-        # Move all bullets DOWN
+        # Move bullets
         for bullet in self.enemyBullets:
             bullet.y += bullet.speed
 
         self.update_hitbox()
 
+    # def update(self) -> None:
+    #     super().update()
+    #
+    #     # self.mover.player_x_cordinate_lock_on()
+    #
+    #     """Handle firing every 3 seconds + move bullets."""
+    #     self.moveAI()
+    #     if hasattr(self, "target_player") and self.target_player is not None:
+    #         if self.target_player.x > self.x:
+    #             self.mover.enemy_move_right(self)
+    #         elif self.target_player.x < self.x:
+    #             self.mover.enemy_move_left(self)
+    #     now = pygame.time.get_ticks()
+    #
+    #
+    #     # Time to shoot?
+    #     if now - self.last_shot_time >= self.fire_interval_ms:
+    #         self.shoot_triple_bullets()
+    #         self.last_shot_time = now
+    #
+    #     # Move all bullets DOWN
+    #     for bullet in self.enemyBullets:
+    #         bullet.y += bullet.speed
+    #
+    #     self.update_hitbox()
+    #
 
 
     # def draw(self, surface: "pygame.Surface") -> None:

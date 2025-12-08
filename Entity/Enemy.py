@@ -22,6 +22,7 @@ class Enemy:
         self.credits: int = 0
         self.hitbox = pygame.Rect(self.x, self.y, self.width, self.height)
         self.camera = None
+        self.enemy_on_screen: bool = False
 
 
 
