@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="200" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="77">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="200" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="90">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="background" width="30" height="200">
   <data encoding="csv">
@@ -231,6 +231,31 @@
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
+  <object id="77" name="bile_spitter" type="BileSpitter" x="70.9675" y="1052.96" width="16" height="16">
+   <properties>
+    <property name="Type" value="bile_spitter"/>
+   </properties>
+  </object>
+  <object id="84" name="bile_spitter" type="BileSpitter" x="78.1717" y="995.984" width="16" height="16">
+   <properties>
+    <property name="Type" value="bile_spitter"/>
+   </properties>
+  </object>
+  <object id="82" name="bile_spitter" type="BileSpitter" x="65.0733" y="454.364" width="16" height="16">
+   <properties>
+    <property name="Type" value="bile_spitter"/>
+   </properties>
+  </object>
+  <object id="85" name="bile_spitter" type="BileSpitter" x="65.0733" y="43.7279" width="16" height="16">
+   <properties>
+    <property name="Type" value="bile_spitter"/>
+   </properties>
+  </object>
+  <object id="83" name="bile_spitter" type="BileSpitter" x="78.1717" y="995.984" width="16" height="16">
+   <properties>
+    <property name="Type" value="bile_spitter"/>
+   </properties>
+  </object>
   <object id="41" name="bile_spitter" type="BileSpitter" x="77.5168" y="1626.67" width="16" height="16">
    <properties>
     <property name="Type" value="bile_spitter"/>
@@ -241,7 +266,7 @@
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
-  <object id="43" name="bile_spitter" type="BileSpitter" x="182.304" y="1358.16" width="16" height="16">
+  <object id="43" name="bile_spitter" type="BileSpitter" x="186.889" y="1195.74" width="16" height="16">
    <properties>
     <property name="Type" value="bile_spitter"/>
    </properties>
@@ -257,8 +282,16 @@
    </properties>
   </object>
   <object id="59" name="kamikazi_drone" x="262.624" y="2641.95" width="16" height="16"/>
-  <object id="76" name="kamikazi_drone" x="139.498" y="1664.81" width="16" height="16"/>
-  <object id="73" name="tri_spitter" x="16.373" y="2739.54" width="16" height="16"/>
+  <object id="76" name="kamikazi_drone" x="139.498" y="1617" width="16" height="16"/>
+  <object id="79" name="kamikazi_drone" x="185.998" y="1020.37" width="16" height="16"/>
+  <object id="81" name="kamikazi_drone" x="149.977" y="473.508" width="16" height="16"/>
+  <object id="86" name="kamikazi_drone" x="139.498" y="39.2953" width="16" height="16"/>
+  <object id="89" name="kamikazi_drone" x="198.441" y="106.752" width="16" height="16"/>
+  <object id="88" name="kamikazi_drone" x="196.477" y="37.9855" width="16" height="16"/>
+  <object id="73" name="tri_spitter" x="195.167" y="1637.96" width="16" height="16"/>
+  <object id="78" name="tri_spitter" x="266.553" y="1022.99" width="16" height="16"/>
+  <object id="80" name="tri_spitter" x="256.074" y="455.171" width="16" height="16"/>
+  <object id="87" name="tri_spitter" x="281.616" y="35.3658" width="16" height="16"/>
   <object id="74" name="tri_spitter" x="13.7534" y="2799.14" width="16" height="16"/>
   <object id="75" name="tri_spitter" x="141.463" y="2013.88" width="16" height="16"/>
  </objectgroup>
