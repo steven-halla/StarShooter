@@ -5,6 +5,7 @@ from pygame import Surface
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
+from Entity.Monsters.TriSpitter import TriSpitter
 from ScreenClasses.Camera import Camera
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
@@ -36,6 +37,7 @@ class LevelOne(VerticalBattleScreen):
 
         self.bileSpitterGroup: list[BileSpitter] = []
         self.kamikazeDroneGroup: list[KamikazeDrone] = []
+        self.triSpitterGroup: list[TriSpitter] = []
 
         self.load_bile_spitters()
 
@@ -143,6 +145,21 @@ class LevelOne(VerticalBattleScreen):
                 self.enemy_bullets.extend(enemy.enemyBullets)
                 enemy.enemyBullets.clear()
 
+        for enemy_tri_spitter in self.triSpitterGroup:
+            enemy_tri_spitter.update()
+            # print("PLAYER HITBOX:", self.starship.hitbox)
+            # print("ENEMY HITBOX:", enemy.hitbox)
+            if self.starship.hitbox.colliderect(enemy_tri_spitter.hitbox):
+                enemy_tri_spitter.color = (135, 206, 235)  # SKYBLUE
+            else:
+
+                enemy_tri_spitter.color = GlobalConstants.RED
+            enemy_tri_spitter.update_hitbox()
+
+            if enemy_tri_spitter.enemyBullets:  # enemy fired bullets
+                self.enemy_bullets.extend(enemy_tri_spitter.enemyBullets)
+                enemy_tri_spitter.enemyBullets.clear()
+
         # -------------------------------------------------------------
         # 🔥 ADDED: PLAYER BULLET COLLISIONS
         # -------------------------------------------------------------
@@ -210,6 +227,32 @@ class LevelOne(VerticalBattleScreen):
 
 
                     break
+
+            for enemy in list(self.triSpitterGroup):
+
+                # Convert enemy to SCREEN space
+                e_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(enemy.x),
+                    self.camera.world_to_screen_y(enemy.y),
+                    int(enemy.width * self.camera.zoom),
+                    int(enemy.height * self.camera.zoom)
+                )
+
+                # print("BULLET RECT:", b_rect)
+                # print("ENEMY RECT:", e_rect)
+                if b_rect.colliderect(e_rect):
+                    enemy.enemyHealth -= self.starship.bulletDamage
+                    bullet.is_active = False
+
+                    print("HIT! New enemy HP =", enemy.enemyHealth)
+
+                    if bullet in self.player_bullets:
+                        self.player_bullets.remove(bullet)
+
+                    if enemy.enemyHealth <= 0:
+                        self.triSpitterGroup.remove(enemy)
+
+                    break
         # -------------------------------------------------------------
         # 🔥 ADDED: ENEMY BULLET → PLAYER COLLISION
         # -------------------------------------------------------------
@@ -262,6 +305,12 @@ class LevelOne(VerticalBattleScreen):
         for enemy in self.bileSpitterGroup:
             enemy.draw(state.DISPLAY, self.camera)
 
+        for enemy_tri_spitter in self.triSpitterGroup:
+            enemy_tri_spitter.draw(state.DISPLAY, self.camera)
+
+        for drone in self.kamikazeDroneGroup:
+            drone.draw(state.DISPLAY, self.camera)
+
         # --- 5. Draw bullets (world → screen) ---
         for bullet in self.player_bullets:
             bx = self.camera.world_to_screen_x(bullet.x)
@@ -297,18 +346,36 @@ class LevelOne(VerticalBattleScreen):
 
 
         # --- 6. Debug: enemy hitboxes ---
-        for enemy in self.bileSpitterGroup:
+        for enemy_tri_spitter in self.triSpitterGroup:
             hb = pygame.Rect(
-                self.camera.world_to_screen_x(enemy.hitbox.x),
-                self.camera.world_to_screen_y(enemy.hitbox.y),
-                int(enemy.hitbox.width * zoom),
-                int(enemy.hitbox.height * zoom)
+                self.camera.world_to_screen_x(enemy_tri_spitter.hitbox.x),
+                self.camera.world_to_screen_y(enemy_tri_spitter.hitbox.y),
+                int(enemy_tri_spitter.hitbox.width * zoom),
+                int(enemy_tri_spitter.hitbox.height * zoom)
             )
             pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
 
+
+        # --- 6. Debug: enemy hitboxes ---
+        # --- Draw TRI SPITTER enemies (world → screen conversion) ---
+        # for enemy_tri_spitter in self.triSpitterGroup:
+        #     sx = self.camera.world_to_screen_x(enemy_tri_spitter.x)
+        #     sy = self.camera.world_to_screen_y(enemy_tri_spitter.y)
+        #
+        #     # scale width/height if needed
+        #     w = int(enemy_tri_spitter.width * self.camera.zoom)
+        #     h = int(enemy_tri_spitter.height * self.camera.zoom)
+        #
+        #     # draw hitbox or sprite
+        #     if hasattr(enemy_tri_spitter, "sprite") and enemy_tri_spitter.sprite:
+        #         scaled = pygame.transform.scale(enemy_tri_spitter.sprite, (w, h))
+        #         state.DISPLAY.blit(scaled, (sx, sy))
+        #     else:
+        #         # fallback: draw colored rectangle
+        #         pygame.draw.rect(state.DISPLAY, enemy.color, pygame.Rect(sx, sy, w, h))
+
         # --- 4b. Draw kamikaze drones ---
-        for drone in self.kamikazeDroneGroup:
-            drone.draw(state.DISPLAY, self.camera)
+
 
         pygame.display.flip()
 
@@ -368,6 +435,24 @@ class LevelOne(VerticalBattleScreen):
                 drone.target_player = self.starship
 
                 continue
+
+            if obj.name == "tri_spitter":
+                enemy_tri_spitter = TriSpitter()
+                enemy_tri_spitter.x = obj.x
+                enemy_tri_spitter.y = obj.y
+                enemy_tri_spitter.width = obj.width
+                enemy_tri_spitter.height = obj.height
+                enemy_tri_spitter.update_hitbox()
+
+                # ⭐ Add to the *correct* group
+                self.triSpitterGroup.append(enemy_tri_spitter)
+
+                # ⭐ Set required references
+                enemy_tri_spitter.camera = self.camera
+                enemy_tri_spitter.target_player = self.starship
+
+                continue
+
 
 
 
