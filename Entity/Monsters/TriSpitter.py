@@ -132,7 +132,7 @@ class TriSpitter(Enemy):
             self.move_direction = -1  # go left
 
     def draw(self, surface: pygame.Surface, camera):
-        sprite_rect = pygame.Rect(0, 344, 32, 32)
+        sprite_rect = pygame.Rect(60, 128, 32, 32)
         sprite = self.tri_spiter_image.subsurface(sprite_rect)
 
         # scale ship with zoom
