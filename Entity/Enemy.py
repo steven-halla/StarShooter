@@ -8,6 +8,8 @@ class Enemy:
     def __init__(self):
         self.height: int = 0
         self.width: int = 0
+        self.mover: MoveRectangle = MoveRectangle()
+
         self.color: tuple = GlobalConstants.RED
         self.x: int = 0
         self.y: int = 0
@@ -19,12 +21,16 @@ class Enemy:
         self.exp: int = 0
         self.credits: int = 0
         self.hitbox = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.camera = None
+
 
 
 
 
     def update(self):
         self.update_hitbox()
+        self.is_on_screen = self.mover.enemy_on_screen(self, self.camera)
+
 
 
     # def draw(self, surface: "pygame.Surface") -> None:

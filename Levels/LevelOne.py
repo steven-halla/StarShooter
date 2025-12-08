@@ -13,7 +13,7 @@ from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 class LevelOne(VerticalBattleScreen):
     def __init__(self):
         super().__init__()
-        print("LEVEL ONE INIT EXECUTED")
+        # print("LEVEL ONE INIT EXECUTED")
 
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level1.tmx")
         self.tile_size: int = self.tiled_map.tileheight
@@ -80,7 +80,7 @@ class LevelOne(VerticalBattleScreen):
     def update(self, state) -> None:
         # run all the normal gameplay logic from the parent
         super().update(state)
-        print(self.starship.shipHealth)
+        # print(self.starship.shipHealth)
 
         # super().update(state)
 
@@ -416,6 +416,9 @@ class LevelOne(VerticalBattleScreen):
                 enemy.width = obj.width
                 enemy.height = obj.height
                 enemy.update_hitbox()
+
+                # ⭐ REQUIRED — THIS WAS MISSING
+                enemy.camera = self.camera
 
                 self.bileSpitterGroup.append(enemy)
 

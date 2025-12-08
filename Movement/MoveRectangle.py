@@ -72,6 +72,7 @@ class MoveRectangle:
 
         return False
 
-
+    def player_x_cordinate_lock_on(self):
+        print("enemy now in battle zone")
 
 

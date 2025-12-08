@@ -73,6 +73,9 @@ class TriSpitter(Enemy):
 
     def update(self) -> None:
         super().update()
+
+        # self.mover.player_x_cordinate_lock_on()
+
         """Handle firing every 3 seconds + move bullets."""
         self.moveAI()
 
@@ -116,6 +119,7 @@ class TriSpitter(Enemy):
 
         if not self.is_moving:
             return
+
 
         # 🔹 use YOUR helpers instead of touching x directly
         if self.move_direction > 0:

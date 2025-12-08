@@ -39,6 +39,8 @@ class KamikazeDrone(Enemy):
         self.is_on_screen = False
 
     def update(self):
+        super().update()
+
         self.update_hitbox()
 
         # check if visible first

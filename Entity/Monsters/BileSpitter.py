@@ -73,6 +73,11 @@ class BileSpitter(Enemy):
 
     def update(self) -> None:
         super().update()
+        self.update_hitbox()
+
+        # print("BILE:", self.y, "CAM:", self.camera.y,
+        #       "SCREEN_Y:", self.camera.world_to_screen_y(self.y))
+
         """Handle firing every 3 seconds + move bullets."""
         self.moveAI()
 
@@ -88,7 +93,6 @@ class BileSpitter(Enemy):
         for bullet in self.enemyBullets:
             bullet.y += bullet.speed
 
-        self.update_hitbox()
 
 
 
