@@ -56,22 +56,26 @@ class TriSpitter(Enemy):
         ).convert_alpha()
 
     def shoot_triple_bullets(self) -> None:
-        """Create a Bullet object and add it to local bullet list."""
-        bullet_x = self.x + self.width // 2 - self.bulletWidth // 2
+        """Tri Spitter fires three bullets in a horizontal line."""
+        base_x = self.x + self.width // 2 - self.bulletWidth // 2
         bullet_y = self.y + self.height
 
-        bullet = Bullet(bullet_x, bullet_y)
-        bullet.color = self.bulletColor
-        bullet.width = self.bulletWidth
-        bullet.height = self.bulletHeight
-        bullet.speed = self.bileSpeed  # positive — travels downward
+        offsets = [-15, 0, 15]  # 5 pixels apart
 
-        # 🔹 keep the rect in sync with the new size
-        bullet.rect.width = bullet.width
-        bullet.rect.height = bullet.height
+        for offset in offsets:
+            bullet_x = base_x + offset
+            bullet = Bullet(bullet_x, bullet_y)
 
-        self.enemyBullets.append(bullet)
-        bullet.damage = 10  # 👈 THIS is your enemy damage
+            bullet.color = self.bulletColor
+            bullet.width = self.bulletWidth
+            bullet.height = self.bulletHeight
+            bullet.speed = self.bileSpeed
+
+            bullet.rect.width = bullet.width
+            bullet.rect.height = bullet.height
+
+            bullet.damage = 10
+            self.enemyBullets.append(bullet)
 
     def update(self) -> None:
         super().update()
