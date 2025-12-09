@@ -242,6 +242,9 @@ class VerticalBattleScreen:
         state.DISPLAY.fill(GlobalConstants.BLACK)
         state.DISPLAY.blit(scaled_scene, (0, 0))
 
+
+
+
         for bullet in self.player_bullets:
             bx = self.camera.world_to_screen_x(bullet.x)
             by = self.camera.world_to_screen_y(bullet.y)
