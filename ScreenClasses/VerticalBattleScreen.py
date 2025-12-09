@@ -242,6 +242,38 @@ class VerticalBattleScreen:
         state.DISPLAY.fill(GlobalConstants.BLACK)
         state.DISPLAY.blit(scaled_scene, (0, 0))
 
+        for bullet in self.player_bullets:
+            bx = self.camera.world_to_screen_x(bullet.x)
+            by = self.camera.world_to_screen_y(bullet.y)
+            bw = int(bullet.width * zoom)
+            bh = int(bullet.height * zoom)
+            rect = pygame.Rect(bx, by, bw, bh)
+            pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
+            # bullet hitbox debug
+            hb_x = bx
+            hb_y = by
+            hb_w = bw
+            hb_h = bh
+            pygame.draw.rect(state.DISPLAY, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 1)
+
+        for bullet in self.enemy_bullets:
+            bx = self.camera.world_to_screen_x(bullet.x)
+            by = self.camera.world_to_screen_y(bullet.y)
+            bw = int(bullet.width * zoom)
+            bh = int(bullet.height * zoom)
+
+            # Draw bullet
+            rect = pygame.Rect(bx, by, bw, bh)
+            pygame.draw.rect(state.DISPLAY, bullet.color, rect)
+
+            # 🔶 Draw hitbox (debug)
+            pygame.draw.rect(
+                state.DISPLAY,
+                (255, 255, 0),  # yellow hitbox
+                (bx, by, bw, bh),
+                3  # thin line
+            )
+
     def draw_tiled_background(self, surface: Surface) -> None:
         tile_size = self.tile_size
         window_width, window_height = GlobalConstants.WINDOWS_SIZE

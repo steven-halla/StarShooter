@@ -285,37 +285,37 @@ class LevelOne(VerticalBattleScreen):
             drone.draw(state.DISPLAY, self.camera)
 
         # --- 5. Draw bullets (world → screen) ---
-        for bullet in self.player_bullets:
-            bx = self.camera.world_to_screen_x(bullet.x)
-            by = self.camera.world_to_screen_y(bullet.y)
-            bw = int(bullet.width * zoom)
-            bh = int(bullet.height * zoom)
-            rect = pygame.Rect(bx, by, bw, bh)
-            pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
-            # bullet hitbox debug
-            hb_x = bx
-            hb_y = by
-            hb_w = bw
-            hb_h = bh
-            pygame.draw.rect(state.DISPLAY, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 1)
-
-        for bullet in self.enemy_bullets:
-            bx = self.camera.world_to_screen_x(bullet.x)
-            by = self.camera.world_to_screen_y(bullet.y)
-            bw = int(bullet.width * zoom)
-            bh = int(bullet.height * zoom)
-
-            # Draw bullet
-            rect = pygame.Rect(bx, by, bw, bh)
-            pygame.draw.rect(state.DISPLAY, bullet.color, rect)
-
-            # 🔶 Draw hitbox (debug)
-            pygame.draw.rect(
-                state.DISPLAY,
-                (255, 255, 0),  # yellow hitbox
-                (bx, by, bw, bh),
-                3  # thin line
-            )
+        # for bullet in self.player_bullets:
+        #     bx = self.camera.world_to_screen_x(bullet.x)
+        #     by = self.camera.world_to_screen_y(bullet.y)
+        #     bw = int(bullet.width * zoom)
+        #     bh = int(bullet.height * zoom)
+        #     rect = pygame.Rect(bx, by, bw, bh)
+        #     pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
+        #     # bullet hitbox debug
+        #     hb_x = bx
+        #     hb_y = by
+        #     hb_w = bw
+        #     hb_h = bh
+        #     pygame.draw.rect(state.DISPLAY, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 1)
+        #
+        # for bullet in self.enemy_bullets:
+        #     bx = self.camera.world_to_screen_x(bullet.x)
+        #     by = self.camera.world_to_screen_y(bullet.y)
+        #     bw = int(bullet.width * zoom)
+        #     bh = int(bullet.height * zoom)
+        #
+        #     # Draw bullet
+        #     rect = pygame.Rect(bx, by, bw, bh)
+        #     pygame.draw.rect(state.DISPLAY, bullet.color, rect)
+        #
+        #     # 🔶 Draw hitbox (debug)
+        #     pygame.draw.rect(
+        #         state.DISPLAY,
+        #         (255, 255, 0),  # yellow hitbox
+        #         (bx, by, bw, bh),
+        #         3  # thin line
+        #     )
 
 
         # --- 6. Debug: enemy hitboxes ---
@@ -333,45 +333,45 @@ class LevelOne(VerticalBattleScreen):
         pygame.display.flip()
 
 
-    def draw_tiled_background(self, surface: Surface) -> None:
-        tile_size = self.tile_size
-        window_width, window_height = GlobalConstants.WINDOWS_SIZE
-        bg_layer = self.tiled_map.get_layer_by_name("background")
+    # def draw_tiled_background(self, surface: Surface) -> None:
+    #     tile_size = self.tile_size
+    #     window_width, window_height = GlobalConstants.WINDOWS_SIZE
+    #     bg_layer = self.tiled_map.get_layer_by_name("background")
+    #
+    #     for col, row, image in bg_layer.tiles():
+    #         world_x = col * tile_size
+    #         world_y = row * tile_size
+    #
+    #         # only apply vertical camera offset, NO zoom here
+    #         screen_x = world_x
+    #         screen_y = world_y - self.camera_y
+    #
+    #         # cull off-screen tiles
+    #         if screen_y + tile_size < 0 or screen_y > window_height:
+    #             continue
+    #
+    #         surface.blit(image, (screen_x, screen_y))
+    #
+    #         # -----------------------------
+    #         # Draw HAZARD layer
+    #         # -----------------------------
+    #     hazard_layer = self.tiled_map.get_layer_by_name("hazard")
+    #
+    #     for col, row, image in hazard_layer.tiles():
+    #         world_x = col * tile_size
+    #         world_y = row * tile_size
+    #
+    #         screen_x = world_x
+    #         screen_y = world_y - self.camera_y
+    #
+    #         if screen_y + tile_size < 0 or screen_y > window_height:
+    #             continue
+    #
+    #         surface.blit(image, (screen_x, screen_y))
 
-        for col, row, image in bg_layer.tiles():
-            world_x = col * tile_size
-            world_y = row * tile_size
-
-            # only apply vertical camera offset, NO zoom here
-            screen_x = world_x
-            screen_y = world_y - self.camera_y
-
-            # cull off-screen tiles
-            if screen_y + tile_size < 0 or screen_y > window_height:
-                continue
-
-            surface.blit(image, (screen_x, screen_y))
-
-            # -----------------------------
-            # Draw HAZARD layer
-            # -----------------------------
-        hazard_layer = self.tiled_map.get_layer_by_name("hazard")
-
-        for col, row, image in hazard_layer.tiles():
-            world_x = col * tile_size
-            world_y = row * tile_size
-
-            screen_x = world_x
-            screen_y = world_y - self.camera_y
-
-            if screen_y + tile_size < 0 or screen_y > window_height:
-                continue
-
-            surface.blit(image, (screen_x, screen_y))
-
-    def draw_background(self, surface: Surface) -> None:
-        # use the tiled background instead of bands
-        self.draw_tiled_background(surface)
+    # def draw_background(self, surface: Surface) -> None:
+    #     # use the tiled background instead of bands
+    #     self.draw_tiled_background(surface)
 
     def load_enemy_into_list(self):
         print("LOAD BILE SPITTERS FUNCTION RAN!")
