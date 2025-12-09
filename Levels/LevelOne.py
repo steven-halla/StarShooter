@@ -32,8 +32,10 @@ class LevelOne(VerticalBattleScreen):
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
         # self.move_screen_speed: float = .5
+
+
         # how many pixels the camera moves up per frame
-        self.map_scroll_speed_per_frame: float = .8
+        self.map_scroll_speed_per_frame: float = .4
 
         self.bileSpitterGroup: list[BileSpitter] = []
         self.kamikazeDroneGroup: list[KamikazeDrone] = []
@@ -81,55 +83,15 @@ class LevelOne(VerticalBattleScreen):
         # run all the normal gameplay logic from the parent
         super().update(state)
 
-        # print(self.starship.shipHealth)
 
-        # super().update(state)
 
-        # # now handle map scroll ONLY in LevelOne
-        # _, window_height = GlobalConstants.WINDOWS_SIZE
-        #
-        # # move camera UP in world space (so map scrolls down)
-        # self.camera_y -= self.map_scroll_speed_per_frame
-        #
-        # # clamp so we never scroll past top or bottom of the map
-        # max_camera_y = self.WORLD_HEIGHT - window_height
-        # if max_camera_y < 0:
-        #     max_camera_y = 0
-        #
-        # if self.camera_y < 0:
-        #     self.camera_y = 0
-        # elif self.camera_y > max_camera_y:
-        #     self.camera_y = max_camera_y
-        #
-        # # keep Camera object in sync
-        # self.camera.y = float(self.camera_y)
-
-        # -------------------------------------------------------------
-        # 🔥 ADDED: ENEMY UPDATE + ENEMY SHOOTING
-        # -------------------------------------------------------------
-        # -------------------------------------------------------------
-        # 🔥 UPDATE KAMIKAZE DRONES
-        # -------------------------------------------------------------
         for drone in list(self.kamikazeDroneGroup):
             drone.update()
 
             if drone.enemyHealth <= 0:
                 self.kamikazeDroneGroup.remove(drone)
                 continue
-        # for drone in list(self.kamikazeDroneGroup):
-        #     drone.update()
-        #
-        #     # remove drone when health reaches zero
-        #     if drone.enemyHealth <= 0:
-        #         self.kamikazeDroneGroup.remove(drone)
-        #         continue
-        #
-        #     # collision with player (kamikaze impact)
-        #     if self.starship.hitbox.colliderect(drone.hitbox):
-        #         self.starship.shipHealth -= drone.explosion_damage
-        #         drone.enemyHealth = 0  # force removal next frame
-        #         if drone in self.kamikazeDroneGroup:
-        #             self.kamikazeDroneGroup.remove(drone)
+
 
         for enemy in self.bileSpitterGroup:
             enemy.update()
@@ -274,32 +236,23 @@ class LevelOne(VerticalBattleScreen):
             first_enemy = self.bileSpitterGroup[0]
             enemy_row = int(first_enemy.y // tile_h)
 
-            # print(f"[ROW CHECK] Player row={player_row} | Enemy row={enemy_row}")
-            # print(f"[Y PIXEL] Player Y={self.starship.y} | Enemy Y={first_enemy.y}")
 
-        # print(f"[ROW CHECK] Player row={player_row} | Enemy row={enemy_row}")
-        # print(f"[Y PIXEL] Player Y={self.starship.y} | Enemy Y={enemy.y}")
-
-        # if player_row == enemy_row:
-        #     print(f"🔥 MATCH! Player and enemy are on SAME Y ROW at row={player_row}")
-        # 🔥 HAZARD TILE COLLISION
-        # HAZARD TILE COLLISION (WORLD → WORLD, CORRECT)
-        hazard_layer = self.tiled_map.get_layer_by_name("hazard")
-        player_rect = self.starship.hitbox  # already in WORLD coordinates
-
-        for col, row, tile in hazard_layer.tiles():
-
-            tile_rect = pygame.Rect(
-                col * self.tile_size,
-                row * self.tile_size,
-                self.tile_size,
-                self.tile_size
-            )
-
-            if player_rect.colliderect(tile_rect):
-                self.starship.shipHealth -= 1
-                print("⚠️ Player took hazard damage! Health =", self.starship.shipHealth)
-                break
+        # hazard_layer = self.tiled_map.get_layer_by_name("hazard")
+        # player_rect = self.starship.hitbox  # already in WORLD coordinates
+        #
+        # for col, row, tile in hazard_layer.tiles():
+        #
+        #     tile_rect = pygame.Rect(
+        #         col * self.tile_size,
+        #         row * self.tile_size,
+        #         self.tile_size,
+        #         self.tile_size
+        #     )
+        #
+        #     if player_rect.colliderect(tile_rect):
+        #         self.starship.shipHealth -= 1
+        #         print("⚠️ Player took hazard damage! Health =", self.starship.shipHealth)
+        #         break
 
 
     def draw(self, state):

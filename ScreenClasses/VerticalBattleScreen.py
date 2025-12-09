@@ -1,5 +1,6 @@
 import pygame
 from pygame import Surface
+import pytmx
 
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
@@ -15,6 +16,10 @@ class VerticalBattleScreen:
         self.starship: StarShip = StarShip()
         # self.isStart: bool = True
         self.playerDead: bool = False
+        self.tiled_map = pytmx.load_pygame("")
+        self.tile_size: int = self.tiled_map.tileheight
+
+
 
         self.mover: MoveRectangle = MoveRectangle()
         self.controller: KeyBoardControls = KeyBoardControls()
@@ -23,6 +28,8 @@ class VerticalBattleScreen:
         self.STARSHIP_BOTTOM_OFFSET: int = 100
         self.MIN_X: int = 0
         self.MIN_Y: int = 0
+        self.map_scroll_speed_per_frame: float = 4334.33
+
 
         self.was_q_pressed_last_frame: bool = False
 
@@ -31,9 +38,9 @@ class VerticalBattleScreen:
 
         self.WORLD_HEIGHT: int = GlobalConstants.WINDOWS_SIZE[1] * 3
 
-        self.SCROLL_SPEED_PER_SECOND: float = 100.0
+        self.SCROLL_SPEED_PER_SECOND: float = 55.0
         self.camera_y: float = 0.0
-        self.SCROLL_SPEED_PER_FRAME: float = 111.0
+        self.SCROLL_SPEED_PER_FRAME: float = 55.0
 
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
         self.window_width = window_width
@@ -76,10 +83,7 @@ class VerticalBattleScreen:
         elif self.starship.y > max_y:
             self.starship.y = max_y
 
-    def update(self, state):
-        # print("PLAYER UPDATE Y:", self.starship.y)
-        # print("STARSHIP INSTANCE:", id(self.starship))
-        # now handle map scroll ONLY in LevelOne
+    def move_map_y_axis(self):
         _, window_height = GlobalConstants.WINDOWS_SIZE
 
         # move camera UP in world space (so map scrolls down)
@@ -97,6 +101,13 @@ class VerticalBattleScreen:
 
         # keep Camera object in sync
         self.camera.y = float(self.camera_y)
+
+    def update(self, state):
+        # print("PLAYER UPDATE Y:", self.starship.y)
+        # print("STARSHIP INSTANCE:", id(self.starship))
+        # now handle map scroll ONLY in LevelOne
+        self.move_map_y_axis()
+
 
         if not hasattr(self, "start_has_run"):
             self.start(state)  # This calls LevelOne.start()
@@ -193,6 +204,24 @@ class VerticalBattleScreen:
                 self.starship.shipHealth -= bullet.damage
                 bullet.is_active = False
                 self.enemy_bullets.remove(bullet)
+
+        hazard_layer = self.tiled_map.get_layer_by_name("hazard")
+        player_rect = self.starship.hitbox  # already in WORLD coordinates
+
+
+        for col, row, tile in hazard_layer.tiles():
+
+            tile_rect = pygame.Rect(
+                col * self.tile_size,
+                row * self.tile_size,
+                self.tile_size,
+                self.tile_size
+            )
+
+            if player_rect.colliderect(tile_rect):
+                self.starship.shipHealth -= 1
+                print("⚠️ Player took hazard damage! Health =", self.starship.shipHealth)
+                break
 
 
 
