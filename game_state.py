@@ -2,6 +2,8 @@ import pygame
 import json
 
 from Constants.GlobalConstants import GlobalConstants
+from Levels.LevelTwo import LevelTwo
+from Levels.levelThree import LevelThree
 from ScreenClasses.Screen import Screen
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 from Levels.LevelOne import LevelOne

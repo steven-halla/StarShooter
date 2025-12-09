@@ -10,12 +10,12 @@ from ScreenClasses.Camera import Camera
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
-class LevelOne(VerticalBattleScreen):
+class LevelThree(VerticalBattleScreen):
     def __init__(self):
         super().__init__()
         # print("LEVEL ONE INIT EXECUTED")
 
-        self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level1.tmx")
+        self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level3.tmx")
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
@@ -85,7 +85,7 @@ class LevelOne(VerticalBattleScreen):
 
         # super().update(state)
 
-        # # now handle map scroll ONLY in LevelOne
+        # now handle map scroll ONLY in LevelOne
         # _, window_height = GlobalConstants.WINDOWS_SIZE
         #
         # # move camera UP in world space (so map scrolls down)
@@ -445,7 +445,7 @@ class LevelOne(VerticalBattleScreen):
 
         for obj in self.tiled_map.objects:
             # ⭐ LOAD ENEMIES (existing code)
-            if obj.properties.get("Type") == "bile_spitter":
+            if obj.name  == "bile_spitter":
                 enemy = BileSpitter()
                 enemy.x = obj.x
                 enemy.y = obj.y

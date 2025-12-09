@@ -50,9 +50,7 @@ class VerticalBattleScreen:
 
     def start(self, state):
         pass
-        window_width, window_height = GlobalConstants.WINDOWS_SIZE
-        # self.starship.x = window_width // self.STARSHIP_HORIZONTAL_CENTER_DIVISOR
-        # self.starship.y = window_height - self.STARSHIP_BOTTOM_OFFSET
+
 
     def clamp_starship_to_screen(self):
         zoom = self.camera.zoom
@@ -81,6 +79,24 @@ class VerticalBattleScreen:
     def update(self, state):
         # print("PLAYER UPDATE Y:", self.starship.y)
         # print("STARSHIP INSTANCE:", id(self.starship))
+        # now handle map scroll ONLY in LevelOne
+        _, window_height = GlobalConstants.WINDOWS_SIZE
+
+        # move camera UP in world space (so map scrolls down)
+        self.camera_y -= self.map_scroll_speed_per_frame
+
+        # clamp so we never scroll past top or bottom of the map
+        max_camera_y = self.WORLD_HEIGHT - window_height
+        if max_camera_y < 0:
+            max_camera_y = 0
+
+        if self.camera_y < 0:
+            self.camera_y = 0
+        elif self.camera_y > max_camera_y:
+            self.camera_y = max_camera_y
+
+        # keep Camera object in sync
+        self.camera.y = float(self.camera_y)
 
         if not hasattr(self, "start_has_run"):
             self.start(state)  # This calls LevelOne.start()
@@ -141,13 +157,6 @@ class VerticalBattleScreen:
 
             self.starship.bullet_timer.reset()
 
-        # Update player bullets
-        # for bullet in list(self.player_bullets):
-        #     bullet.update()
-        #     if bullet.y + bullet.height < 0:
-        #         self.player_bullets.remove(bullet)
-        # Update player bullets
-        # Update player bullets
         for bullet in list(self.player_bullets):
             bullet.update()
 
@@ -159,16 +168,9 @@ class VerticalBattleScreen:
                 # print(f"[DELETE] Bullet removed at world_y={bullet.y}, screen_y={screen_y}")
                 self.player_bullets.remove(bullet)
 
-        # # AFTER updating everything — print all bullets still alive
-        # print("[PLAYER BULLETS IN ARRAY]:")
-        # for i, bullet in enumerate(self.player_bullets):
-        #     print(f"   #{i}: x={bullet.x:.2f}, y={bullet.y:.2f}")
 
 
-        # -------------------------
-        # ENEMY BULLETS ONLY
-        # (LevelOne puts bullets into self.enemy_bullets)
-        # -------------------------
+
         # -------------------------
         # ENEMY BULLETS ONLY
         # -------------------------
@@ -192,32 +194,7 @@ class VerticalBattleScreen:
                 bullet.is_active = False
                 self.enemy_bullets.remove(bullet)
 
-        # for bullet in list(self.enemy_bullets):
-        #     bullet.update()
-        #
-        #     # delete only when bullet leaves visible WORLD range
-        #     if bullet.y < screen_top or bullet.y > screen_bottom:
-        #         self.enemy_bullets.remove(bullet)
-        #         continue
-        #
-        #     if bullet.collide_with_rect(self.starship.hitbox):
-        #         self.starship.shipHealth -= bullet.damage
-        #         bullet.is_active = False
-        #         self.enemy_bullets.remove(bullet)
-        # _, window_height = GlobalConstants.WINDOWS_SIZE
-        #
-        # for bullet in list(self.enemy_bullets):
-        #     bullet.update()
-        #
-        #     if bullet.y > window_height:
-        #         self.enemy_bullets.remove(bullet)
-        #         continue
-        #
-        #     if bullet.collide_with_rect(self.starship.hitbox):
-        #         self.starship.shipHealth -= bullet.damage
-        #         self.starship.on_hit()
-        #         if not bullet.is_active:
-        #             self.enemy_bullets.remove(bullet)
+
 
     def draw(self, state) -> None:
 
@@ -226,20 +203,8 @@ class VerticalBattleScreen:
 
         scene_surface = pygame.Surface((window_width, window_height))
 
-        # Background FIRST
         self.draw_background(scene_surface)
 
-        # Starship SECOND (only sliced sprite)
-        # if not self.playerDead:
-        #     self.starship.draw(scene_surface, self.camera)
-        # Bullets
-        # for bullet in self.player_bullets:
-        #     bullet.draw(scene_surface)
-        #
-        # for bullet in self.enemy_bullets:
-        #     bullet.draw(scene_surface)
-
-        # Scale + present
         scaled_scene = pygame.transform.scale(
             scene_surface,
             (int(window_width * zoom), int(window_height * zoom))
@@ -248,32 +213,7 @@ class VerticalBattleScreen:
         state.DISPLAY.fill(GlobalConstants.BLACK)
         state.DISPLAY.blit(scaled_scene, (0, 0))
 
-    # def draw(self, state) -> None:
-    #     window_width, window_height = GlobalConstants.WINDOWS_SIZE
-    #     zoom = self.camera.zoom
-    #
-    #     scene_surface = pygame.Surface((window_width, window_height))
-    #
-    #     self.draw_background(scene_surface)
-    #
-    #     if not self.playerDead:
-    #         self.starship.draw(scene_surface)
-    #
-    #     # LevelOne draws enemies — not this class.
-    #
-    #     for bullet in self.player_bullets:
-    #         bullet.draw(scene_surface)
-    #
-    #     for bullet in self.enemy_bullets:
-    #         bullet.draw(scene_surface)
-    #
-    #     scaled_scene = pygame.transform.scale(
-    #         scene_surface,
-    #         (int(window_width * zoom), int(window_height * zoom))
-    #     )
-    #
-    #     state.DISPLAY.fill(GlobalConstants.BLACK)
-    #     state.DISPLAY.blit(scaled_scene, (0, 0))
+
 
 
     def draw_background(self, surface: Surface) -> None:

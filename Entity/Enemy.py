@@ -13,7 +13,7 @@ class Enemy:
         self.color: tuple = GlobalConstants.RED
         self.x: int = 0
         self.y: int = 0
-        self.moveEnemy = MoveRectangle()
+        # self.moveEnemy = MoveRectangle()
         self.moveSpeed: float = 0.0
         self.enemyHealth: int = 0
         self.enemySpecialMoves: list = []
