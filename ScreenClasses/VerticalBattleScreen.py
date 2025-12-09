@@ -232,7 +232,7 @@ class VerticalBattleScreen:
 
         scene_surface = pygame.Surface((window_width, window_height))
 
-        self.draw_background(scene_surface)
+        self.draw_tiled_background(scene_surface)
 
         scaled_scene = pygame.transform.scale(
             scene_surface,
@@ -242,13 +242,48 @@ class VerticalBattleScreen:
         state.DISPLAY.fill(GlobalConstants.BLACK)
         state.DISPLAY.blit(scaled_scene, (0, 0))
 
+    def draw_tiled_background(self, surface: Surface) -> None:
+        tile_size = self.tile_size
+        window_width, window_height = GlobalConstants.WINDOWS_SIZE
+        bg_layer = self.tiled_map.get_layer_by_name("background")
+
+        for col, row, image in bg_layer.tiles():
+            world_x = col * tile_size
+            world_y = row * tile_size
+
+            # only apply vertical camera offset, NO zoom here
+            screen_x = world_x
+            screen_y = world_y - self.camera_y
+
+            # cull off-screen tiles
+            if screen_y + tile_size < 0 or screen_y > window_height:
+                continue
+
+            surface.blit(image, (screen_x, screen_y))
+
+            # -----------------------------
+            # Draw HAZARD layer
+            # -----------------------------
+        hazard_layer = self.tiled_map.get_layer_by_name("hazard")
+
+        for col, row, image in hazard_layer.tiles():
+            world_x = col * tile_size
+            world_y = row * tile_size
+
+            screen_x = world_x
+            screen_y = world_y - self.camera_y
+
+            if screen_y + tile_size < 0 or screen_y > window_height:
+                continue
+
+            surface.blit(image, (screen_x, screen_y))
 
 
 
-    def draw_background(self, surface: Surface) -> None:
-        self.draw_scrolling_background(surface)
+    # def draw_background(self, surface: Surface) -> None:
+    #     self.draw_scrolling_background(surface)
 
 
-    def draw_scrolling_background(self, surface: "Surface") -> None:
-        # Your scrolling band background unchanged
-        pass
+    # def draw_scrolling_background(self, surface: "Surface") -> None:
+    #     # Your scrolling band background unchanged
+    #     pass

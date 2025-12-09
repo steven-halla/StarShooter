@@ -39,7 +39,7 @@ class LevelThree(VerticalBattleScreen):
         self.kamikazeDroneGroup: list[KamikazeDrone] = []
         self.triSpitterGroup: list[TriSpitter] = []
 
-        self.load_bile_spitters()
+        self.load_enemy_into_list()
 
     def start(self, state) -> None:
         # --- LOAD PLAYER SPAWN FROM TILED ---
@@ -440,7 +440,7 @@ class LevelThree(VerticalBattleScreen):
         # use the tiled background instead of bands
         self.draw_tiled_background(surface)
 
-    def load_bile_spitters(self):
+    def load_enemy_into_list(self):
         print("LOAD BILE SPITTERS FUNCTION RAN!")
 
         for obj in self.tiled_map.objects:

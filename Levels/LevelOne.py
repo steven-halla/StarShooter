@@ -41,7 +41,7 @@ class LevelOne(VerticalBattleScreen):
         self.kamikazeDroneGroup: list[KamikazeDrone] = []
         self.triSpitterGroup: list[TriSpitter] = []
 
-        self.load_bile_spitters()
+        self.load_enemy_into_list()
 
     def start(self, state) -> None:
         # --- LOAD PLAYER SPAWN FROM TILED ---
@@ -329,26 +329,6 @@ class LevelOne(VerticalBattleScreen):
             pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
 
 
-        # --- 6. Debug: enemy hitboxes ---
-        # --- Draw TRI SPITTER enemies (world → screen conversion) ---
-        # for enemy_tri_spitter in self.triSpitterGroup:
-        #     sx = self.camera.world_to_screen_x(enemy_tri_spitter.x)
-        #     sy = self.camera.world_to_screen_y(enemy_tri_spitter.y)
-        #
-        #     # scale width/height if needed
-        #     w = int(enemy_tri_spitter.width * self.camera.zoom)
-        #     h = int(enemy_tri_spitter.height * self.camera.zoom)
-        #
-        #     # draw hitbox or sprite
-        #     if hasattr(enemy_tri_spitter, "sprite") and enemy_tri_spitter.sprite:
-        #         scaled = pygame.transform.scale(enemy_tri_spitter.sprite, (w, h))
-        #         state.DISPLAY.blit(scaled, (sx, sy))
-        #     else:
-        #         # fallback: draw colored rectangle
-        #         pygame.draw.rect(state.DISPLAY, enemy.color, pygame.Rect(sx, sy, w, h))
-
-        # --- 4b. Draw kamikaze drones ---
-
 
         pygame.display.flip()
 
@@ -393,7 +373,7 @@ class LevelOne(VerticalBattleScreen):
         # use the tiled background instead of bands
         self.draw_tiled_background(surface)
 
-    def load_bile_spitters(self):
+    def load_enemy_into_list(self):
         print("LOAD BILE SPITTERS FUNCTION RAN!")
 
         for obj in self.tiled_map.objects:
