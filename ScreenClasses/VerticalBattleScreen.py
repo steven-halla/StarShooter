@@ -315,10 +315,3 @@ class VerticalBattleScreen:
 
 
 
-    # def draw_background(self, surface: Surface) -> None:
-    #     self.draw_scrolling_background(surface)
-
-
-    # def draw_scrolling_background(self, surface: "Surface") -> None:
-    #     # Your scrolling band background unchanged
-    #     pass
