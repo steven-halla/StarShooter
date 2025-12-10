@@ -25,7 +25,7 @@ class BileSpitter(Enemy):
         self.bulletHeight: int = 20
 
         # firing + bullet movement
-        self.bileSpeed: int = 1          # speed of bullet moving DOWN
+        self.bileSpeed: int = 3          # speed of bullet moving DOWN
         self.fire_interval_ms: int = 3000 # shoot every 3 seconds
         self.last_shot_time: int = pygame.time.get_ticks()
 

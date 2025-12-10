@@ -142,31 +142,11 @@ class VerticalBattleScreen:
 
         # -------------------------
         # PLAYER SHOOTING ONLY
-        # -------------------------
-        if (
-            self.controller.main_weapon_button
-            and self.starship.bullet_timer.is_ready()
-            and not self.playerDead
-        ):
-            center_x = self.starship.x + self.starship.width // 2 + 14
-            bullet_y = self.starship.y
+        # # -------------------------
+        if self.controller.main_weapon_button and not self.playerDead:
+            new_bullets = self.starship.fire_weapon()
+            self.player_bullets.extend(new_bullets)
 
-            spread = self.starship.bullet_spread_offset
-            count = self.starship.bullets_per_shot
-            start_index = -(count // 2)
-
-            for i in range(count):
-                offset = (start_index + i) * spread
-                bullet_x = center_x + offset - Bullet.DEFAULT_WIDTH // 2
-                # self.player_bullets.append(Bullet(bullet_x, bullet_y))
-                bullet_world_x = bullet_x
-                bullet_world_y = bullet_y
-
-                self.player_bullets.append(Bullet(bullet_world_x, bullet_world_y))
-                # print(f"SHIP WORLD POS: ({self.starship.x}, {self.starship.y})")
-                # print(f"BULLET SPAWN POS: ({bullet_x}, {bullet_y})")
-
-            self.starship.bullet_timer.reset()
 
         for bullet in list(self.player_bullets):
             bullet.update()
@@ -195,7 +175,7 @@ class VerticalBattleScreen:
             world_bottom_delete = self.camera.y + self.window_height + 200
 
             if bullet.y < world_top_delete or bullet.y > world_bottom_delete:
-                print(f"[DELETE ENEMY] y={bullet.y}, cam_y={self.camera.y}")
+                # print(f"[DELETE ENEMY] y={bullet.y}, cam_y={self.camera.y}")
                 self.enemy_bullets.remove(bullet)
                 continue
 

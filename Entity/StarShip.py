@@ -9,6 +9,7 @@ import pygame
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Movement.MoveRectangle import MoveRectangle
+from Weapons.Bullet import Bullet
 
 
 class StarShip():
@@ -24,9 +25,8 @@ class StarShip():
         # firing stats
         self.bullet_fire_interval_seconds: float = 0.05
         self.bullet_timer: Timer = Timer(self.bullet_fire_interval_seconds)
-        self.bullet_spread_offset: int = 30
+        self.bullet_spread_offset: int = 18
         self.bullets_per_shot: int = 2
-        self.bullet_vertical_spacing: int = 22
         self.bulletDamage: int = 1
 
         self.hitbox: pygame.Rect = pygame.Rect(
@@ -42,17 +42,67 @@ class StarShip():
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
 
+        # the below handles post hit invinciblity
+        self.invincible: bool = False
+        self.last_health: int = self.shipHealth
+        self.invincibility_timer: Timer = Timer(11.0)
+
+    def start_invincibility(self) -> None:
+        # Begin a 10-second invincibility period
+        self.invincible = True
+        self.invincibility_timer.reset()
+
+    def fire_weapon(self) -> list:
+        # If the weapon is not ready, return no bullets
+        if not self.bullet_timer.is_ready():
+            return []
+
+        bullets = []
+
+        center_x = self.x + self.width // 2 + 10
+        bullet_y = self.y
+
+        spread = self.bullet_spread_offset
+        count = self.bullets_per_shot
+        start_index = -(count // 2)
+
+        for i in range(count):
+            offset = (start_index + i) * spread
+            bullet_x = center_x + offset - Bullet.DEFAULT_WIDTH // 2
+
+            bullet_world_x = bullet_x
+            bullet_world_y = bullet_y
+
+            bullets.append(Bullet(bullet_world_x, bullet_world_y))
+
+        # Reset cooldown after firing
+        self.bullet_timer.reset()
+
+        return bullets
+
     def update(self) -> None:
         self.update_hitbox()
-        # print(self.shipHealth)
+        print(self.shipHealth)
 
-    # def draw(self, surface: "pygame.Surface") -> None:
-    #     sprite_rect = pygame.Rect(10, 220, 32, 32)  # Adjust if needed
-    #     sprite = self.player_image.subsurface(sprite_rect)
-    #     scaled_sprite = pygame.transform.scale(sprite, (16, 16))
-    #     sprite_x = self.x - 20
-    #     sprite_y = self.y - 10
-    #     surface.blit(scaled_sprite, (sprite_x, sprite_y))
+        # Detect health drop → trigger invincibility
+        # Detect health drop → trigger invincibility AND lock in new health
+        if self.shipHealth < self.last_health and not self.invincible:
+            self.last_health = self.shipHealth  # lock in the new lower HP
+            self.start_invincibility()
+
+        # If invincible, check if timer has finished
+        if self.invincible:
+            if self.invincibility_timer.is_ready():
+                # End invincibility
+                self.invincible = False
+            else:
+                # Ignore any incoming damage (freeze HP)
+                self.shipHealth = self.last_health
+
+        # After invincibility ends, allow last_health to match current HP normally
+        if not self.invincible:
+            self.last_health = self.shipHealth
+
     def draw(self, surface: pygame.Surface, camera):
         sprite_rect = pygame.Rect(10, 220, 32, 32)
         sprite = self.player_image.subsurface(sprite_rect)
@@ -80,6 +130,7 @@ class StarShip():
         hb_h = int(self.hitbox.height * camera.zoom)
 
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
+
 
     def update_hitbox(self) -> None:
         self.hitbox.topleft = (int(self.x), int(self.y))

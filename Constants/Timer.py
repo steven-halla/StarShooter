@@ -1,6 +1,5 @@
 import pygame
 
-
 class Timer:
     MS_PER_SECOND: int = 1000
 
