@@ -34,6 +34,7 @@ class VerticalBattleScreen:
         self.was_q_pressed_last_frame: bool = False
 
         self.player_bullets: list = []
+        self.player_missiles: list = []
         self.enemy_bullets: list = []     # LevelOne can append to this list
 
         self.WORLD_HEIGHT: int = GlobalConstants.WINDOWS_SIZE[1] * 3
@@ -143,9 +144,32 @@ class VerticalBattleScreen:
         # -------------------------
         # PLAYER SHOOTING ONLY
         # # -------------------------
+
+        if self.controller.fire_missiles:
+            missile = self.starship.fire_missile()
+            if missile is not None:
+                self.player_missiles.append(missile)
+
         if self.controller.main_weapon_button and not self.playerDead:
-            new_bullets = self.starship.fire_weapon()
+            new_bullets = self.starship.fire_twin_linked_machinegun()
             self.player_bullets.extend(new_bullets)
+
+
+
+        # -------------------------
+        # PLAYER MISSILES ONLY
+        # -------------------------
+        for missile in list(self.player_missiles):
+            missile.update()
+
+            # Convert to screen space for culling
+            screen_y = missile.y - self.camera.y
+
+            # If missile goes above screen → delete
+            if screen_y + missile.height < 0:
+                self.player_missiles.remove(missile)
+
+
 
 
         for bullet in list(self.player_bullets):
@@ -159,8 +183,9 @@ class VerticalBattleScreen:
                 # print(f"[DELETE] Bullet removed at world_y={bullet.y}, screen_y={screen_y}")
                 self.player_bullets.remove(bullet)
 
-
-
+        # -------------------------
+        # MISSILE → ENEMY COLLISION
+        # -------------------------
 
         # -------------------------
         # ENEMY BULLETS ONLY
@@ -207,6 +232,8 @@ class VerticalBattleScreen:
 
     def draw(self, state) -> None:
 
+
+
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
         zoom = self.camera.zoom
 
@@ -222,7 +249,25 @@ class VerticalBattleScreen:
         state.DISPLAY.fill(GlobalConstants.BLACK)
         state.DISPLAY.blit(scaled_scene, (0, 0))
 
+        # -------------------------
+        # DRAW PLAYER MISSILES
+        # -------------------------
+        for missile in self.player_missiles:
+            mx = self.camera.world_to_screen_x(missile.x)
+            my = self.camera.world_to_screen_y(missile.y)
+            mw = int(missile.width * zoom)
+            mh = int(missile.height * zoom)
 
+            rect = pygame.Rect(mx, my, mw, mh)
+            pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
+
+            # debug hitbox outline
+            pygame.draw.rect(
+                state.DISPLAY,
+                (255, 255, 0),
+                (mx, my, mw, mh),
+                1
+            )
 
 
         for bullet in self.player_bullets:

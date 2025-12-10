@@ -41,8 +41,40 @@ class LevelOne(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
+        # Missile firing (override parent behavior)
+        if self.controller.fire_missiles:
+            missile = self.starship.fire_missile()
+            if missile is not None:
+
+                # Lock onto nearest enemy
+                missile.target_enemy = self.get_nearest_enemy(missile)
+
+                # Compute initial direction toward target
+                if missile.target_enemy is not None:
+                    dx = missile.target_enemy.x - missile.x
+                    dy = missile.target_enemy.y - missile.y
+                    dist = max(1, (dx * dx + dy * dy) ** 0.5)
+                    missile.direction_x = dx / dist
+                    missile.direction_y = dy / dist
+                else:
+                    # No enemy → missile goes straight upward
+                    missile.direction_x = 0
+                    missile.direction_y = -1
+
+                # Add to missile list
+                self.player_missiles.append(missile)
+
+                if missile.target_enemy is not None:
+                    print(f"Missile locked onto: {type(missile.target_enemy).__name__} "
+                          f"at ({missile.target_enemy.x}, {missile.target_enemy.y})")
+                else:
+                    print("Missile locked onto: NONE (no enemies found)")
         self.enemy_helper()
+
         self.bullet_helper()
+
+        self.extract_object_names()
+
 
     def draw(self, state):
         super().draw(state)
@@ -76,6 +108,43 @@ class LevelOne(VerticalBattleScreen):
             pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
 
         pygame.display.flip()
+
+    def get_nearest_enemy(self, missile):
+        enemies = (
+                list(self.bileSpitterGroup) +
+                list(self.kamikazeDroneGroup) +
+                list(self.triSpitterGroup)
+        )
+
+        if not enemies:
+            return None
+
+        nearest_enemy = None
+        nearest_dist = float("inf")
+        mx, my = missile.x, missile.y
+
+        for enemy in enemies:
+            dx = enemy.x - mx
+            dy = enemy.y - my
+            dist_sq = dx * dx + dy * dy
+
+            if dist_sq < nearest_dist:
+                nearest_dist = dist_sq
+                nearest_enemy = enemy
+
+        return nearest_enemy
+
+    def extract_object_names(self) -> list[str]:
+        """
+        Returns a list of all object.name strings found in the Tiled map.
+        """
+        names = []
+
+        for obj in self.tiled_map.objects:
+            if hasattr(obj, "name") and obj.name:
+                names.append(obj.name)
+        # print(names)
+        return names
 
     def load_enemy_into_list(self):
         for obj in self.tiled_map.objects:
@@ -147,6 +216,79 @@ class LevelOne(VerticalBattleScreen):
                 enemy_tri_spitter.enemyBullets.clear()
 
     def bullet_helper(self):
+        # -------------------------
+        # MISSILE → ENEMY COLLISION
+        # -------------------------
+        for missile in list(self.player_missiles):
+
+            m_rect = pygame.Rect(
+                self.camera.world_to_screen_x(missile.x),
+                self.camera.world_to_screen_y(missile.y),
+                int(missile.width * self.camera.zoom),
+                int(missile.height * self.camera.zoom)
+            )
+
+            # --- KAMIKAZE DRONES ---
+            for drone in list(self.kamikazeDroneGroup):
+                d_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(drone.x),
+                    self.camera.world_to_screen_y(drone.y),
+                    int(drone.width * self.camera.zoom),
+                    int(drone.height * self.camera.zoom)
+                )
+
+                if m_rect.colliderect(d_rect):
+                    drone.enemyHealth -= self.starship.missileDamage
+                    missile.is_active = False
+
+                    if missile in self.player_missiles:
+                        self.player_missiles.remove(missile)
+
+                    if drone.enemyHealth <= 0:
+                        self.kamikazeDroneGroup.remove(drone)
+                    break
+
+            # --- BILE SPITTERS ---
+            for enemy in list(self.bileSpitterGroup):
+                e_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(enemy.x),
+                    self.camera.world_to_screen_y(enemy.y),
+                    int(enemy.width * self.camera.zoom),
+                    int(enemy.height * self.camera.zoom)
+                )
+
+                if m_rect.colliderect(e_rect):
+                    enemy.enemyHealth -= self.starship.missileDamage
+                    missile.is_active = False
+
+                    if missile in self.player_missiles:
+                        self.player_missiles.remove(missile)
+
+                    if enemy.enemyHealth <= 0:
+                        self.bileSpitterGroup.remove(enemy)
+                    break
+
+            # --- TRI SPITTERS ---
+            for enemy in list(self.triSpitterGroup):
+                e_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(enemy.x),
+                    self.camera.world_to_screen_y(enemy.y),
+                    int(enemy.width * self.camera.zoom),
+                    int(enemy.height * self.camera.zoom)
+                )
+
+                if m_rect.colliderect(e_rect):
+                    enemy.enemyHealth -= self.starship.missileDamage
+                    missile.is_active = False
+
+                    if missile in self.player_missiles:
+                        self.player_missiles.remove(missile)
+
+                    if enemy.enemyHealth <= 0:
+                        self.triSpitterGroup.remove(enemy)
+                    break
+
+
         for bullet in list(self.player_bullets):
 
             b_rect = pygame.Rect(
@@ -225,7 +367,6 @@ class LevelOne(VerticalBattleScreen):
                     self.playerDead = True
 
                 self.enemy_bullets.remove(bullet)
-
         tile_h = self.tile_size
 
         player_row = int(self.starship.y // tile_h)

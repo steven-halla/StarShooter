@@ -10,6 +10,7 @@ from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
+from Weapons.Missile import Missile
 
 
 class StarShip():
@@ -22,12 +23,19 @@ class StarShip():
         self.moveStarShip: MoveRectangle = MoveRectangle()
         self.speed: float = 5.0
 
-        # firing stats
+        # firing stats for machien gun
         self.bullet_fire_interval_seconds: float = 0.05
         self.bullet_timer: Timer = Timer(self.bullet_fire_interval_seconds)
         self.bullet_spread_offset: int = 18
         self.bullets_per_shot: int = 2
         self.bulletDamage: int = 1
+        # missile stats
+        self.missile_fire_interval_seconds: float = 1.0
+        self.missile_timer: Timer = Timer(self.missile_fire_interval_seconds)
+        self.missileDamage: int = 100
+        self.missileSpeed: int = 10
+        self.missile_spread_offset: int = 20
+
 
         self.hitbox: pygame.Rect = pygame.Rect(
             int(self.x),
@@ -45,14 +53,31 @@ class StarShip():
         # the below handles post hit invinciblity
         self.invincible: bool = False
         self.last_health: int = self.shipHealth
-        self.invincibility_timer: Timer = Timer(11.0)
+        self.invincibility_timer: Timer = Timer(2.0)
 
     def start_invincibility(self) -> None:
         # Begin a 10-second invincibility period
         self.invincible = True
         self.invincibility_timer.reset()
 
-    def fire_weapon(self) -> list:
+    def fire_missile(self):
+        # Only fire if timer is ready
+        if not self.missile_timer.is_ready():
+            return None
+
+        # Spawn position (center of ship)
+        missile_x = self.x + self.width // 2
+        missile_y = self.y
+
+        # Create the missile
+        missile = Missile(missile_x, missile_y)
+
+        # Reset cooldown
+        self.missile_timer.reset()
+
+        return missile
+
+    def fire_twin_linked_machinegun(self) -> list:
         # If the weapon is not ready, return no bullets
         if not self.bullet_timer.is_ready():
             return []
@@ -82,7 +107,7 @@ class StarShip():
 
     def update(self) -> None:
         self.update_hitbox()
-        print(self.shipHealth)
+        # print(self.shipHealth)
 
         # Detect health drop → trigger invincibility
         # Detect health drop → trigger invincibility AND lock in new health

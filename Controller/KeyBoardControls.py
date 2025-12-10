@@ -10,6 +10,7 @@ class KeyBoardControls:
         self.isExitPressed: bool = False
         self.isFPressed: bool = False
         self.isQPressed: bool = False
+        self.isAPressed: bool = False
 
     def update(self) -> None:
         for event in pygame.event.get():
@@ -29,6 +30,8 @@ class KeyBoardControls:
                     self.isFPressed = True
                 elif event.key == pygame.K_q:
                     self.isQPressed = True
+                elif event.key == pygame.K_a:
+                    self.isAPressed = True
 
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
@@ -43,6 +46,8 @@ class KeyBoardControls:
                     self.isFPressed = False
                 elif event.key == pygame.K_q:
                     self.isQPressed = False
+                elif event.key == pygame.K_a:
+                    self.isAPressed = False
 
     @property
     def left_button(self) -> bool:
@@ -65,6 +70,15 @@ class KeyBoardControls:
     def main_weapon_button(self) -> bool:
         return self.isFPressed
 
+
+    @property
+    def fire_missiles(self) -> bool:
+        return self.isAPressed
+
     @property
     def q_button(self) -> bool:
         return self.isQPressed
+
+    @property
+    def a_button(self) -> bool:
+        return self.isAPressed
