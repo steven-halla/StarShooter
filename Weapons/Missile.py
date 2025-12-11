@@ -26,6 +26,10 @@ class Missile:
 
     def update(self) -> None:
 
+        # If target is gone, dead, or off-screen → clear target
+        if (self.target_enemy is None or
+                self.target_enemy.enemyHealth <= 0):
+            self.target_enemy = None
         # --- HOMING LOGIC ---
         if getattr(self, "target_enemy", None) is not None:
             dx = self.target_enemy.x - self.x
