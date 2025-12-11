@@ -119,11 +119,23 @@ class LevelOne(VerticalBattleScreen):
         if not enemies:
             return None
 
+        # Visible camera bounds (world coordinates)
+        visible_top = self.camera.y
+        visible_bottom = self.camera.y + (self.window_height / self.camera.zoom)
+
         nearest_enemy = None
         nearest_dist = float("inf")
         mx, my = missile.x, missile.y
 
         for enemy in enemies:
+
+            # ⛔ Skip enemies outside the screen
+            if enemy.y + enemy.height < visible_top:
+                continue  # enemy is above screen
+            if enemy.y > visible_bottom:
+                continue  # enemy is below screen
+
+            # distance calculation
             dx = enemy.x - mx
             dy = enemy.y - my
             dist_sq = dx * dx + dy * dy
