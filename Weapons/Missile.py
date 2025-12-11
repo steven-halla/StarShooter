@@ -8,8 +8,8 @@ class Missile:
         self.y: float = y
         self.width: int = 12
         self.height: int = 12
-        self.speed: float = -10
-        self.rateOfFire: float = 5.0
+        self.speed: float = -5
+        self.rateOfFire: float = .5
         self.missileNumber: int = 1
 
         self.rect: pygame.Rect = pygame.Rect(self.x, self.y, self.width, self.height)
@@ -24,11 +24,32 @@ class Missile:
         self.rect.width = self.width
         self.rect.height = self.height
 
-
     def update(self) -> None:
-        self.x += self.dx  # horizontal drift
-        self.y += self.speed
-        self.update_rect()  # <-- ALWAYS keep hitbox matched
+
+        # --- HOMING LOGIC ---
+        if getattr(self, "target_enemy", None) is not None:
+            dx = self.target_enemy.x - self.x
+            dy = self.target_enemy.y - self.y
+            dist = max(1, (dx * dx + dy * dy) ** 0.5)
+            print(f"Homing → Target at ({self.target_enemy.x}, {self.target_enemy.y})")
+
+            # normalized direction
+            self.direction_x = dx / dist
+            self.direction_y = dy / dist
+
+            # apply missile speed toward target
+            speed = abs(self.speed)
+            self.x += self.direction_x * speed
+            self.y += self.direction_y * speed
+
+        else:
+            # --- DEFAULT (non-homing) MOVEMENT ---
+            self.x += self.dx
+            self.y += self.speed
+
+
+        # Keep hitbox matched to position
+        self.update_rect()
 
 
     def draw(self, surface: "pygame.Surface") -> None:

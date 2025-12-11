@@ -160,8 +160,13 @@ class VerticalBattleScreen:
         # PLAYER MISSILES ONLY
         # -------------------------
         for missile in list(self.player_missiles):
-            missile.update()
 
+            # Make sure missile has a target BEFORE updating
+            if getattr(missile, "target_enemy", None) is None:
+                if hasattr(self, "get_nearest_enemy"):
+                    missile.target_enemy = self.get_nearest_enemy(missile)
+
+            missile.update()
             # Convert to screen space for culling
             screen_y = missile.y - self.camera.y
 

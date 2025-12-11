@@ -30,7 +30,7 @@ class LevelOne(VerticalBattleScreen):
         player_y = None
 
         for obj in self.tiled_map.objects:
-            if obj.name == "player":  # <-- You placed this in Tiled
+            if obj.name == "player":  # this string comes from Tiled
                 player_x = obj.x
                 player_y = obj.y
                 break
