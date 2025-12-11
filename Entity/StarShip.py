@@ -2,8 +2,7 @@
 # from Constants.GlobalConstants import GlobalConstants
 # from Constants.Timer import Timer
 # from Movement.MoveRectangle import MoveRectangle
-#
-#
+
 
 import pygame
 from Constants.GlobalConstants import GlobalConstants
@@ -30,7 +29,7 @@ class StarShip():
         self.bullets_per_shot: int = 2
         self.bulletDamage: int = 1
         # missile stats
-        self.missile_fire_interval_seconds: float = 1.0
+        self.missile_fire_interval_seconds: float = 3.0
         self.missile_timer: Timer = Timer(self.missile_fire_interval_seconds)
         self.missileDamage: int = 100
         self.missileSpeed: int = 10
