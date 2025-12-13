@@ -19,7 +19,7 @@ class Camera:
         # zoom
         self.zoom: float = initial_zoom
         self.min_zoom: float = 1.0
-        self.max_zoom: float = 3.0
+        self.max_zoom: float = 4.0
 
     # -------- camera movement (vertical) --------
     def scroll_up(self) -> None:

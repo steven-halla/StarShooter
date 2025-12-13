@@ -4,12 +4,15 @@ from Constants.GlobalConstants import GlobalConstants
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.TriSpitter import TriSpitter
+from Entity.StarShip import StarShip
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
 class LevelOne(VerticalBattleScreen):
     def __init__(self):
         super().__init__()
+        self.starship: StarShip = StarShip()
+
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level1.tmx")
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width

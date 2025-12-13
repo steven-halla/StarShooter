@@ -5,8 +5,8 @@ class GlobalConstants():
     def __init__(self):
         self.name: str = ""
 
-    BASE_WINDOW_HEIGHT: int = 800
-    BASE_WINDOW_WIDTH: int = 896
+    BASE_WINDOW_HEIGHT: int = 700
+    BASE_WINDOW_WIDTH: int = 700
     WINDOWS_SIZE: tuple[int, int] = (BASE_WINDOW_WIDTH, BASE_WINDOW_HEIGHT)
     #colors
     BLACK: tuple[int, int, int] = (0, 0, 0)

@@ -11,6 +11,8 @@ class KeyBoardControls:
         self.isFPressed: bool = False
         self.isQPressed: bool = False
         self.isAPressed: bool = False
+        self.isDPressed: bool = False
+        self.isSPressed: bool = False
 
     def update(self) -> None:
         for event in pygame.event.get():
@@ -32,6 +34,10 @@ class KeyBoardControls:
                     self.isQPressed = True
                 elif event.key == pygame.K_a:
                     self.isAPressed = True
+                elif event.key == pygame.K_d:
+                    self.isDPressed = True
+                elif event.key == pygame.K_s:
+                    self.isSPressed = True
 
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
@@ -48,6 +54,10 @@ class KeyBoardControls:
                     self.isQPressed = False
                 elif event.key == pygame.K_a:
                     self.isAPressed = False
+                elif event.key == pygame.K_d:
+                    self.isDPressed = False
+                elif event.key == pygame.K_s:
+                    self.isSPressed = False
 
     @property
     def left_button(self) -> bool:
@@ -76,9 +86,25 @@ class KeyBoardControls:
         return self.isAPressed
 
     @property
+    def magic_1_button(self) -> bool:
+        return self.isDPressed
+
+    @property
+    def magic_2_button(self) -> bool:
+        return self.isSPressed
+
+    @property
     def q_button(self) -> bool:
         return self.isQPressed
 
     @property
     def a_button(self) -> bool:
         return self.isAPressed
+
+    @property
+    def d_button(self) -> bool:
+        return self.isDPressed
+
+    @property
+    def s_button(self) -> bool:
+        return self.isSPressed

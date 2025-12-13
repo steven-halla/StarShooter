@@ -20,7 +20,7 @@ class StarShip():
         self.x: int = 0
         self.y: int = 0
         self.moveStarShip: MoveRectangle = MoveRectangle()
-        self.speed: float = 5.0
+        self.speed: float = 3.0
 
         # firing stats for machien gun
         self.bullet_fire_interval_seconds: float = 0.05
@@ -34,6 +34,7 @@ class StarShip():
         self.missileDamage: int = 100
         self.missileSpeed: int = 10
         self.missile_spread_offset: int = 20
+
 
 
         self.hitbox: pygame.Rect = pygame.Rect(

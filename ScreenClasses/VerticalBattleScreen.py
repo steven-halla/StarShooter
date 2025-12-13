@@ -13,7 +13,6 @@ from Weapons.Bullet import Bullet
 
 class VerticalBattleScreen:
     def __init__(self):
-        self.starship: StarShip = StarShip()
         # self.isStart: bool = True
         self.playerDead: bool = False
         self.tiled_map = pytmx.load_pygame("")
@@ -52,7 +51,7 @@ class VerticalBattleScreen:
             window_height=window_height,
             world_height=self.WORLD_HEIGHT,
             scroll_speed_per_frame=self.SCROLL_SPEED_PER_FRAME,
-            initial_zoom=2.0,   # DO NOT TOUCH CAMERA SETTINGS
+            initial_zoom=2.5,   # DO NOT TOUCH CAMERA SETTINGS
         )
 
 

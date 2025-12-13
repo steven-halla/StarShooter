@@ -297,3 +297,26 @@ Build Tranistion screen class
 -Black screen
 - Uses Text screen class to display a message about things if needed
 
+
+
+Things left to build:
+Heat - I need to build this last because it ties into everything
+I dont think its needed to have mutliple missile/beam types, feels a bit too much.
+Magic attacks will bring much needed variety
+
+magic:
+Shield - creates a spinning orb around ship that can block 1 attack
+Buster cannon - can do micro shots or charged shots
+Fireball - launch any direction with D pad
+Stealth - dont take damage for a short time and cant attack
+Flame thrower - Short range and very powerful
+Ice Missiles - Missiles now freeze enemies
+Explosisve shells - bullets now explode
+Reflective shields - damage enemies that hurt you
+Wave   Beam - wide beam
+Saber beams - sticks out to the side of aircraft
+Land mine - slowly moves forward  and deals large explosion
+acid cloud - all enemies are dealt damage over time
+
+
+
