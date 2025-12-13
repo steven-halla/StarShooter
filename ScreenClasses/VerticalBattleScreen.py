@@ -2,6 +2,7 @@ import pygame
 from pygame import Surface
 import pytmx
 
+
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Controller.KeyBoardControls import KeyBoardControls
@@ -9,6 +10,7 @@ from Entity.StarShip import StarShip
 from Movement.MoveRectangle import MoveRectangle
 from ScreenClasses.Camera import Camera
 from Weapons.Bullet import Bullet
+# from game_state import GameState
 
 
 class VerticalBattleScreen:
@@ -32,6 +34,7 @@ class VerticalBattleScreen:
 
         self.was_q_pressed_last_frame: bool = False
 
+        self.buster_cannon_bullets: list = []
         self.player_bullets: list = []
         self.player_missiles: list = []
         self.enemy_bullets: list = []     # LevelOne can append to this list
@@ -105,7 +108,7 @@ class VerticalBattleScreen:
         # keep Camera object in sync
         self.camera.y = float(self.camera_y)
 
-    def update(self, state):
+    def update(self, state: 'GameState'):
         # print("PLAYER UPDATE Y:", self.starship.y)
         # print("STARSHIP INSTANCE:", id(self.starship))
         # now handle map scroll ONLY in LevelOne
@@ -147,7 +150,7 @@ class VerticalBattleScreen:
         # PLAYER SHOOTING ONLY
         # # -------------------------
 
-        if self.controller.fire_missiles:
+        if self.controller.fire_missiles and not self.playerDead:
             missile = self.starship.fire_missile()
             if missile is not None:
                 self.player_missiles.append(missile)
@@ -156,7 +159,21 @@ class VerticalBattleScreen:
             new_bullets = self.starship.fire_twin_linked_machinegun()
             self.player_bullets.extend(new_bullets)
 
+        # -------------------------
+        # PLAYER MAGIC FIRING
+        # -------------------------
+        # Slot 0 → magic_1_button
+        # Slot 0 → magic_1_button
+        if state.starship.equipped_magic[0] == "Buster Cannon" and self.controller.magic_1_button:
+            # call the appropriate spell-casting logic
+            shots = state.starship.fire_buster_cannon()
+            self.buster_cannon_bullets.extend(shots)
 
+        # Slot 1 → magic_2_button
+        if state.starship.equipped_magic[1] == "Buster Cannon" and self.controller.magic_2_button:
+            # call the appropriate spell-casting logic
+            shots = state.starship.fire_buster_cannon()
+            self.buster_cannon_bullets.extend(shots)
 
         # -------------------------
         # PLAYER MISSILES ONLY
@@ -189,6 +206,19 @@ class VerticalBattleScreen:
             if screen_y + bullet.height < 0:
                 # print(f"[DELETE] Bullet removed at world_y={bullet.y}, screen_y={screen_y}")
                 self.player_bullets.remove(bullet)
+
+        # -------------------------
+        # BUSTER CANNON BULLET CLEANUP
+        # -------------------------
+        for bc in list(self.buster_cannon_bullets):
+            bc.update()
+
+            # Convert to screen space (same method as regular bullets)
+            screen_y = bc.y - self.camera.y
+
+            # If the buster cannon shot goes above the visible screen → delete
+            if screen_y + bc.height < 0:
+                self.buster_cannon_bullets.remove(bc)
 
         # -------------------------
         # MISSILE → ENEMY COLLISION
@@ -307,6 +337,27 @@ class VerticalBattleScreen:
                 (255, 255, 0),  # yellow hitbox
                 (bx, by, bw, bh),
                 3  # thin line
+            )
+
+        # -------------------------
+        # DRAW BUSTER CANNON BULLETS
+        # -------------------------
+        for bc in self.buster_cannon_bullets:
+            bx = self.camera.world_to_screen_x(bc.x)
+            by = self.camera.world_to_screen_y(bc.y)
+            bw = int(bc.width * zoom)  # auto-handles small vs charged size
+            bh = int(bc.height * zoom)
+
+            # Draw projectile
+            rect = pygame.Rect(bx, by, bw, bh)
+            pygame.draw.rect(state.DISPLAY, (0, 200, 255), rect)  # cyan for magic shot
+
+            # Draw hitbox outline (debug)
+            pygame.draw.rect(
+                state.DISPLAY,
+                (255, 255, 0),  # yellow outline
+                (bx, by, bw, bh),
+                1
             )
 
     def draw_tiled_background(self, surface: Surface) -> None:

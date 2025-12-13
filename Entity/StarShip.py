@@ -9,18 +9,23 @@ from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
+from Weapons.BusterCannon import BusterCanon
 from Weapons.Missile import Missile
 
 
 class StarShip():
     def __init__(self):
         self.height: int = 16
+
         self.width: int = 16
         self.color: tuple[int, int, int] = GlobalConstants.BLUE
         self.x: int = 0
         self.y: int = 0
         self.moveStarShip: MoveRectangle = MoveRectangle()
         self.speed: float = 3.0
+        self.buster_cannon_cooldown = Timer(0.5)
+        # the weapon itself manages charge status
+        self.buster_cannon = BusterCanon(self.x, self.y)
 
         # firing stats for machien gun
         self.bullet_fire_interval_seconds: float = 0.05
@@ -34,7 +39,7 @@ class StarShip():
         self.missileDamage: int = 100
         self.missileSpeed: int = 10
         self.missile_spread_offset: int = 20
-        self.equipped_magic: list = [None, None]
+        self.equipped_magic: list = ["Buster Cannon", None]
 
 
 
@@ -62,6 +67,23 @@ class StarShip():
         # Begin a 10-second invincibility period
         self.invincible = True
         self.invincibility_timer.reset()
+
+    def fire_buster_cannon(self):
+        """Use the BusterCanon’s own state to determine projectile size/damage."""
+        if not self.buster_cannon_cooldown.is_ready():
+            return []
+
+        # ask the weapon what kind of shot to fire; this resets its charge state
+        damage = self.buster_cannon.fire()
+        # the weapon’s width/height have been set by its own fire() method
+        projectile = BusterCanon(self.x + self.width//2, self.y)
+        projectile.width = self.buster_cannon.width
+        projectile.height = self.buster_cannon.height
+        projectile.speed = self.buster_cannon.speed
+        projectile.damage = damage
+
+        self.buster_cannon_cooldown.reset()
+        return [projectile]
 
     def fire_missile(self):
         # Only fire if timer is ready

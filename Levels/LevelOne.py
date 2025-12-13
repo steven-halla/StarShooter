@@ -201,6 +201,7 @@ class LevelOne(VerticalBattleScreen):
                 continue
 
     def enemy_helper(self):
+
         for drone in list(self.kamikazeDroneGroup):
             drone.update()
 
