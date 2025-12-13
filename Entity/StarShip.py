@@ -23,7 +23,7 @@ class StarShip():
         self.y: int = 0
         self.moveStarShip: MoveRectangle = MoveRectangle()
         self.speed: float = 3.0
-        self.buster_cannon_cooldown = Timer(0.5)
+        self.buster_cannon_cooldown = Timer(0.25)
         # the weapon itself manages charge status
         self.buster_cannon = BusterCanon(self.x, self.y)
 
