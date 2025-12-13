@@ -259,6 +259,11 @@ class VerticalBattleScreen:
             if screen_y + bc.height < 0:
                 self.buster_cannon_bullets.remove(bc)
 
+            # -------------------------
+            # BUSTER CANNON → ENEMY COLLISION
+            # -------------------------
+
+
         # -------------------------
         # MISSILE → ENEMY COLLISION
         # -------------------------
@@ -382,19 +387,20 @@ class VerticalBattleScreen:
         # DRAW BUSTER CANNON BULLETS
         # -------------------------
         for bc in self.buster_cannon_bullets:
+            print("jf;dalsj;lfjdasl;fj;lsajfljsal;fj;dsljfl;jaslfdlsa")
             bx = self.camera.world_to_screen_x(bc.x)
             by = self.camera.world_to_screen_y(bc.y)
-            bw = int(bc.width * zoom)  # auto-handles small vs charged size
+            bw = int(bc.width * zoom)
             bh = int(bc.height * zoom)
 
-            # Draw projectile
+            # Draw buster cannon projectile
             rect = pygame.Rect(bx, by, bw, bh)
-            pygame.draw.rect(state.DISPLAY, (222, 222, 222), rect)  # cyan for magic shot
+            pygame.draw.rect(state.DISPLAY, (222, 222, 222), rect)
 
-            # Draw hitbox outline (debug)
+            # Buster cannon hitbox debug (yellow outline)
             pygame.draw.rect(
                 state.DISPLAY,
-                (255, 255, 0),  # yellow outline
+                (255, 255, 0),
                 (bx, by, bw, bh),
                 1
             )

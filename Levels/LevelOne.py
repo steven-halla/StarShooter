@@ -306,6 +306,77 @@ class LevelOne(VerticalBattleScreen):
                         self.triSpitterGroup.remove(enemy)
                     break
 
+        # -------------------------
+        # BUSTER CANNON → ENEMY COLLISION
+        # -------------------------
+        for bc in list(self.buster_cannon_bullets):
+
+            bc_rect = pygame.Rect(
+                self.camera.world_to_screen_x(bc.x),
+                self.camera.world_to_screen_y(bc.y),
+                int(bc.width * self.camera.zoom),
+                int(bc.height * self.camera.zoom)
+            )
+
+            # --- KAMIKAZE DRONES ---
+            for drone in list(self.kamikazeDroneGroup):
+                d_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(drone.x),
+                    self.camera.world_to_screen_y(drone.y),
+                    int(drone.width * self.camera.zoom),
+                    int(drone.height * self.camera.zoom)
+                )
+
+                if bc_rect.colliderect(d_rect):
+                    drone.enemyHealth -= bc.damage
+                    bc.is_active = False
+
+                    if bc in self.buster_cannon_bullets:
+                        self.buster_cannon_bullets.remove(bc)
+
+                    if drone.enemyHealth <= 0:
+                        self.kamikazeDroneGroup.remove(drone)
+                    break
+
+            # --- BILE SPITTERS ---
+            for enemy in list(self.bileSpitterGroup):
+                e_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(enemy.x),
+                    self.camera.world_to_screen_y(enemy.y),
+                    int(enemy.width * self.camera.zoom),
+                    int(enemy.height * self.camera.zoom)
+                )
+
+                if bc_rect.colliderect(e_rect):
+                    enemy.enemyHealth -= bc.damage
+                    bc.is_active = False
+
+                    if bc in self.buster_cannon_bullets:
+                        self.buster_cannon_bullets.remove(bc)
+
+                    if enemy.enemyHealth <= 0:
+                        self.bileSpitterGroup.remove(enemy)
+                    break
+
+            # --- TRI SPITTERS ---
+            for enemy in list(self.triSpitterGroup):
+                e_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(enemy.x),
+                    self.camera.world_to_screen_y(enemy.y),
+                    int(enemy.width * self.camera.zoom),
+                    int(enemy.height * self.camera.zoom)
+                )
+
+                if bc_rect.colliderect(e_rect):
+                    enemy.enemyHealth -= bc.damage
+                    bc.is_active = False
+
+                    if bc in self.buster_cannon_bullets:
+                        self.buster_cannon_bullets.remove(bc)
+
+                    if enemy.enemyHealth <= 0:
+                        self.triSpitterGroup.remove(enemy)
+                    break
 
         for bullet in list(self.player_bullets):
 

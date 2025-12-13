@@ -10,6 +10,9 @@ class BusterCanon(Weapon):
         self.base_damage: int = 10
         self.charge_shot_damage: int = 40
         self.magic_name: str = "Buster Cannon"
+        # Shot type labels
+        self.NORMAL_BUSTER_SHOT: str = "NORMAL_BUSTER_SHOT"
+        self.CHARGED_BUSTER_SHOT: str = "CHARGED_BUSTER_SHOT"
 
         # Default projectile size (small shot)
         self.small_w: int = 12

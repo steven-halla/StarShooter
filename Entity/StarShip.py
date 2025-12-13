@@ -77,10 +77,23 @@ class StarShip():
         damage = self.buster_cannon.fire()
         # the weapon’s width/height have been set by its own fire() method
         projectile = Bullet(self.x + self.width // 2, self.y)
+
+        projectile.shot_type = (
+            self.buster_cannon.CHARGED_BUSTER_SHOT
+            if self.buster_cannon.fully_charged
+            else self.buster_cannon.NORMAL_BUSTER_SHOT
+        )
+
         projectile.width = self.buster_cannon.width
         projectile.height = self.buster_cannon.height
         projectile.speed = self.buster_cannon.speed
         projectile.damage = damage
+        projectile.update_rect()
+        # projectile = Bullet(self.x + self.width // 2, self.y)
+        # projectile.width = self.buster_cannon.width
+        # projectile.height = self.buster_cannon.height
+        # projectile.speed = self.buster_cannon.speed
+        # projectile.damage = damage
 
         self.buster_cannon_cooldown.reset()
         return [projectile]
