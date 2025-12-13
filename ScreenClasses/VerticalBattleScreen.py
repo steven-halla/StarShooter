@@ -395,14 +395,13 @@ class VerticalBattleScreen:
 
             # Draw buster cannon projectile
             rect = pygame.Rect(bx, by, bw, bh)
-            pygame.draw.rect(state.DISPLAY, (222, 222, 222), rect)
+            pygame.draw.rect(state.DISPLAY, (1, 1, 1), rect)
 
-            # Buster cannon hitbox debug (yellow outline)
             pygame.draw.rect(
                 state.DISPLAY,
                 (255, 255, 0),
-                (bx, by, bw, bh),
-                1
+                (bx - 2, by - 2, bw + 4, bh + 4),
+                5
             )
 
     def draw_tiled_background(self, surface: Surface) -> None:
