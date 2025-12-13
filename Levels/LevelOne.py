@@ -11,7 +11,7 @@ from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 class LevelOne(VerticalBattleScreen):
     def __init__(self):
         super().__init__()
-        self.starship: StarShip = StarShip()
+        # self.starship: StarShip = StarShip()
 
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level1.tmx")
         self.tile_size: int = self.tiled_map.tileheight
@@ -26,7 +26,7 @@ class LevelOne(VerticalBattleScreen):
         self.bileSpitterGroup: list[BileSpitter] = []
         self.kamikazeDroneGroup: list[KamikazeDrone] = []
         self.triSpitterGroup: list[TriSpitter] = []
-        self.load_enemy_into_list()
+        # self.load_enemy_into_list()
 
     def start(self, state) -> None:
         player_x = None
@@ -41,6 +41,8 @@ class LevelOne(VerticalBattleScreen):
         self.starship.x = player_x
         self.starship.y = player_y
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
+        self.load_enemy_into_list()
+
 
     def update(self, state) -> None:
         super().update(state)

@@ -34,6 +34,9 @@ class StarShip():
         self.missileDamage: int = 100
         self.missileSpeed: int = 10
         self.missile_spread_offset: int = 20
+        self.equipped_magic: list = [None, None]
+
+
 
 
 

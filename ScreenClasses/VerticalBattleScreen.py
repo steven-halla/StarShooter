@@ -58,6 +58,9 @@ class VerticalBattleScreen:
     def start(self, state):
         pass
 
+    def set_player(self, player):
+        self.starship = player
+
 
     def clamp_starship_to_screen(self):
         zoom = self.camera.zoom

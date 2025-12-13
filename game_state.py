@@ -2,6 +2,7 @@ import pygame
 import json
 
 from Constants.GlobalConstants import GlobalConstants
+from Entity.StarShip import StarShip
 from Levels.LevelTwo import LevelTwo
 from Levels.levelThree import LevelThree
 from ScreenClasses.Screen import Screen
@@ -15,6 +16,8 @@ class GameState:
 
         self.currentScreen = LevelOne()
         self.isRunning: bool = True
+        self.starship = StarShip()  # ⭐ GLOBAL SHIP INSTANCE
+        self.currentScreen.set_player(self.starship)
         self.DISPLAY: pygame.Surface = pygame.display.set_mode(GlobalConstants.WINDOWS_SIZE)
 
 
