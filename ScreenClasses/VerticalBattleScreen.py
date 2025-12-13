@@ -162,18 +162,57 @@ class VerticalBattleScreen:
         # -------------------------
         # PLAYER MAGIC FIRING
         # -------------------------
-        # Slot 0 → magic_1_button
-        # Slot 0 → magic_1_button
-        if state.starship.equipped_magic[0] == "Buster Cannon" and self.controller.magic_1_button:
-            # call the appropriate spell-casting logic
-            shots = state.starship.fire_buster_cannon()
-            self.buster_cannon_bullets.extend(shots)
+        # If Buster Cannon is in slot 0:
+        # Slot 0 — Buster Cannon
+        if state.starship.equipped_magic[0] == "Buster Cannon":
 
-        # Slot 1 → magic_2_button
-        if state.starship.equipped_magic[1] == "Buster Cannon" and self.controller.magic_2_button:
-            # call the appropriate spell-casting logic
-            shots = state.starship.fire_buster_cannon()
-            self.buster_cannon_bullets.extend(shots)
+            # Start charging ONLY when button is first pressed
+            if self.controller.magic_1_button and not state.starship.buster_cannon.is_charging:
+                state.starship.buster_cannon.start_charge()
+
+            # Continue charging while held
+            if self.controller.magic_1_button:
+                state.starship.buster_cannon.update()
+
+            # Release → fire once
+            if self.controller.magic_1_released:
+                state.starship.buster_cannon.stop_charge()
+                shots = state.starship.fire_buster_cannon()
+                self.buster_cannon_bullets.extend(shots)
+
+            # HELD → do nothing, let update handle charged
+        if state.starship.equipped_magic[1] == "Buster Cannon":
+            # Hold D to start charging
+            if self.controller.magic_2_button:
+                state.starship.buster_cannon.start_charge()
+            else:
+                state.starship.buster_cannon.stop_charge()
+            # Always tick the charge timer
+            state.starship.buster_cannon.update()
+            # Release D to fire
+            if self.controller.magic_2_released:
+                shots = state.starship.fire_buster_cannon()
+                self.buster_cannon_bullets.extend(shots)
+
+        # And the same pattern for slot 1 / S
+
+        # On each frame, update the charge timer for the equipped weapon(s)
+        if state.starship.equipped_magic[0] == "Buster Cannon":
+            state.starship.buster_cannon.update()
+        if state.starship.equipped_magic[1] == "Buster Cannon":
+            state.starship.buster_cannon.update()
+        # Slot 0 → magic_1_button
+        # # Slot 0 → magic_1_button
+        # if state.starship.equipped_magic[0] == "Buster Cannon" and self.controller.magic_1_button:
+        #     # call the appropriate spell-casting logic
+        #     shots = state.starship.fire_buster_cannon()
+        #     self.buster_cannon_bullets.extend(shots)
+        #
+        # # Slot 1 → magic_2_button
+        # if state.starship.equipped_magic[1] == "Buster Cannon" and self.controller.magic_2_button:
+        #     # call the appropriate spell-casting logic
+        #     shots = state.starship.fire_buster_cannon()
+        #     self.buster_cannon_bullets.extend(shots)
 
         # -------------------------
         # PLAYER MISSILES ONLY
@@ -350,7 +389,7 @@ class VerticalBattleScreen:
 
             # Draw projectile
             rect = pygame.Rect(bx, by, bw, bh)
-            pygame.draw.rect(state.DISPLAY, (0, 200, 255), rect)  # cyan for magic shot
+            pygame.draw.rect(state.DISPLAY, (222, 222, 222), rect)  # cyan for magic shot
 
             # Draw hitbox outline (debug)
             pygame.draw.rect(

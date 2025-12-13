@@ -77,21 +77,23 @@ class BusterCanon(Weapon):
 
         # If charging, build charge
         if self.is_charging:
-            self.charge_time += 1 / 60.0  # assuming 60 FPS
 
-            # Cap charge time
+            self.charge_time += 1 / 60.0  # assuming 60 FPS
+            print(self.charge_time)
             if self.charge_time >= self.required_charge:
+                print("dfj;alsj;lfa")
+                # Only announce the fully-charged state the first time we reach it
+                if not self.fully_charged:
+                    print("Buster Cannon: not fully charged!")
                 self.charge_time = self.required_charge
                 self.fully_charged = True
-
-                # ★ Visually grow to charged size while charging
                 self.width = self.big_w
                 self.height = self.big_h
-
         else:
-            # Not charging → always default to small shot size
+            # Reset charge and size when not charging
+            self.charge_time = 0.0
+            self.fully_charged = False
             self.width = self.small_w
             self.height = self.small_h
 
-        # Update the hitbox size
         self.update_rect()
