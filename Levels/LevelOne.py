@@ -463,4 +463,74 @@ class LevelOne(VerticalBattleScreen):
             first_enemy = self.bileSpitterGroup[0]
             enemy_row = int(first_enemy.y // tile_h)
 
+        # -------------------------
+        # WAVE CRASH → ENEMY COLLISION
+        # -------------------------
+        for wave in list(self.wave_crash_bullets):
 
+            w_rect = pygame.Rect(
+                self.camera.world_to_screen_x(wave.x),
+                self.camera.world_to_screen_y(wave.y),
+                int(wave.width * self.camera.zoom),
+                int(wave.height * self.camera.zoom)
+            )
+
+            # --- KAMIKAZE DRONES ---
+            for drone in list(self.kamikazeDroneGroup):
+                d_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(drone.x),
+                    self.camera.world_to_screen_y(drone.y),
+                    int(drone.width * self.camera.zoom),
+                    int(drone.height * self.camera.zoom)
+                )
+
+                if w_rect.colliderect(d_rect):
+                    drone.enemyHealth -= wave.damage
+                    wave.is_active = False
+
+                    if wave in self.wave_crash_bullets:
+                        self.wave_crash_bullets.remove(wave)
+
+                    if drone.enemyHealth <= 0:
+                        self.kamikazeDroneGroup.remove(drone)
+                    break
+
+            # --- BILE SPITTERS ---
+            for enemy in list(self.bileSpitterGroup):
+                e_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(enemy.x),
+                    self.camera.world_to_screen_y(enemy.y),
+                    int(enemy.width * self.camera.zoom),
+                    int(enemy.height * self.camera.zoom)
+                )
+
+                if w_rect.colliderect(e_rect):
+                    enemy.enemyHealth -= wave.damage
+                    wave.is_active = False
+
+                    if wave in self.wave_crash_bullets:
+                        self.wave_crash_bullets.remove(wave)
+
+                    if enemy.enemyHealth <= 0:
+                        self.bileSpitterGroup.remove(enemy)
+                    break
+
+            # --- TRI SPITTERS ---
+            for enemy in list(self.triSpitterGroup):
+                e_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(enemy.x),
+                    self.camera.world_to_screen_y(enemy.y),
+                    int(enemy.width * self.camera.zoom),
+                    int(enemy.height * self.camera.zoom)
+                )
+
+                if w_rect.colliderect(e_rect):
+                    enemy.enemyHealth -= wave.damage
+                    wave.is_active = False
+
+                    if wave in self.wave_crash_bullets:
+                        self.wave_crash_bullets.remove(wave)
+
+                    if enemy.enemyHealth <= 0:
+                        self.triSpitterGroup.remove(enemy)
+                    break

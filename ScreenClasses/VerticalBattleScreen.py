@@ -35,6 +35,7 @@ class VerticalBattleScreen:
         self.was_q_pressed_last_frame: bool = False
 
         self.buster_cannon_bullets: list = []
+        self.wave_crash_bullets: list = []
         self.player_bullets: list = []
         self.player_missiles: list = []
         self.enemy_bullets: list = []     # LevelOne can append to this list
@@ -159,12 +160,16 @@ class VerticalBattleScreen:
             new_bullets = self.starship.fire_twin_linked_machinegun()
             self.player_bullets.extend(new_bullets)
 
+        # if self.controller.main_weapon_button and not self.playerDead:
+        #     new_bullets = self.starship.fire_twin_linked_machinegun()
+        #     self.player_bullets.extend(new_bullets)
+
         # -------------------------
         # PLAYER MAGIC FIRING
         # -------------------------
         # If Buster Cannon is in slot 0:
         # Slot 0 — Buster Cannon
-        if state.starship.equipped_magic[0] == "Buster Cannon":
+        if state.starship.equipped_magic[0] == "Buster Cannon" and not self.playerDead:
 
             # Start charging ONLY when button is first pressed
             if self.controller.magic_1_button and not state.starship.buster_cannon.is_charging:
@@ -181,26 +186,40 @@ class VerticalBattleScreen:
                 self.buster_cannon_bullets.extend(shots)
 
             # HELD → do nothing, let update handle charged
-        if state.starship.equipped_magic[1] == "Buster Cannon":
-            # Hold D to start charging
-            if self.controller.magic_2_button:
+        if state.starship.equipped_magic[1] == "Buster Cannon" and not self.playerDead:
+
+            # Start charging ONLY when button is first pressed
+            if self.controller.magic_2_button and not state.starship.buster_cannon.is_charging:
                 state.starship.buster_cannon.start_charge()
-            else:
-                state.starship.buster_cannon.stop_charge()
-            # Always tick the charge timer
-            state.starship.buster_cannon.update()
-            # Release D to fire
+
+            # Continue charging while held
+            if self.controller.magic_2_button:
+                state.starship.buster_cannon.update()
+
+            # Release → fire once
             if self.controller.magic_2_released:
+                state.starship.buster_cannon.stop_charge()
                 shots = state.starship.fire_buster_cannon()
                 self.buster_cannon_bullets.extend(shots)
 
         # And the same pattern for slot 1 / S
+        # -------------------------
+        # WAVE CRASH MAGIC
+        # -------------------------
+        if state.starship.equipped_magic[0] == "Wave Crash" and not self.playerDead:
+            if self.controller.magic_1_button:
+                waves = state.starship.fire_wave_crash()
+                self.wave_crash_bullets.extend(waves)
 
+        if state.starship.equipped_magic[1] == "Wave Crash" and not self.playerDead:
+            if self.controller.magic_2_button:
+                waves = state.starship.fire_wave_crash()
+                self.wave_crash_bullets.extend(waves)
         # On each frame, update the charge timer for the equipped weapon(s)
-        if state.starship.equipped_magic[0] == "Buster Cannon":
-            state.starship.buster_cannon.update()
-        if state.starship.equipped_magic[1] == "Buster Cannon":
-            state.starship.buster_cannon.update()
+        # if state.starship.equipped_magic[0] == "Buster Cannon":
+        #     state.starship.buster_cannon.update()
+        # if state.starship.equipped_magic[1] == "Buster Cannon":
+        #     state.starship.buster_cannon.update()
         # Slot 0 → magic_1_button
         # # Slot 0 → magic_1_button
         # if state.starship.equipped_magic[0] == "Buster Cannon" and self.controller.magic_1_button:
@@ -245,6 +264,19 @@ class VerticalBattleScreen:
             if screen_y + bullet.height < 0:
                 # print(f"[DELETE] Bullet removed at world_y={bullet.y}, screen_y={screen_y}")
                 self.player_bullets.remove(bullet)
+
+        # -------------------------
+        # WAVE CRASH BULLET CLEANUP
+        # -------------------------
+        for wave in list(self.wave_crash_bullets):
+            wave.update()
+
+            # Horizontal shots → check X instead of Y
+            screen_x = wave.x - self.camera.x if hasattr(self.camera, "x") else wave.x
+
+            # If wave goes off left or right of screen → delete
+            if screen_x + wave.width < 0 or screen_x > (self.window_width / self.camera.zoom):
+                self.wave_crash_bullets.remove(wave)
 
         # -------------------------
         # BUSTER CANNON BULLET CLEANUP
@@ -402,6 +434,25 @@ class VerticalBattleScreen:
                 (255, 255, 0),
                 (bx - 2, by - 2, bw + 4, bh + 4),
                 5
+            )
+
+        # -------------------------
+        for wave in self.wave_crash_bullets:
+            print("jf;dalsj;lfjdasl;fj;lsajfljsal;fj;dsljfl;jaslfdlsa")
+            bx = self.camera.world_to_screen_x(wave.x)
+            by = self.camera.world_to_screen_y(wave.y)
+            bw = int(wave.width * zoom)
+            bh = int(wave.height * zoom)
+
+            # Draw buster cannon projectile
+            rect = pygame.Rect(bx, by, bw, bh)
+            pygame.draw.rect(state.DISPLAY, (1, 1, 1), rect)
+
+            pygame.draw.rect(
+                state.DISPLAY,
+                (0, 255, 0),
+                (bx , by ,  4,  4),
+                10
             )
 
     def draw_tiled_background(self, surface: Surface) -> None:

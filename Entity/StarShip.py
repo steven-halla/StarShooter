@@ -13,7 +13,7 @@ from Weapons.BusterCannon import BusterCanon
 from Weapons.Missile import Missile
 
 
-class StarShip():
+class StarShip:
     def __init__(self):
         self.height: int = 16
 
@@ -39,11 +39,7 @@ class StarShip():
         self.missileDamage: int = 100
         self.missileSpeed: int = 10
         self.missile_spread_offset: int = 20
-        self.equipped_magic: list = ["Buster Cannon", None]
-
-
-
-
+        self.equipped_magic: list = ["Wave Crash", None]
 
         self.hitbox: pygame.Rect = pygame.Rect(
             int(self.x),
@@ -62,6 +58,17 @@ class StarShip():
         self.invincible: bool = False
         self.last_health: int = self.shipHealth
         self.invincibility_timer: Timer = Timer(2.0)
+
+        # -------------------------
+        # WAVE CRASHER STATS
+        # -------------------------
+        self.wave_crash_cooldown_seconds: float = 0.4
+        self.wave_crash_timer: Timer = Timer(self.wave_crash_cooldown_seconds)
+
+        self.wave_crash_damage: int = 6
+        self.wave_crash_speed: int = 6
+        self.wave_crash_width: int = 12
+        self.wave_crash_height: int = 12
 
     def start_invincibility(self) -> None:
         # Begin a 10-second invincibility period
@@ -114,6 +121,44 @@ class StarShip():
         self.missile_timer.reset()
 
         return missile
+
+    def fire_wave_crash(self) -> list:
+        print("yah")
+
+        """
+        Fires Wave Crash shots simultaneously to the left and right.
+        """
+        if not self.wave_crash_timer.is_ready():
+            return []
+
+        bullets = []
+
+        spawn_x = self.x + self.width // 2
+        spawn_y = self.y
+
+        # LEFT shot
+        left = Bullet(spawn_x, spawn_y)
+        left.width = self.wave_crash_width
+        left.height = self.wave_crash_height
+        left.damage = self.wave_crash_damage
+        left.speed = 0
+        left.dx = -self.wave_crash_speed
+        left.update_rect()
+
+        # RIGHT shot
+        right = Bullet(spawn_x, spawn_y)
+        right.width = self.wave_crash_width
+        right.height = self.wave_crash_height
+        right.damage = self.wave_crash_damage
+        right.speed = 0
+        right.dx = self.wave_crash_speed
+        right.update_rect()
+
+        bullets.append(left)
+        bullets.append(right)
+
+        self.wave_crash_timer.reset()
+        return bullets
 
     def fire_twin_linked_machinegun(self) -> list:
         # If the weapon is not ready, return no bullets
