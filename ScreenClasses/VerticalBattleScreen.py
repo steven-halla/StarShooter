@@ -451,7 +451,7 @@ class VerticalBattleScreen:
             pygame.draw.rect(
                 state.DISPLAY,
                 (0, 255, 0),
-                (bx , by ,  4,  4),
+                (bx , by ,  55,  55),
                 10
             )
 
