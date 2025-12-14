@@ -268,6 +268,74 @@ class LevelOne(VerticalBattleScreen):
                 enemy_tri_spitter.enemyBullets.clear()
 
     def bullet_helper(self):
+        for laser in list(self.hyper_laser_bullets):
+
+            m_rect = pygame.Rect(
+                self.camera.world_to_screen_x(laser.x),
+                self.camera.world_to_screen_y(laser.y),
+                int(laser.width * self.camera.zoom),
+                int(laser.height * self.camera.zoom)
+            )
+
+            # --- KAMIKAZE DRONES ---
+            for drone in list(self.kamikazeDroneGroup):
+                d_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(drone.x),
+                    self.camera.world_to_screen_y(drone.y),
+                    int(drone.width * self.camera.zoom),
+                    int(drone.height * self.camera.zoom)
+                )
+
+                if m_rect.colliderect(d_rect):
+                    drone.enemyHealth -= self.starship.hyper_laser_damage
+                    laser.is_active = False
+
+                    if laser in self.hyper_laser_bullets:
+                        self.hyper_laser_bullets.remove(laser)
+
+                    if drone.enemyHealth <= 0:
+                        self.kamikazeDroneGroup.remove(drone)
+                    break
+
+            # --- BILE SPITTERS ---
+            for enemy in list(self.bileSpitterGroup):
+                e_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(enemy.x),
+                    self.camera.world_to_screen_y(enemy.y),
+                    int(enemy.width * self.camera.zoom),
+                    int(enemy.height * self.camera.zoom)
+                )
+
+                if m_rect.colliderect(e_rect):
+                    enemy.enemyHealth -= self.starship.hyper_laser_damage
+                    laser.is_active = False
+
+                    if laser in self.hyper_laser_bullets:
+                        self.hyper_laser_bullets.remove(laser)
+
+                    if enemy.enemyHealth <= 0:
+                        self.bileSpitterGroup.remove(enemy)
+                    break
+
+            # --- TRI SPITTERS ---
+            for enemy in list(self.triSpitterGroup):
+                e_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(enemy.x),
+                    self.camera.world_to_screen_y(enemy.y),
+                    int(enemy.width * self.camera.zoom),
+                    int(enemy.height * self.camera.zoom)
+                )
+
+                if m_rect.colliderect(e_rect):
+                    enemy.enemyHealth -= self.starship.hyper_laser_damage
+                    laser.is_active = False
+
+                    if laser in self.player_missiles:
+                        self.player_missiles.remove(laser)
+
+                    if enemy.enemyHealth <= 0:
+                        self.triSpitterGroup.remove(enemy)
+                    break
 
         for metal in list(self.metal_shield_bullets):
 

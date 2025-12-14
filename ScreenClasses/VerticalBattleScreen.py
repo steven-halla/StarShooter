@@ -34,6 +34,7 @@ class VerticalBattleScreen:
 
         self.was_q_pressed_last_frame: bool = False
 
+        self.hyper_laser_bullets: list = []
         self.buster_cannon_bullets: list = []
         self.metal_shield_bullets: list = []
         self.wave_crash_bullets: list = []
@@ -218,6 +219,17 @@ class VerticalBattleScreen:
                     shield = state.starship.fire_metal_shield()
                     if shield is not None:
                         self.metal_shield_bullets.append(shield)
+
+        # -------------------------
+
+        # Hyper laser
+        # -------------------------
+        if state.starship.equipped_magic[0] == "Hyper Laser" and not self.playerDead:
+            if self.controller.magic_1_button:
+                if not self.hyper_laser_bullets:  # ← guard
+                    laser = state.starship.fire_hyper_laser()
+                    if laser is not None:
+                        self.hyper_laser_bullets.append(laser)
         # -------------------------
 
         # WAVE CRASH MAGIC
@@ -289,6 +301,17 @@ class VerticalBattleScreen:
             #     self.metal_shield_bullets.remove(metal)
 
 
+
+        for laser in list(self.hyper_laser_bullets):
+            laser.update()
+
+            # Convert to screen space
+            screen_y = laser.y - self.camera.y
+
+            # If bullet is above the visible screen area → delete
+            if screen_y + laser.height < 0:
+                # print(f"[DELETE] Bullet removed at world_y={bullet.y}, screen_y={screen_y}")
+                self.hyper_laser_bullets.remove(laser)
 
 
         for bullet in list(self.player_bullets):
@@ -398,6 +421,26 @@ class VerticalBattleScreen:
 
         state.DISPLAY.fill(GlobalConstants.BLACK)
         state.DISPLAY.blit(scaled_scene, (0, 0))
+
+        # -------------------------
+        # DRAW PLAYER Metal Shield
+        # -------------------------]
+        for laser in self.hyper_laser_bullets:
+            mx = self.camera.world_to_screen_x(laser.x)
+            my = self.camera.world_to_screen_y(laser.y)
+            mw = int(laser.width * zoom)
+            mh = int(laser.height * zoom)
+
+            rect = pygame.Rect(mx, my, mw, mh)
+            pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
+
+            # debug hitbox outline
+            pygame.draw.rect(
+                state.DISPLAY,
+                (77, 113, 111),
+                (mx, my, mw, mh),
+                1
+            )
 
         # -------------------------
         # DRAW PLAYER Metal Shield

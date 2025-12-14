@@ -10,6 +10,7 @@ from Constants.Timer import Timer
 from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 from Weapons.BusterCannon import BusterCanon
+from Weapons.HyperLaser import HyperLaser
 from Weapons.MetalShield import MetalShield
 from Weapons.Missile import Missile
 
@@ -37,10 +38,13 @@ class StarShip:
         # missile stats
         self.missile_fire_interval_seconds: float = 3.0
         self.missile_timer: Timer = Timer(self.missile_fire_interval_seconds)
+        self.hyper_laser_fire_interval_seconds: float = 2.5
+        self.hyper_laser_timer: Timer = Timer(self.hyper_laser_fire_interval_seconds)
         self.missileDamage: int = 100
         self.missileSpeed: int = 10
         self.missile_spread_offset: int = 20
-        self.equipped_magic: list = ["Metal Shield", None]
+        self.equipped_magic: list = ["Hyper Laser", None]
+        self.hyper_laser_damage: int = 100
 
         self.hitbox: pygame.Rect = pygame.Rect(
             int(self.x),
@@ -122,6 +126,19 @@ class StarShip:
         self.missile_timer.reset()
 
         return missile
+
+    def fire_hyper_laser(self):
+        # Only fire if timer is ready
+        if not self.hyper_laser_timer.is_ready():
+            return None
+
+        # Create the laser ATTACHED to the ship
+        hyper_laser = HyperLaser(self)
+
+        # Reset cooldown
+        self.hyper_laser_timer.reset()
+
+        return hyper_laser
 
     def fire_metal_shield(self):
         """
