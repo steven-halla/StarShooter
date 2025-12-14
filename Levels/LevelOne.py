@@ -201,6 +201,40 @@ class LevelOne(VerticalBattleScreen):
                 continue
 
     def enemy_helper(self):
+        # -------------------------
+        # METAL SHIELD → ENEMY BULLETS
+        # -------------------------
+        for metal in list(self.metal_shield_bullets):
+
+            if not metal.is_active:
+                self.metal_shield_bullets.remove(metal)
+                continue
+
+            # Build shield rect in WORLD space
+            shield_rect = pygame.Rect(
+                metal.x,
+                metal.y,
+                metal.width,
+                metal.height
+            )
+
+            for bullet in list(self.enemy_bullets):
+
+                # Enemy bullets already have a hitbox / rect logic
+                if bullet.collide_with_rect(shield_rect):
+
+                    # Shield absorbs the hit
+                    absorbed = metal.absorb_hit()
+
+                    # Remove enemy bullet
+                    if bullet in self.enemy_bullets:
+                        self.enemy_bullets.remove(bullet)
+
+                    # Remove shield if it absorbed
+                    if absorbed and metal in self.metal_shield_bullets:
+                        self.metal_shield_bullets.remove(metal)
+
+                    break  # one hit only
 
         for drone in list(self.kamikazeDroneGroup):
             drone.update()
