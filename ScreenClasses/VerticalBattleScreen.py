@@ -1,7 +1,7 @@
 import pygame
 from pygame import Surface
 import pytmx
-
+import math
 
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
@@ -35,6 +35,7 @@ class VerticalBattleScreen:
         self.was_q_pressed_last_frame: bool = False
 
         self.hyper_laser_bullets: list = []
+        self.energy_balls: list = []
         self.buster_cannon_bullets: list = []
         self.metal_shield_bullets: list = []
         self.wave_crash_bullets: list = []
@@ -205,6 +206,48 @@ class VerticalBattleScreen:
                 state.starship.buster_cannon.stop_charge()
                 shots = state.starship.fire_buster_cannon()
                 self.buster_cannon_bullets.extend(shots)
+
+        # -------------------------
+        # ENERGY BALL MAGIC
+        # -------------------------
+        if state.starship.equipped_magic[0] == "Energy Ball" and not self.playerDead:
+
+            # UPDATE EXISTING ENERGY BALLS (RIGHT HERE)
+            for ball in list(self.energy_balls):
+                ball.update()
+
+                screen_y = ball.y - self.camera.y
+                if screen_y + ball.height < 0:
+                    self.energy_balls.remove(ball)
+
+            # SPAWN NEW ENERGY BALL
+            if self.controller.magic_1_button:
+
+                dx = 0
+                dy = 0
+                speed = 6
+
+                if self.controller.left_button:
+                    dx -= 1
+                if self.controller.right_button:
+                    dx += 1
+                if self.controller.up_button:
+                    dy -= 1
+                if self.controller.down_button:
+                    dy += 1
+
+                # Default direction (up)
+                if dx == 0 and dy == 0:
+                    dy = -1
+
+                # Normalize so diagonals are not faster
+                length = math.hypot(dx, dy)
+                dx = (dx / length) * speed
+                dy = (dy / length) * speed
+
+                energy_ball = state.starship.fire_energy_ball(dx, dy)
+                if energy_ball is not None:
+                    self.energy_balls.append(energy_ball)
 
         # -------------------------
 
@@ -432,6 +475,27 @@ class VerticalBattleScreen:
         # -------------------------
         # DRAW PLAYER Metal Shield
         # -------------------------]
+
+        # -------------------------
+        # DRAW ENERGY BALLS
+        # -------------------------
+        for ball in self.energy_balls:
+            bx = self.camera.world_to_screen_x(ball.x)
+            by = self.camera.world_to_screen_y(ball.y)
+            bw = int(ball.width * zoom)
+            bh = int(ball.height * zoom)
+
+            rect = pygame.Rect(bx, by, bw, bh)
+            pygame.draw.rect(state.DISPLAY, (0, 200, 255), rect)
+
+            # debug hitbox outline
+            pygame.draw.rect(
+                state.DISPLAY,
+                (255, 255, 255),
+                (bx, by, bw, bh),
+                1
+            )
+
         for laser in self.hyper_laser_bullets:
             mx = self.camera.world_to_screen_x(laser.x)
             my = self.camera.world_to_screen_y(laser.y)

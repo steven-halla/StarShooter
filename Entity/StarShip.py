@@ -10,6 +10,7 @@ from Constants.Timer import Timer
 from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 from Weapons.BusterCannon import BusterCanon
+from Weapons.EnergyBall import EnergyBall
 from Weapons.HyperLaser import HyperLaser
 from Weapons.MetalShield import MetalShield
 from Weapons.Missile import Missile
@@ -40,10 +41,12 @@ class StarShip:
         self.missile_timer: Timer = Timer(self.missile_fire_interval_seconds)
         self.hyper_laser_fire_interval_seconds: float = .1
         self.hyper_laser_timer: Timer = Timer(self.hyper_laser_fire_interval_seconds)
+        self.energy_ball_fire_interval_seconds: float = 1
+        self.energy_ball_timer: Timer = Timer(self.energy_ball_fire_interval_seconds)
         self.missileDamage: int = 100
         self.missileSpeed: int = 10
         self.missile_spread_offset: int = 20
-        self.equipped_magic: list = ["Hyper Laser", None]
+        self.equipped_magic: list = ["Energy Ball", None]
         self.hyper_laser_damage: int = 100
 
         self.hitbox: pygame.Rect = pygame.Rect(
@@ -217,6 +220,22 @@ class StarShip:
         self.bullet_timer.reset()
 
         return bullets
+
+    def fire_energy_ball(self, dx: float, dy: float):
+        # Rate-of-fire gate
+        if not self.energy_ball_timer.is_ready():
+            return None
+
+        # Spawn at center of ship
+        start_x = self.x + self.width / 2
+        start_y = self.y + self.height / 2
+
+        energy_ball = EnergyBall(start_x, start_y, dx, dy)
+
+        # Reset cooldown
+        self.energy_ball_timer.reset()
+
+        return energy_ball
 
     def update(self) -> None:
         self.update_hitbox()
