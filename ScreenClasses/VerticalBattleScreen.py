@@ -35,6 +35,7 @@ class VerticalBattleScreen:
         self.was_q_pressed_last_frame: bool = False
 
         self.buster_cannon_bullets: list = []
+        self.metal_shield_bullets: list = []
         self.wave_crash_bullets: list = []
         self.player_bullets: list = []
         self.player_missiles: list = []
@@ -114,6 +115,8 @@ class VerticalBattleScreen:
         # print("STARSHIP INSTANCE:", id(self.starship))
         # now handle map scroll ONLY in LevelOne
         self.move_map_y_axis()
+
+
 
 
         if not hasattr(self, "start_has_run"):
@@ -202,8 +205,21 @@ class VerticalBattleScreen:
                 shots = state.starship.fire_buster_cannon()
                 self.buster_cannon_bullets.extend(shots)
 
-        # And the same pattern for slot 1 / S
         # -------------------------
+
+        # WAVE metal shield magic
+        # -------------------------
+
+        # And the same pattern for slot 1 / S
+        if state.starship.equipped_magic[0] == "Metal Shield" and not self.playerDead:
+            if self.controller.magic_1_button:
+                # Only allow one active shield
+                if not self.metal_shield_bullets:
+                    shield = state.starship.fire_metal_shield()
+                    if shield is not None:
+                        self.metal_shield_bullets.append(shield)
+        # -------------------------
+
         # WAVE CRASH MAGIC
         # -------------------------
         if state.starship.equipped_magic[0] == "Wave Crash" and not self.playerDead:
@@ -250,6 +266,27 @@ class VerticalBattleScreen:
             # If missile goes above screen → delete
             if screen_y + missile.height < 0:
                 self.player_missiles.remove(missile)
+
+        # -------------------------
+        # PLAYER Metal Shield
+        # -------------------------
+
+        for metal in list(self.metal_shield_bullets):
+            metal.update_orbit(
+                self.starship.x + self.starship.width / 2,
+                self.starship.y + self.starship.height / 2
+            )
+
+            # Optional cleanup if shield has already blocked a hit
+            if not metal.is_active:
+                self.metal_shield_bullets.remove(metal)
+            # Convert to screen space
+            screen_y = metal.y - self.camera.y
+
+            # If bullet is above the visible screen area → delete
+            # if screen_y + metal.height < 0:
+            #     # print(f"[DELETE] Bullet removed at world_y={bullet.y}, screen_y={screen_y}")
+            #     self.metal_shield_bullets.remove(metal)
 
 
 
@@ -363,8 +400,28 @@ class VerticalBattleScreen:
         state.DISPLAY.blit(scaled_scene, (0, 0))
 
         # -------------------------
-        # DRAW PLAYER MISSILES
+        # DRAW PLAYER Metal Shield
+        # -------------------------]
+        for metal in self.metal_shield_bullets:
+            mx = self.camera.world_to_screen_x(metal.x)
+            my = self.camera.world_to_screen_y(metal.y)
+            mw = int(metal.width * zoom)
+            mh = int(metal.height * zoom)
+
+            rect = pygame.Rect(mx, my, mw, mh)
+            pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
+
+            # debug hitbox outline
+            pygame.draw.rect(
+                state.DISPLAY,
+                (55, 55, 111),
+                (mx, my, mw, mh),
+                1
+            )
+
         # -------------------------
+        # DRAW PLAYER MISSILES
+        # -------------------------]
         for missile in self.player_missiles:
             mx = self.camera.world_to_screen_x(missile.x)
             my = self.camera.world_to_screen_y(missile.y)

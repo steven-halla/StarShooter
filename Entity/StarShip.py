@@ -10,6 +10,7 @@ from Constants.Timer import Timer
 from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 from Weapons.BusterCannon import BusterCanon
+from Weapons.MetalShield import MetalShield
 from Weapons.Missile import Missile
 
 
@@ -39,7 +40,7 @@ class StarShip:
         self.missileDamage: int = 100
         self.missileSpeed: int = 10
         self.missile_spread_offset: int = 20
-        self.equipped_magic: list = ["Wave Crash", None]
+        self.equipped_magic: list = ["Metal Shield", None]
 
         self.hitbox: pygame.Rect = pygame.Rect(
             int(self.x),
@@ -121,6 +122,18 @@ class StarShip:
         self.missile_timer.reset()
 
         return missile
+
+    def fire_metal_shield(self):
+        """
+        Activates the Metal Shield spell and returns the shield instance.
+        """
+
+        # Center of the ship in world space
+        center_x = self.x + self.width / 2
+        center_y = self.y + self.height / 2
+
+        shield = MetalShield(center_x, center_y)
+        return shield
 
     def fire_wave_crash(self) -> list:
         print("yah")
