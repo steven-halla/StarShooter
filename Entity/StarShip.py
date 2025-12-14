@@ -38,7 +38,7 @@ class StarShip:
         # missile stats
         self.missile_fire_interval_seconds: float = 3.0
         self.missile_timer: Timer = Timer(self.missile_fire_interval_seconds)
-        self.hyper_laser_fire_interval_seconds: float = 2.5
+        self.hyper_laser_fire_interval_seconds: float = .1
         self.hyper_laser_timer: Timer = Timer(self.hyper_laser_fire_interval_seconds)
         self.missileDamage: int = 100
         self.missileSpeed: int = 10

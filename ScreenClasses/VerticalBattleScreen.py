@@ -230,6 +230,13 @@ class VerticalBattleScreen:
                     laser = state.starship.fire_hyper_laser()
                     if laser is not None:
                         self.hyper_laser_bullets.append(laser)
+
+        # -------------------------
+        # HYPER LASER RELEASE
+        # -------------------------
+        if not self.controller.magic_1_button:
+            if self.hyper_laser_bullets:
+                self.hyper_laser_bullets.clear()
         # -------------------------
 
         # WAVE CRASH MAGIC
