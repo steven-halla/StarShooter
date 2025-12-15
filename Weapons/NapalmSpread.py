@@ -16,6 +16,9 @@ class NapalmSpread(Weapon):
         # AOE size (used after explosion)
         self.area_of_effect_x: int = 33
         self.area_of_effect_y: int = 33
+        # EXPLOSION VISUAL TIMER
+        self.explosion_time_seconds: float = 0.4
+        self.explosion_timer: Timer = Timer(self.explosion_time_seconds)
 
         # MOVEMENT
         self.speed: float = 3.5
@@ -31,16 +34,21 @@ class NapalmSpread(Weapon):
         self.travel_timer.reset()
         self.NAPALM_SPREAD: str = "Napalm Spread"
 
-
     def update(self) -> None:
-        # If already exploded, do nothing here
-        if self.has_exploded:
+        # MOVING PHASE
+        if not self.has_exploded:
+            if not self.travel_timer.is_ready():
+                self.y += self.dy
+            else:
+                # Trigger explosion
+                self.has_exploded = True
+                self.explosion_timer.reset()
             return
 
-        # While travel timer is active → keep moving
-        if not self.travel_timer.is_ready():
-            self.y += self.dy
-        else:
-            # Stop moving and explode
-            self.has_exploded = True
-            self.is_active = False
+        # EXPLOSION PHASE
+        if self.has_exploded:
+            print("f;dsaj")
+
+            # Wait until explosion visual time expires
+            if self.explosion_timer.is_ready():
+                self.is_active = False

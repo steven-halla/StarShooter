@@ -324,16 +324,14 @@ class VerticalBattleScreen:
         # -------------------------
         # NAPALM SPREAD UPDATE
         # -------------------------
+        # NAPALM SPREAD UPDATE
+        # -------------------------
         for napalm in list(self.napalm_spread_bullets):
             napalm.update()
 
-            # Convert to screen space
-            screen_y = napalm.y - self.camera.y
-
-            # If napalm goes above the visible screen area → delete
-            if screen_y + napalm.height < 0:
+            # Remove only AFTER explosion finishes
+            if not napalm.is_active:
                 self.napalm_spread_bullets.remove(napalm)
-
         # -------------------------
         # PLAYER MISSILES ONLY
         # -------------------------
@@ -650,6 +648,30 @@ class VerticalBattleScreen:
                 (nx - 2, ny - 2, nw + 4, nh + 4),
                 3
             )
+
+        # -------------------------
+        # DRAW NAPALM EXPLOSION AOE
+        # -------------------------
+        for napalm in self.napalm_spread_bullets:
+            if napalm.has_exploded:
+                print("dfsaj")
+
+                # Center of explosion in screen space
+                cx = self.camera.world_to_screen_x(napalm.x)
+                cy = self.camera.world_to_screen_y(napalm.y)
+
+                aoe_w = int(napalm.area_of_effect_x * zoom)
+                aoe_h = int(napalm.area_of_effect_y * zoom)
+
+                aoe_rect = pygame.Rect(
+                    cx - aoe_w // 2,
+                    cy - aoe_h // 2,
+                    aoe_w,
+                    aoe_h
+                )
+
+                # Draw explosion area (orange/red)
+                pygame.draw.rect(state.DISPLAY, (255, 80, 0), aoe_rect, 4)
 
         # -------------------------
         for wave in self.wave_crash_bullets:
