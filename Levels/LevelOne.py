@@ -610,6 +610,9 @@ class LevelOne(VerticalBattleScreen):
             # ----------------------------------
             # EXPLOSION AOE DAMAGE (ONCE)
             # ----------------------------------
+            # ----------------------------------
+            # EXPLOSION AOE DAMAGE (ONCE)
+            # ----------------------------------
             if napalm.has_exploded and not napalm.aoe_applied:
 
                 # 💥 Explosion center in WORLD space
@@ -623,13 +626,27 @@ class LevelOne(VerticalBattleScreen):
                     napalm.area_of_effect_y
                 )
 
-                # --- CHECK ALL ENEMIES ---
+                # --- CHECK ALL ENEMIES (WORLD SPACE ONLY) ---
                 for enemy in (
                         list(self.kamikazeDroneGroup) +
                         list(self.bileSpitterGroup) +
                         list(self.triSpitterGroup)
                 ):
-                    if aoe_rect.colliderect(enemy.hitbox):
+
+                    # 🔴 FORCE WORLD-SPACE HITBOX (NO CAMERA)
+                    enemy_world_hitbox = pygame.Rect(
+                        enemy.x,
+                        enemy.y,
+                        enemy.width,
+                        enemy.height
+                    )
+
+                    print(
+                        "AOE RECT:", aoe_rect,
+                        "ENEMY HITBOX:", enemy_world_hitbox
+                    )
+
+                    if aoe_rect.colliderect(enemy_world_hitbox):
                         print("🔥 NAPALM AOE HIT:", type(enemy).__name__)
                         enemy.enemyHealth -= napalm.damage
 
@@ -647,9 +664,48 @@ class LevelOne(VerticalBattleScreen):
             # ----------------------------------
             # CLEANUP AFTER EXPLOSION FINISHES
             # ----------------------------------
-            if napalm.has_exploded and napalm.explosion_timer.is_ready():
-                if napalm in self.napalm_spread_bullets:
-                    self.napalm_spread_bullets.remove(napalm)
+            # ----------------------------------
+            # EXPLOSION AOE DAMAGE (LINGERING)
+            # ----------------------------------
+            if napalm.has_exploded and not napalm.explosion_timer.is_ready():
+
+                explosion_center_x = napalm.x + napalm.width // 2
+                explosion_center_y = napalm.y + napalm.height // 2
+
+                aoe_rect = pygame.Rect(
+                    explosion_center_x - napalm.area_of_effect_x // 2,
+                    explosion_center_y - napalm.area_of_effect_y // 2,
+                    napalm.area_of_effect_x,
+                    napalm.area_of_effect_y
+                )
+
+                for enemy in (
+                        list(self.kamikazeDroneGroup) +
+                        list(self.bileSpitterGroup) +
+                        list(self.triSpitterGroup)
+                ):
+                    if aoe_rect.colliderect(enemy.hitbox):
+                        print(
+                            "🔥 NAPALM BURNING:",
+                            type(enemy).__name__,
+                            "AOE:", aoe_rect,
+                            "ENEMY:", enemy.hitbox
+
+                        )
+                        print(enemy.enemyHealth)
+
+                        enemy.enemyHealth -= napalm.damage
+
+                        if enemy.enemyHealth <= 0:
+                            print("💀 NAPALM KILL:", type(enemy).__name__)
+
+                            if enemy in self.kamikazeDroneGroup:
+                                self.kamikazeDroneGroup.remove(enemy)
+                            elif enemy in self.bileSpitterGroup:
+                                self.bileSpitterGroup.remove(enemy)
+                            elif enemy in self.triSpitterGroup:
+                                self.triSpitterGroup.remove(enemy)
+
             # # ----------------------------------
             # # EXPLOSION AOE DAMAGE (ONCE)
             # # ----------------------------------
