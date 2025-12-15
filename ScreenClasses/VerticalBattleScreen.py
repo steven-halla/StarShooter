@@ -332,6 +332,8 @@ class VerticalBattleScreen:
             # Remove only AFTER explosion finishes
             if not napalm.is_active:
                 self.napalm_spread_bullets.remove(napalm)
+
+
         # -------------------------
         # PLAYER MISSILES ONLY
         # -------------------------
