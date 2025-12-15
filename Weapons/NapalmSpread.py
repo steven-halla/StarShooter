@@ -1,3 +1,5 @@
+import pygame
+
 from Weapons.Weapon import Weapon
 from Constants.Timer import Timer
 
@@ -12,7 +14,7 @@ class NapalmSpread(Weapon):
         # DAMAGE / EFFECT
         self.damage: int = 10
         self.duration: int = 3
-        self.explosion_active: bool = False
+        # self.explosion_active: bool = False
         self.aoe_applied: bool = False
 
         # AOE size (used after explosion)
@@ -37,7 +39,6 @@ class NapalmSpread(Weapon):
         self.NAPALM_SPREAD: str = "Napalm Spread"
         self.aoe_applied: bool = False
 
-
     def update(self) -> None:
         # -------------------------
         # MOVING PHASE
@@ -47,16 +48,28 @@ class NapalmSpread(Weapon):
                 self.y += self.dy
             else:
                 self.has_exploded = True
-                self.explosion_active = True
-                self.explosion_timer.reset()
+                self.explosion_timer.reset()  # explosion window starts
             return
 
         # -------------------------
         # EXPLOSION PHASE
         # -------------------------
-        if self.explosion_active:
-            print("🔥 NAPALM EXPLODING")
+        if self.explosion_timer.is_ready():
+            self.is_active = False
 
-            if self.explosion_timer.is_ready():
-                self.explosion_active = False
-                self.is_active = False
+    def get_aoe_hitbox(self):
+        """
+        Returns the AOE hitbox during explosion phase.
+        """
+        if not self.explosion_active:
+            return None
+
+        center_x = self.x + self.width // 2
+        center_y = self.y + self.height // 2
+
+        return pygame.Rect(
+            center_x - self.area_of_effect_x // 2,
+            center_y - self.area_of_effect_y // 2,
+            self.area_of_effect_x,
+            self.area_of_effect_y
+        )

@@ -84,7 +84,7 @@ class BusterCanon(Weapon):
             self.charge_time += 1 / 60.0  # assuming 60 FPS
             print(self.charge_time)
             if self.charge_time >= self.required_charge:
-                print("dfj;alsj;lfa")
+                # print("dfj;alsj;lfa")
                 # Only announce the fully-charged state the first time we reach it
                 if not self.fully_charged:
                     print("Buster Cannon: not fully charged!")

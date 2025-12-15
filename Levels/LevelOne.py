@@ -554,6 +554,12 @@ class LevelOne(VerticalBattleScreen):
         # NAPALM SPREAD → ENEMY COLLISION / AOE
         # -------------------------
         for napalm in list(self.napalm_spread_bullets):
+            # print(
+            #     "NAPALM STATE:",
+            #     "exploded =", napalm.has_exploded,
+            #     "is_active =", napalm.is_active,
+            #     "aoe_applied =", napalm.aoe_applied
+            # )
 
             # WORLD-SPACE rect for grenade body
             napalm_rect = pygame.Rect(
@@ -573,6 +579,9 @@ class LevelOne(VerticalBattleScreen):
                     if napalm_rect.colliderect(drone.hitbox):
                         napalm.has_exploded = True
                         napalm.explosion_timer.reset()
+                        drone.enemyHealth -= napalm.damage
+                        if drone.enemyHealth <= 0:
+                            self.kamikazeDroneGroup.remove(drone)
                         break
 
                 # --- BILE SPITTERS ---
@@ -580,6 +589,9 @@ class LevelOne(VerticalBattleScreen):
                     if napalm_rect.colliderect(enemy.hitbox):
                         napalm.has_exploded = True
                         napalm.explosion_timer.reset()
+                        enemy.enemyHealth -= napalm.damage
+                        if enemy.enemyHealth <= 0:
+                            self.bileSpitterGroup.remove(enemy)
                         break
 
                 # --- TRI SPITTERS ---
@@ -587,46 +599,49 @@ class LevelOne(VerticalBattleScreen):
                     if napalm_rect.colliderect(enemy.hitbox):
                         napalm.has_exploded = True
                         napalm.explosion_timer.reset()
+                        enemy.enemyHealth -= napalm.damage
+                        if enemy.enemyHealth <= 0:
+                            self.triSpitterGroup.remove(enemy)
                         break
 
             # ----------------------------------
             # EXPLOSION AOE DAMAGE (ONCE)
             # ----------------------------------
+            # ----------------------------------
+            # EXPLOSION AOE DAMAGE (ONCE)
+            # ----------------------------------
             if napalm.has_exploded and not napalm.aoe_applied:
 
-                # CENTER explosion correctly
-                center_x = napalm.x + napalm.width // 2
-                center_y = napalm.y + napalm.height // 2
+                # 💥 Explosion center in WORLD space
+                explosion_center_x = napalm.x + napalm.width // 2
+                explosion_center_y = napalm.y + napalm.height // 2
 
                 aoe_rect = pygame.Rect(
-                    center_x - napalm.area_of_effect_x // 2,
-                    center_y - napalm.area_of_effect_y // 2,
+                    explosion_center_x - napalm.area_of_effect_x // 2,
+                    explosion_center_y - napalm.area_of_effect_y // 2,
                     napalm.area_of_effect_x,
                     napalm.area_of_effect_y
                 )
 
-                # --- KAMIKAZE DRONES ---
-                for drone in list(self.kamikazeDroneGroup):
-                    if aoe_rect.colliderect(drone.hitbox):
-                        drone.enemyHealth -= napalm.damage
-                        if drone.enemyHealth <= 0:
-                            self.kamikazeDroneGroup.remove(drone)
-
-                # --- BILE SPITTERS ---
-                for enemy in list(self.bileSpitterGroup):
+                # --- CHECK ALL ENEMIES ---
+                for enemy in (
+                        list(self.kamikazeDroneGroup) +
+                        list(self.bileSpitterGroup) +
+                        list(self.triSpitterGroup)
+                ):
                     if aoe_rect.colliderect(enemy.hitbox):
+                        print("🔥 NAPALM AOE HIT:", type(enemy).__name__)
                         enemy.enemyHealth -= napalm.damage
-                        if enemy.enemyHealth <= 0:
-                            self.bileSpitterGroup.remove(enemy)
 
-                # --- TRI SPITTERS ---
-                for enemy in list(self.triSpitterGroup):
-                    if aoe_rect.colliderect(enemy.hitbox):
-                        enemy.enemyHealth -= napalm.damage
                         if enemy.enemyHealth <= 0:
-                            self.triSpitterGroup.remove(enemy)
+                            if enemy in self.kamikazeDroneGroup:
+                                self.kamikazeDroneGroup.remove(enemy)
+                            elif enemy in self.bileSpitterGroup:
+                                self.bileSpitterGroup.remove(enemy)
+                            elif enemy in self.triSpitterGroup:
+                                self.triSpitterGroup.remove(enemy)
 
-                # 🔒 Prevent repeated AOE damage
+                # 🔒 AOE MUST ONLY APPLY ONCE
                 napalm.aoe_applied = True
 
             # ----------------------------------

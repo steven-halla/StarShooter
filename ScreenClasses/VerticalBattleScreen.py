@@ -36,6 +36,7 @@ class VerticalBattleScreen:
 
         self.hyper_laser_bullets: list = []
         self.napalm_spread_bullets: list = []
+        self.napalm_explosions: list = []
         self.energy_balls: list = []
         self.buster_cannon_bullets: list = []
         self.metal_shield_bullets: list = []
@@ -656,7 +657,7 @@ class VerticalBattleScreen:
         # -------------------------
         for napalm in self.napalm_spread_bullets:
             if napalm.has_exploded:
-                print("dfsaj")
+                # print("dfsaj")
 
                 # Center of explosion in screen space
                 cx = self.camera.world_to_screen_x(napalm.x)
