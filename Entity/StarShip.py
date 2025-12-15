@@ -14,6 +14,7 @@ from Weapons.EnergyBall import EnergyBall
 from Weapons.HyperLaser import HyperLaser
 from Weapons.MetalShield import MetalShield
 from Weapons.Missile import Missile
+from Weapons.NapalmSpread import NapalmSpread
 
 
 class StarShip:
@@ -41,13 +42,15 @@ class StarShip:
         self.missile_timer: Timer = Timer(self.missile_fire_interval_seconds)
         self.hyper_laser_fire_interval_seconds: float = .1
         self.hyper_laser_timer: Timer = Timer(self.hyper_laser_fire_interval_seconds)
-        self.energy_ball_fire_interval_seconds: float = 1
+        self.energy_ball_fire_interval_seconds: float = 1.2
         self.energy_ball_timer: Timer = Timer(self.energy_ball_fire_interval_seconds)
         self.missileDamage: int = 100
         self.missileSpeed: int = 10
         self.missile_spread_offset: int = 20
-        self.equipped_magic: list = ["Energy Ball", None]
+        self.equipped_magic: list = ["Napalm Spread", None]
         self.hyper_laser_damage: int = 100
+        self.napalm_fire_interval_seconds: float = 2.5
+        self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
 
         self.hitbox: pygame.Rect = pygame.Rect(
             int(self.x),
@@ -82,6 +85,27 @@ class StarShip:
         # Begin a 10-second invincibility period
         self.invincible = True
         self.invincibility_timer.reset()
+
+    def fire_napalm_spread(self):
+        """
+        Fires a Napalm Spread grenade forward.
+        Returns a NapalmSpread instance or None if on cooldown.
+        """
+
+        # Rate-of-fire gate
+        if not self.napalm_timer.is_ready():
+            return None
+
+        # Spawn slightly in front of the ship
+        start_x = self.x + self.width / 2
+        start_y = self.y
+
+        napalm = NapalmSpread(start_x, start_y)
+
+        # Reset cooldown
+        self.napalm_timer.reset()
+
+        return napalm
 
     def fire_buster_cannon(self):
         """Use the BusterCanon’s own state to determine projectile size/damage."""

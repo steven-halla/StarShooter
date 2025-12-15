@@ -35,6 +35,7 @@ class VerticalBattleScreen:
         self.was_q_pressed_last_frame: bool = False
 
         self.hyper_laser_bullets: list = []
+        self.napalm_spread_bullets: list = []
         self.energy_balls: list = []
         self.buster_cannon_bullets: list = []
         self.metal_shield_bullets: list = []
@@ -264,6 +265,15 @@ class VerticalBattleScreen:
                         self.metal_shield_bullets.append(shield)
 
         # -------------------------
+        # NAPALM SPREAD MAGIC
+        # -------------------------
+        if state.starship.equipped_magic[0] == "Napalm Spread" and not self.playerDead:
+            if self.controller.magic_1_button:
+                napalm = state.starship.fire_napalm_spread()
+                if napalm is not None:
+                    self.napalm_spread_bullets.append(napalm)
+
+        # -------------------------
 
         # Hyper laser
         # -------------------------
@@ -310,6 +320,19 @@ class VerticalBattleScreen:
         #     # call the appropriate spell-casting logic
         #     shots = state.starship.fire_buster_cannon()
         #     self.buster_cannon_bullets.extend(shots)
+
+        # -------------------------
+        # NAPALM SPREAD UPDATE
+        # -------------------------
+        for napalm in list(self.napalm_spread_bullets):
+            napalm.update()
+
+            # Convert to screen space
+            screen_y = napalm.y - self.camera.y
+
+            # If napalm goes above the visible screen area → delete
+            if screen_y + napalm.height < 0:
+                self.napalm_spread_bullets.remove(napalm)
 
         # -------------------------
         # PLAYER MISSILES ONLY
@@ -605,6 +628,27 @@ class VerticalBattleScreen:
                 (255, 255, 0),
                 (bx - 2, by - 2, bw + 4, bh + 4),
                 5
+            )
+
+        # -------------------------
+        # DRAW NAPALM SPREAD (PROJECTILE PHASE)
+        # -------------------------
+        for napalm in self.napalm_spread_bullets:
+            nx = self.camera.world_to_screen_x(napalm.x)
+            ny = self.camera.world_to_screen_y(napalm.y)
+            nw = int(napalm.width * zoom)
+            nh = int(napalm.height * zoom)
+
+            # Draw napalm grenade
+            rect = pygame.Rect(nx, ny, nw, nh)
+            pygame.draw.rect(state.DISPLAY, (255, 100, 0), rect)
+
+            # Debug outline
+            pygame.draw.rect(
+                state.DISPLAY,
+                (255, 200, 0),
+                (nx - 2, ny - 2, nw + 4, nh + 4),
+                3
             )
 
         # -------------------------
