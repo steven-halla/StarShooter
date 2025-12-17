@@ -304,19 +304,40 @@ Heat - I need to build this last because it ties into everything
 I dont think its needed to have mutliple missile/beam types, feels a bit too much.
 Magic attacks will bring much needed variety
 
-magic:
-Shield - creates a spinning orb around ship that can block 1 attack
-Buster cannon - can do micro shots or charged shots
-Fireball - launch any direction with D pad
-Stealth - dont take damage for a short time and cant attack
-Flame thrower - Short range and very powerful
-Ice Missiles - Missiles now freeze enemies
-Explosisve shells - bullets now explode
-Reflective shields - damage enemies that hurt you
-Wave   Beam - wide beam
-Saber beams - sticks out to the side of aircraft
-Land mine - slowly moves forward  and deals large explosion
-acid cloud - all enemies are dealt damage over time
+Things I need to work on :
+
+Dec 16th
+I need to do the following:
+I Need to refactor my level 1 class as its over 1000 lines when it shouldnt be more than a few hundred lines.
+I need to create on screen displays like exp/ hit points/ki
+i need to build HEAT system
+I need to build shields
+I need to build bosses
+I need to build enemies
+I Need to build stages
+
+Stage 1 :
+Kill a certain amount of enemies
+
+stage 2:
+Protect mission with deflect
+
+Stage 3:
+Escort mission
+
+Stage 4:
+BUrning stage - Ship is sllow and heat expednture up
+
+Stage 5:
+Charge space stations by staying in radius
+
+STage 6:
+Escape super nova , screen scroll increased
+lots of hazards to avoid
+
+Stage 7 :
+Rescue escape pods by collevting them
+enemies willl try and capture them
 
 
 
