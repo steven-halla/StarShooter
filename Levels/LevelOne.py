@@ -331,6 +331,39 @@ class LevelOne(VerticalBattleScreen):
                     break
 
         # -------------------------
+        # WIND SLICER → ENEMY BULLET COLLISION
+        # -------------------------
+        for slicer in list(self.wind_slicer_bullets):
+
+            slicer_rect = pygame.Rect(
+                self.camera.world_to_screen_x(slicer.x),
+                self.camera.world_to_screen_y(slicer.y),
+                int(slicer.width * self.camera.zoom),
+                int(slicer.height * self.camera.zoom)
+            )
+
+            for enemy_bullet in list(self.enemy_bullets):
+
+                enemy_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(enemy_bullet.x),
+                    self.camera.world_to_screen_y(enemy_bullet.y),
+                    int(enemy_bullet.width * self.camera.zoom),
+                    int(enemy_bullet.height * self.camera.zoom)
+                )
+
+                if slicer_rect.colliderect(enemy_rect):
+                    print("🌪️ WIND SLICER CUT BULLET")
+
+                    # delete BOTH
+                    if enemy_bullet in self.enemy_bullets:
+                        self.enemy_bullets.remove(enemy_bullet)
+
+                    if slicer in self.wind_slicer_bullets:
+                        self.wind_slicer_bullets.remove(slicer)
+
+                    break  # slicer is gone, stop checking
+
+        # -------------------------
         # ENERGY BALL → ENEMY COLLISION
         # -------------------------
         for ball in list(self.energy_balls):
