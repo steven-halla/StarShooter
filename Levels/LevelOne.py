@@ -313,65 +313,48 @@ class LevelOne(VerticalBattleScreen):
         # -------------------------
         # WIND SLICER → ENEMY COLLISION
         # -------------------------
+        all_enemies = (
+                list(self.kamikazeDroneGroup) +
+                list(self.bileSpitterGroup) +
+                list(self.triSpitterGroup)
+        )
+
         for slicer in list(self.wind_slicer_bullets):
 
-            s_rect = pygame.Rect(
+            slicer_rect = pygame.Rect(
                 self.camera.world_to_screen_x(slicer.x),
                 self.camera.world_to_screen_y(slicer.y),
                 int(slicer.width * self.camera.zoom),
                 int(slicer.height * self.camera.zoom)
             )
 
-            # --- KAMIKAZE DRONES ---
-            for drone in list(self.kamikazeDroneGroup):
-                d_rect = pygame.Rect(
-                    self.camera.world_to_screen_x(drone.x),
-                    self.camera.world_to_screen_y(drone.y),
-                    int(drone.width * self.camera.zoom),
-                    int(drone.height * self.camera.zoom)
-                )
+            for enemy in all_enemies:
 
-                if s_rect.colliderect(d_rect):
-                    drone.enemyHealth -= slicer.damage
-
-                    # Wind slicer persists (shotgun-style), DO NOT remove slicer
-
-                    if drone.enemyHealth <= 0:
-                        self.kamikazeDroneGroup.remove(drone)
-                    break
-
-            # --- BILE SPITTERS ---
-            for enemy in list(self.bileSpitterGroup):
-                e_rect = pygame.Rect(
+                enemy_rect = pygame.Rect(
                     self.camera.world_to_screen_x(enemy.x),
                     self.camera.world_to_screen_y(enemy.y),
                     int(enemy.width * self.camera.zoom),
                     int(enemy.height * self.camera.zoom)
                 )
 
-                if s_rect.colliderect(e_rect):
+                if slicer_rect.colliderect(enemy_rect):
+                    print("🌪️ WIND SLICER HIT", type(enemy).__name__)
+
                     enemy.enemyHealth -= slicer.damage
 
-                    if enemy.enemyHealth <= 0:
-                        self.bileSpitterGroup.remove(enemy)
-                    break
-
-            # --- TRI SPITTERS ---
-            for enemy in list(self.triSpitterGroup):
-                e_rect = pygame.Rect(
-                    self.camera.world_to_screen_x(enemy.x),
-                    self.camera.world_to_screen_y(enemy.y),
-                    int(enemy.width * self.camera.zoom),
-                    int(enemy.height * self.camera.zoom)
-                )
-
-                if s_rect.colliderect(e_rect):
-                    enemy.enemyHealth -= slicer.damage
+                    # 🔥 WIND SLICER IS CONSUMED ON ENEMY HIT
+                    if slicer in self.wind_slicer_bullets:
+                        self.wind_slicer_bullets.remove(slicer)
 
                     if enemy.enemyHealth <= 0:
-                        self.triSpitterGroup.remove(enemy)
-                    break
+                        if enemy in self.kamikazeDroneGroup:
+                            self.kamikazeDroneGroup.remove(enemy)
+                        elif enemy in self.bileSpitterGroup:
+                            self.bileSpitterGroup.remove(enemy)
+                        elif enemy in self.triSpitterGroup:
+                            self.triSpitterGroup.remove(enemy)
 
+                    break  # slicer is gone, stop checking
         # -------------------------
         # WIND SLICER → ENEMY BULLET COLLISION
         # -------------------------
@@ -396,14 +379,10 @@ class LevelOne(VerticalBattleScreen):
                 if slicer_rect.colliderect(enemy_rect):
                     print("🌪️ WIND SLICER CUT BULLET")
 
-                    # delete BOTH
-                    if enemy_bullet in self.enemy_bullets:
-                        self.enemy_bullets.remove(enemy_bullet)
+                    self.enemy_bullets.remove(enemy_bullet)
+                    self.wind_slicer_bullets.remove(slicer)
 
-                    if slicer in self.wind_slicer_bullets:
-                        self.wind_slicer_bullets.remove(slicer)
-
-                    break  # slicer is gone, stop checking
+                    break
 
         # -------------------------
         # ENERGY BALL → ENEMY COLLISION
