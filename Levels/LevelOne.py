@@ -302,12 +302,7 @@ class LevelOne(VerticalBattleScreen):
                     #     self.plasma_blaster_bullets.remove(plasma)
 
                     if enemy.enemyHealth <= 0:
-                        if enemy in self.kamikazeDroneGroup:
-                            self.kamikazeDroneGroup.remove(enemy)
-                        elif enemy in self.bileSpitterGroup:
-                            self.bileSpitterGroup.remove(enemy)
-                        elif enemy in self.triSpitterGroup:
-                            self.triSpitterGroup.remove(enemy)
+                        self.remove_enemy_if_dead(enemy)
 
                     break  # plasma is gone, stop checking
         # -------------------------
@@ -341,12 +336,7 @@ class LevelOne(VerticalBattleScreen):
                         self.wind_slicer_bullets.remove(slicer)
 
                     if enemy.enemyHealth <= 0:
-                        if enemy in self.kamikazeDroneGroup:
-                            self.kamikazeDroneGroup.remove(enemy)
-                        elif enemy in self.bileSpitterGroup:
-                            self.bileSpitterGroup.remove(enemy)
-                        elif enemy in self.triSpitterGroup:
-                            self.triSpitterGroup.remove(enemy)
+                        self.remove_enemy_if_dead(enemy)
 
                     break  # slicer is gone, stop checking
         # -------------------------
@@ -408,12 +398,7 @@ class LevelOne(VerticalBattleScreen):
                         self.energy_balls.remove(ball)
 
                     if enemy.enemyHealth <= 0:
-                        if enemy in self.kamikazeDroneGroup:
-                            self.kamikazeDroneGroup.remove(enemy)
-                        elif enemy in self.bileSpitterGroup:
-                            self.bileSpitterGroup.remove(enemy)
-                        elif enemy in self.triSpitterGroup:
-                            self.triSpitterGroup.remove(enemy)
+                        self.remove_enemy_if_dead(enemy)
 
                     break  # ball is gone, stop checking
 
@@ -446,12 +431,7 @@ class LevelOne(VerticalBattleScreen):
                         self.hyper_laser_bullets.remove(laser)
 
                     if enemy.enemyHealth <= 0:
-                        if enemy in self.kamikazeDroneGroup:
-                            self.kamikazeDroneGroup.remove(enemy)
-                        elif enemy in self.bileSpitterGroup:
-                            self.bileSpitterGroup.remove(enemy)
-                        elif enemy in self.triSpitterGroup:
-                            self.triSpitterGroup.remove(enemy)
+                        self.remove_enemy_if_dead(enemy)
 
                     break  # laser is gone, stop checking
 
@@ -485,12 +465,7 @@ class LevelOne(VerticalBattleScreen):
                         self.metal_shield_bullets.remove(metal)
 
                     if enemy.enemyHealth <= 0:
-                        if enemy in self.kamikazeDroneGroup:
-                            self.kamikazeDroneGroup.remove(enemy)
-                        elif enemy in self.bileSpitterGroup:
-                            self.bileSpitterGroup.remove(enemy)
-                        elif enemy in self.triSpitterGroup:
-                            self.triSpitterGroup.remove(enemy)
+                        self.remove_enemy_if_dead(enemy)
 
                     break  # shield is gone, stop checking
         # -------------------------
@@ -523,12 +498,7 @@ class LevelOne(VerticalBattleScreen):
                         self.player_missiles.remove(missile)
 
                     if enemy.enemyHealth <= 0:
-                        if enemy in self.kamikazeDroneGroup:
-                            self.kamikazeDroneGroup.remove(enemy)
-                        elif enemy in self.bileSpitterGroup:
-                            self.bileSpitterGroup.remove(enemy)
-                        elif enemy in self.triSpitterGroup:
-                            self.triSpitterGroup.remove(enemy)
+                        self.remove_enemy_if_dead(enemy)
 
                     break  # missile is gone, stop checking
 
@@ -562,12 +532,7 @@ class LevelOne(VerticalBattleScreen):
                         enemy.enemyHealth -= napalm.damage
 
                         if enemy.enemyHealth <= 0:
-                            if enemy in self.kamikazeDroneGroup:
-                                self.kamikazeDroneGroup.remove(enemy)
-                            elif enemy in self.bileSpitterGroup:
-                                self.bileSpitterGroup.remove(enemy)
-                            elif enemy in self.triSpitterGroup:
-                                self.triSpitterGroup.remove(enemy)
+                            self.remove_enemy_if_dead(enemy)
 
                         break  # only ONE direct-hit explosion
 
@@ -587,12 +552,6 @@ class LevelOne(VerticalBattleScreen):
                     napalm.area_of_effect_y
                 )
 
-                all_enemies = (
-                        list(self.kamikazeDroneGroup) +
-                        list(self.bileSpitterGroup) +
-                        list(self.triSpitterGroup)
-                )
-
                 for enemy in all_enemies:
 
                     enemy_hitbox = pygame.Rect(
@@ -607,12 +566,7 @@ class LevelOne(VerticalBattleScreen):
                         enemy.enemyHealth -= napalm.damage
 
                         if enemy.enemyHealth <= 0:
-                            if enemy in self.kamikazeDroneGroup:
-                                self.kamikazeDroneGroup.remove(enemy)
-                            elif enemy in self.bileSpitterGroup:
-                                self.bileSpitterGroup.remove(enemy)
-                            elif enemy in self.triSpitterGroup:
-                                self.triSpitterGroup.remove(enemy)
+                            self.remove_enemy_if_dead(enemy)
 
                 # 🔒 AOE MUST ONLY APPLY ONCE
                 napalm.aoe_applied = True
@@ -631,12 +585,6 @@ class LevelOne(VerticalBattleScreen):
                     napalm.area_of_effect_y
                 )
 
-                all_enemies = (
-                        list(self.kamikazeDroneGroup) +
-                        list(self.bileSpitterGroup) +
-                        list(self.triSpitterGroup)
-                )
-
                 for enemy in all_enemies:
 
                     if aoe_rect.colliderect(enemy.hitbox):
@@ -650,15 +598,7 @@ class LevelOne(VerticalBattleScreen):
                         enemy.enemyHealth -= napalm.damage
 
                         if enemy.enemyHealth <= 0:
-                            print("💀 NAPALM KILL:", type(enemy).__name__)
-
-                            if enemy in self.kamikazeDroneGroup:
-                                self.kamikazeDroneGroup.remove(enemy)
-                            elif enemy in self.bileSpitterGroup:
-                                self.bileSpitterGroup.remove(enemy)
-                            elif enemy in self.triSpitterGroup:
-                                self.triSpitterGroup.remove(enemy)
-
+                            self.remove_enemy_if_dead(enemy)
         # -------------------------
         # BUSTER CANNON → ENEMY COLLISION
         # -------------------------
@@ -689,12 +629,7 @@ class LevelOne(VerticalBattleScreen):
                         self.buster_cannon_bullets.remove(bc)
 
                     if enemy.enemyHealth <= 0:
-                        if enemy in self.kamikazeDroneGroup:
-                            self.kamikazeDroneGroup.remove(enemy)
-                        elif enemy in self.bileSpitterGroup:
-                            self.bileSpitterGroup.remove(enemy)
-                        elif enemy in self.triSpitterGroup:
-                            self.triSpitterGroup.remove(enemy)
+                        self.remove_enemy_if_dead(enemy)
 
                     break
 
@@ -728,12 +663,7 @@ class LevelOne(VerticalBattleScreen):
                         self.player_bullets.remove(bullet)
 
                     if enemy.enemyHealth <= 0:
-                        if enemy in self.kamikazeDroneGroup:
-                            self.kamikazeDroneGroup.remove(enemy)
-                        elif enemy in self.bileSpitterGroup:
-                            self.bileSpitterGroup.remove(enemy)
-                        elif enemy in self.triSpitterGroup:
-                            self.triSpitterGroup.remove(enemy)
+                        self.remove_enemy_if_dead(enemy)
 
                     break
         # -------------------------
@@ -765,11 +695,17 @@ class LevelOne(VerticalBattleScreen):
                         self.wave_crash_bullets.remove(wave)
 
                     if enemy.enemyHealth <= 0:
-                        if enemy in self.kamikazeDroneGroup:
-                            self.kamikazeDroneGroup.remove(enemy)
-                        elif enemy in self.bileSpitterGroup:
-                            self.bileSpitterGroup.remove(enemy)
-                        elif enemy in self.triSpitterGroup:
-                            self.triSpitterGroup.remove(enemy)
+                        self.remove_enemy_if_dead(enemy)
 
                     break
+    #will need to  implement this later
+    def remove_enemy_if_dead(self, enemy) -> None:
+        if enemy.enemyHealth > 0:
+            return
+
+        if enemy in self.kamikazeDroneGroup:
+            self.kamikazeDroneGroup.remove(enemy)
+        elif enemy in self.bileSpitterGroup:
+            self.bileSpitterGroup.remove(enemy)
+        elif enemy in self.triSpitterGroup:
+            self.triSpitterGroup.remove(enemy)
