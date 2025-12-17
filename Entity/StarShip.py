@@ -2,7 +2,7 @@
 # from Constants.GlobalConstants import GlobalConstants
 # from Constants.Timer import Timer
 # from Movement.MoveRectangle import MoveRectangle
-
+import math
 
 import pygame
 from Constants.GlobalConstants import GlobalConstants
@@ -141,27 +141,30 @@ class StarShip:
         return [projectile]
 
     def fire_wind_slicer(self) -> list:
-        """
-        Fires Wind Slicer in an 8-shot cone spread.
-        Returns a list of WindSlicer projectiles.
-        """
-
-        # Cooldown gate (reuse napalm-style timing or define a new one later)
-        if not self.napalm_timer.is_ready():
-            return []
-
         bullets = []
 
-        # Spawn at ship center
-        start_x = self.x + self.width // 2
+        # fire rate gate (reuse napalm timer or add a new one later)
+        if not self.napalm_timer.is_ready():
+            return bullets
+
+        center_x = self.x + self.width / 2
         start_y = self.y
 
-        # 8-shot cone (angles handled later — just spawn here)
-        for _ in range(8):
-            bullet = WindSlicer(start_x, start_y)
+        bullet_count = 8
+        cone_angle_deg = 60  # total cone width
+        start_angle = -90 - cone_angle_deg / 2  # straight up = -90°
+        angle_step = cone_angle_deg / (bullet_count - 1)
+        speed = 3
+
+        for i in range(bullet_count):
+            angle = math.radians(start_angle + i * angle_step)
+            dx = math.cos(angle) * speed
+            dy = math.sin(angle) * speed
+
+            bullet = WindSlicer(center_x, start_y, dx, dy)
             bullets.append(bullet)
 
-        self.napalm_timer.reset()
+        self.napalm_timer.reset()  # reuse cooldown for now
         return bullets
 
     def fire_missile(self):
