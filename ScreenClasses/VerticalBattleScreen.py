@@ -35,6 +35,7 @@ class VerticalBattleScreen:
         self.was_q_pressed_last_frame: bool = False
 
         self.hyper_laser_bullets: list = []
+        self.wind_slicer_bullets: list = []
         self.napalm_spread_bullets: list = []
         self.napalm_explosions: list = []
         self.energy_balls: list = []
@@ -304,6 +305,14 @@ class VerticalBattleScreen:
             if self.controller.magic_2_button:
                 waves = state.starship.fire_wave_crash()
                 self.wave_crash_bullets.extend(waves)
+
+        # -------------------------
+        # WIND SLICER MAGIC
+        # -------------------------
+        if state.starship.equipped_magic[0] == "Wind Slicer" and not self.playerDead:
+            if self.controller.magic_1_button:
+                slicers = state.starship.fire_wind_slicer()
+                self.wind_slicer_bullets.extend(slicers)
         # On each frame, update the charge timer for the equipped weapon(s)
         # if state.starship.equipped_magic[0] == "Buster Cannon":
         #     state.starship.buster_cannon.update()
@@ -323,10 +332,24 @@ class VerticalBattleScreen:
         #     self.buster_cannon_bullets.extend(shots)
 
         # -------------------------
-        # NAPALM SPREAD UPDATE
+        # WIND SLICER UPDATE
+        # -------------------------
+        for slicer in list(self.wind_slicer_bullets):
+            slicer.update()
+
+            # Convert to screen space (same pattern)
+            screen_y = slicer.y - self.camera.y
+
+            # Remove if off screen
+            if screen_y + slicer.height < 0:
+                self.wind_slicer_bullets.remove(slicer)
+
         # -------------------------
         # NAPALM SPREAD UPDATE
         # -------------------------
+        # NAPALM SPREAD UPDATE
+        # -------------------------
+
         for napalm in list(self.napalm_spread_bullets):
             napalm.update()
 
@@ -499,6 +522,27 @@ class VerticalBattleScreen:
         # -------------------------
         # DRAW PLAYER Metal Shield
         # -------------------------]
+        # -------------------------
+        # DRAW WIND SLICER BULLETS
+        # -------------------------
+        for slicer in self.wind_slicer_bullets:
+            sx = self.camera.world_to_screen_x(slicer.x)
+            sy = self.camera.world_to_screen_y(slicer.y)
+            sw = int(slicer.width * zoom)
+            sh = int(slicer.height * zoom)
+
+            rect = pygame.Rect(sx, sy, sw, sh)
+
+            # main projectile
+            pygame.draw.rect(state.DISPLAY, (180, 220, 255), rect)
+
+            # debug hitbox outline
+            pygame.draw.rect(
+                state.DISPLAY,
+                (0, 150, 255),
+                (sx, sy, sw, sh),
+                2
+            )
 
         # -------------------------
         # DRAW ENERGY BALLS

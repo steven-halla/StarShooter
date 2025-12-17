@@ -15,6 +15,7 @@ from Weapons.HyperLaser import HyperLaser
 from Weapons.MetalShield import MetalShield
 from Weapons.Missile import Missile
 from Weapons.NapalmSpread import NapalmSpread
+from Weapons.WindSlicer import WindSlicer
 
 
 class StarShip:
@@ -47,7 +48,7 @@ class StarShip:
         self.missileDamage: int = 100
         self.missileSpeed: int = 10
         self.missile_spread_offset: int = 20
-        self.equipped_magic: list = ["Napalm Spread", None]
+        self.equipped_magic: list = ["Wind Slicer", None]
         self.hyper_laser_damage: int = 100
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
@@ -85,6 +86,8 @@ class StarShip:
         # Begin a 10-second invincibility period
         self.invincible = True
         self.invincibility_timer.reset()
+
+
 
     def fire_napalm_spread(self):
         """
@@ -136,6 +139,30 @@ class StarShip:
 
         self.buster_cannon_cooldown.reset()
         return [projectile]
+
+    def fire_wind_slicer(self) -> list:
+        """
+        Fires Wind Slicer in an 8-shot cone spread.
+        Returns a list of WindSlicer projectiles.
+        """
+
+        # Cooldown gate (reuse napalm-style timing or define a new one later)
+        if not self.napalm_timer.is_ready():
+            return []
+
+        bullets = []
+
+        # Spawn at ship center
+        start_x = self.x + self.width // 2
+        start_y = self.y
+
+        # 8-shot cone (angles handled later — just spawn here)
+        for _ in range(8):
+            bullet = WindSlicer(start_x, start_y)
+            bullets.append(bullet)
+
+        self.napalm_timer.reset()
+        return bullets
 
     def fire_missile(self):
         # Only fire if timer is ready

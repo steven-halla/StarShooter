@@ -268,6 +268,67 @@ class LevelOne(VerticalBattleScreen):
                 enemy_tri_spitter.enemyBullets.clear()
 
     def bullet_helper(self):
+        # -------------------------
+        # WIND SLICER → ENEMY COLLISION
+        # -------------------------
+        for slicer in list(self.wind_slicer_bullets):
+
+            s_rect = pygame.Rect(
+                self.camera.world_to_screen_x(slicer.x),
+                self.camera.world_to_screen_y(slicer.y),
+                int(slicer.width * self.camera.zoom),
+                int(slicer.height * self.camera.zoom)
+            )
+
+            # --- KAMIKAZE DRONES ---
+            for drone in list(self.kamikazeDroneGroup):
+                d_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(drone.x),
+                    self.camera.world_to_screen_y(drone.y),
+                    int(drone.width * self.camera.zoom),
+                    int(drone.height * self.camera.zoom)
+                )
+
+                if s_rect.colliderect(d_rect):
+                    drone.enemyHealth -= slicer.damage
+
+                    # Wind slicer persists (shotgun-style), DO NOT remove slicer
+
+                    if drone.enemyHealth <= 0:
+                        self.kamikazeDroneGroup.remove(drone)
+                    break
+
+            # --- BILE SPITTERS ---
+            for enemy in list(self.bileSpitterGroup):
+                e_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(enemy.x),
+                    self.camera.world_to_screen_y(enemy.y),
+                    int(enemy.width * self.camera.zoom),
+                    int(enemy.height * self.camera.zoom)
+                )
+
+                if s_rect.colliderect(e_rect):
+                    enemy.enemyHealth -= slicer.damage
+
+                    if enemy.enemyHealth <= 0:
+                        self.bileSpitterGroup.remove(enemy)
+                    break
+
+            # --- TRI SPITTERS ---
+            for enemy in list(self.triSpitterGroup):
+                e_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(enemy.x),
+                    self.camera.world_to_screen_y(enemy.y),
+                    int(enemy.width * self.camera.zoom),
+                    int(enemy.height * self.camera.zoom)
+                )
+
+                if s_rect.colliderect(e_rect):
+                    enemy.enemyHealth -= slicer.damage
+
+                    if enemy.enemyHealth <= 0:
+                        self.triSpitterGroup.remove(enemy)
+                    break
 
         # -------------------------
         # ENERGY BALL → ENEMY COLLISION
