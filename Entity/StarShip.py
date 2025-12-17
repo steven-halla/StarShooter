@@ -15,6 +15,7 @@ from Weapons.HyperLaser import HyperLaser
 from Weapons.MetalShield import MetalShield
 from Weapons.Missile import Missile
 from Weapons.NapalmSpread import NapalmSpread
+from Weapons.PlasmaBlaster import PlasmaBlaster
 from Weapons.WindSlicer import WindSlicer
 
 
@@ -48,7 +49,7 @@ class StarShip:
         self.missileDamage: int = 100
         self.missileSpeed: int = 10
         self.missile_spread_offset: int = 20
-        self.equipped_magic: list = ["Wind Slicer", None]
+        self.equipped_magic: list = ["Plasma Blaster", None]
         self.hyper_laser_damage: int = 100
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
@@ -139,6 +140,18 @@ class StarShip:
 
         self.buster_cannon_cooldown.reset()
         return [projectile]
+
+    def fire_plasma_blaster(self):
+        """
+        Fires a Plasma Blaster beam straight upward.
+        """
+
+        # Spawn at center-top of ship
+        start_x = self.x + self.width / 2
+        start_y = self.y - 50
+
+        plasma = PlasmaBlaster(start_x, start_y)
+        return plasma
 
     def fire_wind_slicer(self) -> list:
         bullets = []

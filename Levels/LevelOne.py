@@ -269,6 +269,77 @@ class LevelOne(VerticalBattleScreen):
 
     def bullet_helper(self):
         # -------------------------
+        # PLASMA BLASTER → ENEMY COLLISION
+        # -------------------------
+        for plasma in list(self.plasma_blaster_bullets):
+
+            plasma_rect = pygame.Rect(
+                self.camera.world_to_screen_x(plasma.x),
+                self.camera.world_to_screen_y(plasma.y),
+                int(plasma.width * self.camera.zoom),
+                int(plasma.height * self.camera.zoom)
+            )
+
+            # --- KAMIKAZE DRONES ---
+            for drone in list(self.kamikazeDroneGroup):
+                d_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(drone.x),
+                    self.camera.world_to_screen_y(drone.y),
+                    int(drone.width * self.camera.zoom),
+                    int(drone.height * self.camera.zoom)
+                )
+
+                if plasma_rect.colliderect(d_rect):
+                    print("⚡ PLASMA BLASTER HIT KAMIKAZE DRONE")
+                    drone.enemyHealth -= plasma.damage
+
+                    if plasma in self.plasma_blaster_bullets:
+                        self.plasma_blaster_bullets.remove(plasma)
+
+                    if drone.enemyHealth <= 0:
+                        self.kamikazeDroneGroup.remove(drone)
+                    break
+
+            # --- BILE SPITTERS ---
+            for enemy in list(self.bileSpitterGroup):
+                e_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(enemy.x),
+                    self.camera.world_to_screen_y(enemy.y),
+                    int(enemy.width * self.camera.zoom),
+                    int(enemy.height * self.camera.zoom)
+                )
+
+                if plasma_rect.colliderect(e_rect):
+                    print("⚡ PLASMA BLASTER HIT BILE SPITTER")
+                    enemy.enemyHealth -= plasma.damage
+
+                    if plasma in self.plasma_blaster_bullets:
+                        self.plasma_blaster_bullets.remove(plasma)
+
+                    if enemy.enemyHealth <= 0:
+                        self.bileSpitterGroup.remove(enemy)
+                    break
+
+            # --- TRI SPITTERS ---
+            for enemy in list(self.triSpitterGroup):
+                e_rect = pygame.Rect(
+                    self.camera.world_to_screen_x(enemy.x),
+                    self.camera.world_to_screen_y(enemy.y),
+                    int(enemy.width * self.camera.zoom),
+                    int(enemy.height * self.camera.zoom)
+                )
+
+                if plasma_rect.colliderect(e_rect):
+                    print("⚡ PLASMA BLASTER HIT TRI SPITTER")
+                    enemy.enemyHealth -= plasma.damage
+
+                    if plasma in self.plasma_blaster_bullets:
+                        self.plasma_blaster_bullets.remove(plasma)
+
+                    if enemy.enemyHealth <= 0:
+                        self.triSpitterGroup.remove(enemy)
+                    break
+        # -------------------------
         # WIND SLICER → ENEMY COLLISION
         # -------------------------
         for slicer in list(self.wind_slicer_bullets):

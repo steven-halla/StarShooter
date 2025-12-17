@@ -34,6 +34,7 @@ class VerticalBattleScreen:
 
         self.was_q_pressed_last_frame: bool = False
 
+        self.plasma_blaster_bullets: list = []
         self.hyper_laser_bullets: list = []
         self.wind_slicer_bullets: list = []
         self.napalm_spread_bullets: list = []
@@ -211,6 +212,25 @@ class VerticalBattleScreen:
                 self.buster_cannon_bullets.extend(shots)
 
         # -------------------------
+        # PLASMA BLASTER MAGIC
+        # -------------------------
+        if state.starship.equipped_magic[0] == "Plasma Blaster" and not self.playerDead:
+
+            # HOLD → spawn ONE beam
+            if self.controller.magic_1_button:
+                if not self.plasma_blaster_bullets:  # 🔒 guard: only ONE
+                    plasma = state.starship.fire_plasma_blaster()
+                    if plasma is not None:
+                        self.plasma_blaster_bullets.append(plasma)
+
+        # -------------------------
+        # PLASMA BLASTER RELEASE
+        # # -------------------------
+        # if not self.controller.magic_1_button:
+        #     if self.plasma_blaster_bullets:
+        #         self.plasma_blaster_bullets.clear()
+
+        # -------------------------
         # ENERGY BALL MAGIC
         # -------------------------
         if state.starship.equipped_magic[0] == "Energy Ball" and not self.playerDead:
@@ -330,6 +350,19 @@ class VerticalBattleScreen:
         #     # call the appropriate spell-casting logic
         #     shots = state.starship.fire_buster_cannon()
         #     self.buster_cannon_bullets.extend(shots)
+
+        # -------------------------
+        # PLASMA BLASTER UPDATE
+        # -------------------------
+        for plasma in list(self.plasma_blaster_bullets):
+            plasma.update()
+
+            # Convert to screen space
+            screen_y = plasma.y - self.camera.y
+
+            # Delete when off screen
+            if screen_y + plasma.height < 0 or not plasma.is_active:
+                self.plasma_blaster_bullets.remove(plasma)
 
         # -------------------------
         # WIND SLICER UPDATE
@@ -518,6 +551,27 @@ class VerticalBattleScreen:
 
         state.DISPLAY.fill(GlobalConstants.BLACK)
         state.DISPLAY.blit(scaled_scene, (0, 0))
+
+        # -------------------------
+        # DRAW PLASMA BLASTER
+        # -------------------------
+        for plasma in self.plasma_blaster_bullets:
+            px = self.camera.world_to_screen_x(plasma.x)
+            py = self.camera.world_to_screen_y(plasma.y)
+            pw = int(plasma.width * zoom)
+            ph = int(plasma.height * zoom)
+
+            # Draw plasma beam (thin vertical light)
+            rect = pygame.Rect(px, py, pw, ph)
+            pygame.draw.rect(state.DISPLAY, (0, 255, 255), rect)
+
+            # Debug hitbox outline
+            pygame.draw.rect(
+                state.DISPLAY,
+                (255, 255, 255),
+                (px, py, pw, ph),
+                1
+            )
 
         # -------------------------
         # DRAW PLAYER Metal Shield
