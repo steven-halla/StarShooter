@@ -287,12 +287,7 @@ class LevelOne(VerticalBattleScreen):
 
             for enemy in all_enemies:
 
-                enemy_rect = pygame.Rect(
-                    self.camera.world_to_screen_x(enemy.x),
-                    self.camera.world_to_screen_y(enemy.y),
-                    int(enemy.width * self.camera.zoom),
-                    int(enemy.height * self.camera.zoom)
-                )
+                enemy_rect = self.get_enemy_screen_rect(enemy)
 
                 if plasma_rect.colliderect(enemy_rect):
                     print("⚡ PLASMA BLASTER HIT", type(enemy).__name__)
@@ -319,12 +314,7 @@ class LevelOne(VerticalBattleScreen):
 
             for enemy in all_enemies:
 
-                enemy_rect = pygame.Rect(
-                    self.camera.world_to_screen_x(enemy.x),
-                    self.camera.world_to_screen_y(enemy.y),
-                    int(enemy.width * self.camera.zoom),
-                    int(enemy.height * self.camera.zoom)
-                )
+                enemy_rect = self.get_enemy_screen_rect(enemy)
 
                 if slicer_rect.colliderect(enemy_rect):
                     print("🌪️ WIND SLICER HIT", type(enemy).__name__)
@@ -353,12 +343,7 @@ class LevelOne(VerticalBattleScreen):
 
             for enemy_bullet in list(self.enemy_bullets):
 
-                enemy_rect = pygame.Rect(
-                    self.camera.world_to_screen_x(enemy_bullet.x),
-                    self.camera.world_to_screen_y(enemy_bullet.y),
-                    int(enemy_bullet.width * self.camera.zoom),
-                    int(enemy_bullet.height * self.camera.zoom)
-                )
+                enemy_rect = self.get_enemy_screen_rect(enemy)
 
                 if slicer_rect.colliderect(enemy_rect):
                     print("🌪️ WIND SLICER CUT BULLET")
@@ -383,12 +368,7 @@ class LevelOne(VerticalBattleScreen):
 
             for enemy in all_enemies:
 
-                enemy_rect = pygame.Rect(
-                    self.camera.world_to_screen_x(enemy.x),
-                    self.camera.world_to_screen_y(enemy.y),
-                    int(enemy.width * self.camera.zoom),
-                    int(enemy.height * self.camera.zoom)
-                )
+                enemy_rect = self.get_enemy_screen_rect(enemy)
 
                 if ball_rect.colliderect(enemy_rect):
                     enemy.enemyHealth -= ball.damage
@@ -450,12 +430,7 @@ class LevelOne(VerticalBattleScreen):
 
             for enemy in all_enemies:
 
-                enemy_rect = pygame.Rect(
-                    self.camera.world_to_screen_x(enemy.x),
-                    self.camera.world_to_screen_y(enemy.y),
-                    int(enemy.width * self.camera.zoom),
-                    int(enemy.height * self.camera.zoom)
-                )
+                enemy_rect = self.get_enemy_screen_rect(enemy)
 
                 if metal_rect.colliderect(enemy_rect):
                     enemy.enemyHealth -= self.starship.missileDamage
@@ -483,12 +458,7 @@ class LevelOne(VerticalBattleScreen):
 
             for enemy in all_enemies:
 
-                enemy_rect = pygame.Rect(
-                    self.camera.world_to_screen_x(enemy.x),
-                    self.camera.world_to_screen_y(enemy.y),
-                    int(enemy.width * self.camera.zoom),
-                    int(enemy.height * self.camera.zoom)
-                )
+                enemy_rect = self.get_enemy_screen_rect(enemy)
 
                 if missile_rect.colliderect(enemy_rect):
                     enemy.enemyHealth -= self.starship.missileDamage
@@ -518,12 +488,6 @@ class LevelOne(VerticalBattleScreen):
             # DIRECT HIT → FORCE EXPLOSION
             # ----------------------------------
             if not napalm.has_exploded:
-
-                all_enemies = (
-                        list(self.kamikazeDroneGroup) +
-                        list(self.bileSpitterGroup) +
-                        list(self.triSpitterGroup)
-                )
 
                 for enemy in all_enemies:
                     if napalm_rect.colliderect(enemy.hitbox):
@@ -614,12 +578,7 @@ class LevelOne(VerticalBattleScreen):
 
             for enemy in all_enemies:
 
-                enemy_rect = pygame.Rect(
-                    self.camera.world_to_screen_x(enemy.x),
-                    self.camera.world_to_screen_y(enemy.y),
-                    int(enemy.width * self.camera.zoom),
-                    int(enemy.height * self.camera.zoom)
-                )
+                enemy_rect = self.get_enemy_screen_rect(enemy)
 
                 if bc_rect.colliderect(enemy_rect):
                     enemy.enemyHealth -= bc.damage
@@ -648,12 +607,7 @@ class LevelOne(VerticalBattleScreen):
 
             for enemy in all_enemies:
 
-                enemy_rect = pygame.Rect(
-                    self.camera.world_to_screen_x(enemy.x),
-                    self.camera.world_to_screen_y(enemy.y),
-                    int(enemy.width * self.camera.zoom),
-                    int(enemy.height * self.camera.zoom)
-                )
+                enemy_rect = self.get_enemy_screen_rect(enemy)
 
                 if b_rect.colliderect(enemy_rect):
                     enemy.enemyHealth -= self.starship.bulletDamage
@@ -680,12 +634,7 @@ class LevelOne(VerticalBattleScreen):
 
             for enemy in all_enemies:
 
-                enemy_rect = pygame.Rect(
-                    self.camera.world_to_screen_x(enemy.x),
-                    self.camera.world_to_screen_y(enemy.y),
-                    int(enemy.width * self.camera.zoom),
-                    int(enemy.height * self.camera.zoom)
-                )
+                enemy_rect = self.get_enemy_screen_rect(enemy)
 
                 if w_rect.colliderect(enemy_rect):
                     enemy.enemyHealth -= wave.damage
@@ -696,7 +645,6 @@ class LevelOne(VerticalBattleScreen):
 
                     if enemy.enemyHealth <= 0:
                         self.remove_enemy_if_dead(enemy)
-
                     break
     #will need to  implement this later
     def remove_enemy_if_dead(self, enemy) -> None:
@@ -709,3 +657,11 @@ class LevelOne(VerticalBattleScreen):
             self.bileSpitterGroup.remove(enemy)
         elif enemy in self.triSpitterGroup:
             self.triSpitterGroup.remove(enemy)
+
+    def get_enemy_screen_rect(self, enemy) -> pygame.Rect:
+        return pygame.Rect(
+            self.camera.world_to_screen_x(enemy.x),
+            self.camera.world_to_screen_y(enemy.y),
+            int(enemy.width * self.camera.zoom),
+            int(enemy.height * self.camera.zoom)
+        )
