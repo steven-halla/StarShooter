@@ -278,12 +278,7 @@ class LevelOne(VerticalBattleScreen):
         # -------------------------
         for plasma in list(self.plasma_blaster_bullets):
 
-            plasma_rect = pygame.Rect(
-                self.camera.world_to_screen_x(plasma.x),
-                self.camera.world_to_screen_y(plasma.y),
-                int(plasma.width * self.camera.zoom),
-                int(plasma.height * self.camera.zoom)
-            )
+            plasma_rect = self.weapon_rectangle(plasma)
 
             for enemy in all_enemies:
 
@@ -305,12 +300,7 @@ class LevelOne(VerticalBattleScreen):
         # -------------------------
         for slicer in list(self.wind_slicer_bullets):
 
-            slicer_rect = pygame.Rect(
-                self.camera.world_to_screen_x(slicer.x),
-                self.camera.world_to_screen_y(slicer.y),
-                int(slicer.width * self.camera.zoom),
-                int(slicer.height * self.camera.zoom)
-            )
+            slicer_rect = self.weapon_rectangle(slicer)
 
             for enemy in all_enemies:
 
@@ -333,14 +323,7 @@ class LevelOne(VerticalBattleScreen):
         # WIND SLICER → ENEMY BULLET COLLISION
         # -------------------------
         for slicer in list(self.wind_slicer_bullets):
-
-            slicer_rect = pygame.Rect(
-                self.camera.world_to_screen_x(slicer.x),
-                self.camera.world_to_screen_y(slicer.y),
-                int(slicer.width * self.camera.zoom),
-                int(slicer.height * self.camera.zoom)
-            )
-
+            slicer_rect = self.weapon_rectangle(slicer)
             for enemy_bullet in list(self.enemy_bullets):
 
                 enemy_rect = self.get_enemy_screen_rect(enemy)
@@ -359,12 +342,7 @@ class LevelOne(VerticalBattleScreen):
 
         for ball in list(self.energy_balls):
 
-            ball_rect = pygame.Rect(
-                self.camera.world_to_screen_x(ball.x),
-                self.camera.world_to_screen_y(ball.y),
-                int(ball.width * self.camera.zoom),
-                int(ball.height * self.camera.zoom)
-            )
+            ball_rect = self.weapon_rectangle(ball)
 
             for enemy in all_enemies:
 
@@ -387,21 +365,11 @@ class LevelOne(VerticalBattleScreen):
         # -------------------------
         for laser in list(self.hyper_laser_bullets):
 
-            laser_rect = pygame.Rect(
-                self.camera.world_to_screen_x(laser.x),
-                self.camera.world_to_screen_y(laser.y),
-                int(laser.width * self.camera.zoom),
-                int(laser.height * self.camera.zoom)
-            )
+            laser_rect = self.weapon_rectangle(laser)
 
             for enemy in all_enemies:
 
-                enemy_rect = pygame.Rect(
-                    self.camera.world_to_screen_x(enemy.x),
-                    self.camera.world_to_screen_y(enemy.y),
-                    int(enemy.width * self.camera.zoom),
-                    int(enemy.height * self.camera.zoom)
-                )
+                enemy_rect = self.get_enemy_screen_rect(enemy)
 
                 if laser_rect.colliderect(enemy_rect):
                     enemy.enemyHealth -= self.starship.hyper_laser_damage
@@ -421,12 +389,7 @@ class LevelOne(VerticalBattleScreen):
 
         for metal in list(self.metal_shield_bullets):
 
-            metal_rect = pygame.Rect(
-                self.camera.world_to_screen_x(metal.x),
-                self.camera.world_to_screen_y(metal.y),
-                int(metal.width * self.camera.zoom),
-                int(metal.height * self.camera.zoom)
-            )
+            metal_rect = self.weapon_rectangle(metal)
 
             for enemy in all_enemies:
 
@@ -449,12 +412,7 @@ class LevelOne(VerticalBattleScreen):
 
         for missile in list(self.player_missiles):
 
-            missile_rect = pygame.Rect(
-                self.camera.world_to_screen_x(missile.x),
-                self.camera.world_to_screen_y(missile.y),
-                int(missile.width * self.camera.zoom),
-                int(missile.height * self.camera.zoom)
-            )
+            missile_rect = self.weapon_rectangle(missile)
 
             for enemy in all_enemies:
 
@@ -569,12 +527,7 @@ class LevelOne(VerticalBattleScreen):
 
         for bc in list(self.buster_cannon_bullets):
 
-            bc_rect = pygame.Rect(
-                self.camera.world_to_screen_x(bc.x),
-                self.camera.world_to_screen_y(bc.y),
-                int(bc.width * self.camera.zoom),
-                int(bc.height * self.camera.zoom)
-            )
+            bc_rect = self.weapon_rectangle(bc)
 
             for enemy in all_enemies:
 
@@ -598,12 +551,8 @@ class LevelOne(VerticalBattleScreen):
 
         for bullet in list(self.player_bullets):
 
-            b_rect = pygame.Rect(
-                self.camera.world_to_screen_x(bullet.x),
-                self.camera.world_to_screen_y(bullet.y),
-                int(bullet.width * self.camera.zoom),
-                int(bullet.height * self.camera.zoom)
-            )
+
+            b_rect = self.weapon_rectangle(bullet)
 
             for enemy in all_enemies:
 
@@ -625,12 +574,8 @@ class LevelOne(VerticalBattleScreen):
         # -------------------------
         for wave in list(self.wave_crash_bullets):
 
-            w_rect = pygame.Rect(
-                self.camera.world_to_screen_x(wave.x),
-                self.camera.world_to_screen_y(wave.y),
-                int(wave.width * self.camera.zoom),
-                int(wave.height * self.camera.zoom)
-            )
+
+            w_rect = self.weapon_rectangle(wave)
 
             for enemy in all_enemies:
 
@@ -664,4 +609,12 @@ class LevelOne(VerticalBattleScreen):
             self.camera.world_to_screen_y(enemy.y),
             int(enemy.width * self.camera.zoom),
             int(enemy.height * self.camera.zoom)
+        )
+
+    def weapon_rectangle(self, obj) -> pygame.Rect:
+        return pygame.Rect(
+            self.camera.world_to_screen_x(obj.x),
+            self.camera.world_to_screen_y(obj.y),
+            int(obj.width * self.camera.zoom),
+            int(obj.height * self.camera.zoom)
         )
