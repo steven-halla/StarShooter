@@ -772,4 +772,4 @@ class LevelOne(VerticalBattleScreen):
                         elif enemy in self.triSpitterGroup:
                             self.triSpitterGroup.remove(enemy)
 
-                    break  # wave is gone, stop checking
+                    break
