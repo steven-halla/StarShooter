@@ -662,11 +662,6 @@ class LevelOne(VerticalBattleScreen):
         # -------------------------
         # BUSTER CANNON → ENEMY COLLISION
         # -------------------------
-        all_enemies = (
-                list(self.kamikazeDroneGroup) +
-                list(self.bileSpitterGroup) +
-                list(self.triSpitterGroup)
-        )
 
         for bc in list(self.buster_cannon_bullets):
 
@@ -741,7 +736,6 @@ class LevelOne(VerticalBattleScreen):
                             self.triSpitterGroup.remove(enemy)
 
                     break
-
         # -------------------------
         # WAVE CRASH → ENEMY COLLISION
         # -------------------------
@@ -754,36 +748,16 @@ class LevelOne(VerticalBattleScreen):
                 int(wave.height * self.camera.zoom)
             )
 
-            # --- KAMIKAZE DRONES ---
-            for drone in list(self.kamikazeDroneGroup):
-                d_rect = pygame.Rect(
-                    self.camera.world_to_screen_x(drone.x),
-                    self.camera.world_to_screen_y(drone.y),
-                    int(drone.width * self.camera.zoom),
-                    int(drone.height * self.camera.zoom)
-                )
+            for enemy in all_enemies:
 
-                if w_rect.colliderect(d_rect):
-                    drone.enemyHealth -= wave.damage
-                    wave.is_active = False
-
-                    if wave in self.wave_crash_bullets:
-                        self.wave_crash_bullets.remove(wave)
-
-                    if drone.enemyHealth <= 0:
-                        self.kamikazeDroneGroup.remove(drone)
-                    break
-
-            # --- BILE SPITTERS ---
-            for enemy in list(self.bileSpitterGroup):
-                e_rect = pygame.Rect(
+                enemy_rect = pygame.Rect(
                     self.camera.world_to_screen_x(enemy.x),
                     self.camera.world_to_screen_y(enemy.y),
                     int(enemy.width * self.camera.zoom),
                     int(enemy.height * self.camera.zoom)
                 )
 
-                if w_rect.colliderect(e_rect):
+                if w_rect.colliderect(enemy_rect):
                     enemy.enemyHealth -= wave.damage
                     wave.is_active = False
 
@@ -791,25 +765,11 @@ class LevelOne(VerticalBattleScreen):
                         self.wave_crash_bullets.remove(wave)
 
                     if enemy.enemyHealth <= 0:
-                        self.bileSpitterGroup.remove(enemy)
-                    break
+                        if enemy in self.kamikazeDroneGroup:
+                            self.kamikazeDroneGroup.remove(enemy)
+                        elif enemy in self.bileSpitterGroup:
+                            self.bileSpitterGroup.remove(enemy)
+                        elif enemy in self.triSpitterGroup:
+                            self.triSpitterGroup.remove(enemy)
 
-            # --- TRI SPITTERS ---
-            for enemy in list(self.triSpitterGroup):
-                e_rect = pygame.Rect(
-                    self.camera.world_to_screen_x(enemy.x),
-                    self.camera.world_to_screen_y(enemy.y),
-                    int(enemy.width * self.camera.zoom),
-                    int(enemy.height * self.camera.zoom)
-                )
-
-                if w_rect.colliderect(e_rect):
-                    enemy.enemyHealth -= wave.damage
-                    wave.is_active = False
-
-                    if wave in self.wave_crash_bullets:
-                        self.wave_crash_bullets.remove(wave)
-
-                    if enemy.enemyHealth <= 0:
-                        self.triSpitterGroup.remove(enemy)
-                    break
+                    break  # wave is gone, stop checking
