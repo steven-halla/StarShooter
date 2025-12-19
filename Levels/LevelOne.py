@@ -282,12 +282,8 @@ class LevelOne(VerticalBattleScreen):
 
                     break  # one hit only
 
-        for spore in list(self.sporeFlowerGroup):
-            spore.update()
 
-            if spore.enemyHealth <= 0:
-                self.sporeFlowerGroup.remove(spore)
-                continue
+
 
         for blade in list(self.bladeSpinnerGroup):
             blade.update()
@@ -308,6 +304,17 @@ class LevelOne(VerticalBattleScreen):
 
             if drone.enemyHealth <= 0:
                 self.kamikazeDroneGroup.remove(drone)
+                continue
+
+        for spore in list(self.sporeFlowerGroup):
+            spore.update()
+
+            if spore.enemyBullets:
+                self.enemy_bullets.extend(spore.enemyBullets)
+                spore.enemyBullets.clear()
+
+            if spore.enemyHealth <= 0:
+                self.sporeFlowerGroup.remove(spore)
                 continue
 
         for enemy in self.bileSpitterGroup:

@@ -1,10 +1,8 @@
-import random
-
+import math
 import pygame
 
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Enemy import Enemy
-from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 
 
@@ -22,86 +20,82 @@ class SporeFlower(Enemy):
         self.bulletWidth: int = 20
         self.bulletHeight: int = 20
 
-        # firing + bullet movement
-        self.weapon_speed: int = 3          # speed of bullet moving DOWN
-        self.fire_interval_ms: int = 3000 # shoot every 3 seconds
+        # firing
+        self.weapon_speed: float = 3.0
+        self.fire_interval_ms: int = 2000
         self.last_shot_time: int = pygame.time.get_ticks()
 
-        # gameplay stats (not used yet)
+        # gameplay
         self.enemyHealth: int = 10
 
-
-        # bullets held locally until battle screen copies them
+        # bullets owned by this enemy
         self.enemyBullets: list[Bullet] = []
+
 
         self.spore_flower_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
 
-    def _shoot_bile(self) -> None:
-        """Create a Bullet object and add it to local bullet list."""
-        bullet_x = self.x + self.width // 2 - self.bulletWidth // 2
-        bullet_y = self.y + self.height
+    def shoot_spores(self) -> None:
+        print("🌸 SPORE FLOWER: shoot_spores CALLED")
 
-        bullet = Bullet(bullet_x, bullet_y)
-        bullet.color = self.bulletColor
+        cx = self.x + self.width // 2
+        cy = self.y + self.height // 2
+
+        bullet = Bullet(cx, cy)
+        bullet.fire_in_8_directions(0, 1, self.weapon_speed)  # DOWN ONLY
+
         bullet.width = self.bulletWidth
         bullet.height = self.bulletHeight
-        bullet.speed = self.weapon_speed  # positive — travels downward
-
-        # 🔹 keep the rect in sync with the new size
-        bullet.rect.width = bullet.width
-        bullet.rect.height = bullet.height
+        bullet.color = self.bulletColor
+        bullet.damage = 10
 
         self.enemyBullets.append(bullet)
-        bullet.damage = 10  # 👈 THIS is your enemy damage
+
+        print(
+            "🟢 BULLET CREATED",
+            "x:", bullet.x,
+            "y:", bullet.y,
+            "speed:", bullet.speed,
+            "diag_speed_y:", bullet.diag_speed_y
+        )
 
     def update(self) -> None:
         super().update()
         self.update_hitbox()
 
-        # print("BILE:", self.y, "CAM:", self.camera.y,
-        #       "SCREEN_Y:", self.camera.world_to_screen_y(self.y))
-
-        """Handle firing every 3 seconds + move bullets."""
-
         now = pygame.time.get_ticks()
 
-
-        # Time to shoot?
         if now - self.last_shot_time >= self.fire_interval_ms:
-            self._shoot_bile()
+            self.shoot_spores()
             self.last_shot_time = now
 
-        # Move all bullets DOWN
         for bullet in self.enemyBullets:
-            bullet.y += bullet.speed
+            bullet.update()
 
-
-
-
-
+            print(
+                "➡️ BULLET MOVING",
+                "x:", bullet.x,
+                "y:", bullet.y,
+                "speed:", bullet.speed,
+                "diag_speed_y:", bullet.diag_speed_y
+            )
     def draw(self, surface: pygame.Surface, camera):
+        print("🎨 DRAW SPORE FLOWER — bullets:", len(self.enemyBullets))
+
         sprite_rect = pygame.Rect(0, 344, 32, 32)
         sprite = self.spore_flower_image.subsurface(sprite_rect)
 
-        # scale ship with zoom
         scale = camera.zoom
         scaled_sprite = pygame.transform.scale(
             sprite,
             (int(self.width * scale), int(self.height * scale))
         )
 
-        # convert world → screen
         screen_x = camera.world_to_screen_x(self.x)
         screen_y = camera.world_to_screen_y(self.y)
-
-        # draw ship
         surface.blit(scaled_sprite, (screen_x, screen_y))
 
-        # ================================
-        #  DRAW PLAYER HITBOX (DEBUG)
-        # ================================
         hb_x = camera.world_to_screen_x(self.hitbox.x)
         hb_y = camera.world_to_screen_y(self.hitbox.y)
         hb_w = int(self.hitbox.width * camera.zoom)

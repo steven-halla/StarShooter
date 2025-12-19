@@ -1,3 +1,5 @@
+import math
+
 import pygame
 
 from Weapons.Weapon import Weapon
@@ -21,4 +23,13 @@ class Bullet(Weapon):
         # Set Bullet-specific diagonal movement
         self.diag_speed_y = self.DEFAULT_VERTICAL_SPEED  # downward velocity
 
-    # All methods (update_rect, update, draw, collide_with_rect) are inherited from Weapon class
+    def fire_in_8_directions(self, dx: float, dy: float, speed: float) -> None:
+        length = math.hypot(dx, dy)
+        if length == 0:
+            return
+
+        # Weapon.update() moves:
+        #   y += self.speed
+        #   x += self.diag_speed_y
+        self.speed = (dy / length) * speed  # vertical
+        self.diag_speed_y = (dx / length) * speed  # horizontal
