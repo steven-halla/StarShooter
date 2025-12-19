@@ -37,29 +37,32 @@ class SporeFlower(Enemy):
         ).convert_alpha()
 
     def shoot_spores(self) -> None:
-        print("🌸 SPORE FLOWER: shoot_spores CALLED")
-
         cx = self.x + self.width // 2
         cy = self.y + self.height // 2
 
-        bullet = Bullet(cx, cy)
-        bullet.fire_in_8_directions(0, 1, self.weapon_speed)  # DOWN ONLY
+        # LEFT bullet
+        bullet_left = Bullet(cx, cy)
+        bullet_left.dx = -self.weapon_speed
+        bullet_left.speed = 0
 
-        bullet.width = self.bulletWidth
-        bullet.height = self.bulletHeight
-        bullet.color = self.bulletColor
-        bullet.damage = 10
+        bullet_left.width = self.bulletWidth
+        bullet_left.height = self.bulletHeight
+        bullet_left.color = self.bulletColor
+        bullet_left.damage = 10
 
-        self.enemyBullets.append(bullet)
+        self.enemyBullets.append(bullet_left)
 
-        print(
-            "🟢 BULLET CREATED",
-            "x:", bullet.x,
-            "y:", bullet.y,
-            "speed:", bullet.speed,
-            "diag_speed_y:", bullet.diag_speed_y
-        )
+        # DOWN bullet
+        bullet_down = Bullet(cx, cy)
+        bullet_down.dx = 0
+        bullet_down.speed = self.weapon_speed
 
+        bullet_down.width = self.bulletWidth
+        bullet_down.height = self.bulletHeight
+        bullet_down.color = self.bulletColor
+        bullet_down.damage = 10
+
+        self.enemyBullets.append(bullet_down)
     def update(self) -> None:
         super().update()
         self.update_hitbox()

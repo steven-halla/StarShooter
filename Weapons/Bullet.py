@@ -28,8 +28,8 @@ class Bullet(Weapon):
         if length == 0:
             return
 
-        # Weapon.update() moves:
-        #   y += self.speed
-        #   x += self.diag_speed_y
-        self.speed = (dy / length) * speed  # vertical
-        self.diag_speed_y = (dx / length) * speed  # horizontal
+        # Y movement
+        self.speed = (dy / length) * speed
+
+        # X movement
+        self.diag_speed_y = (dx / length) * speed
