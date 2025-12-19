@@ -39,30 +39,29 @@ class SporeFlower(Enemy):
     def shoot_spores(self) -> None:
         cx = self.x + self.width // 2
         cy = self.y + self.height // 2
+        s = self.weapon_speed
 
-        # LEFT bullet
-        bullet_left = Bullet(cx, cy)
-        bullet_left.dx = -self.weapon_speed
-        bullet_left.speed = 0
+        bullets = [
+            (-s, 0),  # LEFT
+            (0, s),  # DOWN
+            (s, 0),  # RIGHT
+            (0, -s),  # UP
+            (-s, -s),  # UP-LEFT
+            (s, -s),  # UP-RIGHT
+            (-s, s),  # DOWN-LEFT
+            (s, s),  # DOWN-RIGHT
+        ]
 
-        bullet_left.width = self.bulletWidth
-        bullet_left.height = self.bulletHeight
-        bullet_left.color = self.bulletColor
-        bullet_left.damage = 10
+        for dx, dy in bullets:
+            b = Bullet(cx, cy)
+            b.dx = dx
+            b.speed = dy
+            b.width = self.bulletWidth
+            b.height = self.bulletHeight
+            b.color = self.bulletColor
+            b.damage = 10
+            self.enemyBullets.append(b)
 
-        self.enemyBullets.append(bullet_left)
-
-        # DOWN bullet
-        bullet_down = Bullet(cx, cy)
-        bullet_down.dx = 0
-        bullet_down.speed = self.weapon_speed
-
-        bullet_down.width = self.bulletWidth
-        bullet_down.height = self.bulletHeight
-        bullet_down.color = self.bulletColor
-        bullet_down.damage = 10
-
-        self.enemyBullets.append(bullet_down)
     def update(self) -> None:
         super().update()
         self.update_hitbox()
