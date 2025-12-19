@@ -9,6 +9,7 @@ from Controller.KeyBoardControls import KeyBoardControls
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
+from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from Entity.StarShip import StarShip
@@ -31,6 +32,7 @@ class VerticalBattleScreen:
         self.triSpitterGroup: list[TriSpitter] = []
         self.waspStingerGroup: list[WaspStinger] = []
         self.bladeSpinnerGroup: list[BladeSpinner] = []
+        self.sporeFlowerGroup: list[SporeFlower] = []
 
 
 
@@ -832,7 +834,8 @@ class VerticalBattleScreen:
                 list(self.bileSpitterGroup) +
                 list(self.triSpitterGroup) +
                 list(self.waspStingerGroup) +
-                list(self.bladeSpinnerGroup)
+                list(self.bladeSpinnerGroup) +
+                list(self.sporeFlowerGroup)
         )
         # -------------------------
         # PLASMA BLASTER → ENEMY COLLISION
@@ -1067,6 +1070,8 @@ class VerticalBattleScreen:
             self.waspStingerGroup.remove(enemy)
         elif enemy in self.bladeSpinnerGroup:
             self.bladeSpinnerGroup.remove(enemy)
+        elif enemy in self.sporeFlowerGroup:
+            self.sporeFlowerGroup.remove(enemy)
 
 
     def get_enemy_screen_rect(self, enemy) -> pygame.Rect:

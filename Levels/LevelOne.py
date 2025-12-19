@@ -4,6 +4,7 @@ from Constants.GlobalConstants import GlobalConstants
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
+from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from Entity.StarShip import StarShip
@@ -98,6 +99,9 @@ class LevelOne(VerticalBattleScreen):
         for enemy in self.bileSpitterGroup:
             enemy.draw(state.DISPLAY, self.camera)
 
+        for enemy in self.sporeFlowerGroup:
+            enemy.draw(state.DISPLAY, self.camera)
+
         for enemy_tri_spitter in self.triSpitterGroup:
             enemy_tri_spitter.draw(state.DISPLAY, self.camera)
 
@@ -126,7 +130,8 @@ class LevelOne(VerticalBattleScreen):
                 list(self.kamikazeDroneGroup) +
                 list(self.triSpitterGroup) +
                 list(self.waspStingerGroup) +
-                list(self.bladeSpinnerGroup)
+                list(self.bladeSpinnerGroup) +
+                list(self.sporeFlowerGroup)
         )
 
         if not enemies:
@@ -174,6 +179,17 @@ class LevelOne(VerticalBattleScreen):
     def load_enemy_into_list(self):
         for obj in self.tiled_map.objects:
             # ⭐ LOAD ENEMIES (existing code)
+            if obj.name == "spore_flower":
+                enemy = SporeFlower()
+                enemy.x = obj.x
+                enemy.y = obj.y
+                enemy.width = obj.width
+                enemy.height = obj.height
+                enemy.update_hitbox()
+                enemy.camera = self.camera
+                self.sporeFlowerGroup.append(enemy)
+                enemy.camera = self.camera
+                enemy.target_player = self.starship
             if obj.name == "wasp_stinger":
                 enemy = WaspStinger()
                 enemy.x = obj.x
@@ -266,6 +282,12 @@ class LevelOne(VerticalBattleScreen):
 
                     break  # one hit only
 
+        for spore in list(self.sporeFlowerGroup):
+            spore.update()
+
+            if spore.enemyHealth <= 0:
+                self.sporeFlowerGroup.remove(spore)
+                continue
 
         for blade in list(self.bladeSpinnerGroup):
             blade.update()
