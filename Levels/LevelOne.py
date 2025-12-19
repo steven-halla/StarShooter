@@ -2,6 +2,7 @@ import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Monsters.BileSpitter import BileSpitter
+from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
@@ -105,6 +106,8 @@ class LevelOne(VerticalBattleScreen):
 
         for wasp in self.waspStingerGroup:
             wasp.draw(state.DISPLAY, self.camera)
+        for blade in self.bladeSpinnerGroup:
+            blade.draw(state.DISPLAY, self.camera)
 
         for enemy_tri_spitter in self.triSpitterGroup:
             hb = pygame.Rect(
@@ -122,7 +125,8 @@ class LevelOne(VerticalBattleScreen):
                 list(self.bileSpitterGroup) +
                 list(self.kamikazeDroneGroup) +
                 list(self.triSpitterGroup) +
-                list(self.waspStingerGroup)
+                list(self.waspStingerGroup) +
+                list(self.bladeSpinnerGroup)
         )
 
         if not enemies:
@@ -202,6 +206,17 @@ class LevelOne(VerticalBattleScreen):
                 drone.camera = self.camera
                 drone.target_player = self.starship
                 continue
+            if obj.name == "blade_spinner":
+                enemy = BladeSpinner()
+                enemy.x = obj.x
+                enemy.y = obj.y
+                enemy.width = obj.width
+                enemy.height = obj.height
+                enemy.update_hitbox()
+                self.bladeSpinnerGroup.append(enemy)
+                enemy.camera = self.camera
+                enemy.target_player = self.starship
+                continue
 
             if obj.name == "tri_spitter":
                 enemy_tri_spitter = TriSpitter()
@@ -250,6 +265,14 @@ class LevelOne(VerticalBattleScreen):
                         self.metal_shield_bullets.remove(metal)
 
                     break  # one hit only
+
+
+        for blade in list(self.bladeSpinnerGroup):
+            blade.update()
+
+            if blade.enemyHealth <= 0:
+                self.bladeSpinnerGroup.remove(blade)
+                continue
 
         for wasp in list(self.waspStingerGroup):
             wasp.update()

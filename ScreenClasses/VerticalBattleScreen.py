@@ -7,6 +7,7 @@ from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Controller.KeyBoardControls import KeyBoardControls
 from Entity.Monsters.BileSpitter import BileSpitter
+from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
@@ -29,6 +30,7 @@ class VerticalBattleScreen:
         self.kamikazeDroneGroup: list[KamikazeDrone] = []
         self.triSpitterGroup: list[TriSpitter] = []
         self.waspStingerGroup: list[WaspStinger] = []
+        self.bladeSpinnerGroup: list[BladeSpinner] = []
 
 
 
@@ -347,23 +349,6 @@ class VerticalBattleScreen:
 
         self.bullet_helper()
 
-        # On each frame, update the charge timer for the equipped weapon(s)
-        # if state.starship.equipped_magic[0] == "Buster Cannon":
-        #     state.starship.buster_cannon.update()
-        # if state.starship.equipped_magic[1] == "Buster Cannon":
-        #     state.starship.buster_cannon.update()
-        # Slot 0 → magic_1_button
-        # # Slot 0 → magic_1_button
-        # if state.starship.equipped_magic[0] == "Buster Cannon" and self.controller.magic_1_button:
-        #     # call the appropriate spell-casting logic
-        #     shots = state.starship.fire_buster_cannon()
-        #     self.buster_cannon_bullets.extend(shots)
-        #
-        # # Slot 1 → magic_2_button
-        # if state.starship.equipped_magic[1] == "Buster Cannon" and self.controller.magic_2_button:
-        #     # call the appropriate spell-casting logic
-        #     shots = state.starship.fire_buster_cannon()
-        #     self.buster_cannon_bullets.extend(shots)
 
         # -------------------------
         # PLASMA BLASTER UPDATE
@@ -846,7 +831,8 @@ class VerticalBattleScreen:
                 list(self.kamikazeDroneGroup) +
                 list(self.bileSpitterGroup) +
                 list(self.triSpitterGroup) +
-                list(self.waspStingerGroup)
+                list(self.waspStingerGroup) +
+                list(self.bladeSpinnerGroup)
         )
         # -------------------------
         # PLASMA BLASTER → ENEMY COLLISION
@@ -1079,6 +1065,9 @@ class VerticalBattleScreen:
             self.triSpitterGroup.remove(enemy)
         elif enemy in self.waspStingerGroup:
             self.waspStingerGroup.remove(enemy)
+        elif enemy in self.bladeSpinnerGroup:
+            self.bladeSpinnerGroup.remove(enemy)
+
 
     def get_enemy_screen_rect(self, enemy) -> pygame.Rect:
         return pygame.Rect(
