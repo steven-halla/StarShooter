@@ -1,6 +1,7 @@
 import pygame
 import math
 
+from Constants.Timer import Timer
 from Entity.Enemy import Enemy
 from Movement.MoveRectangle import MoveRectangle
 
@@ -13,18 +14,18 @@ class WaspStinger(Enemy):
         self.mover: MoveRectangle = MoveRectangle()
         self.camera = None
         self.target_player = None
+        self.has_locked = False
+        self.charge_dx = 0.0
+        self.charge_dy = 0.0
+        self.charge_cooldown = Timer(2.0)  # 2 seconds
 
         # state
         self.is_on_screen = False
-        self.has_locked = False
 
-        # charge direction (locked once)
-        self.charge_dx = 0.0
-        self.charge_dy = 0.0
 
         # stats
         self.enemyHealth: int = 40
-        self.enemy_speed: float = 5.0
+        self.enemy_speed: float = 2.5
         self.width: int = 16
         self.height: int = 16
 
@@ -44,6 +45,13 @@ class WaspStinger(Enemy):
         self.is_on_screen = self.mover.enemy_on_screen(self, self.camera)
         if not self.is_on_screen:
             return
+
+        # cooldown gate AFTER a charge
+        if self.has_locked and self.charge_dx == 0 and self.charge_dy == 0:
+            if not self.charge_cooldown.is_ready():
+                return
+            else:
+                self.has_locked = False
 
         # lock direction once
         if not self.has_locked:
@@ -85,6 +93,7 @@ class WaspStinger(Enemy):
         if hit_edge:
             self.charge_dx = 0
             self.charge_dy = 0
+
 
         self.update_hitbox()
     def draw(self, surface: pygame.Surface, camera):
