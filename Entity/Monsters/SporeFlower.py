@@ -22,7 +22,7 @@ class SporeFlower(Enemy):
 
         # firing
         self.weapon_speed: float = 3.0
-        self.fire_interval_ms: int = 2000
+        self.fire_interval_ms: int = 3000
         self.last_shot_time: int = pygame.time.get_ticks()
 
         # gameplay
