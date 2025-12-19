@@ -1,0 +1,70 @@
+Enemies
+
+Short range
+Enemies that engage in melee
+Kamikaze drones is one example
+
+Wasp stingers
+Flying creatures that attack with scropian tails
+360 attack vector
+wind up time
+
+
+Pouncers
+attaches to ship and grants speed down
+Weapon lock
+magic still usable
+Must collide with envirnment to shake off or
+take damage from enemy bullets
+or have to shake off some how
+these creatures love to hide like xenomoprhps  in envirnment
+
+blade spinners
+creatures with spinning blades that deal damage and chase
+there is no wind up for attacks
+
+Static creatures
+these are part of envinmeoont and lob attacks and have little to 0 motion  on x y vectors
+these are TANK style enemies that are hard to take down, they are defensive in nature
+
+Worms
+Spawns enemies
+
+bullet spiitesr
+spits shot gun pellows rapidly
+
+Laster spitters
+shooots laster down screen along Y axis
+
+bomb
+these creature self destruc the entire screen and can harm player
+
+Long range
+DOdgers
+these creature move away from Player and shoot bullets at player direction
+
+infested tank beetle
+shoots plasma at player
+AOE
+moves along TRENCH lines
+
+
+Guaridan
+Provides a sheild to all other enemies
+take these out or deal with enemy shields
+moves fast
+360 spread fire mid range
+
+Heat spiker
+makes player HEAT go down on its own
+
+bullet abosrober
+deletes all bullets on screen need missiles and magic to destory
+
+Ki abosrober
+deletes ki by its presence
+
+Guaridian sheild
+has a shield that protects its allies destory it to maek your life easier
+
+

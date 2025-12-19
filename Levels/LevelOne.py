@@ -4,6 +4,7 @@ from Constants.GlobalConstants import GlobalConstants
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.TriSpitter import TriSpitter
+from Entity.Monsters.WaspStinger import WaspStinger
 from Entity.StarShip import StarShip
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
@@ -102,6 +103,9 @@ class LevelOne(VerticalBattleScreen):
         for drone in self.kamikazeDroneGroup:
             drone.draw(state.DISPLAY, self.camera)
 
+        for wasp in self.waspStingerGroup:
+            wasp.draw(state.DISPLAY, self.camera)
+
         for enemy_tri_spitter in self.triSpitterGroup:
             hb = pygame.Rect(
                 self.camera.world_to_screen_x(enemy_tri_spitter.hitbox.x),
@@ -117,7 +121,8 @@ class LevelOne(VerticalBattleScreen):
         enemies = (
                 list(self.bileSpitterGroup) +
                 list(self.kamikazeDroneGroup) +
-                list(self.triSpitterGroup)
+                list(self.triSpitterGroup) +
+                list(self.waspStingerGroup)
         )
 
         if not enemies:
@@ -165,6 +170,17 @@ class LevelOne(VerticalBattleScreen):
     def load_enemy_into_list(self):
         for obj in self.tiled_map.objects:
             # ⭐ LOAD ENEMIES (existing code)
+            if obj.name == "wasp_stinger":
+                enemy = WaspStinger()
+                enemy.x = obj.x
+                enemy.y = obj.y
+                enemy.width = obj.width
+                enemy.height = obj.height
+                enemy.update_hitbox()
+                enemy.camera = self.camera
+                self.waspStingerGroup.append(enemy)
+                enemy.camera = self.camera
+                enemy.target_player = self.starship
             if obj.name == "bile_spitter":
                 enemy = BileSpitter()
                 enemy.x = obj.x
@@ -234,6 +250,13 @@ class LevelOne(VerticalBattleScreen):
                         self.metal_shield_bullets.remove(metal)
 
                     break  # one hit only
+
+        for wasp in list(self.waspStingerGroup):
+            wasp.update()
+
+            if wasp.enemyHealth <= 0:
+                self.waspStingerGroup.remove(wasp)
+                continue
 
         for drone in list(self.kamikazeDroneGroup):
             drone.update()

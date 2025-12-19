@@ -9,6 +9,7 @@ from Controller.KeyBoardControls import KeyBoardControls
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.TriSpitter import TriSpitter
+from Entity.Monsters.WaspStinger import WaspStinger
 from Entity.StarShip import StarShip
 from Movement.MoveRectangle import MoveRectangle
 from ScreenClasses.Camera import Camera
@@ -22,9 +23,12 @@ class VerticalBattleScreen:
         self.playerDead: bool = False
         self.tiled_map = pytmx.load_pygame("")
         self.tile_size: int = self.tiled_map.tileheight
+
+        # enemy groups
         self.bileSpitterGroup: list[BileSpitter] = []
         self.kamikazeDroneGroup: list[KamikazeDrone] = []
         self.triSpitterGroup: list[TriSpitter] = []
+        self.waspStingerGroup: list[WaspStinger] = []
 
 
 
@@ -583,9 +587,7 @@ class VerticalBattleScreen:
                 1
             )
 
-        # -------------------------
-        # DRAW PLAYER Metal Shield
-        # -------------------------]
+
         # -------------------------
         # DRAW WIND SLICER BULLETS
         # -------------------------
@@ -843,7 +845,8 @@ class VerticalBattleScreen:
         all_enemies = (
                 list(self.kamikazeDroneGroup) +
                 list(self.bileSpitterGroup) +
-                list(self.triSpitterGroup)
+                list(self.triSpitterGroup) +
+                list(self.waspStingerGroup)
         )
         # -------------------------
         # PLASMA BLASTER → ENEMY COLLISION
@@ -1074,6 +1077,8 @@ class VerticalBattleScreen:
             self.bileSpitterGroup.remove(enemy)
         elif enemy in self.triSpitterGroup:
             self.triSpitterGroup.remove(enemy)
+        elif enemy in self.waspStingerGroup:
+            self.waspStingerGroup.remove(enemy)
 
     def get_enemy_screen_rect(self, enemy) -> pygame.Rect:
         return pygame.Rect(
