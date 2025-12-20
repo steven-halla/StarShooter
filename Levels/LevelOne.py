@@ -304,9 +304,10 @@ class LevelOne(VerticalBattleScreen):
             napalm.update()
             print("NAPALM UPDATE", napalm.x, napalm.y, napalm.is_active)
 
-            # Damage player while active
             if napalm.is_active and napalm.hits(self.starship.hitbox):
-                self.starship.take_damage(napalm.damage)
+                if not self.starship.invincible:
+                    self.starship.shipHealth -= napalm.damage
+                    self.starship.on_hit()
 
             # Remove expired napalm
             if not napalm.is_active:

@@ -16,6 +16,7 @@ class Ravager(Enemy):
         self.napalm_list = []
         self.width = 16
         self.pending_napalm = None
+        self.napalm_damage = 10
         self.height = 16
         self.color = GlobalConstants.RED
 
@@ -100,6 +101,8 @@ class Ravager(Enemy):
         )
 
         self.pending_napalm = napalm
+        napalm.damage = self.napalm_damage  # ← THIS WAS MISSING
+
         print("NAPALM SPAWNED", cx, cy)
 
     def update(self) -> None:
