@@ -59,6 +59,16 @@ class MoveRectangle:
             raise TypeError("moveSpeed must be a float")
         enemy.x -= enemy.moveSpeed
 
+    def enemy_move_up(self, enemy) -> None:
+        if not isinstance(enemy.moveSpeed, float):
+            raise TypeError("moveSpeed must be a float")
+        enemy.y -= enemy.moveSpeed
+
+    def enemy_move_down(self, enemy) -> None:
+        if not isinstance(enemy.moveSpeed, float):
+            raise TypeError("moveSpeed must be a float")
+        enemy.y += enemy.moveSpeed
+
     def enemy_on_screen(self, enemy, camera):
         """Return True if enemy is visible on the screen."""
         if camera is None:

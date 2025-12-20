@@ -4,6 +4,7 @@ from Constants.GlobalConstants import GlobalConstants
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
+from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.Ravager import Ravager
 from Entity.Monsters.SpineLauncher import SpineLauncher
@@ -101,7 +102,8 @@ class LevelOne(VerticalBattleScreen):
 
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
-
+        for enemy in self.fireLauncherGroup:
+            enemy.draw(state.DISPLAY, self.camera)
         for enemy in self.bileSpitterGroup:
             enemy.draw(state.DISPLAY, self.camera)
         for enemy in self.acidLauncherGroup:
@@ -147,7 +149,8 @@ class LevelOne(VerticalBattleScreen):
                 list(self.sporeFlowerGroup) +
                 list(self.spineLauncherGroup) +
                 list(self.acidLauncherGroup) +
-                list(self.ravagerGroup)
+                list(self.ravagerGroup) +
+                list(self.fireLauncherGroup)
         )
 
         if not enemies:
@@ -195,6 +198,17 @@ class LevelOne(VerticalBattleScreen):
     def load_enemy_into_list(self):
         for obj in self.tiled_map.objects:
             # ⭐ LOAD ENEMIES (existing code)
+            if obj.name == "fire_launcher":
+                enemy = FireLauncher()
+                enemy.x = obj.x
+                enemy.y = obj.y
+                enemy.width = obj.width
+                enemy.height = obj.height
+                enemy.update_hitbox()
+                enemy.camera = self.camera
+                self.fireLauncherGroup.append(enemy)
+                enemy.camera = self.camera
+                enemy.target_player = self.starship
             if obj.name == "ravager":
                 enemy = Ravager()
                 enemy.x = obj.x
@@ -383,6 +397,17 @@ class LevelOne(VerticalBattleScreen):
 
             if drone.enemyHealth <= 0:
                 self.kamikazeDroneGroup.remove(drone)
+                continue
+
+        for fire in list(self.fireLauncherGroup):
+            fire.update()
+
+            if fire.enemyBullets:
+                self.enemy_bullets.extend(fire.enemyBullets)
+                fire.enemyBullets.clear()
+
+            if fire.enemyHealth <= 0:
+                self.fireLauncherGroup.remove(fire)
                 continue
 
         for spore in list(self.sporeFlowerGroup):

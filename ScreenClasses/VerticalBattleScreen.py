@@ -9,6 +9,7 @@ from Controller.KeyBoardControls import KeyBoardControls
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
+from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.Ravager import Ravager
 from Entity.Monsters.SpineLauncher import SpineLauncher
@@ -39,6 +40,7 @@ class VerticalBattleScreen:
         self.spineLauncherGroup: list[SpineLauncher] = []
         self.acidLauncherGroup: list[AcidLauncher] = []
         self.ravagerGroup: list[Ravager] = []
+        self.fireLauncherGroup: list[FireLauncher] = []
 
 
 
@@ -830,7 +832,9 @@ class VerticalBattleScreen:
                 list(self.sporeFlowerGroup) +
                 list(self.spineLauncherGroup) +
                 list(self.acidLauncherGroup) +
-                list(self.ravagerGroup)
+                list(self.ravagerGroup) +
+                list(self.fireLauncherGroup)
+
 
         )
         # -------------------------
@@ -1074,6 +1078,8 @@ class VerticalBattleScreen:
             self.acidLauncherGroup.remove(enemy)
         elif enemy in self.ravagerGroup:
             self.ravagerGroup.remove(enemy)
+        elif enemy in self.fireLauncherGroup:
+            self.fireLauncherGroup.remove(enemy)
 
     def get_enemy_screen_rect(self, enemy) -> pygame.Rect:
         return pygame.Rect(
