@@ -6,6 +6,7 @@ import math
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Controller.KeyBoardControls import KeyBoardControls
+from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
@@ -35,6 +36,7 @@ class VerticalBattleScreen:
         self.bladeSpinnerGroup: list[BladeSpinner] = []
         self.sporeFlowerGroup: list[SporeFlower] = []
         self.spineLauncherGroup: list[SpineLauncher] = []
+        self.acidLauncherGroup: list[AcidLauncher] = []
 
 
 
@@ -838,7 +840,8 @@ class VerticalBattleScreen:
                 list(self.waspStingerGroup) +
                 list(self.bladeSpinnerGroup) +
                 list(self.sporeFlowerGroup) +
-                list(self.spineLauncherGroup)
+                list(self.spineLauncherGroup) +
+                list(self.acidLauncherGroup)
         )
         # -------------------------
         # PLASMA BLASTER → ENEMY COLLISION
@@ -1077,6 +1080,8 @@ class VerticalBattleScreen:
             self.sporeFlowerGroup.remove(enemy)
         elif enemy in self.spineLauncherGroup:
             self.spineLauncherGroup.remove(enemy)
+        elif enemy in self.acidLauncherGroup:
+            self.acidLauncherGroup.remove(enemy)
 
 
     def get_enemy_screen_rect(self, enemy) -> pygame.Rect:

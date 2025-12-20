@@ -1,6 +1,7 @@
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
+from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
@@ -99,6 +100,8 @@ class LevelOne(VerticalBattleScreen):
 
         for enemy in self.bileSpitterGroup:
             enemy.draw(state.DISPLAY, self.camera)
+        for enemy in self.acidLauncherGroup:
+            enemy.draw(state.DISPLAY, self.camera)
 
         for enemy in self.spineLauncherGroup:
             enemy.draw(state.DISPLAY, self.camera)
@@ -136,7 +139,8 @@ class LevelOne(VerticalBattleScreen):
                 list(self.waspStingerGroup) +
                 list(self.bladeSpinnerGroup) +
                 list(self.sporeFlowerGroup) +
-                list(self.spineLauncherGroup)
+                list(self.spineLauncherGroup) +
+                list(self.acidLauncherGroup)
         )
 
         if not enemies:
@@ -184,6 +188,17 @@ class LevelOne(VerticalBattleScreen):
     def load_enemy_into_list(self):
         for obj in self.tiled_map.objects:
             # ⭐ LOAD ENEMIES (existing code)
+            if obj.name == "acid_launcher":
+                enemy = AcidLauncher()
+                enemy.x = obj.x
+                enemy.y = obj.y
+                enemy.width = obj.width
+                enemy.height = obj.height
+                enemy.update_hitbox()
+                enemy.camera = self.camera
+                self.acidLauncherGroup.append(enemy)
+                enemy.camera = self.camera
+                enemy.target_player = self.starship
             if obj.name == "spine_launcher":
                 enemy = SpineLauncher()
                 enemy.x = obj.x
@@ -331,6 +346,17 @@ class LevelOne(VerticalBattleScreen):
 
             if spore.enemyHealth <= 0:
                 self.sporeFlowerGroup.remove(spore)
+                continue
+
+        for acid in list(self.acidLauncherGroup):
+            acid.update()
+
+            if acid.enemyBullets:
+                self.enemy_bullets.extend(acid.enemyBullets)
+                acid.enemyBullets.clear()
+
+            if acid.enemyHealth <= 0:
+                self.spineLauncherGroup.remove(acid)
                 continue
 
         for spine in list(self.spineLauncherGroup):
