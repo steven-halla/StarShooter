@@ -242,13 +242,6 @@ class VerticalBattleScreen:
                         self.plasma_blaster_bullets.append(plasma)
 
         # -------------------------
-        # PLASMA BLASTER RELEASE
-        # # -------------------------
-        # if not self.controller.magic_1_button:
-        #     if self.plasma_blaster_bullets:
-        #         self.plasma_blaster_bullets.clear()
-
-        # -------------------------
         # ENERGY BALL MAGIC
         # -------------------------
         if state.starship.equipped_magic[0] == "Energy Ball" and not self.playerDead:
@@ -486,14 +479,7 @@ class VerticalBattleScreen:
             if screen_y + bc.height < 0:
                 self.buster_cannon_bullets.remove(bc)
 
-            # -------------------------
-            # BUSTER CANNON → ENEMY COLLISION
-            # -------------------------
 
-
-        # -------------------------
-        # MISSILE → ENEMY COLLISION
-        # -------------------------
 
         # -------------------------
         # ENEMY BULLETS ONLY

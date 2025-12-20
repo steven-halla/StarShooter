@@ -199,6 +199,7 @@ class LevelOne(VerticalBattleScreen):
                 self.acidLauncherGroup.append(enemy)
                 enemy.camera = self.camera
                 enemy.target_player = self.starship
+
             if obj.name == "spine_launcher":
                 enemy = SpineLauncher()
                 enemy.x = obj.x
