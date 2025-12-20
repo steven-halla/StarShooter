@@ -5,14 +5,17 @@ import pygame
 
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Enemy import Enemy
+from Entity.Monsters.MonsterAttacks.Napalm import Napalm
 from Weapons.Bullet import Bullet
 
 
 class Ravager(Enemy):
     def __init__(self) -> None:
         super().__init__()
-
+        # napalm storage
+        self.napalm_list = []
         self.width = 16
+        self.pending_napalm = None
         self.height = 16
         self.color = GlobalConstants.RED
 
@@ -79,8 +82,7 @@ class Ravager(Enemy):
 
     # =========================
     # NAPALM FIRE
-    # =========================
-    def shoot_napalm(self) -> None:
+    def spawn_napalm(self) -> None:
         if self.target_player is None:
             return
 
@@ -90,35 +92,15 @@ class Ravager(Enemy):
         px = self.target_player.hitbox.centerx
         py = self.target_player.hitbox.centery
 
-        dx = px - cx
-        dy = py - cy
-        dist = math.hypot(dx, dy)
-        if dist == 0:
-            return
+        napalm = Napalm(
+            start_x=cx,
+            start_y=cy,
+            target_x=px,
+            target_y=py
+        )
 
-        dx /= dist
-        dy /= dist
-
-        napalm = Bullet(cx, cy)
-        napalm.dx = dx * 4
-        napalm.speed = dy * 4
-
-        napalm.width = 50
-        napalm.height = 50
-        napalm.color = (255, 120, 0)
-        napalm.damage = 5
-
-        # napalm state
-        napalm.is_napalm = True
-        napalm.start_x = cx
-        napalm.start_y = cy
-        napalm.travel_distance = 100
-        napalm.has_stopped = False
-        napalm.stop_time = None
-
-        self.enemyBullets.append(napalm)
-
-        print("NAPALM CREATED at", cx, cy)
+        self.pending_napalm = napalm
+        print("NAPALM SPAWNED", cx, cy)
 
     def update(self) -> None:
         super().update()
@@ -167,10 +149,13 @@ class Ravager(Enemy):
         if now - self.last_shot_time >= self.fire_interval_ms:
             self.shoot()
             self.last_shot_time = now
+        # TEMP TEST — remove later
+        if pygame.time.get_ticks() % 3000 < 16:
+            self.spawn_napalm()
 
-        if now - self.last_napalm_time >= self.napalm_interval_ms:
-            self.shoot_napalm()
-            self.last_napalm_time = now
+        # if now - self.last_napalm_time >= self.napalm_interval_ms:
+        #     self.shoot_napalm()
+        #     self.last_napalm_time = now
 
         # -----------------
         # BULLET UPDATE
@@ -206,11 +191,10 @@ class Ravager(Enemy):
 
             # normal bullets ONLY
             bullet.update()
+        napalm = self.pending_napalm
+        self.pending_napalm = None
+        return napalm
 
-            # ------------------------
-            # NORMAL BULLETS
-            # ------------------------
-            bullet.update()
 
     def draw(self, surface: pygame.Surface, camera):
         sprite_rect = pygame.Rect(0, 344, 32, 32)

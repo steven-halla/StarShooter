@@ -33,6 +33,7 @@ class LevelOne(VerticalBattleScreen):
         self.kamikazeDroneGroup: list[KamikazeDrone] = []
         self.triSpitterGroup: list[TriSpitter] = []
         # self.load_enemy_into_list()
+        self.napalm_list: list = []
 
     def start(self, state) -> None:
         player_x = None
@@ -88,6 +89,8 @@ class LevelOne(VerticalBattleScreen):
 
     def draw(self, state):
         super().draw(state)
+        for napalm in self.napalm_list:
+            napalm.draw(state.DISPLAY, self.camera)
         zoom = self.camera.zoom
 
         for obj in self.tiled_map.objects:
@@ -295,6 +298,20 @@ class LevelOne(VerticalBattleScreen):
 
     def enemy_helper(self):
         # -------------------------
+        # NAPALM UPDATE + DAMAGE
+        # -------------------------
+        for napalm in list(self.napalm_list):
+            napalm.update()
+            print("NAPALM UPDATE", napalm.x, napalm.y, napalm.is_active)
+
+            # Damage player while active
+            if napalm.is_active and napalm.hits(self.starship.hitbox):
+                self.starship.take_damage(napalm.damage)
+
+            # Remove expired napalm
+            if not napalm.is_active:
+                self.napalm_list.remove(napalm)
+        # -------------------------
         # METAL SHIELD → ENEMY BULLETS
         # -------------------------
         for metal in list(self.metal_shield_bullets):
@@ -347,14 +364,18 @@ class LevelOne(VerticalBattleScreen):
                 continue
 
         for ravager in list(self.ravagerGroup):
-            ravager.update()
+            napalm = ravager.update()
+
+            if napalm is not None:
+                self.napalm_list.append(napalm)
+                print("NAPALM ADDED TO LEVEL", len(self.napalm_list))
+
             if ravager.enemyBullets:
                 self.enemy_bullets.extend(ravager.enemyBullets)
                 ravager.enemyBullets.clear()
 
             if ravager.enemyHealth <= 0:
                 self.ravagerGroup.remove(ravager)
-                continue
 
         for drone in list(self.kamikazeDroneGroup):
             drone.update()
