@@ -105,35 +105,46 @@ class BossLevelOne(Enemy):
     #     )
 
     def moveAI(self) -> None:
-        """Simple AI: move left/right using MoveRectangle helpers."""
         window_width, _ = GlobalConstants.WINDOWS_SIZE
         now = pygame.time.get_ticks()
 
-        # every 3 seconds, toggle moving / not moving
+        # init tracker
+        if not hasattr(self, "_last_x"):
+            self._last_x = self.x
+
+        # toggle direction every interval
         if now - self.last_move_toggle >= self.move_interval_ms:
-            self.is_moving = not self.is_moving
             self.last_move_toggle = now
+            self.move_direction *= -1
 
-            # when we start moving, pick left/right (50/50)
-            if self.is_moving:
-                self.move_direction = random.choice([-1, 1])
-
-        if not self.is_moving:
-            return
-
-        # 🔹 use YOUR helpers instead of touching x directly
+        # move
         if self.move_direction > 0:
             self.mover.enemy_move_right(self)
         else:
             self.mover.enemy_move_left(self)
 
-        # edge check: if within 30px of left/right edge, flip direction
-        if self.x <= self.edge_padding:
-            self.x = self.edge_padding
-            self.move_direction = 1  # go right
-        elif self.x + self.width >= window_width - self.edge_padding:
-            self.x = window_width - self.edge_padding - self.width
-            self.move_direction = -1  # go left
+        # ---------- LEFT EDGE (REAL EDGE) ----------
+        if self.x <= 0:
+            self.x = 0
+            self.move_direction = 1
+            self.last_move_toggle = now
+
+        # ---------- RIGHT EDGE (REAL EDGE) ----------
+        elif self.x + self.width >= window_width:
+            self.x = window_width - self.width
+            self.move_direction = -1
+            self.last_move_toggle = now
+
+        # ---------- FAILSAFE ----------
+        if self.x == self._last_x:
+            self.move_direction *= -1
+            if self.move_direction > 0:
+                self.mover.enemy_move_right(self)
+            else:
+                self.mover.enemy_move_left(self)
+            self.last_move_toggle = now
+
+        self._last_x = self.x
 
     def draw(self, surface: pygame.Surface, camera):
         sprite_rect = pygame.Rect(0, 344, 32, 32)
