@@ -23,9 +23,14 @@ class Ravager(Enemy):
         self.flee_distance = 200
         self.edge_buffer = 40
 
+        # NORMAL FIRE (DO NOT TOUCH)
         self.weapon_speed = 1.0
         self.fire_interval_ms = 2000
         self.last_shot_time = pygame.time.get_ticks()
+
+        # NAPALM FIRE
+        self.napalm_interval_ms = 1000
+        self.last_napalm_time = pygame.time.get_ticks()
 
         self.enemyHealth = 200
         self.enemyBullets: list[Bullet] = []
@@ -34,11 +39,13 @@ class Ravager(Enemy):
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
 
+    # =========================
+    # NORMAL FIRE (UNCHANGED)
+    # =========================
     def shoot(self) -> None:
         if self.target_player is None:
             return
 
-        # ONLY FIRE IF ON SCREEN
         cam_top = self.camera.y
         cam_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
@@ -54,7 +61,6 @@ class Ravager(Enemy):
         dx = px - cx
         dy = py - cy
         dist = math.hypot(dx, dy)
-
         if dist == 0:
             return
 
@@ -64,7 +70,6 @@ class Ravager(Enemy):
         bullet = Bullet(cx, cy)
         bullet.dx = dx * self.weapon_speed
         bullet.speed = dy * self.weapon_speed
-
         bullet.width = 20
         bullet.height = 20
         bullet.color = GlobalConstants.SKYBLUE
@@ -72,18 +77,56 @@ class Ravager(Enemy):
 
         self.enemyBullets.append(bullet)
 
-        print(
-            "RAVAGER BULLET CREATED",
-            "world:", cx, cy,
-            "screen:",
-            self.camera.world_to_screen_x(cx),
-            self.camera.world_to_screen_y(cy),
-        )
+    # =========================
+    # NAPALM FIRE
+    # =========================
+    def shoot_napalm(self) -> None:
+        if self.target_player is None:
+            return
+
+        cx = self.x + self.width / 2
+        cy = self.y + self.height / 2
+
+        px = self.target_player.hitbox.centerx
+        py = self.target_player.hitbox.centery
+
+        dx = px - cx
+        dy = py - cy
+        dist = math.hypot(dx, dy)
+        if dist == 0:
+            return
+
+        dx /= dist
+        dy /= dist
+
+        napalm = Bullet(cx, cy)
+        napalm.dx = dx * 4
+        napalm.speed = dy * 4
+
+        napalm.width = 50
+        napalm.height = 50
+        napalm.color = (255, 120, 0)
+        napalm.damage = 5
+
+        # napalm state
+        napalm.is_napalm = True
+        napalm.start_x = cx
+        napalm.start_y = cy
+        napalm.travel_distance = 100
+        napalm.has_stopped = False
+        napalm.stop_time = None
+
+        self.enemyBullets.append(napalm)
+
+        print("NAPALM CREATED at", cx, cy)
 
     def update(self) -> None:
         super().update()
         self.update_hitbox()
 
+        # -----------------
+        # MOVEMENT (unchanged)
+        # -----------------
         move_x = 0.0
         move_y = 0.0
 
@@ -116,12 +159,57 @@ class Ravager(Enemy):
         self.y += move_y
         self.update_hitbox()
 
+        # -----------------
+        # FIRING TIMERS
+        # -----------------
         now = pygame.time.get_ticks()
+
         if now - self.last_shot_time >= self.fire_interval_ms:
             self.shoot()
             self.last_shot_time = now
 
-        for bullet in self.enemyBullets:
+        if now - self.last_napalm_time >= self.napalm_interval_ms:
+            self.shoot_napalm()
+            self.last_napalm_time = now
+
+        # -----------------
+        # BULLET UPDATE
+        # -----------------
+        now = pygame.time.get_ticks()
+
+        now = pygame.time.get_ticks()
+
+        for bullet in list(self.enemyBullets):
+
+            if getattr(bullet, "is_napalm", False):
+
+                if not bullet.has_stopped:
+                    dx = bullet.x - bullet.start_x
+                    dy = bullet.y - bullet.start_y
+                    traveled = math.hypot(dx, dy)
+
+                    if traveled >= bullet.travel_distance:
+                        bullet.dx = 0
+                        bullet.speed = 0
+                        bullet.has_stopped = True
+                        bullet.stop_time = now
+                        print("NAPALM STOPPED at", bullet.x, bullet.y)
+                    else:
+                        bullet.update()
+
+                else:
+                    if now - bullet.stop_time >= 3000:
+                        print("NAPALM EXPIRED")
+                        self.enemyBullets.remove(bullet)
+
+                continue
+
+            # normal bullets ONLY
+            bullet.update()
+
+            # ------------------------
+            # NORMAL BULLETS
+            # ------------------------
             bullet.update()
 
     def draw(self, surface: pygame.Surface, camera):
