@@ -13,6 +13,11 @@ class BossLevelOne(Enemy):
         super().__init__()
         self.mover: MoveRectangle = MoveRectangle()
         self.id = 0
+        # --- RANDOM MOVEMENT VARIATION ---
+        self.base_move_speed = self.moveSpeed
+        self.random_mode = "normal"  # normal | fast | slow
+        self.mode_change_chance = 0.35
+        self.fake_turn_chance = 0.25
 
         # enemy appearance
         self.width: int = 40
@@ -26,7 +31,7 @@ class BossLevelOne(Enemy):
 
         # firing + bullet movement
         self.bileSpeed: int = 3          # speed of bullet moving DOWN
-        self.fire_interval_ms: int = 3000 # shoot every 3 seconds
+        self.fire_interval_ms: int = 1000 # shoot every 3 seconds
         self.last_shot_time: int = pygame.time.get_ticks()
 
         # gameplay stats (not used yet)
@@ -48,7 +53,7 @@ class BossLevelOne(Enemy):
         self.is_moving: bool = True      # move for 3 seconds, then pause 3 seconds, etc.
 
         self.move_direction = random.choice([-1, 1])
-        self.enemyHealth: int = 5
+        self.enemyHealth: int = 1000
         self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
@@ -105,46 +110,48 @@ class BossLevelOne(Enemy):
     #     )
 
     def moveAI(self) -> None:
-        window_width, _ = GlobalConstants.WINDOWS_SIZE
+        if self.camera is None:
+            return
+
         now = pygame.time.get_ticks()
 
-        # init tracker
-        if not hasattr(self, "_last_x"):
-            self._last_x = self.x
+        # World bounds (safe, zoom-aware)
+        world_left = 0
+        world_right = (self.camera.window_width / self.camera.zoom) - self.width
 
-        # toggle direction every interval
+        # ----------------------------
+        # Initialize target if missing
+        # ----------------------------
+        if not hasattr(self, "target_x"):
+            self.target_x = random.uniform(world_left, world_right)
+            self.last_move_toggle = now
+
+        # ----------------------------
+        # Pick NEW random target every interval
+        # ----------------------------
         if now - self.last_move_toggle >= self.move_interval_ms:
             self.last_move_toggle = now
-            self.move_direction *= -1
+            self.target_x = random.uniform(world_left, world_right)
+            # print(f"[BOSS] New target_x = {self.target_x:.2f}")
 
-        # move
-        if self.move_direction > 0:
+        # ----------------------------
+        # Move toward target
+        # ----------------------------
+        if abs(self.x - self.target_x) <= self.moveSpeed:
+            return  # reached target, wait for next pick
+
+        if self.x < self.target_x:
             self.mover.enemy_move_right(self)
         else:
             self.mover.enemy_move_left(self)
 
-        # ---------- LEFT EDGE (REAL EDGE) ----------
-        if self.x <= 0:
-            self.x = 0
-            self.move_direction = 1
-            self.last_move_toggle = now
-
-        # ---------- RIGHT EDGE (REAL EDGE) ----------
-        elif self.x + self.width >= window_width:
-            self.x = window_width - self.width
-            self.move_direction = -1
-            self.last_move_toggle = now
-
-        # ---------- FAILSAFE ----------
-        if self.x == self._last_x:
-            self.move_direction *= -1
-            if self.move_direction > 0:
-                self.mover.enemy_move_right(self)
-            else:
-                self.mover.enemy_move_left(self)
-            self.last_move_toggle = now
-
-        self._last_x = self.x
+        # ----------------------------
+        # HARD CLAMP ONLY (no logic)
+        # ----------------------------
+        if self.x < world_left:
+            self.x = world_left
+        elif self.x > world_right:
+            self.x = world_right
 
     def draw(self, surface: pygame.Surface, camera):
         sprite_rect = pygame.Rect(0, 344, 32, 32)
