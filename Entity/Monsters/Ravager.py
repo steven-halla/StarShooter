@@ -106,7 +106,20 @@ class Ravager(Enemy):
         print("NAPALM SPAWNED", cx, cy)
 
     def update(self) -> None:
+        # ⛔ DO NOTHING unless player is on screen
+        if self.camera is None or self.target_player is None:
+            return
+
+        player_screen_y = self.camera.world_to_screen_y(self.target_player.y)
+
+        if player_screen_y < 0 or player_screen_y > self.camera.window_height:
+            return
+        ravager_screen_y = self.camera.world_to_screen_y(self.y)
+
+        if ravager_screen_y + self.height < 0 or ravager_screen_y > self.camera.window_height:
+            return
         super().update()
+
         self.update_hitbox()
 
         # -----------------

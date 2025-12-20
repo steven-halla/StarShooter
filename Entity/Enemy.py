@@ -11,31 +11,58 @@ class Enemy:
         self.mover: MoveRectangle = MoveRectangle()
 
         self.color: tuple = GlobalConstants.RED
-        self.x: int = 0
-        self.y: int = 0
-        # self.moveEnemy = MoveRectangle()
+        self.x: float = 0
+        self.y: float = 0
+
         self.moveSpeed: float = 0.0
         self.enemyHealth: int = 0
-        self.enemySpecialMoves: list = []
         self.enemyBullets: list = []
         self.exp: int = 0
         self.credits: int = 0
+
         self.hitbox = pygame.Rect(self.x, self.y, self.width, self.height)
         self.camera = None
-        self.enemy_on_screen: bool = False
 
-
-
-
+        # 🔑 IMPORTANT FLAGS
+        self.is_on_screen: bool = False
+        self.has_entered_screen: bool = False  # ← THIS fixes the swarm
 
     def update(self):
         self.update_hitbox()
+
+        if self.camera is None:
+            return
+
+        # Detect first legitimate entry
         self.is_on_screen = self.mover.enemy_on_screen(self, self.camera)
 
+        if self.is_on_screen:
+            self.has_entered_screen = True
 
+        # 🚫 Do NOT clamp until enemy has naturally entered view
+        if self.has_entered_screen:
+            self._clamp_to_camera()
 
-    # def draw(self, surface: "pygame.Surface") -> None:
-    #     pygame.draw.rect(surface, self.color, (self.x, self.y, self.width, self.height))
+    def _clamp_to_camera(self) -> None:
+        # Horizontal bounds (world space)
+        max_x = (self.camera.window_width / self.camera.zoom) - self.width
+        if self.x < 0:
+            self.x = 0
+        elif self.x > max_x:
+            self.x = max_x
+
+        # Vertical bounds (world space)
+        cam_top = self.camera.y
+        cam_bottom = (
+            self.camera.y
+            + (self.camera.window_height / self.camera.zoom)
+            - self.height
+        )
+
+        if self.y < cam_top:
+            self.y = cam_top
+        elif self.y > cam_bottom:
+            self.y = cam_bottom
 
     def update_hitbox(self) -> None:
         self.hitbox.update(
@@ -46,5 +73,4 @@ class Enemy:
         )
 
     def on_hit(self):
-        # print("ENEMY HIT!")
-        self.color = (255, 255, 0)  # yellow forever
+        self.color = (255, 255, 0)
