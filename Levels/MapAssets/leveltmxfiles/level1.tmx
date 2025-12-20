@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="200" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="98">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="200" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="100">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="background" width="30" height="200">
   <data encoding="csv">
@@ -298,7 +298,8 @@
   <object id="93" name="blade_spinner" x="267.816" y="2412.07" width="16" height="16"/>
   <object id="94" name="spore_flower" x="191.954" y="2548.28" width="16" height="16"/>
   <object id="95" name="spine_launcher" x="218.966" y="895.402" width="16" height="16"/>
-  <object id="97" name="acid_launcher" x="141.379" y="2933.33" width="16" height="16"/>
+  <object id="97" name="acid_launcher" x="151.724" y="721.839" width="16" height="16"/>
+  <object id="98" name="ravager" x="204.601" y="3083" width="16" height="16"/>
  </objectgroup>
  <layer id="7" name="hazard" width="30" height="200">
   <data encoding="csv">

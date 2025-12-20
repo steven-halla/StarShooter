@@ -5,6 +5,7 @@ from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
+from Entity.Monsters.Ravager import Ravager
 from Entity.Monsters.SpineLauncher import SpineLauncher
 from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TriSpitter import TriSpitter
@@ -117,6 +118,8 @@ class LevelOne(VerticalBattleScreen):
 
         for wasp in self.waspStingerGroup:
             wasp.draw(state.DISPLAY, self.camera)
+        for ravager in self.ravagerGroup:
+            ravager.draw(state.DISPLAY, self.camera)
         for blade in self.bladeSpinnerGroup:
             blade.draw(state.DISPLAY, self.camera)
 
@@ -140,7 +143,8 @@ class LevelOne(VerticalBattleScreen):
                 list(self.bladeSpinnerGroup) +
                 list(self.sporeFlowerGroup) +
                 list(self.spineLauncherGroup) +
-                list(self.acidLauncherGroup)
+                list(self.acidLauncherGroup) +
+                list(self.ravagerGroup)
         )
 
         if not enemies:
@@ -188,6 +192,17 @@ class LevelOne(VerticalBattleScreen):
     def load_enemy_into_list(self):
         for obj in self.tiled_map.objects:
             # ⭐ LOAD ENEMIES (existing code)
+            if obj.name == "ravager":
+                enemy = Ravager()
+                enemy.x = obj.x
+                enemy.y = obj.y
+                enemy.width = obj.width
+                enemy.height = obj.height
+                enemy.update_hitbox()
+                enemy.camera = self.camera
+                self.ravagerGroup.append(enemy)
+                enemy.camera = self.camera
+                enemy.target_player = self.starship
             if obj.name == "acid_launcher":
                 enemy = AcidLauncher()
                 enemy.x = obj.x
@@ -329,6 +344,13 @@ class LevelOne(VerticalBattleScreen):
 
             if wasp.enemyHealth <= 0:
                 self.waspStingerGroup.remove(wasp)
+                continue
+
+        for ravager in list(self.ravagerGroup):
+            ravager.update()
+
+            if ravager.enemyHealth <= 0:
+                self.ravagerGroup.remove(ravager)
                 continue
 
         for drone in list(self.kamikazeDroneGroup):

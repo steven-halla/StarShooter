@@ -10,6 +10,7 @@ from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
+from Entity.Monsters.Ravager import Ravager
 from Entity.Monsters.SpineLauncher import SpineLauncher
 from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TriSpitter import TriSpitter
@@ -37,6 +38,7 @@ class VerticalBattleScreen:
         self.sporeFlowerGroup: list[SporeFlower] = []
         self.spineLauncherGroup: list[SpineLauncher] = []
         self.acidLauncherGroup: list[AcidLauncher] = []
+        self.ravagerGroup: list[Ravager] = []
 
 
 
@@ -827,7 +829,9 @@ class VerticalBattleScreen:
                 list(self.bladeSpinnerGroup) +
                 list(self.sporeFlowerGroup) +
                 list(self.spineLauncherGroup) +
-                list(self.acidLauncherGroup)
+                list(self.acidLauncherGroup) +
+                list(self.ravagerGroup)
+
         )
         # -------------------------
         # PLASMA BLASTER → ENEMY COLLISION
@@ -1068,7 +1072,8 @@ class VerticalBattleScreen:
             self.spineLauncherGroup.remove(enemy)
         elif enemy in self.acidLauncherGroup:
             self.acidLauncherGroup.remove(enemy)
-
+        elif enemy in self.ravagerGroup:
+            self.ravagerGroup.remove(enemy)
 
     def get_enemy_screen_rect(self, enemy) -> pygame.Rect:
         return pygame.Rect(
