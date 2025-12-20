@@ -13,6 +13,7 @@ class FireLauncher(Enemy):
         super().__init__()
         self.mover: MoveRectangle = MoveRectangle()
         self.id = 0
+        self.has_retreat_triggered = False
 
         # -------------------------
         # BILE BURST FIRE
@@ -52,6 +53,8 @@ class FireLauncher(Enemy):
         self.enemyHealth: int = 5
         self.exp: int = 1
         self.credits: int = 5
+        self.is_retreating = False
+        self.retreat_start_y = None
 
         self.enemyBullets: list[Bullet] = []
 
@@ -156,18 +159,54 @@ class FireLauncher(Enemy):
         if not self.mover.enemy_on_screen(self, self.camera):
             return
 
+        # One-time init
         if not hasattr(self, "base_y"):
             self.base_y = self.y
             self.move_direction_y = 1
 
+        screen_bottom_world = (
+                self.camera.y
+                + (self.camera.window_height / self.camera.zoom)
+        )
+
+        # -------------------------
+        # START RETREAT
+        # -------------------------
+        if (
+                not self.is_retreating
+                and self.y + self.height >= screen_bottom_world - 50
+        ):
+            self.is_retreating = True
+            self.retreat_start_y = self.y
+            print(f"[RETREAT START] y={self.y:.2f}")
+
+        # -------------------------
+        # RETREAT MOVEMENT (UP 200px)
+        # -------------------------
+        if self.is_retreating:
+            self.mover.enemy_move_up(self)
+
+            moved = self.retreat_start_y - self.y
+            print(f"[RETREAT MOVE] y={self.y:.2f} moved={moved:.2f}")
+
+            # Stop retreat after 200px
+            if moved >= 200:
+                self.is_retreating = False
+                self.base_y = self.y  # reset patrol center
+                print("[RETREAT END]")
+            return
+
+        # -------------------------
+        # NORMAL PATROL (UNCHANGED)
+        # -------------------------
         desired_top = self.base_y - 100
         desired_bottom = self.base_y + 100
 
         cam_top = self.camera.y
         cam_bottom = (
-            self.camera.y
-            + (self.camera.window_height / self.camera.zoom)
-            - self.height
+                self.camera.y
+                + (self.camera.window_height / self.camera.zoom)
+                - self.height
         )
 
         patrol_top = max(desired_top, cam_top)
