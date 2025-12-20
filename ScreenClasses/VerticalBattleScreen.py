@@ -6,6 +6,7 @@ import math
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Controller.KeyBoardControls import KeyBoardControls
+from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
@@ -41,6 +42,9 @@ class VerticalBattleScreen:
         self.acidLauncherGroup: list[AcidLauncher] = []
         self.ravagerGroup: list[Ravager] = []
         self.fireLauncherGroup: list[FireLauncher] = []
+        self.bossLevelOneGroup: list[BossLevelOne] = []
+
+        #boss
 
 
 
@@ -123,7 +127,7 @@ class VerticalBattleScreen:
         _, window_height = GlobalConstants.WINDOWS_SIZE
 
         # move camera UP in world space (so map scrolls down)
-        self.camera_y -= self.map_scroll_speed_per_frame
+        # self.camera_y -= self.map_scroll_speed_per_frame
 
         # clamp so we never scroll past top or bottom of the map
         max_camera_y = self.WORLD_HEIGHT - window_height
@@ -833,7 +837,8 @@ class VerticalBattleScreen:
                 list(self.spineLauncherGroup) +
                 list(self.acidLauncherGroup) +
                 list(self.ravagerGroup) +
-                list(self.fireLauncherGroup)
+                list(self.fireLauncherGroup) +
+                list(self.bossLevelOneGroup)
 
 
         )
@@ -1080,6 +1085,8 @@ class VerticalBattleScreen:
             self.ravagerGroup.remove(enemy)
         elif enemy in self.fireLauncherGroup:
             self.fireLauncherGroup.remove(enemy)
+        elif enemy in self.bossLevelOneGroup:
+            self.bossLevelOneGroup.remove(enemy)
 
     def get_enemy_screen_rect(self, enemy) -> pygame.Rect:
         return pygame.Rect(

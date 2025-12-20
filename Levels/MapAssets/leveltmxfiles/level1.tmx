@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="220" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="105">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="200" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="121">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
- <layer id="1" name="background" width="30" height="220">
+ <layer id="1" name="background" width="30" height="200">
   <data encoding="csv">
 407,408,409,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,
 447,448,449,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,
@@ -202,51 +202,41 @@
 167,168,325,326,4,4,4,4,4,325,326,4,4,4,4,4,325,326,167,168,204,0,0,0,0,0,244,244,244,204,
 207,208,365,366,4,4,4,4,4,365,366,4,4,4,4,4,365,366,207,208,204,0,0,0,0,0,244,244,244,204,
 167,168,167,168,167,168,168,167,168,167,168,167,168,168,167,168,167,168,167,168,204,0,0,0,0,0,244,244,244,204,
-207,208,207,208,207,208,5,5,208,207,5,5,5,5,207,208,207,208,207,208,204,204,204,204,204,204,204,204,204,204,
-5,0,0,5,5,5,5,5,5,5,0,0,0,0,5,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,
-5,0,5,0,0,5,5,5,5,5,5,5,5,5,0,5,0,0,0,0,5,0,0,0,0,0,0,0,0,0,
-5,5,0,5,5,5,5,5,5,0,0,5,0,5,0,5,0,0,5,0,5,0,0,0,0,0,0,0,0,0,
-5,5,0,5,5,5,5,5,5,5,5,5,0,0,0,5,0,0,5,5,5,0,0,0,0,0,0,0,0,0,
-5,5,0,5,5,5,5,5,0,0,5,5,5,0,0,5,0,5,5,5,5,0,0,0,0,0,0,0,0,0,
-5,5,5,5,5,5,0,5,0,0,0,5,5,5,0,5,5,5,5,0,5,0,0,0,0,0,0,0,0,0,
-5,5,5,5,5,5,5,5,0,5,5,5,0,5,0,5,5,0,5,5,5,0,0,0,0,0,0,0,0,0,
-5,5,5,5,5,5,0,5,5,0,5,5,0,5,5,5,0,5,5,5,5,0,0,0,0,0,0,0,0,0,
-5,5,0,5,5,5,5,5,5,5,5,5,0,5,5,5,0,5,5,5,5,0,0,0,0,0,0,0,0,0,
-5,5,0,5,5,5,0,5,0,5,5,5,5,5,5,5,0,5,5,5,5,0,0,0,0,0,0,0,0,0,
-5,5,0,5,5,5,5,5,5,5,5,5,5,5,5,5,0,5,5,5,5,0,0,0,0,0,0,0,0,0,
-5,5,0,5,5,5,5,5,5,5,5,5,5,0,5,5,0,5,5,5,5,0,0,0,0,0,0,0,0,0,
-5,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,
-5,0,5,5,5,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,
-5,0,5,0,5,5,5,5,5,5,5,5,0,0,5,5,5,0,5,5,5,0,0,0,0,0,0,0,0,0,
-5,0,5,0,5,5,5,5,5,5,5,5,0,5,0,5,5,0,5,5,5,5,0,0,0,0,0,0,0,0,
-5,0,0,0,5,5,5,0,0,5,5,5,5,5,5,5,0,0,5,5,5,5,0,0,0,0,0,0,0,0,
-5,0,5,5,5,5,5,5,5,0,0,0,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,
-5,5,5,0,5,0,5,5,5,5,5,5,5,5,5,0,0,0,5,5,0,5,5,5,0,0,0,0,0,0,
-5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0
+207,208,207,208,207,208,5,5,208,207,5,5,5,5,207,208,207,208,207,208,204,204,204,204,204,204,204,204,204,204
 </data>
  </layer>
  <objectgroup id="2" name="enemies">
-  <object id="13" name="bile_spitter" type="BileSpitter" x="170.516" y="2637.22" width="16" height="16">
+  <object id="13" name="bile_spitter" type="BileSpitter" x="31.6867" y="1714.08" width="16" height="16">
    <properties>
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
-  <object id="33" name="bile_spitter" type="BileSpitter" x="44.1158" y="2665.38" width="16" height="16">
+  <object id="33" name="bile_spitter" type="BileSpitter" x="185.092" y="2373.41" width="16" height="16">
    <properties>
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
-  <object id="35" name="bile_spitter" type="BileSpitter" x="170.516" y="2403.41" width="16" height="16">
+  <object id="107" name="bile_spitter" type="BileSpitter" x="48.4095" y="1817.38" width="16" height="16">
    <properties>
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
-  <object id="36" name="bile_spitter" type="BileSpitter" x="144.319" y="2178.77" width="16" height="16">
+  <object id="35" name="bile_spitter" type="BileSpitter" x="241.362" y="1784.4" width="16" height="16">
+   <properties>
+    <property name="Type" value="bile_spitter"/>
+   </properties>
+  </object>
+  <object id="36" name="bile_spitter" type="BileSpitter" x="262.395" y="1252.05" width="16" height="16">
    <properties>
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
   <object id="38" name="bile_spitter" type="BileSpitter" x="272.683" y="1924.01" width="16" height="16">
+   <properties>
+    <property name="Type" value="bile_spitter"/>
+   </properties>
+  </object>
+  <object id="118" name="bile_spitter" type="BileSpitter" x="143.872" y="1728.65" width="16" height="16">
    <properties>
     <property name="Type" value="bile_spitter"/>
    </properties>
@@ -266,22 +256,22 @@
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
-  <object id="101" name="bile_spitter" type="BileSpitter" x="163.675" y="296.601" width="16" height="16">
+  <object id="101" name="bile_spitter" type="BileSpitter" x="246.686" y="607.893" width="16" height="16">
    <properties>
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
-  <object id="103" name="bile_spitter" type="BileSpitter" x="275.863" y="264.172" width="16" height="16">
+  <object id="103" name="bile_spitter" type="BileSpitter" x="270.138" y="523.225" width="16" height="16">
    <properties>
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
-  <object id="102" name="bile_spitter" type="BileSpitter" x="67.2645" y="291.342" width="16" height="16">
+  <object id="102" name="bile_spitter" type="BileSpitter" x="55.8147" y="588.322" width="16" height="16">
    <properties>
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
-  <object id="85" name="bile_spitter" type="BileSpitter" x="65.0733" y="43.7279" width="16" height="16">
+  <object id="85" name="bile_spitter" type="BileSpitter" x="196.031" y="644.844" width="16" height="16">
    <properties>
     <property name="Type" value="bile_spitter"/>
    </properties>
@@ -311,34 +301,51 @@
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
-  <object id="34" name="bile_spitter" type="BileSpitter" x="32.9821" y="2408" width="16" height="16">
+  <object id="34" name="bile_spitter" type="BileSpitter" x="32.9821" y="2063.79" width="16" height="16">
    <properties>
     <property name="Type" value="bile_spitter"/>
    </properties>
   </object>
-  <object id="59" name="kamikazi_drone" x="262.624" y="2641.95" width="16" height="16"/>
+  <object id="108" name="bile_spitter" type="BileSpitter" x="282.732" y="2102.43" width="16" height="16">
+   <properties>
+    <property name="Type" value="bile_spitter"/>
+   </properties>
+  </object>
+  <object id="59" name="kamikazi_drone" x="229.706" y="2153.19" width="16" height="16"/>
+  <object id="106" name="kamikazi_drone" x="37.921" y="2279.13" width="16" height="16"/>
   <object id="76" name="kamikazi_drone" x="139.498" y="1617" width="16" height="16"/>
   <object id="79" name="kamikazi_drone" x="185.998" y="1020.37" width="16" height="16"/>
-  <object id="81" name="kamikazi_drone" x="149.977" y="473.508" width="16" height="16"/>
-  <object id="86" name="kamikazi_drone" x="139.498" y="39.2953" width="16" height="16"/>
-  <object id="89" name="kamikazi_drone" x="198.441" y="106.752" width="16" height="16"/>
-  <object id="88" name="kamikazi_drone" x="196.477" y="37.9855" width="16" height="16"/>
+  <object id="81" name="kamikazi_drone" x="289.522" y="318.22" width="16" height="16"/>
+  <object id="86" name="kamikazi_drone" x="208.197" y="374.203" width="16" height="16"/>
+  <object id="89" name="kamikazi_drone" x="267.14" y="405.163" width="16" height="16"/>
+  <object id="88" name="kamikazi_drone" x="274.479" y="687.764" width="16" height="16"/>
   <object id="73" name="tri_spitter" x="195.167" y="1637.96" width="16" height="16"/>
-  <object id="78" name="tri_spitter" x="266.553" y="1022.99" width="16" height="16"/>
+  <object id="78" name="tri_spitter" x="31.8314" y="673.054" width="16" height="16"/>
   <object id="80" name="tri_spitter" x="256.074" y="455.171" width="16" height="16"/>
-  <object id="87" name="tri_spitter" x="281.616" y="35.3658" width="16" height="16"/>
-  <object id="74" name="tri_spitter" x="106.857" y="2530.75" width="16" height="16"/>
+  <object id="87" name="tri_spitter" x="132.768" y="640.06" width="16" height="16"/>
+  <object id="74" name="tri_spitter" x="78.2324" y="2093.51" width="16" height="16"/>
   <object id="75" name="tri_spitter" x="141.463" y="2013.88" width="16" height="16"/>
+  <object id="114" name="tri_spitter" x="141.463" y="1892.23" width="16" height="16"/>
   <object id="90" name="wasp_stinger" x="102.874" y="2127.59" width="16" height="16"/>
-  <object id="93" name="blade_spinner" x="267.816" y="2412.07" width="16" height="16"/>
-  <object id="94" name="spore_flower" x="191.954" y="2548.28" width="16" height="16"/>
+  <object id="119" name="wasp_stinger" x="9.12847" y="332.113" width="16" height="16"/>
+  <object id="93" name="blade_spinner" x="279.266" y="2362.69" width="16" height="16"/>
+  <object id="110" name="blade_spinner" x="279.266" y="2362.69" width="16" height="16"/>
+  <object id="112" name="blade_spinner" x="98.9309" y="2046.39" width="16" height="16"/>
+  <object id="113" name="blade_spinner" x="159.043" y="2182.36" width="16" height="16"/>
+  <object id="109" name="blade_spinner" x="264.238" y="2290.42" width="16" height="16"/>
+  <object id="94" name="spore_flower" x="167.623" y="2103.88" width="16" height="16"/>
   <object id="95" name="spine_launcher" x="218.966" y="895.402" width="16" height="16"/>
   <object id="97" name="acid_launcher" x="151.724" y="721.839" width="16" height="16"/>
-  <object id="98" name="ravager" x="217.166" y="2066.14" width="16" height="16"/>
-  <object id="100" name="ravager" x="155.376" y="585.79" width="16" height="16"/>
-  <object id="104" name="fire_launcher" x="120.939" y="3328.33" width="16" height="16"/>
+  <object id="117" name="acid_launcher" x="217.561" y="756.189" width="16" height="16"/>
+  <object id="116" name="acid_launcher" x="52.2536" y="808.428" width="16" height="16"/>
+  <object id="98" name="ravager" x="183.532" y="1095.05" width="16" height="16"/>
+  <object id="115" name="ravager" x="20.372" y="1341.94" width="16" height="16"/>
+  <object id="100" name="ravager" x="122.458" y="331.031" width="16" height="16"/>
+  <object id="104" name="fire_launcher" x="17.8908" y="2157.58" width="16" height="16"/>
+  <object id="105" name="fire_launcher" x="158.151" y="2241.31" width="16" height="16"/>
+  <object id="120" name="level_1_boss" x="101.617" y="2957.64" width="100" height="64"/>
  </objectgroup>
- <layer id="7" name="hazard" width="30" height="220">
+ <layer id="7" name="hazard" width="30" height="200">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -539,31 +546,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <objectgroup id="3" name="collision"/>
  <objectgroup id="6" name="player">
-  <object id="31" name="player" x="125.297" y="3500.48" width="16" height="16"/>
+  <object id="31" name="player" x="108.122" y="3174.88" width="16" height="16"/>
  </objectgroup>
 </map>

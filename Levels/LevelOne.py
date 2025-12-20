@@ -1,6 +1,7 @@
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
+from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
@@ -127,6 +128,8 @@ class LevelOne(VerticalBattleScreen):
             ravager.draw(state.DISPLAY, self.camera)
         for blade in self.bladeSpinnerGroup:
             blade.draw(state.DISPLAY, self.camera)
+        for boss in self.bossLevelOneGroup:
+            boss.draw(state.DISPLAY, self.camera)
 
         for enemy_tri_spitter in self.triSpitterGroup:
             hb = pygame.Rect(
@@ -150,7 +153,8 @@ class LevelOne(VerticalBattleScreen):
                 list(self.spineLauncherGroup) +
                 list(self.acidLauncherGroup) +
                 list(self.ravagerGroup) +
-                list(self.fireLauncherGroup)
+                list(self.fireLauncherGroup) +
+                list(self.bossLevelOneGroup)
         )
 
         if not enemies:
@@ -198,6 +202,17 @@ class LevelOne(VerticalBattleScreen):
     def load_enemy_into_list(self):
         for obj in self.tiled_map.objects:
             # ⭐ LOAD ENEMIES (existing code)
+            if obj.name == "level_1_boss":
+                enemy = BossLevelOne()
+                enemy.x = obj.x
+                enemy.y = obj.y
+                enemy.width = obj.width
+                enemy.height = obj.height
+                enemy.update_hitbox()
+                enemy.camera = self.camera
+                self.bossLevelOneGroup.append(enemy)
+                enemy.camera = self.camera
+                enemy.target_player = self.starship
             if obj.name == "fire_launcher":
                 enemy = FireLauncher()
                 enemy.x = obj.x
@@ -361,8 +376,16 @@ class LevelOne(VerticalBattleScreen):
 
                     break  # one hit only
 
+        for boss in list(self.bossLevelOneGroup):
+            boss.update()
 
+            if boss.enemyBullets:
+                self.enemy_bullets.extend(boss.enemyBullets)
+                boss.enemyBullets.clear()
 
+            if boss.enemyHealth <= 0:
+                self.bossLevelOneGroup.remove(boss)
+                continue
 
         for blade in list(self.bladeSpinnerGroup):
             blade.update()

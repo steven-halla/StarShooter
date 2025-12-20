@@ -49,7 +49,7 @@ class StarShip:
         self.missileDamage: int = 100
         self.missileSpeed: int = 10
         self.missile_spread_offset: int = 20
-        self.equipped_magic: list = ["Buster Cannon", None]
+        self.equipped_magic: list = ["Wind Slicer", None]
         self.hyper_laser_damage: int = 100
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
@@ -61,7 +61,7 @@ class StarShip:
             self.height
         )
         self.was_hit: bool = False
-        self.shipHealth: int = 50
+        self.shipHealth: int = 100
 
         self.player_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
