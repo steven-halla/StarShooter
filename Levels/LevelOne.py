@@ -348,6 +348,9 @@ class LevelOne(VerticalBattleScreen):
 
         for ravager in list(self.ravagerGroup):
             ravager.update()
+            if ravager.enemyBullets:
+                self.enemy_bullets.extend(ravager.enemyBullets)
+                ravager.enemyBullets.clear()
 
             if ravager.enemyHealth <= 0:
                 self.ravagerGroup.remove(ravager)

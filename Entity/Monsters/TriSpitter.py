@@ -118,7 +118,6 @@ class TriSpitter(Enemy):
                 aligned = abs(self.x - self.target_player.x) <= 5
                 if aligned:
                     self.freeze_start_time = now
-                    print("Tri Spitter is LOCKED ON and FREEZING for 2 seconds!")
 
             # Keep using the horizontal AI movement when not locked
             self.moveAI()

@@ -299,7 +299,7 @@
   <object id="94" name="spore_flower" x="191.954" y="2548.28" width="16" height="16"/>
   <object id="95" name="spine_launcher" x="218.966" y="895.402" width="16" height="16"/>
   <object id="97" name="acid_launcher" x="151.724" y="721.839" width="16" height="16"/>
-  <object id="98" name="ravager" x="204.601" y="3083" width="16" height="16"/>
+  <object id="98" name="ravager" x="61.1561" y="3007.46" width="16" height="16"/>
  </objectgroup>
  <layer id="7" name="hazard" width="30" height="200">
   <data encoding="csv">

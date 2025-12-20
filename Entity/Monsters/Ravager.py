@@ -12,92 +12,113 @@ class Ravager(Enemy):
     def __init__(self) -> None:
         super().__init__()
 
-        # appearance
-        self.width: int = 16
-        self.height: int = 16
-        self.color: tuple[int, int, int] = GlobalConstants.RED
+        self.width = 16
+        self.height = 16
+        self.color = GlobalConstants.RED
 
-        # player tracking
+        self.camera = None
         self.target_player = None
-        self.last_player_x: float | None = None
-        self.last_player_y: float | None = None
 
-        # movement
-        self.move_speed: float = .5   # ← NEW: movement speed
-        self.flee_distance: float = 200  # only move if player is close
+        self.move_speed = 2.5
+        self.flee_distance = 200
+        self.edge_buffer = 40
 
-        # bullet appearance
-        self.bulletColor: tuple[int, int, int] = GlobalConstants.SKYBLUE
-        self.bulletWidth: int = 20
-        self.bulletHeight: int = 20
+        self.weapon_speed = 1.0
+        self.fire_interval_ms = 2000
+        self.last_shot_time = pygame.time.get_ticks()
 
-        # firing
-        self.weapon_speed: float = 6.0
-        self.fire_interval_ms: int = 2000
-        self.last_shot_time: int = pygame.time.get_ticks()
-
-        # gameplay
-        self.enemyHealth: int = 10
-
-        # bullets
+        self.enemyHealth = 200
         self.enemyBullets: list[Bullet] = []
 
         self.ravager_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
 
-    def shoot_spines(self) -> None:
-        if self.last_player_x is None or self.last_player_y is None:
+    def shoot(self) -> None:
+        if self.target_player is None:
             return
 
-        cx = self.x + self.width // 2
-        cy = self.y + self.height // 2
+        # ONLY FIRE IF ON SCREEN
+        cam_top = self.camera.y
+        cam_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
-        # fire AWAY from player
-        dx = cx - self.last_player_x
-        dy = cy - self.last_player_y
-
-        length = math.hypot(dx, dy)
-        if length == 0:
+        if self.y + self.height < cam_top or self.y > cam_bottom:
             return
 
-        dx /= length
-        dy /= length
+        cx = self.x + self.width / 2
+        cy = self.y + self.height / 2
+
+        px = self.target_player.hitbox.centerx
+        py = self.target_player.hitbox.centery
+
+        dx = px - cx
+        dy = py - cy
+        dist = math.hypot(dx, dy)
+
+        if dist == 0:
+            return
+
+        dx /= dist
+        dy /= dist
 
         bullet = Bullet(cx, cy)
         bullet.dx = dx * self.weapon_speed
         bullet.speed = dy * self.weapon_speed
 
-        bullet.width = self.bulletWidth
-        bullet.height = self.bulletHeight
-        bullet.color = self.bulletColor
+        bullet.width = 20
+        bullet.height = 20
+        bullet.color = GlobalConstants.SKYBLUE
         bullet.damage = 10
 
         self.enemyBullets.append(bullet)
+
+        print(
+            "RAVAGER BULLET CREATED",
+            "world:", cx, cy,
+            "screen:",
+            self.camera.world_to_screen_x(cx),
+            self.camera.world_to_screen_y(cy),
+        )
 
     def update(self) -> None:
         super().update()
         self.update_hitbox()
 
-        # track player
-        if self.target_player is not None:
-            self.last_player_x = self.target_player.x
-            self.last_player_y = self.target_player.y
+        move_x = 0.0
+        move_y = 0.0
 
+        if self.target_player is not None:
             dx = self.x - self.target_player.x
             dy = self.y - self.target_player.y
             dist = math.hypot(dx, dy)
 
-            # flee only if close
             if dist < self.flee_distance and dist != 0:
-                self.x += (dx / dist) * self.move_speed
-                self.y += (dy / dist) * self.move_speed
-                self.update_hitbox()
+                move_x += (dx / dist) * self.move_speed
+                move_y += (dy / dist) * self.move_speed
 
-        # firing timer
+        if self.camera is not None:
+            left = 0
+            right = (self.camera.window_width / self.camera.zoom) - self.width
+            top = self.camera.y
+            bottom = self.camera.y + (self.camera.window_height / self.camera.zoom) - self.height
+
+            if self.x < left + self.edge_buffer:
+                move_x += self.move_speed
+            elif self.x > right - self.edge_buffer:
+                move_x -= self.move_speed
+
+            if self.y < top + self.edge_buffer:
+                move_y += self.move_speed
+            elif self.y > bottom - self.edge_buffer:
+                move_y -= self.move_speed
+
+        self.x += move_x
+        self.y += move_y
+        self.update_hitbox()
+
         now = pygame.time.get_ticks()
         if now - self.last_shot_time >= self.fire_interval_ms:
-            self.shoot_spines()
+            self.shoot()
             self.last_shot_time = now
 
         for bullet in self.enemyBullets:
@@ -108,18 +129,14 @@ class Ravager(Enemy):
         sprite = self.ravager_image.subsurface(sprite_rect)
 
         scale = camera.zoom
-        scaled_sprite = pygame.transform.scale(
-            sprite,
-            (int(self.width * scale), int(self.height * scale))
+        sprite = pygame.transform.scale(
+            sprite, (int(self.width * scale), int(self.height * scale))
         )
 
-        screen_x = camera.world_to_screen_x(self.x)
-        screen_y = camera.world_to_screen_y(self.y)
-        surface.blit(scaled_sprite, (screen_x, screen_y))
-
-        hb_x = camera.world_to_screen_x(self.hitbox.x)
-        hb_y = camera.world_to_screen_y(self.hitbox.y)
-        hb_w = int(self.hitbox.width * camera.zoom)
-        hb_h = int(self.hitbox.height * camera.zoom)
-
-        pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
+        surface.blit(
+            sprite,
+            (
+                camera.world_to_screen_x(self.x),
+                camera.world_to_screen_y(self.y),
+            ),
+        )

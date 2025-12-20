@@ -75,15 +75,8 @@ class SporeFlower(Enemy):
         for bullet in self.enemyBullets:
             bullet.update()
 
-            print(
-                "➡️ BULLET MOVING",
-                "x:", bullet.x,
-                "y:", bullet.y,
-                "speed:", bullet.speed,
-                "diag_speed_y:", bullet.diag_speed_y
-            )
+
     def draw(self, surface: pygame.Surface, camera):
-        print("🎨 DRAW SPORE FLOWER — bullets:", len(self.enemyBullets))
 
         sprite_rect = pygame.Rect(0, 344, 32, 32)
         sprite = self.spore_flower_image.subsurface(sprite_rect)
