@@ -73,15 +73,12 @@ class FireLauncher(Enemy):
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
 
-    # -------------------------
-    # FIRE BILE (TARGET PLAYER)
-    # -------------------------
     def _shoot_bile(self) -> None:
         if self.target_player is None:
             return
 
         cx = self.x + self.width / 2
-        cy = self.y + self.height
+        cy = self.y + self.height / 2
 
         px = self.target_player.hitbox.centerx
         py = self.target_player.hitbox.centery
@@ -99,13 +96,48 @@ class FireLauncher(Enemy):
         bullet.color = self.bulletColor
         bullet.width = self.bulletWidth
         bullet.height = self.bulletHeight
+
         bullet.dx = dx * self.bileSpeed
-        bullet.speed = dy * self.bileSpeed
+        bullet.speed = -dy * self.bileSpeed  # ✅ FIX
+
         bullet.rect.width = bullet.width
         bullet.rect.height = bullet.height
         bullet.damage = 10
 
         self.enemyBullets.append(bullet)
+    # -------------------------
+    # # FIRE BILE (TARGET PLAYER)
+    # # -------------------------
+    # def _shoot_bile(self) -> None:
+    #     if self.target_player is None:
+    #         return
+    #
+    #     cx = self.x + self.width / 2
+    #     cy = self.y + self.height
+    #
+    #     px = self.target_player.hitbox.centerx
+    #     py = self.target_player.hitbox.centery
+    #
+    #     dx = px - cx
+    #     dy = py - cy
+    #     dist = math.hypot(dx, dy)
+    #     if dist == 0:
+    #         return
+    #
+    #     dx /= dist
+    #     dy /= dist
+    #
+    #     bullet = Bullet(cx, cy)
+    #     bullet.color = self.bulletColor
+    #     bullet.width = self.bulletWidth
+    #     bullet.height = self.bulletHeight
+    #     bullet.dx = dx * self.bileSpeed
+    #     bullet.speed = dy * self.bileSpeed
+    #     bullet.rect.width = bullet.width
+    #     bullet.rect.height = bullet.height
+    #     bullet.damage = 10
+    #
+    #     self.enemyBullets.append(bullet)
 
     # -------------------------
     # UPDATE
@@ -152,6 +184,7 @@ class FireLauncher(Enemy):
         # MOVE BULLETS
         # -------------------------
         for bullet in self.enemyBullets:
+            bullet.x += bullet.dx
             bullet.y += bullet.speed
 
     # -------------------------

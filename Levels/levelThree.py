@@ -1,3 +1,4 @@
+import random
 from typing import Optional
 
 import pygame
@@ -56,6 +57,9 @@ class LevelThree(VerticalBattleScreen):
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
+        self.enemy_wave_interval_ms = 20000
+        self.last_enemy_wave_time = pygame.time.get_ticks()
+        self.intial_wave: bool = True
 
         # --------------------------------
         # SIDE RECT (ONLY HP SYSTEM)
@@ -335,6 +339,15 @@ class LevelThree(VerticalBattleScreen):
 
     def enemy_helper(self):
         now = pygame.time.get_ticks()
+        # if self.intial_wave == True:
+        #     self.spawn_enemy_wave()
+        #     self.intial_wave = False
+
+
+        if now - self.last_enemy_wave_time >= self.enemy_wave_interval_ms:
+            self.spawn_enemy_wave()
+            self.last_enemy_wave_time = now
+        now = pygame.time.get_ticks()
 
 
         # --------------------------------
@@ -563,3 +576,47 @@ class LevelThree(VerticalBattleScreen):
 
         bullet.is_reflected = True
         bullet.damage = 100
+
+    def spawn_enemy_wave(self):
+        spawn_count = random.randint(4, 10)
+
+        enemy_pool = [
+            (BileSpitter, self.bileSpitterGroup),
+            (KamikazeDrone, self.kamikazeDroneGroup),
+            (TriSpitter, self.triSpitterGroup),
+            (FireLauncher, self.fireLauncherGroup),
+            (BladeSpinner, self.bladeSpinnerGroup),
+        ]
+
+        # visible screen width in world space
+        screen_right = int(self.window_width / self.camera.zoom)
+
+        # spawn slightly inside camera view (top of screen)
+        spawn_y = int(self.camera.y) + 5
+
+        for _ in range(spawn_count):
+            EnemyClass, group = random.choice(enemy_pool)
+
+            enemy = EnemyClass()
+
+            # -------------------------------
+            # 🔑 CRITICAL FIX: FORCE TILED SIZE
+            # -------------------------------
+            enemy.width = 16
+            enemy.height = 16
+
+            enemy.x = random.randint(20, screen_right - 20)
+            enemy.y = spawn_y
+
+            enemy.update_hitbox()
+            enemy.camera = self.camera
+            enemy.target_player = self.starship
+
+            group.append(enemy)
+
+            print(
+                f"[SPAWN] {EnemyClass.__name__} "
+                f"at x={enemy.x}, y={enemy.y} "
+                f"| size=({enemy.width},{enemy.height}) "
+                f"| camera.y={int(self.camera.y)}"
+            )

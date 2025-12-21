@@ -20,6 +20,8 @@ class Camera:
         self.zoom: float = initial_zoom
         self.min_zoom: float = 1.0
         self.max_zoom: float = 4.0
+        # start at left of the world
+        self.x: float = 0.0
 
     # -------- camera movement (vertical) --------
     def scroll_up(self) -> None:
@@ -45,3 +47,10 @@ class Camera:
     def world_to_screen_y(self, world_y: float) -> float:
         # same idea as their group: (world - camera) * zoom
         return (world_y - self.y) * self.zoom
+
+    def get_world_x_left(self) -> float:
+        """
+        Returns the world-space X position at the left edge of the screen.
+        Camera does not scroll horizontally, so this is always 0.
+        """
+        return 0.0
