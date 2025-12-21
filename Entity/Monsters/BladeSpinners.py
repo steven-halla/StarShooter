@@ -38,6 +38,8 @@ class BladeSpinner(Enemy):
 
     def update(self):
         super().update()
+        if not self.is_active:
+            return
 
         self.update_hitbox()
 
@@ -97,3 +99,5 @@ class BladeSpinner(Enemy):
 
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
 
+    def _clamp_vertical(self) -> None:
+        pass

@@ -86,6 +86,8 @@ class TriSpitter(Enemy):
             self.enemyBullets.append(bullet)
     def update(self) -> None:
         super().update()
+        if not self.is_active:
+            return
 
         now = pygame.time.get_ticks()
 
@@ -232,3 +234,6 @@ class TriSpitter(Enemy):
         hb_h = int(self.hitbox.height * camera.zoom)
 
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
+
+    def _clamp_vertical(self) -> None:
+        pass

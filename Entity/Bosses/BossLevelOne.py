@@ -130,6 +130,8 @@ class BossLevelOne(Enemy):
     # =====================================================
     def update(self) -> None:
         super().update()
+        if not self.is_active:
+            return
         self.update_hitbox()
 
         if self.camera is None:
