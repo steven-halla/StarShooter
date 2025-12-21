@@ -25,17 +25,21 @@ class LevelTwo(VerticalBattleScreen):
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
-        self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400 # y position of map
+        self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400  # y position of map
+
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
-        self.camera_y = self.WORLD_HEIGHT - window_height # look at bottom of map
+        self.camera_y = self.WORLD_HEIGHT - window_height  # look at bottom of map
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
-        self.map_scroll_speed_per_frame: float = .4 # move speed of camera
+
+        self.map_scroll_speed_per_frame: float = .4  # move speed of camera
+
         self.bileSpitterGroup: list[BileSpitter] = []
         self.kamikazeDroneGroup: list[KamikazeDrone] = []
         self.triSpitterGroup: list[TriSpitter] = []
-        # self.load_enemy_into_list()
+
         self.napalm_list: list = []
+
         self.total_enemies = 40
         self.prev_enemy_count: int = None
         self.enemies_killed: int = 0
@@ -43,8 +47,16 @@ class LevelTwo(VerticalBattleScreen):
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
-        self.player_bar_width = 16
-        self.player_bar_height = 16
+
+        # --------------------------------
+        # SIDE RECT (ONLY HP SYSTEM)
+        # --------------------------------
+        self.side_rect_width = 16
+        self.side_rect_height = 16
+        self.side_rect_hp = 10
+        self.side_rect_max_hp = 10
+
+        self.side_rect_hitbox = pygame.Rect(0, 0, 0, 0)
 
         self.game_over: bool = False
 
@@ -63,63 +75,60 @@ class LevelTwo(VerticalBattleScreen):
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
         self.load_enemy_into_list()
 
-
     def update(self, state) -> None:
         super().update(state)
+        print(self.side_rect_hp)
 
-        now = pygame.time.get_ticks()
-        elapsed = now - self.level_start_time
+        # UPDATE INVINCIBILITY TIMER FIRST
+        self.update_side_rect_invincibility()
 
-        screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
+        print("SIDE RECT HP:", self.side_rect_hp, "INVINCIBLE:", self.side_rect_invincible)
 
+        # -------------------------
+        # UPDATE SIDE RECT HITBOX (WORLD SPACE)
+        # -------------------------
+        side_x = self.starship.x + self.starship.width + 10
+        side_y = self.starship.y + (self.starship.height // 2) - (self.side_rect_height // 2)
 
+        self.side_rect_hitbox.update(
+            int(side_x),
+            int(side_y),
+            self.side_rect_width,
+            self.side_rect_height
+        )
 
-        # if elapsed >= self.time_limit_ms and not self.time_up:
-        #     self.time_up = True
-        #     print("time's up")
-        # Missile firing (override parent behavior)
-        if self.controller.fire_missiles:
-            missile = self.starship.fire_missile()
-            if missile is not None:
+        # -------------------------
+        # HAZARD → SIDE RECT (WITH INVINCIBILITY GATE)
+        # -------------------------
+        hazard_layer = self.tiled_map.get_layer_by_name("hazard")
 
-                # Lock onto nearest enemy
-                missile.target_enemy = self.get_nearest_enemy(missile)
+        if self.side_rect_hp > 0 and not self.side_rect_invincible:
+            for x, y, gid in hazard_layer:
+                if gid == 0:
+                    continue
 
-                # Compute initial direction toward target
-                if missile.target_enemy is not None:
-                    dx = missile.target_enemy.x - missile.x
-                    dy = missile.target_enemy.y - missile.y
-                    dist = max(1, (dx * dx + dy * dy) ** 0.5)
-                    missile.direction_x = dx / dist
-                    missile.direction_y = dy / dist
-                else:
-                    # No enemy → missile goes straight upward
-                    missile.direction_x = 0
-                    missile.direction_y = -1
+                tile_rect = pygame.Rect(
+                    x * self.tile_size,
+                    y * self.tile_size,
+                    self.tile_size,
+                    self.tile_size
+                )
 
-                # Add to missile list
-                self.player_missiles.append(missile)
+                if self.side_rect_hitbox.colliderect(tile_rect):
+                    self.side_rect_hp -= 1
+                    self.side_rect_invincible = True
+                    self.side_rect_invincible_start_time = pygame.time.get_ticks()
+                    print("⚠️ Side rect took hazard damage:", self.side_rect_hp)
+                    break
 
-                if missile.target_enemy is not None:
-                    print(f"Missile locked onto: {type(missile.target_enemy).__name__} "
-                          f"at ({missile.target_enemy.x}, {missile.target_enemy.y})")
-                else:
-                    print("Missile locked onto: NONE (no enemies found)")
         self.enemy_helper()
-
-
-        self.extract_object_names()
-
 
     def draw(self, state):
         super().draw(state)
-        # ================================
-        # ENEMY COUNTER (TOP OF SCREEN)
-        # ================================
-
 
         for napalm in self.napalm_list:
             napalm.draw(state.DISPLAY, self.camera)
+
         zoom = self.camera.zoom
 
         for obj in self.tiled_map.objects:
@@ -139,38 +148,45 @@ class LevelTwo(VerticalBattleScreen):
 
         for blade in self.bladeSpinnerGroup:
             blade.draw(state.DISPLAY, self.camera)
+
         for boss in self.bossLevelOneGroup:
             boss.draw(state.DISPLAY, self.camera)
 
-        for enemy_tri_spitter in self.triSpitterGroup:
-            hb = pygame.Rect(
-                self.camera.world_to_screen_x(enemy_tri_spitter.hitbox.x),
-                self.camera.world_to_screen_y(enemy_tri_spitter.hitbox.y),
-                int(enemy_tri_spitter.hitbox.width * zoom),
-                int(enemy_tri_spitter.hitbox.height * zoom)
-            )
-            pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
-
         # -------------------------
-        # PLAYER ATTACHED GREEN RECT
+        # SIDE RECT HP BAR (ONLY HP BAR)
         # -------------------------
-        bar_world_x = self.starship.x + self.starship.width + 10  # right side of player
-        bar_world_y = self.starship.y + (self.starship.height // 2) - (self.player_bar_height // 2)
+        side_screen_x = self.camera.world_to_screen_x(self.side_rect_hitbox.x)
+        side_screen_y = self.camera.world_to_screen_y(self.side_rect_hitbox.y)
 
-        bar_screen_x = self.camera.world_to_screen_x(bar_world_x)
-        bar_screen_y = self.camera.world_to_screen_y(bar_world_y)
+        side_w = int(self.side_rect_hitbox.width * zoom)
+        side_h = int(self.side_rect_hitbox.height * zoom)
 
-        bar_width = int(self.player_bar_width * self.camera.zoom)
-        bar_height = int(self.player_bar_height * self.camera.zoom)
+        hp_ratio = max(0, self.side_rect_hp / self.side_rect_max_hp)
+        hp_width = int(side_w * hp_ratio)
 
+        # background
         pygame.draw.rect(
             state.DISPLAY,
-            (0, 255, 0),  # GREEN
-            (bar_screen_x, bar_screen_y, bar_width, bar_height)
+            (60, 60, 60),
+            (side_screen_x, side_screen_y, side_w, side_h)
+        )
+
+        # HP fill
+        pygame.draw.rect(
+            state.DISPLAY,
+            (0, 255, 0),
+            (side_screen_x, side_screen_y, hp_width, side_h)
+        )
+
+        # outline
+        pygame.draw.rect(
+            state.DISPLAY,
+            (255, 255, 255),
+            (side_screen_x, side_screen_y, side_w, side_h),
+            1
         )
 
         pygame.display.flip()
-
     def get_nearest_enemy(self, missile):
         enemies = (
                 list(self.bileSpitterGroup) +
@@ -436,3 +452,15 @@ class LevelTwo(VerticalBattleScreen):
             if enemy_tri_spitter.enemyBullets:
                 self.enemy_bullets.extend(enemy_tri_spitter.enemyBullets)
                 enemy_tri_spitter.enemyBullets.clear()
+
+    # SIDE RECT INVINCIBILITY TIMER (NO DAMAGE LOGIC HERE)
+    # =========================
+    def update_side_rect_invincibility(self) -> None:
+        if not hasattr(self, "side_rect_invincible"):
+            self.side_rect_invincible = False
+            self.side_rect_invincible_start_time = 0
+            return
+
+        if self.side_rect_invincible:
+            if pygame.time.get_ticks() - self.side_rect_invincible_start_time >= 1000:
+                self.side_rect_invincible = False
