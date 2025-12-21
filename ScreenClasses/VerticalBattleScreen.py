@@ -7,6 +7,7 @@ from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Controller.KeyBoardControls import KeyBoardControls
 from Entity.Bosses.BossLevelOne import BossLevelOne
+from Entity.Bosses.BossLevelThree import BossLevelThree
 from Entity.Bosses.BossLevelTwo import BossLevelTwo
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
@@ -45,6 +46,7 @@ class VerticalBattleScreen:
         self.fireLauncherGroup: list[FireLauncher] = []
         self.bossLevelOneGroup: list[BossLevelOne] = []
         self.bossLevelTwoGroup: list[BossLevelTwo] = []
+        self.bossLevelThreeGroup: list[BossLevelThree] = []
 
         #boss
 
@@ -841,7 +843,9 @@ class VerticalBattleScreen:
                 list(self.ravagerGroup) +
                 list(self.fireLauncherGroup) +
                 list(self.bossLevelOneGroup) +
-                list(self.bossLevelTwoGroup)
+                list(self.bossLevelTwoGroup) +
+                list(self.bossLevelThreeGroup)
+
 
 
         )
@@ -1090,6 +1094,11 @@ class VerticalBattleScreen:
             self.fireLauncherGroup.remove(enemy)
         elif enemy in self.bossLevelOneGroup:
             self.bossLevelOneGroup.remove(enemy)
+        elif enemy in self.bossLevelTwoGroup:
+            self.bossLevelTwoGroup.remove(enemy)
+
+        elif enemy in self.bossLevelThreeGroup:
+            self.bossLevelThreeGroup.remove(enemy)
 
     def get_enemy_screen_rect(self, enemy) -> pygame.Rect:
         return pygame.Rect(

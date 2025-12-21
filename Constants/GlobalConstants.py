@@ -17,6 +17,7 @@ class GlobalConstants():
     GREY: tuple[int, int, int] = (128, 128, 128)
     PINK: tuple[int, int, int] = (255, 105, 180)
     SKYBLUE = (135, 206, 235)
+    WHITE: tuple[int, int, int] = (255, 255, 255)
 
     FPS: int = 60
     LOWEXP: int = 10
