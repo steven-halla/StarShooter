@@ -43,6 +43,9 @@ class LevelTwo(VerticalBattleScreen):
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
+        self.player_bar_width = 16
+        self.player_bar_height = 16
+
         self.game_over: bool = False
 
     def start(self, state) -> None:
@@ -148,6 +151,24 @@ class LevelTwo(VerticalBattleScreen):
             )
             pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
 
+        # -------------------------
+        # PLAYER ATTACHED GREEN RECT
+        # -------------------------
+        bar_world_x = self.starship.x + self.starship.width + 10  # right side of player
+        bar_world_y = self.starship.y + (self.starship.height // 2) - (self.player_bar_height // 2)
+
+        bar_screen_x = self.camera.world_to_screen_x(bar_world_x)
+        bar_screen_y = self.camera.world_to_screen_y(bar_world_y)
+
+        bar_width = int(self.player_bar_width * self.camera.zoom)
+        bar_height = int(self.player_bar_height * self.camera.zoom)
+
+        pygame.draw.rect(
+            state.DISPLAY,
+            (0, 255, 0),  # GREEN
+            (bar_screen_x, bar_screen_y, bar_width, bar_height)
+        )
+
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
@@ -252,23 +273,21 @@ class LevelTwo(VerticalBattleScreen):
                 continue
 
     def enemy_helper(self):
-        # screen bottom in WORLD coordinates
-        screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
-
         # -------------------------
         # NAPALM UPDATE + DAMAGE
         # -------------------------
         for napalm in list(self.napalm_list):
             napalm.update()
+            print("NAPALM UPDATE", napalm.x, napalm.y, napalm.is_active)
 
             if napalm.is_active and napalm.hits(self.starship.hitbox):
                 if not self.starship.invincible:
                     self.starship.shipHealth -= napalm.damage
                     self.starship.on_hit()
 
+            # Remove expired napalm
             if not napalm.is_active:
                 self.napalm_list.remove(napalm)
-
         # -------------------------
         # METAL SHIELD → ENEMY BULLETS
         # -------------------------
@@ -278,6 +297,7 @@ class LevelTwo(VerticalBattleScreen):
                 self.metal_shield_bullets.remove(metal)
                 continue
 
+            # Build shield rect in WORLD space
             shield_rect = pygame.Rect(
                 metal.x,
                 metal.y,
@@ -286,29 +306,24 @@ class LevelTwo(VerticalBattleScreen):
             )
 
             for bullet in list(self.enemy_bullets):
+
+                # Enemy bullets already have a hitbox / rect logic
                 if bullet.collide_with_rect(shield_rect):
 
+                    # Shield absorbs the hit
                     absorbed = metal.absorb_hit()
 
+                    # Remove enemy bullet
                     if bullet in self.enemy_bullets:
                         self.enemy_bullets.remove(bullet)
 
+                    # Remove shield if it absorbed
                     if absorbed and metal in self.metal_shield_bullets:
                         self.metal_shield_bullets.remove(metal)
 
-                    break
+                    break  # one hit only
 
-        # -------------------------
-        # BOSS
-        # -------------------------
         for boss in list(self.bossLevelOneGroup):
-
-            if boss.y > screen_bottom:
-                if boss not in self.missed_enemies:
-                    self.missed_enemies.append(boss)
-                    print("enemy missed")
-                continue
-
             boss.update()
 
             if boss.enemyBullets:
@@ -317,65 +332,105 @@ class LevelTwo(VerticalBattleScreen):
 
             if boss.enemyHealth <= 0:
                 self.bossLevelOneGroup.remove(boss)
-
-        # -------------------------
-        # BLADES
-        # -------------------------
-        for blade in list(self.bladeSpinnerGroup):
-
-            if blade.y > screen_bottom:
-                if blade not in self.missed_enemies:
-                    self.missed_enemies.append(blade)
-                    print("enemy missed")
                 continue
 
+        for blade in list(self.bladeSpinnerGroup):
             blade.update()
 
             if blade.enemyHealth <= 0:
                 self.bladeSpinnerGroup.remove(blade)
-
-        # -------------------------
-        # BILE SPITTERS
-        # -------------------------
-        for enemy in list(self.bileSpitterGroup):
-
-            if enemy.y > screen_bottom:
-                if enemy not in self.missed_enemies:
-                    self.missed_enemies.append(enemy)
-                    print("enemy missed")
                 continue
 
-            enemy.update()
+        for wasp in list(self.waspStingerGroup):
+            wasp.update()
 
+            if wasp.enemyHealth <= 0:
+                self.waspStingerGroup.remove(wasp)
+                continue
+
+        for ravager in list(self.ravagerGroup):
+            napalm = ravager.update()
+
+            if napalm is not None:
+                self.napalm_list.append(napalm)
+                print("NAPALM ADDED TO LEVEL", len(self.napalm_list))
+
+            if ravager.enemyBullets:
+                self.enemy_bullets.extend(ravager.enemyBullets)
+                ravager.enemyBullets.clear()
+
+            if ravager.enemyHealth <= 0:
+                self.ravagerGroup.remove(ravager)
+
+        for drone in list(self.kamikazeDroneGroup):
+            drone.update()
+
+            if drone.enemyHealth <= 0:
+                self.kamikazeDroneGroup.remove(drone)
+                continue
+
+        for fire in list(self.fireLauncherGroup):
+            fire.update()
+
+            if fire.enemyBullets:
+                self.enemy_bullets.extend(fire.enemyBullets)
+                fire.enemyBullets.clear()
+
+            if fire.enemyHealth <= 0:
+                self.fireLauncherGroup.remove(fire)
+                continue
+
+        for spore in list(self.sporeFlowerGroup):
+            spore.update()
+
+            if spore.enemyBullets:
+                self.enemy_bullets.extend(spore.enemyBullets)
+                spore.enemyBullets.clear()
+
+            if spore.enemyHealth <= 0:
+                self.sporeFlowerGroup.remove(spore)
+                continue
+
+        for acid in list(self.acidLauncherGroup):
+            acid.update()
+
+            if acid.enemyBullets:
+                self.enemy_bullets.extend(acid.enemyBullets)
+                acid.enemyBullets.clear()
+
+            if acid.enemyHealth <= 0:
+                self.spineLauncherGroup.remove(acid)
+                continue
+
+        for spine in list(self.spineLauncherGroup):
+            spine.update()
+
+            if spine.enemyBullets:
+                self.enemy_bullets.extend(spine.enemyBullets)
+                spine.enemyBullets.clear()
+
+            if spine.enemyHealth <= 0:
+                self.spineLauncherGroup.remove(spine)
+                continue
+
+        for enemy in self.bileSpitterGroup:
+            enemy.update()
             if self.starship.hitbox.colliderect(enemy.hitbox):
-                enemy.color = (135, 206, 235)
+                enemy.color = (135, 206, 235)  # SKYBLUE
             else:
                 enemy.color = GlobalConstants.RED
-
             enemy.update_hitbox()
 
             if enemy.enemyBullets:
                 self.enemy_bullets.extend(enemy.enemyBullets)
                 enemy.enemyBullets.clear()
 
-        # -------------------------
-        # TRI SPITTERS
-        # -------------------------
-        for enemy_tri_spitter in list(self.triSpitterGroup):
-
-            if enemy_tri_spitter.y > screen_bottom:
-                if enemy_tri_spitter not in self.missed_enemies:
-                    self.missed_enemies.append(enemy_tri_spitter)
-                    print("enemy missed")
-                continue
-
+        for enemy_tri_spitter in self.triSpitterGroup:
             enemy_tri_spitter.update()
-
             if self.starship.hitbox.colliderect(enemy_tri_spitter.hitbox):
-                enemy_tri_spitter.color = (135, 206, 235)
+                enemy_tri_spitter.color = (135, 206, 235)  # SKYBLUE
             else:
                 enemy_tri_spitter.color = GlobalConstants.RED
-
             enemy_tri_spitter.update_hitbox()
 
             if enemy_tri_spitter.enemyBullets:
