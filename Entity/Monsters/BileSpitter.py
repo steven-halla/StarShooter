@@ -73,6 +73,8 @@ class BileSpitter(Enemy):
 
     def update(self) -> None:
         super().update()
+        if not self.is_active:
+            return
         self.update_hitbox()
 
         # print("BILE:", self.y, "CAM:", self.camera.y,

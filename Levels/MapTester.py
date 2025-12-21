@@ -16,7 +16,7 @@ from Entity.StarShip import StarShip
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
-class LevelOne(VerticalBattleScreen):
+class MapTester(VerticalBattleScreen):
     def __init__(self):
         super().__init__()
         # self.starship: StarShip = StarShip()
@@ -288,7 +288,6 @@ class LevelOne(VerticalBattleScreen):
                 enemy.height = obj.height
                 enemy.update_hitbox()
                 enemy.camera = self.camera
-                enemy.target_player = self.starship
                 self.bileSpitterGroup.append(enemy)
 
             if obj.name == "kamikazi_drone":
