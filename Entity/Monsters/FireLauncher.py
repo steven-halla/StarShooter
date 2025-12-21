@@ -112,6 +112,8 @@ class FireLauncher(Enemy):
     # -------------------------
     def update(self) -> None:
         super().update()
+        if not self.is_active:
+            return
         self.update_hitbox()
 
         # ⚠️ MOVEMENT LOGIC — UNCHANGED

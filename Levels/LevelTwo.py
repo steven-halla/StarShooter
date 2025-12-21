@@ -144,6 +144,8 @@ class LevelTwo(VerticalBattleScreen):
 
         for enemy in self.bileSpitterGroup:
             enemy.draw(state.DISPLAY, self.camera)
+        for enemy in self.fireLauncherGroup:
+            enemy.draw(state.DISPLAY, self.camera)
 
         for enemy_tri_spitter in self.triSpitterGroup:
             enemy_tri_spitter.draw(state.DISPLAY, self.camera)
@@ -151,7 +153,7 @@ class LevelTwo(VerticalBattleScreen):
         for blade in self.bladeSpinnerGroup:
             blade.draw(state.DISPLAY, self.camera)
 
-        for boss in self.bossLevelOneGroup:
+        for boss in self.bossLevelTwoGroup:
             boss.draw(state.DISPLAY, self.camera)
 
         # -------------------------
@@ -242,7 +244,7 @@ class LevelTwo(VerticalBattleScreen):
     def load_enemy_into_list(self):
         for obj in self.tiled_map.objects:
             # ⭐ LOAD ENEMIES (existing code)
-            if obj.name == "level_1_boss":
+            if obj.name == "level_2_boss":
                 enemy = BossLevelOne()
                 enemy.x = obj.x
                 enemy.y = obj.y
@@ -277,6 +279,18 @@ class LevelTwo(VerticalBattleScreen):
                 enemy.camera = self.camera
                 enemy.target_player = self.starship
                 continue
+
+            if obj.name == "fire_launcher":
+                enemy = FireLauncher()
+                enemy.x = obj.x
+                enemy.y = obj.y
+                enemy.width = obj.width
+                enemy.height = obj.height
+                enemy.update_hitbox()
+                enemy.camera = self.camera
+                self.fireLauncherGroup.append(enemy)
+                enemy.camera = self.camera
+                enemy.target_player = self.starship
 
             if obj.name == "tri_spitter":
                 enemy_tri_spitter = TriSpitter()
@@ -360,11 +374,17 @@ class LevelTwo(VerticalBattleScreen):
                 continue
 
 
-        for drone in list(self.kamikazeDroneGroup):
-            drone.update()
 
-            if drone.enemyHealth <= 0:
-                self.kamikazeDroneGroup.remove(drone)
+
+        for fire in list(self.fireLauncherGroup):
+            fire.update()
+
+            if fire.enemyBullets:
+                self.enemy_bullets.extend(fire.enemyBullets)
+                fire.enemyBullets.clear()
+
+            if fire.enemyHealth <= 0:
+                self.fireLauncherGroup.remove(fire)
                 continue
 
 
