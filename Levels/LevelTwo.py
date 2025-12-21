@@ -146,6 +146,8 @@ class LevelTwo(VerticalBattleScreen):
             enemy.draw(state.DISPLAY, self.camera)
         for enemy in self.fireLauncherGroup:
             enemy.draw(state.DISPLAY, self.camera)
+        for boss in self.bossLevelTwoGroup:
+            boss.draw(state.DISPLAY, self.camera)
 
         for enemy_tri_spitter in self.triSpitterGroup:
             enemy_tri_spitter.draw(state.DISPLAY, self.camera)
@@ -245,14 +247,14 @@ class LevelTwo(VerticalBattleScreen):
         for obj in self.tiled_map.objects:
             # ⭐ LOAD ENEMIES (existing code)
             if obj.name == "level_2_boss":
-                enemy = BossLevelOne()
+                enemy = BossLevelTwo()
                 enemy.x = obj.x
                 enemy.y = obj.y
                 enemy.width = obj.width
                 enemy.height = obj.height
                 enemy.update_hitbox()
                 enemy.camera = self.camera
-                self.bossLevelOneGroup.append(enemy)
+                self.bossLevelTwoGroup.append(enemy)
                 enemy.camera = self.camera
                 enemy.target_player = self.starship
 
