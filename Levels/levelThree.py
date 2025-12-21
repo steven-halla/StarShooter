@@ -105,10 +105,10 @@ class LevelThree(VerticalBattleScreen):
         # -------------------------
         # DELETE BULLETS BEFORE BASE LOGIC
         # -------------------------
-        for bullet in list(self.enemy_bullets):
-            bulleti = pygame.Rect(bullet.x, bullet.y, bullet.width, bullet.height)
-            if bulleti.colliderect(self.deflect_hitbox):
-                self.enemy_bullets.remove(bullet)
+        # for bullet in list(self.enemy_bullets):
+        #     bulleti = pygame.Rect(bullet.x, bullet.y, bullet.width, bullet.height)
+        #     if bulleti.colliderect(self.deflect_hitbox):
+        #         self.enemy_bullets.remove(bullet)
 
         # ⬇️ NOW safe to run base update
         super().update(state)
@@ -333,20 +333,6 @@ class LevelThree(VerticalBattleScreen):
 
     def enemy_helper(self):
         now = pygame.time.get_ticks()
-        # --------------------------------
-        # DEFLECT ZONE → DELETE BULLETS
-        # --------------------------------
-        for bullet in list(self.enemy_bullets):
-            bullet_rect = pygame.Rect(
-                bullet.x,
-                bullet.y,
-                bullet.width,
-                bullet.height
-            )
-
-            if bullet_rect.colliderect(self.deflect_hitbox):
-                self.enemy_bullets.remove(bullet)
-                continue
 
         # --------------------------------
         # INIT SIDE RECT INVULNERABILITY
@@ -377,7 +363,7 @@ class LevelThree(VerticalBattleScreen):
                 self.napalm_list.remove(napalm)
 
         # --------------------------------
-        # ENEMY BULLETS → SIDE RECT / SPACE STATION
+        # DEFLECT + REFLECT LOGIC
         # --------------------------------
         for bullet in list(self.enemy_bullets):
 
@@ -387,32 +373,65 @@ class LevelThree(VerticalBattleScreen):
                 bullet.width,
                 bullet.height
             )
-            for bullet in list(self.enemy_bullets):
 
-                bullet_rect = pygame.Rect(
-                    bullet.x,
-                    bullet.y,
-                    bullet.width,
-                    bullet.height
+            # DEFLECT ZONE (player guard)
+            if bullet_rect.colliderect(self.deflect_hitbox):
+                if not hasattr(bullet, "is_reflected"):
+                    self.reflect_bullet(bullet)
+                continue
+
+            # --------------------------------
+            # REFLECTED BULLETS → ENEMIES
+            # --------------------------------
+            if hasattr(bullet, "is_reflected"):
+
+                enemies = (
+                        list(self.bileSpitterGroup) +
+                        list(self.triSpitterGroup) +
+                        list(self.bladeSpinnerGroup) +
+                        list(self.fireLauncherGroup) +
+                        list(self.kamikazeDroneGroup) +
+                        list(self.bossLevelThreeGroup)
                 )
 
+                for enemy in enemies:
+                    enemy_rect = pygame.Rect(
+                        enemy.x,
+                        enemy.y,
+                        enemy.width,
+                        enemy.height
+                    )
 
+                    if bullet_rect.colliderect(enemy_rect):
+                        enemy.enemyHealth -= bullet.damage
 
-            # # SIDE RECT TAKES PRIORITY
-            # if bullet_rect.colliderect(self.side_rect_hitbox):
-            #     if not self.side_rect_invincible:
-            #         self.side_rect_hp -= bullet.damage
-            #         self.side_rect_invincible = True
-            #         self.side_rect_invincible_start_time = now
-            #
-            #     self.enemy_bullets.remove(bullet)
-            #     continue
+                        if bullet in self.enemy_bullets:
+                            self.enemy_bullets.remove(bullet)
 
+                        if enemy.enemyHealth <= 0:
+                            if enemy in self.bileSpitterGroup:
+                                self.bileSpitterGroup.remove(enemy)
+                            elif enemy in self.triSpitterGroup:
+                                self.triSpitterGroup.remove(enemy)
+                            elif enemy in self.bladeSpinnerGroup:
+                                self.bladeSpinnerGroup.remove(enemy)
+                            elif enemy in self.fireLauncherGroup:
+                                self.fireLauncherGroup.remove(enemy)
+                            elif enemy in self.kamikazeDroneGroup:
+                                self.kamikazeDroneGroup.remove(enemy)
+                            elif enemy in self.bossLevelThreeGroup:
+                                self.bossLevelThreeGroup.remove(enemy)
+
+                        break
+
+            # --------------------------------
             # SPACE STATION DAMAGE
+            # --------------------------------
             if self.space_station is not None:
                 if bullet_rect.colliderect(self.space_station.hitbox):
                     self.space_station.hp -= bullet.damage
-                    self.enemy_bullets.remove(bullet)
+                    if bullet in self.enemy_bullets:
+                        self.enemy_bullets.remove(bullet)
                     continue
 
         # --------------------------------
@@ -493,145 +512,7 @@ class LevelThree(VerticalBattleScreen):
                 self.enemy_bullets.extend(enemy_tri_spitter.enemyBullets)
                 enemy_tri_spitter.enemyBullets.clear()
 
-    # def enemy_helper(self):
-    #     now = pygame.time.get_ticks()
-    #
-    #     # --------------------------------
-    #     # INIT SIDE RECT INVULNERABILITY
-    #     # --------------------------------
-    #     if not hasattr(self, "side_rect_invincible"):
-    #         self.side_rect_invincible = False
-    #         self.side_rect_invincible_start_time = 0
-    #
-    #     # --------------------------------
-    #     # SIDE RECT INVULNERABILITY TIMER
-    #     # --------------------------------
-    #     if self.side_rect_invincible:
-    #         if now - self.side_rect_invincible_start_time >= 1000:
-    #             self.side_rect_invincible = False
-    #
-    #     # --------------------------------
-    #     # NAPALM UPDATE (PLAYER ONLY)
-    #     # --------------------------------
-    #     for napalm in list(self.napalm_list):
-    #         napalm.update()
-    #
-    #         if napalm.is_active and napalm.hits(self.starship.hitbox):
-    #             if not self.starship.invincible:
-    #                 self.starship.shipHealth -= napalm.damage
-    #                 self.starship.on_hit()
-    #
-    #         if not napalm.is_active:
-    #             self.napalm_list.remove(napalm)
-    #
-    #     # --------------------------------
-    #     # ENEMY BULLETS → SIDE RECT (NEW)
-    #     # --------------------------------
-    #     for bullet in list(self.enemy_bullets):
-    #
-    #         # bullet rect in WORLD space
-    #         bullet_rect = pygame.Rect(
-    #             bullet.x,
-    #             bullet.y,
-    #             bullet.width,
-    #             bullet.height
-    #         )
-    #
-    #         # SIDE RECT TAKES PRIORITY
-    #         if bullet_rect.colliderect(self.side_rect_hitbox):
-    #
-    #             if not self.side_rect_invincible:
-    #                 self.side_rect_hp -= bullet.damage
-    #                 self.side_rect_invincible = True
-    #                 self.side_rect_invincible_start_time = now
-    #                 print("⚠️ SIDE RECT HIT:", self.side_rect_hp)
-    #
-    #             # bullet is ALWAYS destroyed
-    #             self.enemy_bullets.remove(bullet)
-    #             continue
-    #
-    #     # --------------------------------
-    #     # METAL SHIELD → ENEMY BULLETS
-    #     # --------------------------------
-    #     for metal in list(self.metal_shield_bullets):
-    #
-    #         if not metal.is_active:
-    #             self.metal_shield_bullets.remove(metal)
-    #             continue
-    #
-    #         shield_rect = pygame.Rect(
-    #             metal.x,
-    #             metal.y,
-    #             metal.width,
-    #             metal.height
-    #         )
-    #
-    #         for bullet in list(self.enemy_bullets):
-    #             if bullet.collide_with_rect(shield_rect):
-    #
-    #                 absorbed = metal.absorb_hit()
-    #
-    #                 if bullet in self.enemy_bullets:
-    #                     self.enemy_bullets.remove(bullet)
-    #
-    #                 if absorbed and metal in self.metal_shield_bullets:
-    #                     self.metal_shield_bullets.remove(metal)
-    #
-    #                 break
-    #
-    #     # --------------------------------
-    #     # ENEMY UPDATES + BULLET SPAWNING
-    #     # --------------------------------
-    #     for boss in list(self.bossLevelThreeGroup):
-    #         boss.update()
-    #
-    #         if boss.enemyBullets:
-    #             self.enemy_bullets.extend(boss.enemyBullets)
-    #             boss.enemyBullets.clear()
-    #
-    #         if boss.enemyHealth <= 0:
-    #             self.bossLevelThreeGroup.remove(boss)
-    #
-    #     for blade in list(self.bladeSpinnerGroup):
-    #         blade.update()
-    #
-    #         if blade.enemyHealth <= 0:
-    #             self.bladeSpinnerGroup.remove(blade)
-    #
-    #     for fire in list(self.fireLauncherGroup):
-    #         fire.update()
-    #
-    #         if fire.enemyBullets:
-    #             self.enemy_bullets.extend(fire.enemyBullets)
-    #             fire.enemyBullets.clear()
-    #
-    #         if fire.enemyHealth <= 0:
-    #             self.fireLauncherGroup.remove(fire)
-    #
-    #     for enemy in self.bileSpitterGroup:
-    #         enemy.update()
-    #         enemy.update_hitbox()
-    #
-    #         if enemy.enemyBullets:
-    #             self.enemy_bullets.extend(enemy.enemyBullets)
-    #             enemy.enemyBullets.clear()
-    #
-    #     for drone in list(self.kamikazeDroneGroup):
-    #         drone.update()
-    #
-    #         if drone.enemyHealth <= 0:
-    #             self.kamikazeDroneGroup.remove(drone)
-    #             continue
-    #
-    #     for enemy_tri_spitter in self.triSpitterGroup:
-    #         enemy_tri_spitter.update()
-    #         enemy_tri_spitter.update_hitbox()
-    #
-    #         if enemy_tri_spitter.enemyBullets:
-    #             self.enemy_bullets.extend(enemy_tri_spitter.enemyBullets)
-    #             enemy_tri_spitter.enemyBullets.clear()
 
-    # SIDE RECT INVINCIBILITY TIMER (NO DAMAGE LOGIC HERE)
     # =========================
     def update_side_rect_invincibility(self) -> None:
         if not hasattr(self, "side_rect_invincible"):
@@ -642,3 +523,28 @@ class LevelThree(VerticalBattleScreen):
         if self.side_rect_invincible:
             if pygame.time.get_ticks() - self.side_rect_invincible_start_time >= 1000:
                 self.side_rect_invincible = False
+
+    def reflect_bullet(self, bullet):
+        target = self.get_nearest_enemy(bullet)
+        if target is None:
+            return
+
+        bx = bullet.x + bullet.width / 2
+        by = bullet.y + bullet.height / 2
+        ex = target.x + target.width / 2
+        ey = target.y + target.height / 2
+
+        dx = ex - bx
+        dy = ey - by
+        dist = (dx * dx + dy * dy) ** 0.5
+        if dist == 0:
+            return
+
+        dx /= dist
+        dy /= dist
+
+        bullet.dx = dx * bullet.speed * 6
+        bullet.speed = dy * bullet.speed * 6
+
+        bullet.is_reflected = True
+        bullet.damage = 100
