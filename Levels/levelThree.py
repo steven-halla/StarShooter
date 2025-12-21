@@ -42,6 +42,8 @@ class LevelThree(VerticalBattleScreen):
         self.bileSpitterGroup: list[BileSpitter] = []
         self.kamikazeDroneGroup: list[KamikazeDrone] = []
         self.triSpitterGroup: list[TriSpitter] = []
+        self.fireLauncherGroup: list[FireLauncher] = []
+        self.bladeSpinnerGroup: list[BladeSpinner] = []
         self.bossLevelThreeGroup: list[BossLevelThree] = []
 
         self.napalm_list: list = []
@@ -88,7 +90,7 @@ class LevelThree(VerticalBattleScreen):
         pass
 
     def update(self, state) -> None:
-        print(self.starship.shipHealth)
+        # print(self.starship.shipHealth)
         original_hitbox = self.starship.hitbox
         self.starship.hitbox = pygame.Rect(0, 0, 0, 0)
         # -------------------------
@@ -334,6 +336,7 @@ class LevelThree(VerticalBattleScreen):
     def enemy_helper(self):
         now = pygame.time.get_ticks()
 
+
         # --------------------------------
         # INIT SIDE RECT INVULNERABILITY
         # --------------------------------
@@ -395,6 +398,8 @@ class LevelThree(VerticalBattleScreen):
                 )
 
                 for enemy in enemies:
+
+
                     enemy_rect = pygame.Rect(
                         enemy.x,
                         enemy.y,
@@ -436,7 +441,17 @@ class LevelThree(VerticalBattleScreen):
 
         # --------------------------------
         # METAL SHIELD → ENEMY BULLETS
-        # --------------------------------
+        # # --------------------------------
+        # enemy_count = (
+        #         len(self.bileSpitterGroup) +
+        #         len(self.triSpitterGroup) +
+        #         len(self.bladeSpinnerGroup) +
+        #         len(self.fireLauncherGroup) +
+        #         len(self.kamikazeDroneGroup) +
+        #         len(self.bossLevelThreeGroup)
+        # )
+        #
+        # print("ENEMIES LEFT:", enemy_count)
         for metal in list(self.metal_shield_bullets):
 
             if not metal.is_active:
