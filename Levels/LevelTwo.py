@@ -37,6 +37,7 @@ class LevelTwo(VerticalBattleScreen):
         self.bileSpitterGroup: list[BileSpitter] = []
         self.kamikazeDroneGroup: list[KamikazeDrone] = []
         self.triSpitterGroup: list[TriSpitter] = []
+        self.bossLevelTwoGroup: list[BossLevelTwo] = []
 
         self.napalm_list: list = []
 
@@ -339,7 +340,7 @@ class LevelTwo(VerticalBattleScreen):
 
                     break  # one hit only
 
-        for boss in list(self.bossLevelOneGroup):
+        for boss in list(self.bossLevelTwoGroup):
             boss.update()
 
             if boss.enemyBullets:
@@ -347,7 +348,7 @@ class LevelTwo(VerticalBattleScreen):
                 boss.enemyBullets.clear()
 
             if boss.enemyHealth <= 0:
-                self.bossLevelOneGroup.remove(boss)
+                self.bossLevelTwoGroup.remove(boss)
                 continue
 
         for blade in list(self.bladeSpinnerGroup):
@@ -357,26 +358,8 @@ class LevelTwo(VerticalBattleScreen):
                 self.bladeSpinnerGroup.remove(blade)
                 continue
 
-        for wasp in list(self.waspStingerGroup):
-            wasp.update()
 
-            if wasp.enemyHealth <= 0:
-                self.waspStingerGroup.remove(wasp)
-                continue
 
-        for ravager in list(self.ravagerGroup):
-            napalm = ravager.update()
-
-            if napalm is not None:
-                self.napalm_list.append(napalm)
-                print("NAPALM ADDED TO LEVEL", len(self.napalm_list))
-
-            if ravager.enemyBullets:
-                self.enemy_bullets.extend(ravager.enemyBullets)
-                ravager.enemyBullets.clear()
-
-            if ravager.enemyHealth <= 0:
-                self.ravagerGroup.remove(ravager)
 
         for drone in list(self.kamikazeDroneGroup):
             drone.update()
@@ -385,49 +368,10 @@ class LevelTwo(VerticalBattleScreen):
                 self.kamikazeDroneGroup.remove(drone)
                 continue
 
-        for fire in list(self.fireLauncherGroup):
-            fire.update()
 
-            if fire.enemyBullets:
-                self.enemy_bullets.extend(fire.enemyBullets)
-                fire.enemyBullets.clear()
 
-            if fire.enemyHealth <= 0:
-                self.fireLauncherGroup.remove(fire)
-                continue
 
-        for spore in list(self.sporeFlowerGroup):
-            spore.update()
 
-            if spore.enemyBullets:
-                self.enemy_bullets.extend(spore.enemyBullets)
-                spore.enemyBullets.clear()
-
-            if spore.enemyHealth <= 0:
-                self.sporeFlowerGroup.remove(spore)
-                continue
-
-        for acid in list(self.acidLauncherGroup):
-            acid.update()
-
-            if acid.enemyBullets:
-                self.enemy_bullets.extend(acid.enemyBullets)
-                acid.enemyBullets.clear()
-
-            if acid.enemyHealth <= 0:
-                self.spineLauncherGroup.remove(acid)
-                continue
-
-        for spine in list(self.spineLauncherGroup):
-            spine.update()
-
-            if spine.enemyBullets:
-                self.enemy_bullets.extend(spine.enemyBullets)
-                spine.enemyBullets.clear()
-
-            if spine.enemyHealth <= 0:
-                self.spineLauncherGroup.remove(spine)
-                continue
 
         for enemy in self.bileSpitterGroup:
             enemy.update()
