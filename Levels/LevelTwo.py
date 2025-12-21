@@ -305,31 +305,71 @@ class LevelTwo(VerticalBattleScreen):
                 continue
 
     def enemy_helper(self):
-        # -------------------------
-        # NAPALM UPDATE + DAMAGE
-        # -------------------------
+        now = pygame.time.get_ticks()
+
+        # --------------------------------
+        # INIT SIDE RECT INVULNERABILITY
+        # --------------------------------
+        if not hasattr(self, "side_rect_invincible"):
+            self.side_rect_invincible = False
+            self.side_rect_invincible_start_time = 0
+
+        # --------------------------------
+        # SIDE RECT INVULNERABILITY TIMER
+        # --------------------------------
+        if self.side_rect_invincible:
+            if now - self.side_rect_invincible_start_time >= 1000:
+                self.side_rect_invincible = False
+
+        # --------------------------------
+        # NAPALM UPDATE (PLAYER ONLY)
+        # --------------------------------
         for napalm in list(self.napalm_list):
             napalm.update()
-            print("NAPALM UPDATE", napalm.x, napalm.y, napalm.is_active)
 
             if napalm.is_active and napalm.hits(self.starship.hitbox):
                 if not self.starship.invincible:
                     self.starship.shipHealth -= napalm.damage
                     self.starship.on_hit()
 
-            # Remove expired napalm
             if not napalm.is_active:
                 self.napalm_list.remove(napalm)
-        # -------------------------
+
+        # --------------------------------
+        # ENEMY BULLETS → SIDE RECT (NEW)
+        # --------------------------------
+        for bullet in list(self.enemy_bullets):
+
+            # bullet rect in WORLD space
+            bullet_rect = pygame.Rect(
+                bullet.x,
+                bullet.y,
+                bullet.width,
+                bullet.height
+            )
+
+            # SIDE RECT TAKES PRIORITY
+            if bullet_rect.colliderect(self.side_rect_hitbox):
+
+                if not self.side_rect_invincible:
+                    self.side_rect_hp -= bullet.damage
+                    self.side_rect_invincible = True
+                    self.side_rect_invincible_start_time = now
+                    print("⚠️ SIDE RECT HIT:", self.side_rect_hp)
+
+                # bullet is ALWAYS destroyed
+                self.enemy_bullets.remove(bullet)
+                continue
+
+        # --------------------------------
         # METAL SHIELD → ENEMY BULLETS
-        # -------------------------
+        # --------------------------------
         for metal in list(self.metal_shield_bullets):
 
             if not metal.is_active:
                 self.metal_shield_bullets.remove(metal)
                 continue
 
-            # Build shield rect in WORLD space
             shield_rect = pygame.Rect(
                 metal.x,
                 metal.y,
@@ -338,23 +378,21 @@ class LevelTwo(VerticalBattleScreen):
             )
 
             for bullet in list(self.enemy_bullets):
-
-                # Enemy bullets already have a hitbox / rect logic
                 if bullet.collide_with_rect(shield_rect):
 
-                    # Shield absorbs the hit
                     absorbed = metal.absorb_hit()
 
-                    # Remove enemy bullet
                     if bullet in self.enemy_bullets:
                         self.enemy_bullets.remove(bullet)
 
-                    # Remove shield if it absorbed
                     if absorbed and metal in self.metal_shield_bullets:
                         self.metal_shield_bullets.remove(metal)
 
-                    break  # one hit only
+                    break
 
+        # --------------------------------
+        # ENEMY UPDATES + BULLET SPAWNING
+        # --------------------------------
         for boss in list(self.bossLevelTwoGroup):
             boss.update()
 
@@ -364,17 +402,12 @@ class LevelTwo(VerticalBattleScreen):
 
             if boss.enemyHealth <= 0:
                 self.bossLevelTwoGroup.remove(boss)
-                continue
 
         for blade in list(self.bladeSpinnerGroup):
             blade.update()
 
             if blade.enemyHealth <= 0:
                 self.bladeSpinnerGroup.remove(blade)
-                continue
-
-
-
 
         for fire in list(self.fireLauncherGroup):
             fire.update()
@@ -385,15 +418,9 @@ class LevelTwo(VerticalBattleScreen):
 
             if fire.enemyHealth <= 0:
                 self.fireLauncherGroup.remove(fire)
-                continue
-
 
         for enemy in self.bileSpitterGroup:
             enemy.update()
-            if self.starship.hitbox.colliderect(enemy.hitbox):
-                enemy.color = (135, 206, 235)  # SKYBLUE
-            else:
-                enemy.color = GlobalConstants.RED
             enemy.update_hitbox()
 
             if enemy.enemyBullets:
@@ -402,10 +429,6 @@ class LevelTwo(VerticalBattleScreen):
 
         for enemy_tri_spitter in self.triSpitterGroup:
             enemy_tri_spitter.update()
-            if self.starship.hitbox.colliderect(enemy_tri_spitter.hitbox):
-                enemy_tri_spitter.color = (135, 206, 235)  # SKYBLUE
-            else:
-                enemy_tri_spitter.color = GlobalConstants.RED
             enemy_tri_spitter.update_hitbox()
 
             if enemy_tri_spitter.enemyBullets:
