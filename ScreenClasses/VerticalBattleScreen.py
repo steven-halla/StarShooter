@@ -7,6 +7,7 @@ from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Controller.KeyBoardControls import KeyBoardControls
 from Entity.Bosses.BossLevelOne import BossLevelOne
+from Entity.Bosses.BossLevelTwo import BossLevelTwo
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
@@ -43,6 +44,7 @@ class VerticalBattleScreen:
         self.ravagerGroup: list[Ravager] = []
         self.fireLauncherGroup: list[FireLauncher] = []
         self.bossLevelOneGroup: list[BossLevelOne] = []
+        self.bossLevelTwoGroup: list[BossLevelTwo] = []
 
         #boss
 
@@ -146,7 +148,7 @@ class VerticalBattleScreen:
         # print("PLAYER UPDATE Y:", self.starship.y)
         # print("STARSHIP INSTANCE:", id(self.starship))
         # now handle map scroll ONLY in LevelOne
-        # self.move_map_y_axis()
+        self.move_map_y_axis()
 
 
 
@@ -838,7 +840,8 @@ class VerticalBattleScreen:
                 list(self.acidLauncherGroup) +
                 list(self.ravagerGroup) +
                 list(self.fireLauncherGroup) +
-                list(self.bossLevelOneGroup)
+                list(self.bossLevelOneGroup) +
+                list(self.bossLevelTwoGroup)
 
 
         )

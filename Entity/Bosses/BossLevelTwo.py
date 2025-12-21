@@ -27,16 +27,16 @@ class BossLevelTwo(Enemy):
         self.bulletColor = GlobalConstants.SKYBLUE
         self.bulletWidth = 15
         self.bulletHeight = 15
-        self.weapon_speed = 5.0
+        self.weapon_speed = 3.0
         self.enemyBullets: list[Bullet] = []
 
         # -------------------------
         # FIRING TIMERS
         # -------------------------
-        self.fire_interval_ms = 1000
+        self.fire_interval_ms = 3000
         self.last_shot_time = pygame.time.get_ticks()
 
-        self.triple_fire_interval_ms = 3000
+        self.triple_fire_interval_ms = 9000
         self.last_triple_shot_time = pygame.time.get_ticks()
 
         # -------------------------
@@ -70,8 +70,8 @@ class BossLevelTwo(Enemy):
 
         bullet = Bullet(bullet_x, bullet_y)
         bullet.color = self.bulletColor
-        bullet.width = self.bulletWidth
-        bullet.height = self.bulletHeight
+        bullet.width = self.bulletWidth + 30
+        bullet.height = self.bulletHeight + 100
         bullet.speed = self.weapon_speed
         bullet.damage = 10
 
@@ -80,43 +80,47 @@ class BossLevelTwo(Enemy):
 
         self.enemyBullets.append(bullet)
 
-    # =====================================================
-    # TRIPLE FIRE — SHOOTS AT PLAYER LAST POSITION
-    # =====================================================
     def shoot_triple_line(self) -> None:
-        if self.target_player is None:
-            return
+        bullet_count = 20
+        arc_degrees = 180  # full downward arc
+        min_spacing_px = 40  # desired spread
+        spawn_radius = 60  # distance where spacing matters
 
         cx = self.x + self.width / 2
         cy = self.y + self.height / 2
 
-        px = self.target_player.hitbox.centerx
-        py = self.target_player.hitbox.centery
+        # Convert pixel spacing to angular spacing
+        min_angle_spacing = math.degrees(
+            math.atan(min_spacing_px / spawn_radius)
+        )
 
-        dx = px - cx
-        dy = py - cy
-        dist = math.hypot(dx, dy)
-        if dist == 0:
-            return
+        # Divide arc into slots
+        total_slots = bullet_count
+        slot_angle = arc_degrees / total_slots
 
-        dx /= dist
-        dy /= dist
+        start_angle = 90 + arc_degrees / 2  # left edge of downward arc
 
-        perp_x = -dy
-        perp_y = dx
+        for i in range(bullet_count):
+            # Base angle for this slot
+            base_angle = start_angle - i * slot_angle
 
-        spacing = 30
-        offsets = [-spacing, 0, spacing]
+            # Random jitter inside slot (but not overlapping neighbors)
+            jitter = random.uniform(
+                -slot_angle / 2 + min_angle_spacing / 2,
+                slot_angle / 2 - min_angle_spacing / 2
+            )
 
-        for offset in offsets:
-            bx = cx + perp_x * offset
-            by = cy + perp_y * offset
+            angle_deg = base_angle + jitter
+            angle_rad = math.radians(angle_deg)
 
-            bullet = Bullet(bx, by)
+            dx = math.cos(angle_rad)
+            dy = math.sin(angle_rad)
+
+            bullet = Bullet(cx, cy)
             bullet.dx = dx * self.weapon_speed
             bullet.speed = dy * self.weapon_speed
-            bullet.width = self.bulletWidth
-            bullet.height = self.bulletHeight
+            bullet.width = self.bulletWidth - 10
+            bullet.height = self.bulletHeight - 10
             bullet.color = self.bulletColor
             bullet.damage = 10
 
@@ -124,6 +128,51 @@ class BossLevelTwo(Enemy):
             bullet.rect.height = bullet.height
 
             self.enemyBullets.append(bullet)
+    # =====================================================
+    # TRIPLE FIRE — SHOOTS AT PLAYER LAST POSITION
+    # =====================================================
+    # def shoot_triple_line(self) -> None:
+    #     if self.target_player is None:
+    #         return
+    #
+    #     cx = self.x + self.width / 2
+    #     cy = self.y + self.height / 2
+    #
+    #     # Base direction = DOWN toward player (not exact aim, just facing)
+    #     px = self.target_player.hitbox.centerx
+    #     py = self.target_player.hitbox.centery
+    #
+    #     base_dx = px - cx
+    #     base_dy = py - cy
+    #
+    #     base_angle = math.atan2(base_dy, base_dx)
+    #
+    #     # 180-degree arc (±90 degrees from facing direction)
+    #     half_arc = math.pi / 2
+    #
+    #     bullet_count = 16
+    #
+    #     for _ in range(bullet_count):
+    #         angle = random.uniform(
+    #             base_angle - half_arc,
+    #             base_angle + half_arc
+    #         )
+    #
+    #         dx = math.cos(angle)
+    #         dy = math.sin(angle)
+    #
+    #         bullet = Bullet(cx, cy)
+    #         bullet.dx = dx * self.weapon_speed
+    #         bullet.speed = dy * self.weapon_speed
+    #         bullet.width = self.bulletWidth
+    #         bullet.height = self.bulletHeight
+    #         bullet.color = self.bulletColor
+    #         bullet.damage = 10
+    #
+    #         bullet.rect.width = bullet.width
+    #         bullet.rect.height = bullet.height
+    #
+    #         self.enemyBullets.append(bullet)
 
     # =====================================================
     # UPDATE

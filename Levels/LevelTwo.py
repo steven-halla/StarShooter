@@ -198,7 +198,8 @@ class LevelTwo(VerticalBattleScreen):
                 list(self.bileSpitterGroup) +
                 list(self.triSpitterGroup) +
                 list(self.bladeSpinnerGroup) +
-                list(self.bossLevelOneGroup)
+                list(self.fireLauncherGroup) +
+                list(self.bossLevelTwoGroup)
         )
 
         if not enemies:
