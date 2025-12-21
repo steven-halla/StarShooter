@@ -2,6 +2,7 @@ import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelOne import BossLevelOne
+from Entity.Bosses.BossLevelTwo import BossLevelTwo
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
@@ -54,8 +55,8 @@ class LevelTwo(VerticalBattleScreen):
         # --------------------------------
         self.side_rect_width = 16
         self.side_rect_height = 16
-        self.side_rect_hp = 10
-        self.side_rect_max_hp = 10
+        self.side_rect_hp = 50
+        self.side_rect_max_hp = 50
 
         self.side_rect_hitbox = pygame.Rect(0, 0, 0, 0)
 
@@ -359,18 +360,12 @@ class LevelTwo(VerticalBattleScreen):
                 continue
 
 
-
-
         for drone in list(self.kamikazeDroneGroup):
             drone.update()
 
             if drone.enemyHealth <= 0:
                 self.kamikazeDroneGroup.remove(drone)
                 continue
-
-
-
-
 
 
         for enemy in self.bileSpitterGroup:
