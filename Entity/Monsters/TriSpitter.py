@@ -50,7 +50,7 @@ class TriSpitter(Enemy):
         self.is_moving: bool = True      # move for 3 seconds, then pause 3 seconds, etc.
 
         self.move_direction = random.choice([-1, 1])
-        self.enemyHealth: int = 5
+        self.enemyHealth: int = 20
         self.tri_spiter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()

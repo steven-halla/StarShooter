@@ -30,7 +30,7 @@ class BileSpitter(Enemy):
         self.last_shot_time: int = pygame.time.get_ticks()
 
         # gameplay stats (not used yet)
-        self.speed: float = 1.0
+        self.speed: float = 0.4
         self.enemyHealth: int = 10
         self.exp: int = 1
         self.credits: int = 5
@@ -39,7 +39,7 @@ class BileSpitter(Enemy):
         self.enemyBullets: list[Bullet] = []
 
         # --- AI movement state ---
-        self.moveSpeed: float = 2.0      # how fast BileSpitter moves horizontally
+        self.moveSpeed: float = 1.2      # how fast BileSpitter moves horizontally
         self.edge_padding: int = 30      # distance from screen edge before turning
         self.move_direction: int = 1     # 1 = right, -1 = left
 
@@ -48,7 +48,7 @@ class BileSpitter(Enemy):
         self.is_moving: bool = True      # move for 3 seconds, then pause 3 seconds, etc.
 
         self.move_direction = random.choice([-1, 1])
-        self.enemyHealth: int = 5
+        self.enemyHealth: int = 20
         self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()

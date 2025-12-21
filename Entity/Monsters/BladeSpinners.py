@@ -23,7 +23,7 @@ class BladeSpinner(Enemy):
         self.speed: float = 1.0
 
         # gameplay stats
-        self.enemyHealth: int = 33
+        self.enemyHealth: int = 40
         self.exp: int = 1
         self.credits: int = 5
 
