@@ -14,7 +14,7 @@ class GameState:
     def __init__(self):
         pygame.display.set_mode(GlobalConstants.WINDOWS_SIZE)  # or GlobalConstants.WINDOWS_SIZE if you prefer
 
-        self.currentScreen = LevelOne()
+        self.currentScreen = LevelTwo()
         self.isRunning: bool = True
         self.starship = StarShip()  # ⭐ GLOBAL SHIP INSTANCE
         self.currentScreen.set_player(self.starship)
