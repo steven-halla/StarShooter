@@ -44,7 +44,7 @@ class Enemy:
     # --------------------------------------------------
     def update(self):
         self.update_hitbox()
-        print("TARGET:", self.target_player)  # ← TEMP DEBUG
+        # print("TARGET:", self.target_player)  # ← TEMP DEBUG
 
         if self.camera is None:
             self.is_active = False
