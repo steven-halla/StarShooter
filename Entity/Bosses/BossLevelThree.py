@@ -12,75 +12,78 @@ class BossLevelThree(Enemy):
     def __init__(self) -> None:
         super().__init__()
         self.mover: MoveRectangle = MoveRectangle()
-        self.id = 0
+
         # -------------------------
-        # MELEE ARMS (RENDER ONLY)
+        # BODY
         # -------------------------
-        self.arm_width = 16
-        self.arm_height = 120
+        self.width = 40
+        self.height = 20
+        self.color = GlobalConstants.RED
+        self.enemyHealth = 1000
+        # -------------------------
+        # BILE ATTACK TIMER
+        # -------------------------
+        self.bile_interval_ms = 10000
+        self.bile_windup_ms = 3000
+        self.bile_recovery_ms = 2000
+        # -------------------------
+        # BILE PROJECTILE CONFIG
+        # -------------------------
+        self.bulletWidth = 12
+        self.bulletHeight = 30
+        self.bulletColor = GlobalConstants.SKYBLUE
+        self.weapon_speed = 3.0
+        self.enemyBullets = []
+
+        self.last_bile_time = pygame.time.get_ticks()
+        self.bile_state = False
+        self.bile_shot_fired = False
+        self.bile_end_time = 0
+
+        # -------------------------
+        # ARM CONFIG
+        # -------------------------
+        self.arm_width = 14
+        self.arm_length = 100
         self.arm_color = GlobalConstants.PURPLE
+
+        self.arm_angle = 0.0
+        self.arm_target_angle = 0.0
+        self.arm_angle_speed = 0.09
+
+        self.arm_extend = 0.0           # 0 → 1
+        self.arm_extend_speed = 0.04
+
+        self.arm_attack_cooldown = 2500
+        self.last_arm_attack = pygame.time.get_ticks()
+
+        # -------------------------
+        # STATE
+        # -------------------------
         self.fire_state = False
         self.fire_pause_ms = 2000
         self.fire_end_time = 0
 
         # -------------------------
-        # APPEARANCE
-        # -------------------------
-        self.width = 40
-        self.height = 40
-        self.color = GlobalConstants.RED
-
-        # -------------------------
-        # BULLETS
-        # -------------------------
-        self.bulletColor = GlobalConstants.SKYBLUE
-        self.bulletWidth = 15
-        self.bulletHeight = 15
-        self.weapon_speed = 3.0
-        self.enemyBullets: list[Bullet] = []
-
-        # -------------------------
-        # FIRING TIMERS
-        # -------------------------
-        self.fire_interval_ms = 5000
-        self.last_shot_time = pygame.time.get_ticks()
-
-        self.triple_fire_interval_ms = 3000
-        self.last_triple_shot_time = pygame.time.get_ticks()
-
-        # -------------------------
         # MOVEMENT
         # -------------------------
         self.moveSpeed = 0.8
-        self.move_interval_ms = 3000
-        self.last_move_toggle = pygame.time.get_ticks()
-        self.move_direction = random.choice([-1, 1])
-
-        # -------------------------
-        # STATS
-        # -------------------------
-        self.enemyHealth = 1000
-        self.exp = 5
-        self.credits = 50
 
         # -------------------------
         # SPRITE
         # -------------------------
-        self.bile_spitter_image = pygame.image.load(
+        self.sprite_sheet = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
 
-    # =====================================================
-    # ORIGINAL SINGLE SHOT (UNCHANGED)
-    # =====================================================
     def _shoot_bile(self) -> None:
         bullet_x = self.x + self.width // 2 - self.bulletWidth // 2
-        bullet_y = self.y + self.height
+        bullet_y = self.y + self.height - 50
 
         bullet = Bullet(bullet_x, bullet_y)
         bullet.color = self.bulletColor
         bullet.width = self.bulletWidth + 30
-        bullet.height = self.bulletHeight + 100
+        bullet.height = self.bulletHeight + 50
         bullet.speed = self.weapon_speed
         bullet.damage = 10
 
@@ -89,54 +92,32 @@ class BossLevelThree(Enemy):
 
         self.enemyBullets.append(bullet)
 
-    def shoot_triple_line(self) -> None:
-        bullet_count = 20
-        arc_degrees = 180  # full downward arc
-        min_spacing_px = 40  # desired spread
-        spawn_radius = 60  # distance where spacing matters
+    # =====================================================
+    # ARM ATTACK PREP
+    # =====================================================
+    def arm_attack_prepare(self) -> None:
+        if self.target_player is None:
+            return
 
-        cx = self.x + self.width / 2
-        cy = self.y + self.height / 2
+        now = pygame.time.get_ticks()
+        if now - self.last_arm_attack < self.arm_attack_cooldown:
+            return
 
-        # Convert pixel spacing to angular spacing
-        min_angle_spacing = math.degrees(
-            math.atan(min_spacing_px / spawn_radius)
-        )
+        self.last_arm_attack = now
+        self.fire_state = True
+        self.fire_end_time = now + self.fire_pause_ms
 
-        # Divide arc into slots
-        total_slots = bullet_count
-        slot_angle = arc_degrees / total_slots
+        bx = self.x + self.width / 2
+        by = self.y + self.height / 2
 
-        start_angle = 90 + arc_degrees / 2  # left edge of downward arc
+        px = self.target_player.x + self.target_player.width / 2
+        py = self.target_player.y + self.target_player.height / 2
 
-        for i in range(bullet_count):
-            # Base angle for this slot
-            base_angle = start_angle - i * slot_angle
+        dx = px - bx
+        dy = py - by
 
-            # Random jitter inside slot (but not overlapping neighbors)
-            jitter = random.uniform(
-                -slot_angle / 2 + min_angle_spacing / 2,
-                slot_angle / 2 - min_angle_spacing / 2
-            )
+        self.arm_target_angle = math.atan2(dy, dx)
 
-            angle_deg = base_angle + jitter
-            angle_rad = math.radians(angle_deg)
-
-            dx = math.cos(angle_rad)
-            dy = math.sin(angle_rad)
-
-            bullet = Bullet(cx, cy)
-            bullet.dx = dx * self.weapon_speed
-            bullet.speed = dy * self.weapon_speed
-            bullet.width = self.bulletWidth - 10
-            bullet.height = self.bulletHeight - 10
-            bullet.color = self.bulletColor
-            bullet.damage = 10
-
-            bullet.rect.width = bullet.width
-            bullet.rect.height = bullet.height
-
-            self.enemyBullets.append(bullet)
 
 
     # =====================================================
@@ -144,88 +125,74 @@ class BossLevelThree(Enemy):
     # =====================================================
     def update(self) -> None:
         super().update()
-        if not self.is_active:
+        if not self.is_active or self.camera is None:
             return
+
         self.update_hitbox()
-
-        if self.camera is None:
-            return
-
-        self.moveAI()
         now = pygame.time.get_ticks()
 
-        # ORIGINAL FIRE
-        if now - self.last_shot_time >= self.fire_interval_ms:
-            self._shoot_bile()
-            self.last_shot_time = now
+        # =================================================
+        # BILE ATTACK STATE MACHINE
+        # =================================================
+        if self.bile_state:
+            # Freeze movement completely
+            if not self.bile_shot_fired and now >= self.bile_end_time - self.bile_recovery_ms:
+                self._shoot_bile()
+                self.bile_shot_fired = True
 
-        # TRIPLE FIRE
-        if now - self.last_triple_shot_time >= self.triple_fire_interval_ms:
-            self.shoot_triple_line()
-            self.last_triple_shot_time = now
+            if now >= self.bile_end_time:
+                self.bile_state = False
+            return  # ⛔ stop everything else during bile
 
-        for bullet in self.enemyBullets:
-            bullet.update()
-
-    def moveAI(self) -> None:
-        if self.camera is None or self.target_player is None:
+        # Start bile attack every 15s
+        if now - self.last_bile_time >= self.bile_interval_ms:
+            self.bile_state = True
+            self.bile_shot_fired = False
+            self.last_bile_time = now
+            self.bile_end_time = now + self.bile_windup_ms + self.bile_recovery_ms
             return
 
-        now = pygame.time.get_ticks()
+        # =================================================
+        # ARM SWING LOGIC (unchanged)
+        # =================================================
+        angle_diff = self.arm_target_angle - self.arm_angle
+        angle_diff = (angle_diff + math.pi) % (2 * math.pi) - math.pi
+        self.arm_angle += angle_diff * self.arm_angle_speed
 
-        # -------------------------
-        # FIRE STATE — LOCK MOVEMENT
-        # -------------------------
-        if getattr(self, "fire_state", False):
-            if now - self.last_shot_time >= 2000:
+        if self.fire_state:
+            self.arm_extend = min(1.0, self.arm_extend + self.arm_extend_speed)
+            if now >= self.fire_end_time:
                 self.fire_state = False
-            return
+        else:
+            self.arm_extend = max(0.0, self.arm_extend - self.arm_extend_speed)
 
-        # -------------------------
-        # CHASE PLAYER (X + Y)
-        # -------------------------
-        px = self.target_player.x + self.target_player.width / 2
-        py = self.target_player.y + self.target_player.height / 2
+        # =================================================
+        # MOVEMENT (CHASE PLAYER)
+        # =================================================
+        if not self.fire_state and self.target_player is not None:
+            px = self.target_player.x + self.target_player.width / 2
+            py = self.target_player.y + self.target_player.height / 2
 
-        bx = self.x + self.width / 2
-        by = self.y + self.height / 2
+            bx = self.x + self.width / 2
+            by = self.y + self.height / 2
 
-        dx = px - bx
-        dy = py - by
+            dx = px - bx
+            dy = py - by
+            dist = math.hypot(dx, dy)
+            if dist > 0:
+                dx /= dist
+                dy /= dist
+                self.x += dx * self.moveSpeed
+                self.y += dy * self.moveSpeed
 
-        dist = (dx * dx + dy * dy) ** 0.5
-        if dist == 0:
-            return
-
-        dx /= dist
-        dy /= dist
-
-        speed = self.moveSpeed
-
-        self.x += dx * speed
-        self.y += dy * speed
-
-        # -------------------------
-        # SCREEN CLAMP (X + Y)
-        # -------------------------
-        window_width = self.camera.window_width / self.camera.zoom
-        window_height = self.camera.window_height / self.camera.zoom
-
-        if self.x < 0:
-            self.x = 0
-        elif self.x + self.width > window_width:
-            self.x = window_width - self.width
-
-        if self.y < self.camera.y:
-            self.y = self.camera.y
-        elif self.y + self.height > self.camera.y + window_height:
-            self.y = self.camera.y + window_height - self.height
+        # Trigger arm attack
+        self.arm_attack_prepare()
     # =====================================================
     # DRAW
     # =====================================================
     def draw(self, surface: pygame.Surface, camera):
         sprite_rect = pygame.Rect(0, 344, 32, 32)
-        sprite = self.bile_spitter_image.subsurface(sprite_rect)
+        sprite = self.sprite_sheet.subsurface(sprite_rect)
 
         scale = camera.zoom
         sprite = pygame.transform.scale(
@@ -239,67 +206,70 @@ class BossLevelThree(Enemy):
                 camera.world_to_screen_y(self.y),
             ),
         )
+
         self.draw_arms(surface, camera)
 
+    # =====================================================
+    # ARM DRAW (ROTATING, ANCHORED)
+    # =====================================================
     def draw_arms(self, surface: pygame.Surface, camera):
-        zoom = camera.zoom
+        bx = self.x + self.width / 2
+        by = self.y + self.height / 2
 
-        boss_cx = self.x + self.width / 2
-        boss_cy = self.y + self.height / 2
+        length = self.arm_length * self.arm_extend
 
-        # LEFT ARM (vertical, left side)
-        left_arm = pygame.Rect(
-            boss_cx - self.arm_width - 12,
-            boss_cy - self.arm_height / 2 + 15,
-            self.arm_width,
-            self.arm_height
+        dx = math.cos(self.arm_angle)
+        dy = math.sin(self.arm_angle)
+
+        end_x = bx + dx * length
+        end_y = by + dy * length
+
+        pygame.draw.line(
+            surface,
+            self.arm_color,
+            (
+                camera.world_to_screen_x(bx),
+                camera.world_to_screen_y(by),
+            ),
+            (
+                camera.world_to_screen_x(end_x),
+                camera.world_to_screen_y(end_y),
+            ),
+            int(self.arm_width * camera.zoom),
         )
 
-        # RIGHT ARM (vertical, right side)
-        right_arm = pygame.Rect(
-            boss_cx + 12,
-            boss_cy - self.arm_height / 2 + 15,
-            self.arm_width,
-            self.arm_height
-        )
-
-        for arm in (left_arm, right_arm):
-            screen_x = camera.world_to_screen_x(arm.x)
-            screen_y = camera.world_to_screen_y(arm.y)
-            screen_w = int(arm.width * zoom)
-            screen_h = int(arm.height * zoom)
-
-            pygame.draw.rect(
-                surface,
-                self.arm_color,
-                (screen_x, screen_y, screen_w, screen_h)
-            )
-
+    # =====================================================
+    # ARM DAMAGE
     def check_arm_damage(self, player):
         if player is None:
             return
-        print(player.shipHealth)
 
-        player_rect = player.melee_hitbox  # 🔑 THIS IS THE FIX
+        # Boss center (arm anchor)
+        bx = self.x + self.width / 2
+        by = self.y + self.height / 2
 
-        boss_cx = self.x + self.width / 2
-        boss_cy = self.y + self.height / 2
+        # Arm vector
+        length = self.arm_length * self.arm_extend
+        dx = math.cos(self.arm_angle)
+        dy = math.sin(self.arm_angle)
 
-        left_arm = pygame.Rect(
-            boss_cx - self.arm_width - 12,
-            boss_cy - self.arm_height / 2,
-            self.arm_width,
-            self.arm_height
+        end_x = bx + dx * length
+        end_y = by + dy * length
+
+        # Build arm hitbox as a thick rect along the arm
+        arm_thickness = self.arm_width * 1.5
+
+        arm_rect = pygame.Rect(
+            min(bx, end_x) - arm_thickness / 2,
+            min(by, end_y) - arm_thickness / 2,
+            abs(end_x - bx) + arm_thickness,
+            abs(end_y - by) + arm_thickness,
         )
 
-        right_arm = pygame.Rect(
-            boss_cx + 12,
-            boss_cy - self.arm_height / 2 ,
-            self.arm_width,
-            self.arm_height
-        )
+        # DEBUG (optional)
+        # print("ARM RECT:", arm_rect)
 
-        if player_rect.colliderect(left_arm) or player_rect.colliderect(right_arm):
-            print("ARM HIT")
+        if player.melee_hitbox.colliderect(arm_rect):
+            print("ARM HIT (FULL ARM)")
             player.shipHealth -= 10
             player.on_hit()

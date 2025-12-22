@@ -57,7 +57,7 @@ class LevelThree(VerticalBattleScreen):
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
-        self.enemy_wave_interval_ms = 18000
+        self.enemy_wave_interval_ms = 180000
         self.last_enemy_wave_time = pygame.time.get_ticks()
         self.intial_wave: bool = True
 
@@ -300,14 +300,15 @@ class LevelThree(VerticalBattleScreen):
 
     def enemy_helper(self):
         now = pygame.time.get_ticks()
-        print(
-            f"BileSpitter: {len(self.bileSpitterGroup)} | "
-            f"TriSpitter: {len(self.triSpitterGroup)} | "
-            f"BladeSpinner: {len(self.bladeSpinnerGroup)} | "
-            f"FireLauncher: {len(self.fireLauncherGroup)} | "
-            f"KamikazeDrone: {len(self.kamikazeDroneGroup)} | "
-            f"BossLevelThree: {len(self.bossLevelThreeGroup)}"
-        )
+        print(self.starship.shipHealth)
+        # print(
+        #     f"BileSpitter: {len(self.bileSpitterGroup)} | "
+        #     f"TriSpitter: {len(self.triSpitterGroup)} | "
+        #     f"BladeSpinner: {len(self.bladeSpinnerGroup)} | "
+        #     f"FireLauncher: {len(self.fireLauncherGroup)} | "
+        #     f"KamikazeDrone: {len(self.kamikazeDroneGroup)} | "
+        #     f"BossLevelThree: {len(self.bossLevelThreeGroup)}"
+        # )
 
         if now - self.last_enemy_wave_time >= self.enemy_wave_interval_ms:
             self.spawn_enemy_wave()
