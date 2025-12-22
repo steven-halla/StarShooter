@@ -57,10 +57,16 @@ class LevelThree(VerticalBattleScreen):
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
-        self.enemy_wave_interval_ms = 180000
+        self.enemy_wave_interval_ms = 15000
         self.last_enemy_wave_time = pygame.time.get_ticks()
-        self.intial_wave: bool = True
+        # in __init__ of LevelThree
+        self.initial_wave_delay_ms = 3000
+        self.initial_wave_start_time = pygame.time.get_ticks()
+        self.intial_wave = True
 
+        self.boss_spawned = False
+        self.boss_spawn_delay_ms = 1000
+        self.boss_spawn_time = None
         # --------------------------------
         # SIDE RECT (ONLY HP SYSTEM)
         # --------------------------------
@@ -95,6 +101,32 @@ class LevelThree(VerticalBattleScreen):
 
     def update(self, state) -> None:
         # Disable bullet damage
+        # print(
+        #     f"BileSpitter: {len(self.bileSpitterGroup)} | "
+        #     f"TriSpitter: {len(self.triSpitterGroup)} | "
+        #     f"BladeSpinner: {len(self.bladeSpinnerGroup)} | "
+        #     f"FireLauncher: {len(self.fireLauncherGroup)} | "
+        #     f"KamikazeDrone: {len(self.kamikazeDroneGroup)} | "
+        #     f"BossLevelThree: {len(self.bossLevelThreeGroup)}"
+        # )
+        total = (
+                len(self.bileSpitterGroup)
+                + len(self.triSpitterGroup)
+                + len(self.bladeSpinnerGroup)
+                + len(self.fireLauncherGroup)
+                + len(self.kamikazeDroneGroup)
+                + len(self.bossLevelThreeGroup)
+        )
+
+        print(
+            f"BileSpitter: {len(self.bileSpitterGroup)} | "
+            f"TriSpitter: {len(self.triSpitterGroup)} | "
+            f"BladeSpinner: {len(self.bladeSpinnerGroup)} | "
+            f"FireLauncher: {len(self.fireLauncherGroup)} | "
+            f"KamikazeDrone: {len(self.kamikazeDroneGroup)} | "
+            f"BossLevelThree: {len(self.bossLevelThreeGroup)} | "
+            f"TOTAL: {total}"
+        )
         self.starship.hitbox = pygame.Rect(0, 0, 0, 0)
 
         super().update(state)
@@ -118,6 +150,17 @@ class LevelThree(VerticalBattleScreen):
         # 🔥 MELEE DAMAGE CHECK (THIS WAS MISSING)
         for boss in self.bossLevelThreeGroup:
             boss.check_arm_damage(self.starship)
+
+        # --------------------------------
+        # BOSS SPAWN CHECK (SAFE GUARDED)
+        # --------------------------------
+        if not self.boss_spawned and self.has_no_enemies():
+
+            if self.boss_spawn_time is None:
+                self.boss_spawn_time = pygame.time.get_ticks()
+
+            elif pygame.time.get_ticks() - self.boss_spawn_time >= self.boss_spawn_delay_ms:
+                self.spawn_level_3_boss()
 
         self.enemy_helper()
     def draw(self, state):
@@ -311,6 +354,14 @@ class LevelThree(VerticalBattleScreen):
         #     f"KamikazeDrone: {len(self.kamikazeDroneGroup)} | "
         #     f"BossLevelThree: {len(self.bossLevelThreeGroup)}"
         # )
+        # in update() of LevelThree (near the top, before enemy logic)
+        now = pygame.time.get_ticks()
+
+        if self.intial_wave and now - self.initial_wave_start_time >= self.initial_wave_delay_ms:
+            self.spawn_enemy_wave()
+            self.intial_wave = False
+
+
 
         if now - self.last_enemy_wave_time >= self.enemy_wave_interval_ms:
             self.spawn_enemy_wave()
@@ -566,46 +617,80 @@ class LevelThree(VerticalBattleScreen):
         bullet.speed = dy * reflect_speed * 6
         bullet.is_reflected = True
         bullet.damage = 100
+
+    def build_enemy_pool(self):
+        pool = []
+
+        for group in (
+                self.bileSpitterGroup,
+                self.triSpitterGroup,
+                self.bladeSpinnerGroup,
+                self.fireLauncherGroup,
+                self.kamikazeDroneGroup,
+        ):
+            for enemy in group:
+                if not isinstance(enemy, tuple):
+                    pool.append(enemy)
+
+        return pool
+
     def spawn_enemy_wave(self):
-        spawn_count = random.randint(4, 8)
+        # clean bad data
+        for group in (
+                self.bileSpitterGroup,
+                self.triSpitterGroup,
+                self.bladeSpinnerGroup,
+                self.fireLauncherGroup,
+                self.kamikazeDroneGroup,
+                self.bossLevelThreeGroup,
+        ):
+            group[:] = [e for e in group if not isinstance(e, tuple)]
 
-        enemy_pool = [
-            (BileSpitter, self.bileSpitterGroup),
-            (KamikazeDrone, self.kamikazeDroneGroup),
-            (TriSpitter, self.triSpitterGroup),
-            (FireLauncher, self.fireLauncherGroup),
-            (BladeSpinner, self.bladeSpinnerGroup),
-        ]
+        # build pool of INACTIVE enemies only
+        enemy_pool = self.build_enemy_pool()
 
-        # visible screen width in world space
+        if not enemy_pool:
+            print("[WAVE] No inactive enemies left")
+            return
+
+        # 🔑 RANDOMIZE ONCE
+        random.shuffle(enemy_pool)
+
+        spawn_count = min(random.randint(4, 8), len(enemy_pool))
+
         screen_right = int(self.window_width / self.camera.zoom)
-
-        # spawn slightly inside camera view (top of screen)
         spawn_y = int(self.camera.y) + 5
 
-        for _ in range(spawn_count):
-            EnemyClass, group = random.choice(enemy_pool)
-
-            enemy = EnemyClass()
-
-            # -------------------------------
-            # 🔑 CRITICAL FIX: FORCE TILED SIZE
-            # -------------------------------
-            enemy.width = 16
-            enemy.height = 16
+        for i in range(spawn_count):
+            enemy = enemy_pool[i]  # ← RANDOM ASSORTMENT
 
             enemy.x = random.randint(20, screen_right - 20)
             enemy.y = spawn_y
-
+            enemy.is_active = True
             enemy.update_hitbox()
-            enemy.camera = self.camera
-            enemy.target_player = self.starship
 
-            group.append(enemy)
+            print(f"[RESPAWN] {enemy.__class__.__name__}")
 
-            print(
-                f"[SPAWN] {EnemyClass.__name__} "
-                f"at x={enemy.x}, y={enemy.y} "
-                f"| size=({enemy.width},{enemy.height}) "
-                f"| camera.y={int(self.camera.y)}"
-            )
+    def has_no_enemies(self) -> bool:
+        return (
+                len(self.bileSpitterGroup) == 0
+                and len(self.triSpitterGroup) == 0
+                and len(self.bladeSpinnerGroup) == 0
+                and len(self.fireLauncherGroup) == 0
+                and len(self.kamikazeDroneGroup) == 0
+        )
+
+    def spawn_level_3_boss(self):
+        boss = BossLevelThree()
+
+        boss.x = (self.window_width / self.camera.zoom) // 2 - boss.width // 2
+        boss.y = self.camera.y + 40
+
+        boss.update_hitbox()
+        boss.camera = self.camera
+        boss.target_player = self.starship
+
+        self.bossLevelThreeGroup.append(boss)
+        self.boss_spawned = True
+
+        print("🔥 LEVEL 3 BOSS SPAWNED 🔥")
