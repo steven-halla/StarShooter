@@ -129,7 +129,7 @@
   <object id="152" name="bile_spitter" x="69.0171" y="197.073" width="16" height="16"/>
   <object id="89" name="bile_spitter" x="291.868" y="440.712" width="16" height="16"/>
   <object id="17" name="bile_spitter" x="38.2505" y="128.056" width="16" height="16"/>
-  <object id="142" name="bile_spitter" x="138.034" y="200.399" width="16" height="16"/>
+  <object id="142" name="bile_spitter" x="182.105" y="535.506" width="16" height="16"/>
   <object id="151" name="bile_spitter" x="34.0928" y="198.736" width="16" height="16"/>
   <object id="88" name="bile_spitter" x="104.773" y="416.597" width="16" height="16"/>
   <object id="15" name="bile_spitter" x="72.3433" y="165.475" width="16" height="16"/>
@@ -139,7 +139,7 @@
   <object id="16" name="bile_spitter" x="37.4189" y="167.138" width="16" height="16"/>
   <object id="140" name="bile_spitter" x="137.203" y="239.481" width="16" height="16"/>
   <object id="149" name="bile_spitter" x="33.2613" y="237.818" width="16" height="16"/>
-  <object id="86" name="bile_spitter" x="109.762" y="449.027" width="16" height="16"/>
+  <object id="86" name="bile_spitter" x="148.013" y="545.485" width="16" height="16"/>
   <object id="12" name="bile_spitter" x="73.1748" y="27.4405" width="16" height="16"/>
   <object id="148" name="bile_spitter" x="172.959" y="99.7838" width="16" height="16"/>
   <object id="157" name="bile_spitter" x="69.0171" y="98.1207" width="16" height="16"/>
@@ -160,7 +160,7 @@
   <object id="69" name="kamikazi_drone" x="336.77" y="230.334" width="16" height="16"/>
   <object id="68" name="kamikazi_drone" x="367.537" y="233.66" width="16" height="16"/>
   <object id="64" name="kamikazi_drone" x="370.032" y="312.656" width="16" height="16"/>
-  <object id="60" name="kamikazi_drone" x="198.736" y="565.442" width="16" height="16"/>
+  <object id="60" name="kamikazi_drone" x="357.559" y="402.461" width="16" height="16"/>
   <object id="71" name="kamikazi_drone" x="337.602" y="198.736" width="16" height="16"/>
   <object id="70" name="kamikazi_drone" x="368.369" y="202.062" width="16" height="16"/>
   <object id="66" name="kamikazi_drone" x="370.863" y="281.058" width="16" height="16"/>
@@ -170,7 +170,7 @@
   <object id="38" name="blade_spinner" x="271.079" y="156.328" width="16" height="16"/>
   <object id="34" name="blade_spinner" x="269.416" y="83.9847" width="16" height="16"/>
   <object id="99" name="blade_spinner" x="240.313" y="83.1532" width="16" height="16"/>
-  <object id="36" name="blade_spinner" x="275.237" y="220.356" width="16" height="16"/>
+  <object id="36" name="blade_spinner" x="203.725" y="343.423" width="16" height="16"/>
   <object id="32" name="blade_spinner" x="263.596" y="49.0604" width="16" height="16"/>
   <object id="103" name="blade_spinner" x="234.492" y="48.2288" width="16" height="16"/>
   <object id="37" name="blade_spinner" x="131.382" y="351.738" width="16" height="16"/>
@@ -195,7 +195,7 @@
   <object id="49" name="fire_launcher" x="376.684" y="147.181" width="16" height="16"/>
   <object id="41" name="fire_launcher" x="337.602" y="3.32613" width="16" height="16"/>
   <object id="106" name="fire_launcher" x="308.498" y="2.4946" width="16" height="16"/>
-  <object id="84" name="fire_launcher" x="7.48379" y="396.641" width="16" height="16"/>
+  <object id="84" name="fire_launcher" x="244.47" y="215.367" width="16" height="16"/>
   <object id="42" name="fire_launcher" x="337.602" y="51.555" width="16" height="16"/>
   <object id="102" name="fire_launcher" x="308.498" y="50.7234" width="16" height="16"/>
   <object id="82" name="fire_launcher" x="7.48379" y="444.869" width="16" height="16"/>
@@ -220,7 +220,7 @@
   <object id="56" name="tri_spitter" x="62.3649" y="297.688" width="16" height="16"/>
   <object id="76" name="tri_spitter" x="278.563" y="398.304" width="16" height="16"/>
   <object id="52" name="tri_spitter" x="67.3541" y="259.438" width="16" height="16"/>
-  <object id="78" name="tri_spitter" x="283.552" y="360.053" width="16" height="16"/>
+  <object id="78" name="tri_spitter" x="230.334" y="587.893" width="16" height="16"/>
   <object id="54" name="tri_spitter" x="66.5225" y="329.287" width="16" height="16"/>
  </objectgroup>
 </map>

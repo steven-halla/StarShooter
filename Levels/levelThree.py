@@ -343,8 +343,23 @@ class LevelThree(VerticalBattleScreen):
             )
 
             # ✅ FIXED DEFLECT LOGIC
-            if not hasattr(bullet, "is_reflected") and bullet_rect.colliderect(self.deflect_hitbox):
-                self.reflect_bullet(bullet)
+            if bullet_rect.colliderect(self.deflect_hitbox):
+
+                # --------------------------------
+                # FORCE REFLECT (EVEN NO ENEMIES)
+                # --------------------------------
+                if not hasattr(bullet, "is_reflected"):
+                    target = self.get_nearest_enemy(bullet)
+
+                    # 🔑 NO ENEMY → FORCE DOWN
+                    if target is None:
+                        bullet.dx = 0
+                        bullet.speed = -abs(bullet.speed) * 6  # 🔺 FORCE UP
+                        bullet.is_reflected = True
+                        bullet.damage = 0
+                    else:
+                        self.reflect_bullet(bullet)
+
                 continue
 
             # --------------------------------
@@ -515,10 +530,17 @@ class LevelThree(VerticalBattleScreen):
 
                     break  # one hit per frame
 
-
     def reflect_bullet(self, bullet):
         target = self.get_nearest_enemy(bullet)
+
+        # --------------------------------
+        # 🔑 FALLBACK: NO ENEMIES ON SCREEN
+        # --------------------------------
         if target is None:
+            bullet.dx = 0
+            bullet.speed = abs(bullet.speed) * 6  # force DOWN
+            bullet.is_reflected = True
+            bullet.damage = 0  # reflected but harmless
             return
 
         # Bullet center
@@ -529,7 +551,6 @@ class LevelThree(VerticalBattleScreen):
         ex = target.x + target.width / 2
         ey = target.y + target.height / 2
 
-        # Direction vector (bullet → enemy)
         dx = ex - bx
         dy = ey - by
         dist = (dx * dx + dy * dy) ** 0.5
@@ -539,15 +560,12 @@ class LevelThree(VerticalBattleScreen):
         dx /= dist
         dy /= dist
 
-        # 🔑 IMPORTANT: use a clean speed magnitude
         reflect_speed = abs(bullet.speed) if bullet.speed != 0 else 4
 
         bullet.dx = dx * reflect_speed * 6
         bullet.speed = dy * reflect_speed * 6
-
         bullet.is_reflected = True
         bullet.damage = 100
-
     def spawn_enemy_wave(self):
         spawn_count = random.randint(4, 8)
 

@@ -98,8 +98,7 @@ class FireLauncher(Enemy):
         bullet.height = self.bulletHeight
 
         bullet.dx = dx * self.bileSpeed
-        bullet.speed = -dy * self.bileSpeed  # ✅ FIX
-
+        bullet.speed = dy * self.bileSpeed
         bullet.rect.width = bullet.width
         bullet.rect.height = bullet.height
         bullet.damage = 10
