@@ -199,7 +199,7 @@
   <object id="46" name="fire_launcher" x="375.852" y="407.451" width="16" height="16"/>
   <object id="97" name="fire_launcher" x="314.319" y="112.257" width="16" height="16"/>
   <object id="48" name="fire_launcher" x="346.749" y="149.676" width="16" height="16"/>
-  <object id="11" name="level_3_boss" x="111.425" y="177.948" width="44.25" height="88.38"/>
+  <object id="11" name="level_3_boss" x="175.453" y="504.74" width="44.25" height="88.38"/>
   <object id="50" name="tri_spitter" x="30.7667" y="225.345" width="16" height="16"/>
   <object id="81" name="tri_spitter" x="246.965" y="325.96" width="16" height="16"/>
   <object id="59" name="tri_spitter" x="30.7667" y="364.211" width="16" height="16"/>

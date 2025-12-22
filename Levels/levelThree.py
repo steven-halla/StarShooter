@@ -57,7 +57,7 @@ class LevelThree(VerticalBattleScreen):
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
-        self.enemy_wave_interval_ms = 5555
+        self.enemy_wave_interval_ms = 18000
         self.last_enemy_wave_time = pygame.time.get_ticks()
         self.intial_wave: bool = True
 
