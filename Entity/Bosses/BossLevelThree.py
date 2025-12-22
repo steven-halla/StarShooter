@@ -39,10 +39,10 @@ class BossLevelThree(Enemy):
         # -------------------------
         # FIRING TIMERS
         # -------------------------
-        self.fire_interval_ms = 3000
+        self.fire_interval_ms = 5000
         self.last_shot_time = pygame.time.get_ticks()
 
-        self.triple_fire_interval_ms = 9000
+        self.triple_fire_interval_ms = 3000
         self.last_triple_shot_time = pygame.time.get_ticks()
 
         # -------------------------
@@ -244,3 +244,35 @@ class BossLevelThree(Enemy):
                 self.arm_color,
                 (screen_x, screen_y, screen_w, screen_h)
             )
+
+    def check_arm_damage(self, player):
+        if player is None:
+            return
+
+        # 🔑 USE REAL HITBOX — NOT ZEROED ONE
+        player_rect = player.real_hitbox
+
+        boss_left = self.x
+        boss_right = self.x + self.width
+        boss_mid_y = self.y + self.height * 0.5
+
+        arm_width = 32
+        arm_height = 100
+
+        left_arm = pygame.Rect(
+            boss_left - arm_width,
+            boss_mid_y - arm_height // 2,
+            arm_width,
+            arm_height
+        )
+
+        right_arm = pygame.Rect(
+            boss_right,
+            boss_mid_y - arm_height // 2,
+            arm_width,
+            arm_height
+        )
+
+        if player_rect.colliderect(left_arm) or player_rect.colliderect(right_arm):
+            print("ARM HIT")
+            player.shipHealth -= 10
