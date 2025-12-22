@@ -125,6 +125,7 @@ class BossLevelThree(Enemy):
     # =====================================================
     def update(self) -> None:
         super().update()
+        print(self.enemyHealth)
         if not self.is_active or self.camera is None:
             return
 

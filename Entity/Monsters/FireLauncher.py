@@ -259,7 +259,7 @@ class FireLauncher(Enemy):
             self.y = patrol_bottom
             self.move_direction_y = -1
 
-        print(f"[AI MOVE] y={self.y:.2f} dir={self.move_direction_y}")
+        # print(f"[AI MOVE] y={self.y:.2f} dir={self.move_direction_y}")
 
     # -------------------------
     # DRAW

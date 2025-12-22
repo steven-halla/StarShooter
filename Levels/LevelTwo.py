@@ -79,12 +79,12 @@ class LevelTwo(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
-        print(self.side_rect_hp)
+        # print(self.side_rect_hp)
 
         # UPDATE INVINCIBILITY TIMER FIRST
         self.update_side_rect_invincibility()
 
-        print("SIDE RECT HP:", self.side_rect_hp, "INVINCIBLE:", self.side_rect_invincible)
+        # print("SIDE RECT HP:", self.side_rect_hp, "INVINCIBLE:", self.side_rect_invincible)
 
         # -------------------------
         # UPDATE SIDE RECT HITBOX (WORLD SPACE)

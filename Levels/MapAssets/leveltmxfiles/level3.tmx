@@ -173,7 +173,7 @@
   <object id="36" name="blade_spinner" x="275.237" y="220.356" width="16" height="16"/>
   <object id="32" name="blade_spinner" x="263.596" y="49.0604" width="16" height="16"/>
   <object id="103" name="blade_spinner" x="234.492" y="48.2288" width="16" height="16"/>
-  <object id="37" name="blade_spinner" x="269.416" y="185.432" width="16" height="16"/>
+  <object id="37" name="blade_spinner" x="167.969" y="657.742" width="16" height="16"/>
   <object id="33" name="blade_spinner" x="267.753" y="113.088" width="16" height="16"/>
   <object id="96" name="blade_spinner" x="238.65" y="112.257" width="16" height="16"/>
   <object id="39" name="blade_spinner" x="266.922" y="286.047" width="16" height="16"/>
@@ -205,7 +205,7 @@
   <object id="97" name="fire_launcher" x="314.319" y="112.257" width="16" height="16"/>
   <object id="158" name="fire_launcher" x="151.339" y="273.574" width="16" height="16"/>
   <object id="48" name="fire_launcher" x="346.749" y="149.676" width="16" height="16"/>
-  <object id="11" name="level_3_boss" x="175.453" y="504.74" width="44.25" height="88.38"/>
+  <object id="11" name="level_3_boss" x="193.747" y="53.218" width="44.25" height="88.38"/>
   <object id="50" name="tri_spitter" x="30.7667" y="225.345" width="16" height="16"/>
   <object id="81" name="tri_spitter" x="246.965" y="325.96" width="16" height="16"/>
   <object id="59" name="tri_spitter" x="30.7667" y="364.211" width="16" height="16"/>

@@ -151,6 +151,7 @@ class VerticalBattleScreen:
         # print("STARSHIP INSTANCE:", id(self.starship))
         # now handle map scroll ONLY in LevelOne
         self.move_map_y_axis()
+        print(self.starship.shipHealth)
 
 
 
@@ -185,6 +186,8 @@ class VerticalBattleScreen:
         self.clamp_starship_to_screen()
         # if not self.playerDead:
         #     self.starship.update()
+
+
 
         # -------------------------
         # PLAYER SHOOTING ONLY
@@ -533,6 +536,34 @@ class VerticalBattleScreen:
                 self.starship.shipHealth -= 1
                 print("⚠️ Player took hazard damage! Health =", self.starship.shipHealth)
                 break
+
+        # -------------------------
+        # ENEMY BODY COLLISION DAMAGE (GLOBAL RULE)
+        # -------------------------
+        player_rect = self.starship.hitbox
+
+        if not self.starship.invincible:
+            enemies = (
+                    list(self.bileSpitterGroup) +
+                    list(self.triSpitterGroup) +
+                    list(self.bladeSpinnerGroup) +
+                    list(self.fireLauncherGroup) +
+                    list(self.kamikazeDroneGroup) +
+                    list(self.bossLevelThreeGroup)
+            )
+
+            for enemy in enemies:
+                enemy_rect = pygame.Rect(
+                    enemy.x,
+                    enemy.y,
+                    enemy.width,
+                    enemy.height
+                )
+
+                if player_rect.colliderect(enemy_rect):
+                    self.starship.shipHealth -= 10
+                    self.starship.on_hit()
+                    break  # ⛔ only one hit per frame
 
 
 
