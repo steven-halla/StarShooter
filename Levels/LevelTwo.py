@@ -15,6 +15,7 @@ from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from Entity.StarShip import StarShip
 from Levels.levelThree import LevelThree
+from ScreenClasses.MissionBriefingScreenLevelThree import MissionBriefingScreenLevelThree
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
@@ -68,6 +69,7 @@ class LevelTwo(VerticalBattleScreen):
     def start(self, state) -> None:
         player_x = None
         player_y = None
+        self.starship.shipHealth = 100
 
         for obj in self.tiled_map.objects:
             if obj.name == "player":  # this string comes from Tiled
@@ -131,8 +133,8 @@ class LevelTwo(VerticalBattleScreen):
             self.level_complete = True
 
         if self.level_complete:
-            next_level = LevelThree()
-            next_level.set_player(state.starship)
+            next_level = MissionBriefingScreenLevelThree()
+            # next_level.set_player(state.starship)
             state.currentScreen = next_level
             next_level.start(state)
             print(type(state.currentScreen).__name__)

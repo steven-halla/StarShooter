@@ -11,9 +11,7 @@ from Entity.Monsters.Ravager import Ravager
 from Entity.Monsters.SpineLauncher import SpineLauncher
 from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TriSpitter import TriSpitter
-from Entity.Monsters.WaspStinger import WaspStinger
-from Entity.StarShip import StarShip
-from Levels.LevelTwo import LevelTwo
+from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
@@ -124,8 +122,8 @@ class LevelOne(VerticalBattleScreen):
         self.extract_object_names()
         if self.level_complete:
 
-            next_level = LevelTwo()
-            next_level.set_player(state.starship)
+            next_level = MissionBriefingScreenLevelTwo()
+            # next_level.set_player(state.starship)
             state.currentScreen = next_level
             next_level.start(state)
             print(type(state.currentScreen).__name__)

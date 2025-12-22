@@ -84,6 +84,8 @@ class LevelThree(VerticalBattleScreen):
     def start(self, state) -> None:
         player_x = None
         player_y = None
+        self.starship.shipHealth = 100
+
 
         for obj in self.tiled_map.objects:
             if obj.name == "player":  # this string comes from Tiled

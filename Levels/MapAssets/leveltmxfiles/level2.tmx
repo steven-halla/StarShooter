@@ -357,7 +357,7 @@
   <object id="64" name="fire_launcher" x="183.375" y="956.832" width="16" height="16"/>
   <object id="80" name="fire_launcher" x="101.32" y="286.122" width="16" height="16"/>
   <object id="85" name="fire_launcher" x="221.192" y="1155.9" width="16" height="16"/>
-  <object id="93" name="level_2_boss" x="117.017" y="4071.35" width="40" height="30"/>
+  <object id="93" name="level_2_boss" x="128.434" y="7.84873" width="40" height="30"/>
  </objectgroup>
  <layer id="6" name="background" width="25" height="270">
   <data encoding="csv">
