@@ -248,31 +248,28 @@ class BossLevelThree(Enemy):
     def check_arm_damage(self, player):
         if player is None:
             return
+        print(player.shipHealth)
 
-        # 🔑 USE REAL HITBOX — NOT ZEROED ONE
-        player_rect = player.real_hitbox
+        player_rect = player.melee_hitbox  # 🔑 THIS IS THE FIX
 
-        boss_left = self.x
-        boss_right = self.x + self.width
-        boss_mid_y = self.y + self.height * 0.5
-
-        arm_width = 32
-        arm_height = 100
+        boss_cx = self.x + self.width / 2
+        boss_cy = self.y + self.height / 2
 
         left_arm = pygame.Rect(
-            boss_left - arm_width,
-            boss_mid_y - arm_height // 2,
-            arm_width,
-            arm_height
+            boss_cx - self.arm_width - 12,
+            boss_cy - self.arm_height / 2 + 30,
+            self.arm_width,
+            self.arm_height
         )
 
         right_arm = pygame.Rect(
-            boss_right,
-            boss_mid_y - arm_height // 2,
-            arm_width,
-            arm_height
+            boss_cx + 12,
+            boss_cy - self.arm_height / 2 + 30,
+            self.arm_width,
+            self.arm_height
         )
 
         if player_rect.colliderect(left_arm) or player_rect.colliderect(right_arm):
             print("ARM HIT")
             player.shipHealth -= 10
+            player.on_hit()

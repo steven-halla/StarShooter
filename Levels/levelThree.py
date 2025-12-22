@@ -94,13 +94,20 @@ class LevelThree(VerticalBattleScreen):
         pass
 
     def update(self, state) -> None:
-        # print(self.starship.shipHealth)
-        original_hitbox = self.starship.hitbox
+        # Disable bullet damage
         self.starship.hitbox = pygame.Rect(0, 0, 0, 0)
-        # -------------------------
 
-        # DEFLECT HITBOX (WORLD SPACE)
-        # -------------------------
+        super().update(state)
+
+        # 🔑 ALWAYS update melee hitbox AFTER movement
+        self.starship.melee_hitbox = pygame.Rect(
+            int(self.starship.x),
+            int(self.starship.y),
+            self.starship.width,
+            self.starship.height
+        )
+
+        # Guard hitbox (bullets only)
         self.deflect_hitbox = pygame.Rect(
             int(self.starship.x - 0.5),
             int(self.starship.y - 0.5),
@@ -108,24 +115,11 @@ class LevelThree(VerticalBattleScreen):
             17
         )
 
-        # -------------------------
-        # DELETE BULLETS BEFORE BASE LOGIC
-        # -------------------------
-        # for bullet in list(self.enemy_bullets):
-        #     bulleti = pygame.Rect(bullet.x, bullet.y, bullet.width, bullet.height)
-        #     if bulleti.colliderect(self.deflect_hitbox):
-        #         self.enemy_bullets.remove(bullet)
-
-        # ⬇️ NOW safe to run base update
-        super().update(state)
-        self.starship.hitbox = original_hitbox
-
-        # LevelThree-specific enemy handling
-
-
+        # 🔥 MELEE DAMAGE CHECK (THIS WAS MISSING)
+        for boss in self.bossLevelThreeGroup:
+            boss.check_arm_damage(self.starship)
 
         self.enemy_helper()
-
     def draw(self, state):
         super().draw(state)
 
@@ -164,39 +158,6 @@ class LevelThree(VerticalBattleScreen):
         if self.space_station is not None:
             self.space_station.draw(state.DISPLAY, self.camera)
 
-        # -------------------------
-        # SIDE RECT HP BAR (ONLY HP BAR)
-        # -------------------------
-        # side_screen_x = self.camera.world_to_screen_x(self.side_rect_hitbox.x)
-        # side_screen_y = self.camera.world_to_screen_y(self.side_rect_hitbox.y)
-        #
-        # side_w = int(self.side_rect_hitbox.width * zoom)
-        # side_h = int(self.side_rect_hitbox.height * zoom)
-        #
-        # hp_ratio = max(0, self.side_rect_hp / self.side_rect_max_hp)
-        # hp_width = int(side_w * hp_ratio)
-
-        # # background
-        # pygame.draw.rect(
-        #     state.DISPLAY,
-        #     (60, 60, 60),
-        #     (side_screen_x, side_screen_y, side_w, side_h)
-        # )
-
-        # # HP fill
-        # pygame.draw.rect(
-        #     state.DISPLAY,
-        #     (0, 255, 0),
-        #     (side_screen_x, side_screen_y, hp_width, side_h)
-        # )
-        #
-        # # outline
-        # pygame.draw.rect(
-        #     state.DISPLAY,
-        #     (255, 255, 255),
-        #     (side_screen_x, side_screen_y, side_w, side_h),
-        #     1
-        # )
 
         pygame.display.flip()
     def get_nearest_enemy(self, missile):
@@ -339,30 +300,10 @@ class LevelThree(VerticalBattleScreen):
 
     def enemy_helper(self):
         now = pygame.time.get_ticks()
-        # if self.intial_wave == True:
-        #     self.spawn_enemy_wave()
-        #     self.intial_wave = False
-
 
         if now - self.last_enemy_wave_time >= self.enemy_wave_interval_ms:
             self.spawn_enemy_wave()
             self.last_enemy_wave_time = now
-        now = pygame.time.get_ticks()
-
-
-        # --------------------------------
-        # INIT SIDE RECT INVULNERABILITY
-        # --------------------------------
-        if not hasattr(self, "side_rect_invincible"):
-            self.side_rect_invincible = False
-            self.side_rect_invincible_start_time = 0
-
-        # --------------------------------
-        # SIDE RECT INVULNERABILITY TIMER
-        # --------------------------------
-        if self.side_rect_invincible:
-            if now - self.side_rect_invincible_start_time >= 1000:
-                self.side_rect_invincible = False
 
         # --------------------------------
         # NAPALM UPDATE (PLAYER ONLY)
@@ -379,7 +320,7 @@ class LevelThree(VerticalBattleScreen):
                 self.napalm_list.remove(napalm)
 
         # --------------------------------
-        # DEFLECT + REFLECT LOGIC
+        # DEFLECT + REFLECT LOGIC (BULLETS ONLY)
         # --------------------------------
         for bullet in list(self.enemy_bullets):
 
@@ -390,10 +331,9 @@ class LevelThree(VerticalBattleScreen):
                 bullet.height
             )
 
-            # DEFLECT ZONE (player guard)
-            if bullet_rect.colliderect(self.deflect_hitbox):
-                if not hasattr(bullet, "is_reflected"):
-                    self.reflect_bullet(bullet)
+            # ✅ FIXED DEFLECT LOGIC
+            if not hasattr(bullet, "is_reflected") and bullet_rect.colliderect(self.deflect_hitbox):
+                self.reflect_bullet(bullet)
                 continue
 
             # --------------------------------
@@ -411,8 +351,6 @@ class LevelThree(VerticalBattleScreen):
                 )
 
                 for enemy in enemies:
-
-
                     enemy_rect = pygame.Rect(
                         enemy.x,
                         enemy.y,
@@ -454,17 +392,7 @@ class LevelThree(VerticalBattleScreen):
 
         # --------------------------------
         # METAL SHIELD → ENEMY BULLETS
-        # # --------------------------------
-        # enemy_count = (
-        #         len(self.bileSpitterGroup) +
-        #         len(self.triSpitterGroup) +
-        #         len(self.bladeSpinnerGroup) +
-        #         len(self.fireLauncherGroup) +
-        #         len(self.kamikazeDroneGroup) +
-        #         len(self.bossLevelThreeGroup)
-        # )
-        #
-        # print("ENEMIES LEFT:", enemy_count)
+        # --------------------------------
         for metal in list(self.metal_shield_bullets):
 
             if not metal.is_active:
@@ -541,27 +469,22 @@ class LevelThree(VerticalBattleScreen):
                 enemy_tri_spitter.enemyBullets.clear()
 
 
-    # =========================
-    def update_side_rect_invincibility(self) -> None:
-        if not hasattr(self, "side_rect_invincible"):
-            self.side_rect_invincible = False
-            self.side_rect_invincible_start_time = 0
-            return
 
-        if self.side_rect_invincible:
-            if pygame.time.get_ticks() - self.side_rect_invincible_start_time >= 1000:
-                self.side_rect_invincible = False
 
     def reflect_bullet(self, bullet):
         target = self.get_nearest_enemy(bullet)
         if target is None:
             return
 
+        # Bullet center
         bx = bullet.x + bullet.width / 2
         by = bullet.y + bullet.height / 2
+
+        # Enemy center
         ex = target.x + target.width / 2
         ey = target.y + target.height / 2
 
+        # Direction vector (bullet → enemy)
         dx = ex - bx
         dy = ey - by
         dist = (dx * dx + dy * dy) ** 0.5
@@ -571,8 +494,11 @@ class LevelThree(VerticalBattleScreen):
         dx /= dist
         dy /= dist
 
-        bullet.dx = dx * bullet.speed * 6
-        bullet.speed = dy * bullet.speed * 6
+        # 🔑 IMPORTANT: use a clean speed magnitude
+        reflect_speed = abs(bullet.speed) if bullet.speed != 0 else 4
+
+        bullet.dx = dx * reflect_speed * 6
+        bullet.speed = dy * reflect_speed * 6
 
         bullet.is_reflected = True
         bullet.damage = 100
