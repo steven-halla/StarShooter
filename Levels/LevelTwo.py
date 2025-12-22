@@ -14,6 +14,7 @@ from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from Entity.StarShip import StarShip
+from Levels.levelThree import LevelThree
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
@@ -49,6 +50,8 @@ class LevelTwo(VerticalBattleScreen):
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
+        self.level_complete = False
+
 
         # --------------------------------
         # SIDE RECT (ONLY HP SYSTEM)
@@ -124,6 +127,17 @@ class LevelTwo(VerticalBattleScreen):
                     break
 
         self.enemy_helper()
+        if not self.bossLevelTwoGroup and not self.level_complete:
+            self.level_complete = True
+
+        if self.level_complete:
+            next_level = LevelThree()
+            next_level.set_player(state.starship)
+            state.currentScreen = next_level
+            next_level.start(state)
+            print(type(state.currentScreen).__name__)
+
+            return
 
     def draw(self, state):
         super().draw(state)

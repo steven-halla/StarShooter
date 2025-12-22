@@ -50,7 +50,7 @@ class BossLevelOne(Enemy):
         # -------------------------
         # STATS
         # -------------------------
-        self.enemyHealth = 1000
+        self.enemyHealth = 111
         self.exp = 5
         self.credits = 50
 

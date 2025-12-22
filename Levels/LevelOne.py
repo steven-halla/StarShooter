@@ -13,6 +13,7 @@ from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from Entity.StarShip import StarShip
+from Levels.LevelTwo import LevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
@@ -45,6 +46,7 @@ class LevelOne(VerticalBattleScreen):
         self.time_up = False
         self.missed_enemies = []
         self.game_over: bool = False
+        self.level_complete = False
 
     def start(self, state) -> None:
         player_x = None
@@ -109,16 +111,26 @@ class LevelOne(VerticalBattleScreen):
                 # Add to missile list
                 self.player_missiles.append(missile)
 
-                if missile.target_enemy is not None:
-                    print(f"Missile locked onto: {type(missile.target_enemy).__name__} "
-                          f"at ({missile.target_enemy.x}, {missile.target_enemy.y})")
-                else:
-                    print("Missile locked onto: NONE (no enemies found)")
+                # if missile.target_enemy is not None:
+                #     print(f"Missile locked onto: {type(missile.target_enemy).__name__} "
+                #           f"at ({missile.target_enemy.x}, {missile.target_enemy.y})")
+                # else:
+                #     print("Missile locked onto: NONE (no enemies found)")
         self.enemy_helper()
+        if not self.bossLevelOneGroup and not self.level_complete:
+            self.level_complete = True
 
 
         self.extract_object_names()
+        if self.level_complete:
 
+            next_level = LevelTwo()
+            next_level.set_player(state.starship)
+            state.currentScreen = next_level
+            next_level.start(state)
+            print(type(state.currentScreen).__name__)
+
+            return
 
     def draw(self, state):
         super().draw(state)
@@ -149,7 +161,7 @@ class LevelOne(VerticalBattleScreen):
             True,
             (255, 255, 255)
         )
-        state.DISPLAY.blit(enemy_text, (10, 10))
+        state.DISPLAY.blit(enemy_text, (10, 50))
         for napalm in self.napalm_list:
             napalm.draw(state.DISPLAY, self.camera)
         zoom = self.camera.zoom
@@ -352,6 +364,8 @@ class LevelOne(VerticalBattleScreen):
 
             if boss.enemyHealth <= 0:
                 self.bossLevelOneGroup.remove(boss)
+                print("level complete")
+
 
         # -------------------------
         # BLADES

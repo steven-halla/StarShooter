@@ -150,7 +150,7 @@ class VerticalBattleScreen:
         # print("PLAYER UPDATE Y:", self.starship.y)
         # print("STARSHIP INSTANCE:", id(self.starship))
         # now handle map scroll ONLY in LevelOne
-        self.move_map_y_axis()
+        # self.move_map_y_axis()
 
 
 
