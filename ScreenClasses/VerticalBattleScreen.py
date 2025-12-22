@@ -151,7 +151,6 @@ class VerticalBattleScreen:
         # print("STARSHIP INSTANCE:", id(self.starship))
         # now handle map scroll ONLY in LevelOne
         self.move_map_y_axis()
-        print(self.starship.shipHealth)
 
 
 
@@ -585,6 +584,7 @@ class VerticalBattleScreen:
 
         state.DISPLAY.fill(GlobalConstants.BLACK)
         state.DISPLAY.blit(scaled_scene, (0, 0))
+        self.draw_player_hp_bar(state.DISPLAY)
 
         # -------------------------
         # DRAW PLASMA BLASTER
@@ -1147,6 +1147,18 @@ class VerticalBattleScreen:
             int(obj.height * self.camera.zoom)
         )
 
+    def draw_player_hp_bar(self, surface):
+        """
+        Draws player HP text at the top of the screen.
+        Format: HP: current/100
+        """
+        font = pygame.font.Font(None, 24)
 
+        current_hp = max(0, int(self.starship.shipHealth))
+        max_hp = 100
 
+        hp_text = f"HP: {current_hp}/{max_hp}"
+        text_surface = font.render(hp_text, True, (255, 255, 255))
 
+        # Top-left padding
+        surface.blit(text_surface, (10, 10))
