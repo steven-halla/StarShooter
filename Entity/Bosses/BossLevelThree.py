@@ -13,6 +13,12 @@ class BossLevelThree(Enemy):
         super().__init__()
         self.mover: MoveRectangle = MoveRectangle()
         self.id = 0
+        # -------------------------
+        # MELEE ARMS (RENDER ONLY)
+        # -------------------------
+        self.arm_width = 16
+        self.arm_height = 150
+        self.arm_color = GlobalConstants.PURPLE
 
         # -------------------------
         # APPEARANCE
@@ -128,51 +134,7 @@ class BossLevelThree(Enemy):
             bullet.rect.height = bullet.height
 
             self.enemyBullets.append(bullet)
-    # =====================================================
-    # TRIPLE FIRE — SHOOTS AT PLAYER LAST POSITION
-    # =====================================================
-    # def shoot_triple_line(self) -> None:
-    #     if self.target_player is None:
-    #         return
-    #
-    #     cx = self.x + self.width / 2
-    #     cy = self.y + self.height / 2
-    #
-    #     # Base direction = DOWN toward player (not exact aim, just facing)
-    #     px = self.target_player.hitbox.centerx
-    #     py = self.target_player.hitbox.centery
-    #
-    #     base_dx = px - cx
-    #     base_dy = py - cy
-    #
-    #     base_angle = math.atan2(base_dy, base_dx)
-    #
-    #     # 180-degree arc (±90 degrees from facing direction)
-    #     half_arc = math.pi / 2
-    #
-    #     bullet_count = 16
-    #
-    #     for _ in range(bullet_count):
-    #         angle = random.uniform(
-    #             base_angle - half_arc,
-    #             base_angle + half_arc
-    #         )
-    #
-    #         dx = math.cos(angle)
-    #         dy = math.sin(angle)
-    #
-    #         bullet = Bullet(cx, cy)
-    #         bullet.dx = dx * self.weapon_speed
-    #         bullet.speed = dy * self.weapon_speed
-    #         bullet.width = self.bulletWidth
-    #         bullet.height = self.bulletHeight
-    #         bullet.color = self.bulletColor
-    #         bullet.damage = 10
-    #
-    #         bullet.rect.width = bullet.width
-    #         bullet.rect.height = bullet.height
-    #
-    #         self.enemyBullets.append(bullet)
+
 
     # =====================================================
     # UPDATE
@@ -247,3 +209,38 @@ class BossLevelThree(Enemy):
                 camera.world_to_screen_y(self.y),
             ),
         )
+        self.draw_arms(surface, camera)
+
+    def draw_arms(self, surface: pygame.Surface, camera):
+        zoom = camera.zoom
+
+        boss_cx = self.x + self.width / 2
+        boss_cy = self.y + self.height / 2
+
+        # LEFT ARM (vertical, left side)
+        left_arm = pygame.Rect(
+            boss_cx - self.arm_width - 12,
+            boss_cy - self.arm_height / 2 + 30,
+            self.arm_width,
+            self.arm_height
+        )
+
+        # RIGHT ARM (vertical, right side)
+        right_arm = pygame.Rect(
+            boss_cx + 12,
+            boss_cy - self.arm_height / 2 + 30,
+            self.arm_width,
+            self.arm_height
+        )
+
+        for arm in (left_arm, right_arm):
+            screen_x = camera.world_to_screen_x(arm.x)
+            screen_y = camera.world_to_screen_y(arm.y)
+            screen_w = int(arm.width * zoom)
+            screen_h = int(arm.height * zoom)
+
+            pygame.draw.rect(
+                surface,
+                self.arm_color,
+                (screen_x, screen_y, screen_w, screen_h)
+            )

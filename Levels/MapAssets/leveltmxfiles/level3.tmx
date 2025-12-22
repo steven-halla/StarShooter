@@ -196,10 +196,10 @@
   <object id="82" name="fire_launcher" x="7.48379" y="444.869" width="16" height="16"/>
   <object id="44" name="fire_launcher" x="340.096" y="83.1532" width="16" height="16"/>
   <object id="100" name="fire_launcher" x="310.993" y="82.3216" width="16" height="16"/>
-  <object id="46" name="fire_launcher" x="189.589" y="603.692" width="16" height="16"/>
+  <object id="46" name="fire_launcher" x="375.852" y="407.451" width="16" height="16"/>
   <object id="97" name="fire_launcher" x="314.319" y="112.257" width="16" height="16"/>
   <object id="48" name="fire_launcher" x="346.749" y="149.676" width="16" height="16"/>
-  <object id="11" name="level_3_boss" x="132.214" y="306.835" width="100.25" height="57.3757"/>
+  <object id="11" name="level_3_boss" x="156.328" y="507.234" width="55.25" height="88.38"/>
   <object id="50" name="tri_spitter" x="30.7667" y="225.345" width="16" height="16"/>
   <object id="81" name="tri_spitter" x="246.965" y="325.96" width="16" height="16"/>
   <object id="59" name="tri_spitter" x="30.7667" y="364.211" width="16" height="16"/>
