@@ -300,6 +300,14 @@ class LevelThree(VerticalBattleScreen):
 
     def enemy_helper(self):
         now = pygame.time.get_ticks()
+        print(
+            f"BileSpitter: {len(self.bileSpitterGroup)} | "
+            f"TriSpitter: {len(self.triSpitterGroup)} | "
+            f"BladeSpinner: {len(self.bladeSpinnerGroup)} | "
+            f"FireLauncher: {len(self.fireLauncherGroup)} | "
+            f"KamikazeDrone: {len(self.kamikazeDroneGroup)} | "
+            f"BossLevelThree: {len(self.bossLevelThreeGroup)}"
+        )
 
         if now - self.last_enemy_wave_time >= self.enemy_wave_interval_ms:
             self.spawn_enemy_wave()
@@ -504,7 +512,7 @@ class LevelThree(VerticalBattleScreen):
         bullet.damage = 100
 
     def spawn_enemy_wave(self):
-        spawn_count = random.randint(4, 10)
+        spawn_count = random.randint(4, 8)
 
         enemy_pool = [
             (BileSpitter, self.bileSpitterGroup),

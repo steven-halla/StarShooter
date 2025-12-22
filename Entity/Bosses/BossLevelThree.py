@@ -17,8 +17,11 @@ class BossLevelThree(Enemy):
         # MELEE ARMS (RENDER ONLY)
         # -------------------------
         self.arm_width = 16
-        self.arm_height = 150
+        self.arm_height = 120
         self.arm_color = GlobalConstants.PURPLE
+        self.fire_state = False
+        self.fire_pause_ms = 2000
+        self.fire_end_time = 0
 
         # -------------------------
         # APPEARANCE
@@ -48,7 +51,7 @@ class BossLevelThree(Enemy):
         # -------------------------
         # MOVEMENT
         # -------------------------
-        self.moveSpeed = 2.0
+        self.moveSpeed = 0.8
         self.move_interval_ms = 3000
         self.last_move_toggle = pygame.time.get_ticks()
         self.move_direction = random.choice([-1, 1])
@@ -164,32 +167,59 @@ class BossLevelThree(Enemy):
         for bullet in self.enemyBullets:
             bullet.update()
 
-    # =====================================================
-    # MOVEMENT
-    # =====================================================
     def moveAI(self) -> None:
-        if self.camera is None:
+        if self.camera is None or self.target_player is None:
             return
 
         now = pygame.time.get_ticks()
+
+        # -------------------------
+        # FIRE STATE — LOCK MOVEMENT
+        # -------------------------
+        if getattr(self, "fire_state", False):
+            if now - self.last_shot_time >= 2000:
+                self.fire_state = False
+            return
+
+        # -------------------------
+        # CHASE PLAYER (X + Y)
+        # -------------------------
+        px = self.target_player.x + self.target_player.width / 2
+        py = self.target_player.y + self.target_player.height / 2
+
+        bx = self.x + self.width / 2
+        by = self.y + self.height / 2
+
+        dx = px - bx
+        dy = py - by
+
+        dist = (dx * dx + dy * dy) ** 0.5
+        if dist == 0:
+            return
+
+        dx /= dist
+        dy /= dist
+
+        speed = self.moveSpeed
+
+        self.x += dx * speed
+        self.y += dy * speed
+
+        # -------------------------
+        # SCREEN CLAMP (X + Y)
+        # -------------------------
         window_width = self.camera.window_width / self.camera.zoom
+        window_height = self.camera.window_height / self.camera.zoom
 
-        if now - self.last_move_toggle >= self.move_interval_ms:
-            self.last_move_toggle = now
-            self.move_direction = random.choice([-1, 1])
-
-        if self.move_direction > 0:
-            self.mover.enemy_move_right(self)
-        else:
-            self.mover.enemy_move_left(self)
-
-        if self.x <= 0:
+        if self.x < 0:
             self.x = 0
-            self.move_direction = 1
-        elif self.x + self.width >= window_width:
+        elif self.x + self.width > window_width:
             self.x = window_width - self.width
-            self.move_direction = -1
 
+        if self.y < self.camera.y:
+            self.y = self.camera.y
+        elif self.y + self.height > self.camera.y + window_height:
+            self.y = self.camera.y + window_height - self.height
     # =====================================================
     # DRAW
     # =====================================================
@@ -220,7 +250,7 @@ class BossLevelThree(Enemy):
         # LEFT ARM (vertical, left side)
         left_arm = pygame.Rect(
             boss_cx - self.arm_width - 12,
-            boss_cy - self.arm_height / 2 + 30,
+            boss_cy - self.arm_height / 2 + 15,
             self.arm_width,
             self.arm_height
         )
@@ -228,7 +258,7 @@ class BossLevelThree(Enemy):
         # RIGHT ARM (vertical, right side)
         right_arm = pygame.Rect(
             boss_cx + 12,
-            boss_cy - self.arm_height / 2 + 30,
+            boss_cy - self.arm_height / 2 + 15,
             self.arm_width,
             self.arm_height
         )
@@ -257,14 +287,14 @@ class BossLevelThree(Enemy):
 
         left_arm = pygame.Rect(
             boss_cx - self.arm_width - 12,
-            boss_cy - self.arm_height / 2 + 30,
+            boss_cy - self.arm_height / 2,
             self.arm_width,
             self.arm_height
         )
 
         right_arm = pygame.Rect(
             boss_cx + 12,
-            boss_cy - self.arm_height / 2 + 30,
+            boss_cy - self.arm_height / 2 ,
             self.arm_width,
             self.arm_height
         )
