@@ -20,7 +20,7 @@ class KamikazeDrone(Enemy):
         self.color: tuple[int, int, int] = GlobalConstants.RED
 
         # movement stats
-        self.speed: float = 5.0
+        self.speed: float = 2.0
 
         # gameplay stats
         self.enemyHealth: int = 1
@@ -30,7 +30,7 @@ class KamikazeDrone(Enemy):
         # kamikaze-specific
         self.target_player = None     # will be assigned externally
         self.is_exploding = False     # state toggle for explosion
-        self.explosion_damage: int = 50  # huge damage on hit
+        self.explosion_damage: int = 20  # huge damage on hit
 
         self.kamikaze_drone_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
@@ -100,7 +100,18 @@ class KamikazeDrone(Enemy):
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
 
     def on_hit_player(self):
-        """Handle drone impact damage."""
-        if self.target_player:
+        """Handle drone impact damage (player or non-player target)."""
+        if self.target_player is None:
+            return
+
+        # Player target
+        if hasattr(self.target_player, "shipHealth"):
             self.target_player.shipHealth -= self.explosion_damage
+            if hasattr(self.target_player, "on_hit"):
+                self.target_player.on_hit()
+
+        # Non-player target (e.g., SpaceStation)
+        elif hasattr(self.target_player, "hp"):
+            self.target_player.hp -= self.explosion_damage
+
         self.enemyHealth = 0  # mark for removal

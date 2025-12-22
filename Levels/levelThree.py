@@ -247,9 +247,11 @@ class LevelThree(VerticalBattleScreen):
                 drone.update_hitbox()
                 self.kamikazeDroneGroup.append(drone)
                 drone.camera = self.camera
-                drone.target_player = self.starship
-                continue
 
+                # 🔑 TARGET SPACE STATION INSTEAD OF PLAYER
+                drone.target_player = self.space_station
+
+                continue
             if obj.name == "bile_spitter":
                 enemy = BileSpitter()
                 enemy.x = obj.x
@@ -477,7 +479,41 @@ class LevelThree(VerticalBattleScreen):
                 self.enemy_bullets.extend(enemy_tri_spitter.enemyBullets)
                 enemy_tri_spitter.enemyBullets.clear()
 
+        # --------------------------------
+        # ENEMY BODY COLLISION DAMAGE (LEVEL 3)
+        # --------------------------------
+        if not self.starship.invincible:
+            player_rect = self.starship.melee_hitbox  # ← USE MELEE HITBOX
 
+            enemies = (
+                    list(self.bileSpitterGroup) +
+                    list(self.triSpitterGroup) +
+                    list(self.bladeSpinnerGroup) +
+                    list(self.fireLauncherGroup) +
+                    list(self.kamikazeDroneGroup) +
+                    list(self.bossLevelThreeGroup)
+            )
+
+            for enemy in enemies:
+                enemy_rect = pygame.Rect(
+                    enemy.x,
+                    enemy.y,
+                    enemy.width,
+                    enemy.height
+                )
+
+                if player_rect.colliderect(enemy_rect):
+
+                    # 🔥 KAMIKAZE DRONE SPECIAL CASE
+                    if enemy in self.kamikazeDroneGroup:
+                        self.starship.shipHealth -= 20
+                        self.starship.on_hit()
+                        self.kamikazeDroneGroup.remove(enemy)
+                    else:
+                        self.starship.shipHealth -= 10
+                        self.starship.on_hit()
+
+                    break  # one hit per frame
 
 
     def reflect_bullet(self, bullet):
