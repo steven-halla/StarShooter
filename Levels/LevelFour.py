@@ -22,7 +22,7 @@ class LevelFour(VerticalBattleScreen):
         super().__init__()
         # self.starship: StarShip = StarShip()
 
-        self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level1.tmx")
+        self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level4.tmx")
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
