@@ -26,6 +26,7 @@ class MissionBriefingScreenLevelTwo(Screen):
             "The commanders life is of upmost importance",
             "",
             "Press F to deploy."
+
         ]
 
     def update(self, state):
