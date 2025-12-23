@@ -52,6 +52,7 @@ class LevelTwo(VerticalBattleScreen):
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
         self.level_complete = False
+        self.level_start = True
 
 
         # --------------------------------
@@ -84,7 +85,17 @@ class LevelTwo(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
+        if self.level_start == True:
+            self.level_start = False
+            self.starship.shipHealth = 100
         # print(self.side_rect_hp)
+        print(
+            "BileSpitters:", len(self.bileSpitterGroup),
+            "TriSpitters:", len(self.triSpitterGroup),
+            "BladeSpinners:", len(self.bladeSpinnerGroup),
+            "FireLaunchers:", len(self.fireLauncherGroup),
+            "Bosses:", len(self.bossLevelTwoGroup) if hasattr(self, "bossLevelTwoGroup") else 0
+        )
 
         # UPDATE INVINCIBILITY TIMER FIRST
         self.update_side_rect_invincibility()
@@ -261,6 +272,16 @@ class LevelTwo(VerticalBattleScreen):
         return names
 
     def load_enemy_into_list(self):
+        self.bileSpitterGroup.clear()
+        self.triSpitterGroup.clear()
+        self.bladeSpinnerGroup.clear()
+        self.fireLauncherGroup.clear()
+        self.kamikazeDroneGroup.clear()
+        self.ravagerGroup.clear()
+        self.spineLauncherGroup.clear()
+        self.sporeFlowerGroup.clear()
+        self.bossLevelTwoGroup.clear()
+
         for obj in self.tiled_map.objects:
             # ⭐ LOAD ENEMIES (existing code)
             if obj.name == "level_2_boss":

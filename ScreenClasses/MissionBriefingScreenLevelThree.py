@@ -1,7 +1,6 @@
 import pygame
 
-from Levels.LevelOne import LevelOne
-from Levels.levelThree import LevelThree
+
 from ScreenClasses.Screen import Screen
 from Constants.GlobalConstants import GlobalConstants
 
@@ -12,6 +11,8 @@ class MissionBriefingScreenLevelThree(Screen):
         self.font_title = pygame.font.Font(None, 48)
         self.font_body = pygame.font.Font(None, 26)
         self.set_player = "None"
+        self.skip_ready_time = pygame.time.get_ticks() + 2500
+
 
         self.briefing_text = [
             "MISSION BRIEFING: Protect Star Base",
@@ -30,13 +31,16 @@ class MissionBriefingScreenLevelThree(Screen):
 
     def update(self, state):
         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_f:
-                    next_level = LevelThree()
-                    next_level.set_player(state.starship)
-                    state.currentScreen = next_level
-                    next_level.start(state)
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+                if pygame.time.get_ticks() < self.skip_ready_time:
                     return
+                from Levels.levelThree import LevelThree
+
+                next_level = LevelThree()
+                next_level.set_player(state.starship)
+                state.currentScreen = next_level
+                next_level.start(state)
+                return
 
     def draw(self, state):
         state.DISPLAY.fill((0, 0, 0))

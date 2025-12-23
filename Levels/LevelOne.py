@@ -64,6 +64,16 @@ class LevelOne(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
+        print("=== ENEMY LIST ===")
+        print(f"BileSpitter: {len(self.bileSpitterGroup)}")
+        print(f"TriSpitter: {len(self.triSpitterGroup)}")
+        print(f"BladeSpinner: {len(self.bladeSpinnerGroup)}")
+        print(f"BossLevelOne: {len(self.bossLevelOneGroup)}")
+        print(
+            f"TOTAL: "
+            f"{len(self.bileSpitterGroup) + len(self.triSpitterGroup) + len(self.bladeSpinnerGroup) + len(self.bossLevelOneGroup)}"
+        )
+        print("==================")
         if len(self.missed_enemies) > 9:
             print("GAME OVER!!!")
             self.game_over = True
@@ -246,6 +256,10 @@ class LevelOne(VerticalBattleScreen):
         return names
 
     def load_enemy_into_list(self):
+        self.bileSpitterGroup.clear()
+        self.triSpitterGroup.clear()
+        self.bladeSpinnerGroup.clear()
+        self.bossLevelOneGroup.clear()
         for obj in self.tiled_map.objects:
             # ⭐ LOAD ENEMIES (existing code)
             if obj.name == "level_1_boss":

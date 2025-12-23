@@ -10,6 +10,8 @@ class MissionBriefingScreenLevelTwo(Screen):
         self.font_title = pygame.font.Font(None, 48)
         self.font_body = pygame.font.Font(None, 26)
         self.set_player = "None"
+        self.skip_ready_time = pygame.time.get_ticks() + 2500
+
 
         self.briefing_text = [
             "MISSION BRIEFING: Escort the Commander",
@@ -28,7 +30,9 @@ class MissionBriefingScreenLevelTwo(Screen):
 
     def update(self, state):
         for event in pygame.event.get():
-            if event.key == pygame.K_f:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+                if pygame.time.get_ticks() < self.skip_ready_time:
+                    return
                 from Levels.LevelTwo import LevelTwo
 
                 next_level = LevelTwo()

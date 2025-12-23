@@ -67,6 +67,7 @@ class LevelThree(VerticalBattleScreen):
         self.boss_spawned = False
         self.boss_spawn_delay_ms = 1000
         self.boss_spawn_time = None
+        self.level_start = True
         # --------------------------------
         # SIDE RECT (ONLY HP SYSTEM)
         # --------------------------------
@@ -80,6 +81,7 @@ class LevelThree(VerticalBattleScreen):
         self.game_over: bool = False
         # Level 3: disable base enemy bullet damage
         self.disable_player_bullet_damage = True
+
 
     def start(self, state) -> None:
         player_x = None
@@ -111,6 +113,9 @@ class LevelThree(VerticalBattleScreen):
         #     f"KamikazeDrone: {len(self.kamikazeDroneGroup)} | "
         #     f"BossLevelThree: {len(self.bossLevelThreeGroup)}"
         # )
+        if self.level_start == True:
+            self.level_start = False
+            self.starship.shipHealth = 100
         total = (
                 len(self.bileSpitterGroup)
                 + len(self.triSpitterGroup)
@@ -260,6 +265,15 @@ class LevelThree(VerticalBattleScreen):
         return names
 
     def load_enemy_into_list(self):
+        self.bileSpitterGroup.clear()
+        self.triSpitterGroup.clear()
+        self.bladeSpinnerGroup.clear()
+        self.fireLauncherGroup.clear()
+        self.kamikazeDroneGroup.clear()
+        self.ravagerGroup.clear()
+        self.spineLauncherGroup.clear()
+        self.sporeFlowerGroup.clear()
+        self.bossLevelThreeGroup.clear()
 
         for obj in self.tiled_map.objects:
             if obj.name == "space_station":
