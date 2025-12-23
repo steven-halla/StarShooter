@@ -437,65 +437,41 @@ class LevelFour(VerticalBattleScreen):
                 self.bossLevelFourGroup.remove(boss)
                 print("level complete")
 
-
-        # -------------------------
-        # BLADES
-        # -------------------------
         for blade in list(self.bladeSpinnerGroup):
-
-            if blade.y > screen_bottom:
-                if blade not in self.missed_enemies:
-                    self.missed_enemies.append(blade)
-                    print("enemy missed")
-                continue
-
             blade.update()
-
             if blade.enemyHealth <= 0:
                 self.bladeSpinnerGroup.remove(blade)
 
-        # -------------------------
-        # BILE SPITTERS
-        # -------------------------
-        for enemy in list(self.bileSpitterGroup):
+        for fire in list(self.fireLauncherGroup):
+            fire.update()
 
-            if enemy.y > screen_bottom:
-                if enemy not in self.missed_enemies:
-                    self.missed_enemies.append(enemy)
-                    print("enemy missed")
-                continue
+            if fire.enemyBullets:
+                self.enemy_bullets.extend(fire.enemyBullets)
+                fire.enemyBullets.clear()
 
+            if fire.enemyHealth <= 0:
+                self.fireLauncherGroup.remove(fire)
+
+        for enemy in self.bileSpitterGroup:
             enemy.update()
-
-            if self.starship.hitbox.colliderect(enemy.hitbox):
-                enemy.color = (135, 206, 235)
-            else:
-                enemy.color = GlobalConstants.RED
-
             enemy.update_hitbox()
 
             if enemy.enemyBullets:
                 self.enemy_bullets.extend(enemy.enemyBullets)
                 enemy.enemyBullets.clear()
 
-        # -------------------------
-        # TRI SPITTERS
-        # -------------------------
-        for enemy_tri_spitter in list(self.triSpitterGroup):
+        for drone in list(self.kamikazeDroneGroup):
+            drone.update()
+            if drone.enemyHealth <= 0:
+                self.kamikazeDroneGroup.remove(drone)
 
-            if enemy_tri_spitter.y > screen_bottom:
-                if enemy_tri_spitter not in self.missed_enemies:
-                    self.missed_enemies.append(enemy_tri_spitter)
-                    print("enemy missed")
-                continue
+        for worm in list(self.transportWormGroup):
+            worm.update()
+            if worm.enemyHealth <= 0:
+                self.transportWormGroup.remove(worm)
 
+        for enemy_tri_spitter in self.triSpitterGroup:
             enemy_tri_spitter.update()
-
-            if self.starship.hitbox.colliderect(enemy_tri_spitter.hitbox):
-                enemy_tri_spitter.color = (135, 206, 235)
-            else:
-                enemy_tri_spitter.color = GlobalConstants.RED
-
             enemy_tri_spitter.update_hitbox()
 
             if enemy_tri_spitter.enemyBullets:
