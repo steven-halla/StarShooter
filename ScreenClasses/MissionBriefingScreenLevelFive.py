@@ -4,7 +4,7 @@ from ScreenClasses.Screen import Screen
 from Constants.GlobalConstants import GlobalConstants
 
 
-class MissionBriefingScreenLevelOne(Screen):
+class MissionBriefingScreenLevelFive(Screen):
     def __init__(self):
         super().__init__()
         self.font_title = pygame.font.Font(None, 48)
@@ -13,22 +13,17 @@ class MissionBriefingScreenLevelOne(Screen):
         self.skip_ready_time = pygame.time.get_ticks() + 2500
 
         self.briefing_text = [
-            "Mission Briefing: Save the children",
+            "Mission Briefing: Rescue the civilians",
             "",
-            "The inter galatic Childrens hospital is under attack from the undead legion",
-            "Ammo is almost depleted, and most of the barrels have melted.",
-            "The enemy strike force includes a Transport bio ship",
+            "A civilian class deluxe luxury cruise liner was destroyed, their escape pods scattered.",
+            "The undead legion has sent units to capture them alive",
+            "Rescue the civilian and clear the way for our transport ships",
             "",
-            "Destroy at least 40 enemies.",
-            "Destroy the transport Bio ship",
+            "Friendly fire is active, do not hit the civilians",
+            "You must rescue at least 7 escape pods.",
             "",
-            "All fighter jets are undergoing repairs, you will be alone.",
+            "Watch out for radiation zones.",
             "",
-            "Use arrow keys to move. Press F key Machine gun Fire..",
-            "",
-            "Press A key to launch missiles. Press D key to launch Special Attack",
-            "",
-
             "Press F to deploy."
         ]
 

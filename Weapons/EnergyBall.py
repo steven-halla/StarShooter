@@ -7,7 +7,7 @@ class EnergyBall(Weapon):
 
         self.width: int = 12
         self.height: int = 12
-        self.damage: int = 10
+        self.damage: int = 30
         self.rateOfFire: float = 0.5
 
         self.dx: float = dx

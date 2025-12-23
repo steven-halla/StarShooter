@@ -6,7 +6,7 @@ class WindSlicer(Weapon):
 
         self.width = 12
         self.height = 12
-        self.damage = 10
+        self.damage = 5
 
         self.speed = 3
         self.dx = dx

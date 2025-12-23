@@ -13,22 +13,17 @@ class MissionBriefingScreenLevelOne(Screen):
         self.skip_ready_time = pygame.time.get_ticks() + 2500
 
         self.briefing_text = [
-            "Mission Briefing: Save the children",
+            "Mission Briefing: Destroy the hive",
             "",
-            "The inter galatic Childrens hospital is under attack from the undead legion",
-            "Ammo is almost depleted, and most of the barrels have melted.",
-            "The enemy strike force includes a Transport bio ship",
+            "We have  located a hidden hive of the undead legion.",
+            "Your mission is to go in and destroy this hive before it increases in size",
+            "Destroy all transport worms",
             "",
-            "Destroy at least 40 enemies.",
-            "Destroy the transport Bio ship",
+            "Collapse the worms and burn their cargo out with NAPALM",
+            "If 4 worms survive we will have to recall the entire mission",
             "",
-            "All fighter jets are undergoing repairs, you will be alone.",
+            "Slavers will come to order the worms to burrow, destroy them beforehand!",
             "",
-            "Use arrow keys to move. Press F key Machine gun Fire..",
-            "",
-            "Press A key to launch missiles. Press D key to launch Special Attack",
-            "",
-
             "Press F to deploy."
         ]
 
@@ -37,9 +32,9 @@ class MissionBriefingScreenLevelOne(Screen):
             if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
                 if pygame.time.get_ticks() < self.skip_ready_time:
                     return
-                from Levels.LevelOne import LevelOne
+                from Levels.LevelFour import LevelFour
 
-                next_level = LevelOne()
+                next_level = LevelFour()
                 next_level.set_player(state.starship)
                 state.currentScreen = next_level
                 next_level.start(state)
