@@ -3,6 +3,7 @@ import json
 
 from Constants.GlobalConstants import GlobalConstants
 from Entity.StarShip import StarShip
+from Levels.LevelFour import LevelFour
 from Levels.LevelTwo import LevelTwo
 from Levels.levelThree import LevelThree
 from ScreenClasses.MissionBriefingScreenLevelOne import MissionBriefingScreenLevelOne
@@ -15,10 +16,10 @@ class GameState:
     def __init__(self):
         pygame.display.set_mode(GlobalConstants.WINDOWS_SIZE)  # or GlobalConstants.WINDOWS_SIZE if you prefer
 
-        self.currentScreen = MissionBriefingScreenLevelOne()
+        self.currentScreen = LevelFour()
         self.isRunning: bool = True
         self.starship = StarShip()  # ⭐ GLOBAL SHIP INSTANCE
-        # self.currentScreen.set_player(self.starship)
+        self.currentScreen.set_player(self.starship) # sets star ship for maps not needed for mission briefing
         self.DISPLAY: pygame.Surface = pygame.display.set_mode(GlobalConstants.WINDOWS_SIZE)
 
 

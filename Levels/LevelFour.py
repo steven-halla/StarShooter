@@ -17,7 +17,7 @@ from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLev
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
-class LevelOne(VerticalBattleScreen):
+class LevelFour(VerticalBattleScreen):
     def __init__(self):
         super().__init__()
         # self.starship: StarShip = StarShip()
@@ -81,7 +81,7 @@ class LevelOne(VerticalBattleScreen):
         print(f"BossLevelFour: {len(self.bossLevelFourGroup)}")
         print(
             f"TOTAL: "
-            f"{len(self.bileSpitterGroup) + len(self.triSpitterGroup) + len(self.bladeSpinnerGroup) + len(self.bossLevelOneGroup)}"
+            f"{len(self.bileSpitterGroup) + len(self.triSpitterGroup) + len(self.bladeSpinnerGroup) + len(self.bossLevelFourGroup)}"
         )
         print("==================")
 
@@ -133,8 +133,8 @@ class LevelOne(VerticalBattleScreen):
                 # else:
                 #     print("Missile locked onto: NONE (no enemies found)")
         self.enemy_helper()
-        if not self.bossLevelOneGroup and not self.level_complete:
-            self.level_complete = True
+        # if not self.bossLevelFourGroup and not self.level_complete:
+        #     self.level_complete = True
 
 
         self.extract_object_names()
@@ -214,7 +214,7 @@ class LevelOne(VerticalBattleScreen):
 
         for blade in self.bladeSpinnerGroup:
             blade.draw(state.DISPLAY, self.camera)
-        for boss in self.bossLevelOneGroup:
+        for boss in self.bossLevelFourGroup:
             boss.draw(state.DISPLAY, self.camera)
 
         for enemy_tri_spitter in self.triSpitterGroup:
@@ -425,13 +425,7 @@ class LevelOne(VerticalBattleScreen):
         # -------------------------
         # BOSS
         # -------------------------
-        for boss in list(self.bossLevelOneGroup):
-
-            if boss.y > screen_bottom:
-                if boss not in self.missed_enemies:
-                    self.missed_enemies.append(boss)
-                    print("enemy missed")
-                continue
+        for boss in list(self.bossLevelFourGroup):
 
             boss.update()
 
@@ -440,7 +434,7 @@ class LevelOne(VerticalBattleScreen):
                 boss.enemyBullets.clear()
 
             if boss.enemyHealth <= 0:
-                self.bossLevelOneGroup.remove(boss)
+                self.bossLevelFourGroup.remove(boss)
                 print("level complete")
 
 
