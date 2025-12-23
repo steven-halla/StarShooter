@@ -17,13 +17,13 @@ class MissionBriefingScreenLevelTwo(Screen):
             "MISSION BRIEFING: Escort the Commander",
             "",
             "Commander Du-point is needing escort to the outer sector.",
-            "Pockets of Acid Gas are about, avoid this at all cost",
+            "Pockets of Fire Gas are about, avoid these at all cost",
             "Your job is to safely escort the Commander.",
             "",
-            "Enemies in this sector are  immune to the acid",
+            "Enemies in this sector are  immune to the Fire Gas",
             "A Slaver bio ship is in the area, which is a high priority target",
             "",
-            "The commanders life is of upmost imporants",
+            "The commanders life is of upmost importance",
             "",
             "Press F to deploy."
         ]

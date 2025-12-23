@@ -269,7 +269,7 @@
   <object id="42" name="blade_spinner" x="297.438" y="673.759" width="16" height="16"/>
   <object id="24" name="blade_spinner" x="273.556" y="1668.11" width="16" height="16"/>
   <object id="16" name="blade_spinner" x="54.277" y="1900.42" width="16" height="16"/>
-  <object id="9" name="level_1_boss" x="127.37" y="3049.65" width="140" height="60"/>
+  <object id="9" name="level_1_boss" x="105.659" y="36.9084" width="140" height="60"/>
  </objectgroup>
  <layer id="4" name="hazard" width="25" height="210">
   <data encoding="csv">
