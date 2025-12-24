@@ -83,11 +83,57 @@ class LevelFour(VerticalBattleScreen):
                 break
 
         # 🔒 FREEZE OR RESTORE SCROLL
+
+        # screen bounds with padding (WORLD SPACE)
+        # screen bounds with padding (WORLD SPACE)
+        PADDING = 100
+        screen_top = self.camera.y - PADDING
+        screen_bottom = self.camera.y + (self.window_height / self.camera.zoom) + PADDING
+
         if worm_on_screen:
             self.map_scroll_speed_per_frame = 0
+            now = pygame.time.get_ticks()
+
+            for worm in self.transportWormGroup:
+
+                # ✅ ONLY WORMS ACTUALLY ON SCREEN CAN SUMMON
+                if not (
+                        worm.y + worm.height >= screen_top and
+                        worm.y <= screen_bottom
+                ):
+                    continue
+
+                if now - worm.last_summon_time >= worm.summon_interval_ms:
+                    worm.summon_enemy(
+                        enemy_classes=[
+                            BileSpitter,
+                            KamikazeDrone,
+                            TriSpitter,
+                            FireLauncher,
+                        ],
+                        enemy_groups={
+                            BileSpitter: self.bileSpitterGroup,
+                            KamikazeDrone: self.kamikazeDroneGroup,
+                            TriSpitter: self.triSpitterGroup,
+                            FireLauncher: self.fireLauncherGroup,
+                        },
+                        spawn_y_offset=20
+                    )
+
+                    # 🔒 HARD SIZE ENFORCEMENT (LEVEL 4 FIX)
+                    for enemy in (
+                            self.bileSpitterGroup +
+                            self.kamikazeDroneGroup +
+                            self.triSpitterGroup +
+                            self.fireLauncherGroup
+                    ):
+                        enemy.width = 16
+                        enemy.height = 16
+                        enemy.update_hitbox()
+
+                    worm.last_summon_time = now
         else:
             self.map_scroll_speed_per_frame = 0.4
-
         super().update(state)
         print("=== ENEMY LIST ===")
         print(f"BileSpitter: {len(self.bileSpitterGroup)}")
@@ -201,12 +247,12 @@ class LevelFour(VerticalBattleScreen):
 
             self.prev_enemy_count = current_enemies
 
-        enemy_text = font.render(
-            f"Enemies {self.enemies_killed}/40",
-            True,
-            (255, 255, 255)
-        )
-        state.DISPLAY.blit(enemy_text, (10, 50))
+        # enemy_text = font.render(
+        #     f"Enemies {self.enemies_killed}/40",
+        #     True,
+        #     (255, 255, 255)
+        # )
+        # state.DISPLAY.blit(enemy_text, (10, 50))
         for napalm in self.napalm_list:
             napalm.draw(state.DISPLAY, self.camera)
         zoom = self.camera.zoom

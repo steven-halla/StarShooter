@@ -1,63 +1,90 @@
-import math
 import random
-
+import math
 import pygame
 
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Enemy import Enemy
-from Weapons.Bullet import Bullet
 
 
 class TransportWorm(Enemy):
     def __init__(self) -> None:
         super().__init__()
 
-        # enemy appearance
+        # -------------------------
+        # APPEARANCE
+        # -------------------------
         self.width: int = 16
         self.height: int = 16
         self.color: tuple[int, int, int] = GlobalConstants.RED
 
-        # summoning
-        self.summon_interval_ms: int = 3000
-        self.last_summon_time: int = pygame.time.get_ticks()
-
-
-        # gameplay
-        self.enemyHealth: int = 700
-
-        # bullets owned by this enemy
-
-
-        self.spore_flower_image = pygame.image.load(
+        self.sprite_sheet = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
 
+        # -------------------------
+        # GAMEPLAY
+        # -------------------------
+        self.enemyHealth: int = 700
 
+        # -------------------------
+        # SUMMONING
+        # -------------------------
+        self.summon_interval_ms: int = 3000
+        self.last_summon_time: int = pygame.time.get_ticks()
+
+        self.summon_level: int = 0
+        self.burning: bool = False   # Napalm disables summoning
+        self.about_to_summon: bool = False
+
+    # -------------------------------------------------
+    # UPDATE
+    # -------------------------------------------------
     def update(self) -> None:
         super().update()
         self.update_hitbox()
 
-        now = pygame.time.get_ticks()
+        # Panic mode
+        if self.enemyHealth < 250:
+            self.summon_interval_ms = 1200
 
+    # -------------------------------------------------
+    # SUMMON LOGIC
+    # -------------------------------------------------
     def summon_enemy(
-            self,
-            enemy_classes: list[type],
-            enemy_groups: dict[type, list],
-            spawn_y_offset: int = 10,
-            spawn_x_variance: int = 12
+        self,
+        enemy_classes: list[type],
+        enemy_groups: dict[type, list],
+        spawn_y_offset: int = 18,
+        spawn_x_variance: int = 14
     ) -> None:
+        """
+        Spawns ONE enemy near the worm.
+        Caller controls WHEN this runs.
+        """
+
+        if self.burning:
+            return
+
         if not enemy_classes:
             return
 
-        enemy_class = random.choice(enemy_classes)
+        # Weighted selection (order must match enemy_classes)
+        enemy_class = random.choices(
+            enemy_classes,
+            weights=[4, 2, 3, 2],  # adjust as needed
+            k=1
+        )[0]
 
         if enemy_class not in enemy_groups:
-            return  # safety: class not wired to a group
+            return
 
         enemy = enemy_class()
 
-        # Spawn near the worm with slight spread
-        enemy.x = self.x + random.randint(-spawn_x_variance, spawn_x_variance)
+        # Spread spawn
+        angle = random.uniform(-0.6, 0.6)
+        radius = random.randint(6, spawn_x_variance)
+
+        enemy.x = self.x + int(math.sin(angle) * radius)
         enemy.y = self.y + spawn_y_offset
 
         # REQUIRED wiring
@@ -68,11 +95,15 @@ class TransportWorm(Enemy):
 
         enemy_groups[enemy_class].append(enemy)
 
+        # Escalation
+        self.summon_level += 1
 
-    def draw(self, surface: pygame.Surface, camera):
-
+    # -------------------------------------------------
+    # DRAW
+    # -------------------------------------------------
+    def draw(self, surface: pygame.Surface, camera) -> None:
         sprite_rect = pygame.Rect(0, 344, 32, 32)
-        sprite = self.spore_flower_image.subsurface(sprite_rect)
+        sprite = self.sprite_sheet.subsurface(sprite_rect)
 
         scale = camera.zoom
         scaled_sprite = pygame.transform.scale(
@@ -84,9 +115,10 @@ class TransportWorm(Enemy):
         screen_y = camera.world_to_screen_y(self.y)
         surface.blit(scaled_sprite, (screen_x, screen_y))
 
+        # Hitbox debug
         hb_x = camera.world_to_screen_x(self.hitbox.x)
         hb_y = camera.world_to_screen_y(self.hitbox.y)
-        hb_w = int(self.hitbox.width * camera.zoom)
-        hb_h = int(self.hitbox.height * camera.zoom)
+        hb_w = int(self.hitbox.width * scale)
+        hb_h = int(self.hitbox.height * scale)
 
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)

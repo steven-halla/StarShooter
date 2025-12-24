@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="330" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="91">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="330" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="108">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="background" width="25" height="330">
   <data encoding="csv">
@@ -675,7 +675,7 @@
  <objectgroup id="4" name="enemies">
   <object id="28" name="transport_worm" x="300.986" y="2978.15" width="32" height="32"/>
   <object id="29" name="transport_worm" x="20.4083" y="2974.61" width="32" height="32"/>
-  <object id="31" name="transport_worm" x="173.123" y="4803.7" width="32" height="32"/>
+  <object id="31" name="transport_worm" x="177.303" y="4777.58" width="32" height="32"/>
   <object id="24" name="transport_worm" x="27.3929" y="1474.15" width="32" height="32"/>
   <object id="25" name="transport_worm" x="171.576" y="1457.07" width="32" height="32"/>
   <object id="26" name="transport_worm" x="353.415" y="1482.91" width="32" height="32"/>
@@ -743,5 +743,13 @@
   <object id="40" name="kamikazi_drone" x="50.1325" y="2268.62" width="16" height="16"/>
   <object id="84" name="kamikazi_drone" x="146.276" y="3926.05" width="16" height="16"/>
   <object id="41" name="kamikazi_drone" x="152.799" y="2662.75" width="16" height="16"/>
+  <object id="91" name="level_4_boss" x="18.8107" y="5039.19" width="16" height="16"/>
+  <object id="103" name="level_4_boss" x="71.0628" y="4996.34" width="16" height="16"/>
+  <object id="105" name="level_4_boss" x="136.9" y="5046.5" width="16" height="16"/>
+  <object id="107" name="level_4_boss" x="229.909" y="5065.32" width="16" height="16"/>
+  <object id="101" name="level_4_boss" x="21.9459" y="5097.71" width="16" height="16"/>
+  <object id="102" name="level_4_boss" x="158.846" y="5002.61" width="16" height="16"/>
+  <object id="104" name="level_4_boss" x="122.27" y="5128.02" width="16" height="16"/>
+  <object id="106" name="level_4_boss" x="226.774" y="5022.47" width="16" height="16"/>
  </objectgroup>
 </map>
