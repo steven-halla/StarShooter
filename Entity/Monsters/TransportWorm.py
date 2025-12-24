@@ -1,4 +1,6 @@
 import math
+import random
+
 import pygame
 
 from Constants.GlobalConstants import GlobalConstants
@@ -43,8 +45,32 @@ class TransportWorm(Enemy):
 
         now = pygame.time.get_ticks()
 
+    def summon_enemy(
+            self,
+            enemy_classes: list[type],
+            enemy_groups: dict[type, list],
+            spawn_y_offset: int = 10
+    ) -> None:
+        """
+        Spawns ONE random enemy from enemy_classes and inserts it
+        into the correct enemy group.
+        """
 
+        if not enemy_classes:
+            return
 
+        enemy_class = random.choice(enemy_classes)
+        enemy = enemy_class()
+
+        # Spawn near the worm
+        enemy.x = self.x
+        enemy.y = self.y + spawn_y_offset
+
+        enemy.update_hitbox()
+
+        # Insert into correct group
+        if enemy_class in enemy_groups:
+            enemy_groups[enemy_class].append(enemy)
 
 
 

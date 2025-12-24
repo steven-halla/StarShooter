@@ -70,26 +70,43 @@ class LevelFour(VerticalBattleScreen):
 
 
     def update(self, state) -> None:
-        super().update(state)
-        # print("=== ENEMY LIST ===")
-        # print(f"BileSpitter: {len(self.bileSpitterGroup)}")
-        # print(f"TriSpitter: {len(self.triSpitterGroup)}")
-        # print(f"BladeSpinner: {len(self.bladeSpinnerGroup)}")
-        # print(f"firelauncher: {len(self.fireLauncherGroup)}")
-        # print(f"transportworm: {len(self.transportWormGroup)}")
-        # print(f"kamikazedrone: {len(self.kamikazeDroneGroup)}")
-        # print(f"BossLevelFour: {len(self.bossLevelFourGroup)}")
-        # print(
-        #     f"TOTAL: "
-        #     f"{len(self.bileSpitterGroup) + len(self.triSpitterGroup) + len(self.bladeSpinnerGroup) + len(self.bossLevelFourGroup)}"
-        # )
-        # print("==================")
-        for worm in list(self.transportWormGroup):
-            worm.update()
-            print(f"[TransportWorm HP] {worm.enemyHealth}")
+        worm_on_screen = False
 
-            if worm.enemyHealth <= 0:
-                self.transportWormGroup.remove(worm)
+        screen_top = self.camera.y
+        screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
+
+        for worm in self.transportWormGroup:
+            if worm.y + worm.height >= screen_top and worm.y <= screen_bottom:
+                worm_on_screen = True
+                break
+
+        # 🔒 FREEZE OR RESTORE SCROLL HERE
+        if worm_on_screen:
+            self.map_scroll_speed_per_frame = 0
+        else:
+            self.map_scroll_speed_per_frame = 0.4
+
+        super().update(state)
+        print("=== ENEMY LIST ===")
+        print(f"BileSpitter: {len(self.bileSpitterGroup)}")
+        print(f"TriSpitter: {len(self.triSpitterGroup)}")
+        print(f"BladeSpinner: {len(self.bladeSpinnerGroup)}")
+        print(f"firelauncher: {len(self.fireLauncherGroup)}")
+        print(f"transportworm: {len(self.transportWormGroup)}")
+        print(f"kamikazedrone: {len(self.kamikazeDroneGroup)}")
+        print(f"BossLevelFour: {len(self.bossLevelFourGroup)}")
+        print(
+            f"TOTAL: "
+            f"{len(self.bileSpitterGroup) + len(self.triSpitterGroup) + len(self.bladeSpinnerGroup) + len(self.bossLevelFourGroup)}"
+        )
+        # print("==================")
+        # for worm in list(self.transportWormGroup):
+        #         #     worm.update()
+        #         #     print(f"[TransportWorm HP] {worm.enemyHealth}")
+        #         #
+        #         #     if worm.enemyHealth <= 0:
+        #         #         self.transportWormGroup.remove(worm)
+
 
         now = pygame.time.get_ticks()
         elapsed = now - self.level_start_time
