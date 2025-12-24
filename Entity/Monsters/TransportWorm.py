@@ -17,21 +17,15 @@ class TransportWorm(Enemy):
         self.height: int = 16
         self.color: tuple[int, int, int] = GlobalConstants.RED
 
-        # bullet appearance
-        self.bulletColor: tuple[int, int, int] = GlobalConstants.SKYBLUE
-        self.bulletWidth: int = 20
-        self.bulletHeight: int = 20
+        # summoning
+        self.summon_interval_ms: int = 3000
+        self.last_summon_time: int = pygame.time.get_ticks()
 
-        # firing
-        self.weapon_speed: float = 3.0
-        self.fire_interval_ms: int = 3000
-        self.last_shot_time: int = pygame.time.get_ticks()
 
         # gameplay
         self.enemyHealth: int = 700
 
         # bullets owned by this enemy
-        self.enemyBullets: list[Bullet] = []
 
 
         self.spore_flower_image = pygame.image.load(
@@ -49,29 +43,30 @@ class TransportWorm(Enemy):
             self,
             enemy_classes: list[type],
             enemy_groups: dict[type, list],
-            spawn_y_offset: int = 10
+            spawn_y_offset: int = 10,
+            spawn_x_variance: int = 12
     ) -> None:
-        """
-        Spawns ONE random enemy from enemy_classes and inserts it
-        into the correct enemy group.
-        """
-
         if not enemy_classes:
             return
 
         enemy_class = random.choice(enemy_classes)
+
+        if enemy_class not in enemy_groups:
+            return  # safety: class not wired to a group
+
         enemy = enemy_class()
 
-        # Spawn near the worm
-        enemy.x = self.x
+        # Spawn near the worm with slight spread
+        enemy.x = self.x + random.randint(-spawn_x_variance, spawn_x_variance)
         enemy.y = self.y + spawn_y_offset
+
+        # REQUIRED wiring
+        enemy.camera = self.camera
+        enemy.target_player = self.target_player
 
         enemy.update_hitbox()
 
-        # Insert into correct group
-        if enemy_class in enemy_groups:
-            enemy_groups[enemy_class].append(enemy)
-
+        enemy_groups[enemy_class].append(enemy)
 
 
     def draw(self, surface: pygame.Surface, camera):

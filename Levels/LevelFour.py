@@ -70,17 +70,19 @@ class LevelFour(VerticalBattleScreen):
 
 
     def update(self, state) -> None:
+        BUFFER = -100  # pixels of grace
+
         worm_on_screen = False
 
-        screen_top = self.camera.y
-        screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
+        screen_top = self.camera.y - BUFFER
+        screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom) + BUFFER
 
         for worm in self.transportWormGroup:
             if worm.y + worm.height >= screen_top and worm.y <= screen_bottom:
                 worm_on_screen = True
                 break
 
-        # 🔒 FREEZE OR RESTORE SCROLL HERE
+        # 🔒 FREEZE OR RESTORE SCROLL
         if worm_on_screen:
             self.map_scroll_speed_per_frame = 0
         else:
