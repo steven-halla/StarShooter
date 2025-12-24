@@ -16,7 +16,7 @@ class NapalmSpread(Weapon):
         self.height: int = 11
 
         # DAMAGE / EFFECT
-        self.damage: int = 25
+        self.damage: int = 75
         self.duration: int = 3
         # self.explosion_active: bool = False
         self.aoe_applied: bool = False

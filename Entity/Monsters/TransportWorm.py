@@ -26,7 +26,7 @@ class TransportWorm(Enemy):
         self.last_shot_time: int = pygame.time.get_ticks()
 
         # gameplay
-        self.enemyHealth: int = 3000
+        self.enemyHealth: int = 700
 
         # bullets owned by this enemy
         self.enemyBullets: list[Bullet] = []
