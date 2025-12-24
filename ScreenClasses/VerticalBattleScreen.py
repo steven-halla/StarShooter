@@ -6,6 +6,7 @@ import math
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Controller.KeyBoardControls import KeyBoardControls
+from Entity.Bosses.BossLevelFour import BossLevelFour
 from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Bosses.BossLevelThree import BossLevelThree
 from Entity.Bosses.BossLevelTwo import BossLevelTwo
@@ -50,6 +51,7 @@ class VerticalBattleScreen:
         self.bossLevelOneGroup: list[BossLevelOne] = []
         self.bossLevelTwoGroup: list[BossLevelTwo] = []
         self.bossLevelThreeGroup: list[BossLevelThree] = []
+        self.bossLevelFourGroup: list[BossLevelFour] = []
 
         #boss
 
@@ -153,7 +155,7 @@ class VerticalBattleScreen:
         # print("PLAYER UPDATE Y:", self.starship.y)
         # print("STARSHIP INSTANCE:", id(self.starship))
         # now handle map scroll ONLY in LevelOne
-        # self.move_map_y_axis()
+        self.move_map_y_axis()
 
 
 
@@ -552,7 +554,10 @@ class VerticalBattleScreen:
                     list(self.fireLauncherGroup) +
                     list(self.kamikazeDroneGroup) +
                     list(self.transportWormGroup) +
-                    list(self.bossLevelThreeGroup)
+                    list(self.bossLevelThreeGroup) +
+                    list(self.bossLevelTwoGroup) +
+                    list(self.bossLevelOneGroup) +
+                    list(self.bossLevelFourGroup)
             )
 
             for enemy in enemies:
@@ -880,7 +885,8 @@ class VerticalBattleScreen:
                 list(self.fireLauncherGroup) +
                 list(self.bossLevelOneGroup) +
                 list(self.bossLevelTwoGroup) +
-                list(self.bossLevelThreeGroup)
+                list(self.bossLevelThreeGroup) +
+                list(self.bossLevelFourGroup)
 
 
 
@@ -1135,6 +1141,9 @@ class VerticalBattleScreen:
 
         elif enemy in self.bossLevelThreeGroup:
             self.bossLevelThreeGroup.remove(enemy)
+
+        elif enemy in self.bossLevelFourGroup:
+            self.bossLevelFourGroup.remove(enemy)
 
     def get_enemy_screen_rect(self, enemy) -> pygame.Rect:
         return pygame.Rect(

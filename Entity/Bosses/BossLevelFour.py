@@ -1,4 +1,5 @@
 import math
+import random
 import pygame
 
 from Constants.GlobalConstants import GlobalConstants
@@ -14,11 +15,17 @@ class BossLevelFour(Enemy):
         self.id = 0
 
         # -------------------------
-        # SHIELD STATE
+        # SHIELD SYSTEM
         # -------------------------
         self.shield_active: bool = True
-        self.shield_toggle_interval_ms = 3000
-        self.last_shield_toggle_time = pygame.time.get_ticks()
+        self.max_shield_hp: int = 600
+        self.shield_hp: int = self.max_shield_hp
+
+        self.shield_toggle_interval_ms = random.choice((3000, 4000))
+        self.last_shield_toggle_time = (
+            pygame.time.get_ticks()
+            - random.randint(0, self.shield_toggle_interval_ms)
+        )
 
         # -------------------------
         # APPEARANCE
@@ -36,9 +43,9 @@ class BossLevelFour(Enemy):
         self.enemyBullets: list[Bullet] = []
 
         # -------------------------
-        # FIRING TIMERS
+        # FIRING
         # -------------------------
-        self.triple_fire_interval_ms = 2000
+        self.triple_fire_interval_ms = 3000
         self.last_triple_shot_time = pygame.time.get_ticks()
 
         # -------------------------
@@ -47,6 +54,25 @@ class BossLevelFour(Enemy):
         self.enemyHealth = 300
         self.exp = 5
         self.credits = 50
+
+    # =====================================================
+    # DAMAGE HANDLING (THE KEY FIX)
+    # =====================================================
+    def take_damage(self, amount: int) -> None:
+        if self.shield_active:
+            self.shield_hp -= amount
+            if self.shield_hp < 0:
+                self.shield_hp = 0
+
+            print(
+                f"[BOSS SHIELD HIT] Shield HP: {self.shield_hp}/{self.max_shield_hp}"
+            )
+            return
+
+        self.enemyHealth -= amount
+        print(
+            f"[BOSS HP HIT] Boss HP: {self.enemyHealth}"
+        )
 
     # =====================================================
     # TRIPLE FIRE
@@ -90,6 +116,7 @@ class BossLevelFour(Enemy):
     # =====================================================
     def update(self) -> None:
         super().update()
+
         if not self.is_active or self.camera is None:
             return
 
@@ -101,7 +128,12 @@ class BossLevelFour(Enemy):
             self.shield_active = not self.shield_active
             self.last_shield_toggle_time = now
 
-        # 🟣 ONLY FIRE WHEN SHIELD IS DOWN (PURPLE)
+            # 🔋 Shield came back UP → fully recharge
+            if self.shield_active:
+                self.shield_hp = self.max_shield_hp
+                self.shield_toggle_interval_ms = random.choice((3000, 4000))
+
+        # 🟣 ONLY FIRE WHEN SHIELD IS DOWN
         if not self.shield_active:
             if now - self.last_triple_shot_time >= self.triple_fire_interval_ms:
                 self.shoot_triple_line()

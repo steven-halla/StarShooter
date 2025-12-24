@@ -70,7 +70,10 @@ class LevelFour(VerticalBattleScreen):
 
 
     def update(self, state) -> None:
+        for boss in self.bossLevelFourGroup:
+            print(f"[LEVEL 4 BOSS HP] {boss.enemyHealth}")
         BUFFER = -100  # pixels of grace
+
 
         worm_on_screen = False
 
@@ -373,7 +376,7 @@ class LevelFour(VerticalBattleScreen):
                 self.bossLevelFourGroup.append(enemy)
                 enemy.camera = self.camera
                 enemy.target_player = self.starship
-
+                continue
             if obj.name == "transport_worm":
                 drone = TransportWorm()
                 drone.x = obj.x
@@ -481,20 +484,74 @@ class LevelFour(VerticalBattleScreen):
 
                     break
 
+
+        # -------------------------
+        # BOSS
+
+        # -------------------------
         # -------------------------
         # BOSS
         # -------------------------
         for boss in list(self.bossLevelFourGroup):
 
+            # ✅ REQUIRED — DO NOT REMOVE
             boss.update()
 
+            # -------------------------
+            # PLAYER BULLETS → BOSS ONLY
+            # -------------------------
+            for bullet in list(self.player_bullets):
+                bullet_rect = pygame.Rect(
+                    bullet.x,
+                    bullet.y,
+                    bullet.width,
+                    bullet.height
+                )
+
+                if bullet_rect.colliderect(boss.hitbox):
+
+                    # ROUTE DAMAGE THROUGH BOSS LOGIC
+                    if hasattr(boss, "take_damage"):
+                        boss.take_damage(bullet.damage)
+                    else:
+                        boss.enemyHealth -= bullet.damage
+
+                    print(
+                        f"[BOSS HIT] "
+                        f"ShieldActive={boss.shield_active} "
+                        f"ShieldHP={getattr(boss, 'shield_hp', 'N/A')} "
+                        f"BossHP={boss.enemyHealth}"
+                    )
+
+                    if bullet in self.player_bullets:
+                        self.player_bullets.remove(bullet)
+
+                    break  # one bullet per frame per boss
+
+            # -------------------------
+            # BOSS BULLETS
+            # -------------------------
             if boss.enemyBullets:
                 self.enemy_bullets.extend(boss.enemyBullets)
                 boss.enemyBullets.clear()
 
+            # -------------------------
+            # BOSS DEATH
+            # -------------------------
             if boss.enemyHealth <= 0:
                 self.bossLevelFourGroup.remove(boss)
                 print("level complete")
+        # for boss in list(self.bossLevelFourGroup):
+        #
+        #     boss.update()
+        #
+        #     if boss.enemyBullets:
+        #         self.enemy_bullets.extend(boss.enemyBullets)
+        #         boss.enemyBullets.clear()
+        #
+        #     if boss.enemyHealth <= 0:
+        #         self.bossLevelFourGroup.remove(boss)
+        #         print("level complete")
 
         for blade in list(self.bladeSpinnerGroup):
             blade.update()
