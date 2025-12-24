@@ -9,10 +9,14 @@ class NapalmSpread(Weapon):
 
         # VISUAL SIZE (projectile phase)
         self.width: int = 11
+        # DAMAGE TICK CONTROL
+        self.damage_tick_seconds: float = 1.0  # damage every 0.5s
+        self.damage_timer: Timer = Timer(self.damage_tick_seconds)
+        self.damage_timer.reset()
         self.height: int = 11
 
         # DAMAGE / EFFECT
-        self.damage: int = 200
+        self.damage: int = 25
         self.duration: int = 3
         # self.explosion_active: bool = False
         self.aoe_applied: bool = False
@@ -48,7 +52,8 @@ class NapalmSpread(Weapon):
                 self.y += self.dy
             else:
                 self.has_exploded = True
-                self.explosion_timer.reset()  # explosion window starts
+                self.explosion_timer.reset()
+                self.damage_timer.reset()  # 🔥 start burn ticks
             return
 
         # -------------------------

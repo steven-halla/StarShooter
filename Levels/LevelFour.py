@@ -71,35 +71,41 @@ class LevelFour(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
-        print("=== ENEMY LIST ===")
-        print(f"BileSpitter: {len(self.bileSpitterGroup)}")
-        print(f"TriSpitter: {len(self.triSpitterGroup)}")
-        print(f"BladeSpinner: {len(self.bladeSpinnerGroup)}")
-        print(f"firelauncher: {len(self.fireLauncherGroup)}")
-        print(f"transportworm: {len(self.transportWormGroup)}")
-        print(f"kamikazedrone: {len(self.kamikazeDroneGroup)}")
-        print(f"BossLevelFour: {len(self.bossLevelFourGroup)}")
-        print(
-            f"TOTAL: "
-            f"{len(self.bileSpitterGroup) + len(self.triSpitterGroup) + len(self.bladeSpinnerGroup) + len(self.bossLevelFourGroup)}"
-        )
-        print("==================")
+        # print("=== ENEMY LIST ===")
+        # print(f"BileSpitter: {len(self.bileSpitterGroup)}")
+        # print(f"TriSpitter: {len(self.triSpitterGroup)}")
+        # print(f"BladeSpinner: {len(self.bladeSpinnerGroup)}")
+        # print(f"firelauncher: {len(self.fireLauncherGroup)}")
+        # print(f"transportworm: {len(self.transportWormGroup)}")
+        # print(f"kamikazedrone: {len(self.kamikazeDroneGroup)}")
+        # print(f"BossLevelFour: {len(self.bossLevelFourGroup)}")
+        # print(
+        #     f"TOTAL: "
+        #     f"{len(self.bileSpitterGroup) + len(self.triSpitterGroup) + len(self.bladeSpinnerGroup) + len(self.bossLevelFourGroup)}"
+        # )
+        # print("==================")
+        for worm in list(self.transportWormGroup):
+            worm.update()
+            print(f"[TransportWorm HP] {worm.enemyHealth}")
+
+            if worm.enemyHealth <= 0:
+                self.transportWormGroup.remove(worm)
 
         now = pygame.time.get_ticks()
         elapsed = now - self.level_start_time
 
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
-        for enemy in list(self.bileSpitterGroup):
-
-            # -------- MISS DETECTION --------
-            if enemy.y > screen_bottom:
-                if enemy not in self.missed_enemies:
-                    self.missed_enemies.append(enemy)
-                    print("enemy missed")
-                continue  # stop processing this enemy
-
-            enemy.update()
+        # for enemy in list(self.bileSpitterGroup):
+        #
+        #     # -------- MISS DETECTION --------
+        #     if enemy.y > screen_bottom:
+        #         if enemy not in self.missed_enemies:
+        #             self.missed_enemies.append(enemy)
+        #             print("enemy missed")
+        #         continue  # stop processing this enemy
+        #
+        #     enemy.update()
 
         # if elapsed >= self.time_limit_ms and not self.time_up:
         #     self.time_up = True
@@ -379,19 +385,7 @@ class LevelFour(VerticalBattleScreen):
         # screen bottom in WORLD coordinates
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
-        # -------------------------
-        # NAPALM UPDATE + DAMAGE
-        # -------------------------
-        for napalm in list(self.napalm_list):
-            napalm.update()
 
-            if napalm.is_active and napalm.hits(self.starship.hitbox):
-                if not self.starship.invincible:
-                    self.starship.shipHealth -= napalm.damage
-                    self.starship.on_hit()
-
-            if not napalm.is_active:
-                self.napalm_list.remove(napalm)
 
         # -------------------------
         # METAL SHIELD → ENEMY BULLETS
@@ -462,11 +456,13 @@ class LevelFour(VerticalBattleScreen):
 
         for drone in list(self.kamikazeDroneGroup):
             drone.update()
+
             if drone.enemyHealth <= 0:
                 self.kamikazeDroneGroup.remove(drone)
 
         for worm in list(self.transportWormGroup):
             worm.update()
+
             if worm.enemyHealth <= 0:
                 self.transportWormGroup.remove(worm)
 
@@ -477,3 +473,4 @@ class LevelFour(VerticalBattleScreen):
             if enemy_tri_spitter.enemyBullets:
                 self.enemy_bullets.extend(enemy_tri_spitter.enemyBullets)
                 enemy_tri_spitter.enemyBullets.clear()
+

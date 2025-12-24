@@ -26,7 +26,7 @@ class TransportWorm(Enemy):
         self.last_shot_time: int = pygame.time.get_ticks()
 
         # gameplay
-        self.enemyHealth: int = 10
+        self.enemyHealth: int = 3000
 
         # bullets owned by this enemy
         self.enemyBullets: list[Bullet] = []
@@ -36,19 +36,16 @@ class TransportWorm(Enemy):
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
 
-  
+
     def update(self) -> None:
         super().update()
         self.update_hitbox()
 
         now = pygame.time.get_ticks()
 
-        if now - self.last_shot_time >= self.fire_interval_ms:
-            self.shoot_spores()
-            self.last_shot_time = now
 
-        for bullet in self.enemyBullets:
-            bullet.update()
+
+
 
 
     def draw(self, surface: pygame.Surface, camera):

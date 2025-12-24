@@ -17,6 +17,7 @@ from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.Ravager import Ravager
 from Entity.Monsters.SpineLauncher import SpineLauncher
 from Entity.Monsters.SporeFlower import SporeFlower
+from Entity.Monsters.TransportWorm import TransportWorm
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from Entity.StarShip import StarShip
@@ -44,6 +45,8 @@ class VerticalBattleScreen:
         self.acidLauncherGroup: list[AcidLauncher] = []
         self.ravagerGroup: list[Ravager] = []
         self.fireLauncherGroup: list[FireLauncher] = []
+        self.transportWormGroup: list[TransportWorm] = []
+
         self.bossLevelOneGroup: list[BossLevelOne] = []
         self.bossLevelTwoGroup: list[BossLevelTwo] = []
         self.bossLevelThreeGroup: list[BossLevelThree] = []
@@ -548,6 +551,7 @@ class VerticalBattleScreen:
                     list(self.bladeSpinnerGroup) +
                     list(self.fireLauncherGroup) +
                     list(self.kamikazeDroneGroup) +
+                    list(self.transportWormGroup) +
                     list(self.bossLevelThreeGroup)
             )
 
@@ -872,6 +876,7 @@ class VerticalBattleScreen:
                 list(self.spineLauncherGroup) +
                 list(self.acidLauncherGroup) +
                 list(self.ravagerGroup) +
+                list(self.transportWormGroup) +
                 list(self.fireLauncherGroup) +
                 list(self.bossLevelOneGroup) +
                 list(self.bossLevelTwoGroup) +
@@ -1006,30 +1011,37 @@ class VerticalBattleScreen:
             # ----------------------------------
             # EXPLOSION AOE DAMAGE (ONCE)
             # ----------------------------------
-            if napalm.has_exploded and not napalm.aoe_applied:
-                # 💥 Explosion center (WORLD space)
-                cx = napalm.x + napalm.width // 2
-                cy = napalm.y + napalm.height // 2
-                aoe_rect = pygame.Rect(
-                    cx - napalm.area_of_effect_x // 2,
-                    cy - napalm.area_of_effect_y // 2,
-                    napalm.area_of_effect_x,
-                    napalm.area_of_effect_y
-                )
-                for enemy in all_enemies:
-                    enemy_hitbox = pygame.Rect(
-                        enemy.x,
-                        enemy.y,
-                        enemy.width,
-                        enemy.height
+            # ----------------------------------
+            # EXPLOSION AOE DAMAGE (LINGERING – TICKED)
+            # ----------------------------------
+            # ----------------------------------
+            # EXPLOSION AOE DAMAGE (TIMED TICKS)
+            # ----------------------------------
+            if napalm.has_exploded and not napalm.explosion_timer.is_ready():
+
+                if napalm.damage_timer.is_ready():
+
+                    cx = napalm.x + napalm.width // 2
+                    cy = napalm.y + napalm.height // 2
+                    aoe_rect = pygame.Rect(
+                        cx - napalm.area_of_effect_x // 2,
+                        cy - napalm.area_of_effect_y // 2,
+                        napalm.area_of_effect_x,
+                        napalm.area_of_effect_y
                     )
-                    if aoe_rect.colliderect(enemy_hitbox):
-                        print("🔥 NAPALM AOE HIT:", type(enemy).__name__)
-                        enemy.enemyHealth -= napalm.damage
-                        if enemy.enemyHealth <= 0:
-                            self.remove_enemy_if_dead(enemy)
+
+                    for enemy in all_enemies:
+                        if aoe_rect.colliderect(enemy.hitbox):
+                            enemy.enemyHealth -= napalm.damage
+
+                            if isinstance(enemy, TransportWorm):
+                                print(f"[NAPALM] TransportWorm HP: {enemy.enemyHealth}")
+
+                            if enemy.enemyHealth <= 0:
+                                self.remove_enemy_if_dead(enemy)
+
+                    napalm.damage_timer.reset()
                 # 🔒 AOE MUST ONLY APPLY ONCE
-                napalm.aoe_applied = True
             # ----------------------------------
             # EXPLOSION AOE DAMAGE (LINGERING)
             # ----------------------------------
@@ -1043,16 +1055,9 @@ class VerticalBattleScreen:
                     napalm.area_of_effect_y
                 )
                 for enemy in all_enemies:
-                    if aoe_rect.colliderect(enemy.hitbox):
-                        print(
-                            "🔥 NAPALM BURNING:",
-                            type(enemy).__name__,
-                            "AOE:", aoe_rect,
-                            "ENEMY:", enemy.hitbox
-                        )
+                    if aoe_rect.colliderect(enemy.hitbox) and napalm.damage_timer.is_ready():
                         enemy.enemyHealth -= napalm.damage
-                        if enemy.enemyHealth <= 0:
-                            self.remove_enemy_if_dead(enemy)
+                        napalm.damage_timer.reset()
         # -------------------------
         # BUSTER CANNON → ENEMY COLLISION
         # -------------------------
