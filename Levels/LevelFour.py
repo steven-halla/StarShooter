@@ -148,7 +148,7 @@ class LevelFour(VerticalBattleScreen):
                 if now - self.creep_last_spawn_time >= 3000:
                     slaver = Slaver()
 
-                    slaver.x = self.camera.x + (self.camera.window_width / self.camera.zoom) // 2
+                    slaver.x = self.camera.x
                     slaver.y = self.camera.y
 
                     slaver.camera = self.camera
