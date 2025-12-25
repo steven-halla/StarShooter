@@ -20,7 +20,7 @@ class MissionBriefingScreenLevelTwo(Screen):
             "Pockets of Fire Gas are about, avoid these at all cost",
             "Your job is to safely escort the Commander.",
             "",
-            "Enemies in this sector are  immune to the Fire Gas",
+            "Enemies in this sector are immune to the Fire Gas",
             "A Slaver bio ship is in the area, which is a high priority target",
             "",
             "The commanders life is of upmost importance",

@@ -13,16 +13,16 @@ class MissionBriefingScreenLevelOne(Screen):
         self.skip_ready_time = pygame.time.get_ticks() + 2500
 
         self.briefing_text = [
-            "Mission Briefing: Save the children",
+            "Mission Briefing: Save the colony",
             "",
-            "The inter galatic Childrens hospital is under attack from the undead legion",
+            "The Space colony Beckersville  is under attack from the undead legion",
             "Ammo is almost depleted, and most of the barrels have melted.",
-            "The enemy strike force includes a Transport bio ship",
+            "The enemy strike force includes a Harvester bio ship",
             "",
             "Destroy at least 40 enemies.",
-            "Destroy the transport Bio ship",
+            "Destroy the Harvester Bio ship",
             "",
-            "All fighter jets are undergoing repairs, you will be alone.",
+            "All fighter pilots are deadk, you will be alone.",
             "",
             "Use arrow keys to move. Press F key Machine gun Fire..",
             "",

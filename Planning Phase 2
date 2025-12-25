@@ -1,0 +1,41 @@
+Finish level 4
+Create the Slaver type of enemy
+Slaver:
+High HP
+Low move speed
+For stage 4 the slavers can make the worms vanish
+
+QOL:
+Enemy hit feed back -
+This could be a sound effect, a red flash or both
+
+Save states for player so they dont have to redo levels
+
+New screen on bottom to handle player info
+
+After QOL:
+Level 5,6,7
+Level 5:
+Diffuse the bommbs
+
+The undead legion has a new type: Exploder
+Your job : Destroy the bombs
+There is a timer on the screen and each time you come acrosss enemies, the screen stops
+Have ship go in regiestered aerea to deiffuse bomb. There could be some kind of mini game in relatin to this
+such as the bombs slowly moving that you have to follow, to button presses ( while under pressure )
+
+Level 6:
+
+Protect the civlians pods
+Civlian escape pods are under atttack
+Reccue them from getting captured
+
+Level 7:
+
+Don't destrooy the bile spitters
+Have a new enemy type that you are not to kill, you need to use your sub weapon on it to
+MARK IT then you let it go down the Y Axis   , the point being to poison the hive
+they are on screen for short time, so you have to infect them and dont kill them
+turn enemy PURPLE when they are infected
+
+

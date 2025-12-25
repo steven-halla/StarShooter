@@ -283,11 +283,9 @@
   <object id="88" name="tri_spitter" x="75.6333" y="3717.45" width="16" height="16"/>
   <object id="20" name="tri_spitter" x="64.9304" y="3452.02" width="16" height="16"/>
   <object id="24" name="tri_spitter" x="67.071" y="3190.15" width="16" height="16"/>
-  <object id="33" name="tri_spitter" x="50.66" y="2916.16" width="16" height="16"/>
   <object id="39" name="tri_spitter" x="112.736" y="2666.43" width="16" height="16"/>
   <object id="45" name="tri_spitter" x="89.9037" y="2275.42" width="16" height="16"/>
   <object id="51" name="tri_spitter" x="67.7845" y="1857.3" width="16" height="16"/>
-  <object id="57" name="tri_spitter" x="44.9518" y="1381.38" width="16" height="16"/>
   <object id="63" name="tri_spitter" x="97.7524" y="976.811" width="16" height="16"/>
   <object id="79" name="tri_spitter" x="15.6975" y="306.101" width="16" height="16"/>
   <object id="84" name="tri_spitter" x="135.569" y="1175.88" width="16" height="16"/>
@@ -333,11 +331,9 @@
   <object id="41" name="blade_spinner" x="149.126" y="2362.47" width="16" height="16"/>
   <object id="47" name="blade_spinner" x="127.007" y="1944.35" width="16" height="16"/>
   <object id="53" name="blade_spinner" x="104.174" y="1468.43" width="16" height="16"/>
-  <object id="59" name="blade_spinner" x="156.975" y="1063.86" width="16" height="16"/>
   <object id="71" name="blade_spinner" x="194.078" y="767.035" width="16" height="16"/>
   <object id="75" name="blade_spinner" x="168.391" y="516.589" width="16" height="16"/>
   <object id="67" name="blade_spinner" x="100.606" y="1100.25" width="16" height="16"/>
-  <object id="69" name="blade_spinner" x="137.71" y="803.425" width="16" height="16"/>
   <object id="73" name="blade_spinner" x="112.023" y="552.979" width="16" height="16"/>
   <object id="66" name="blade_spinner" x="160.542" y="1101.68" width="16" height="16"/>
   <object id="68" name="blade_spinner" x="197.645" y="804.852" width="16" height="16"/>
@@ -356,7 +352,6 @@
   <object id="58" name="fire_launcher" x="130.574" y="1361.4" width="16" height="16"/>
   <object id="64" name="fire_launcher" x="183.375" y="956.832" width="16" height="16"/>
   <object id="80" name="fire_launcher" x="101.32" y="286.122" width="16" height="16"/>
-  <object id="85" name="fire_launcher" x="221.192" y="1155.9" width="16" height="16"/>
   <object id="93" name="level_2_boss" x="128.434" y="7.84873" width="40" height="30"/>
  </objectgroup>
  <layer id="6" name="background" width="25" height="270">

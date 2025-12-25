@@ -17,7 +17,7 @@ class MissionBriefingScreenLevelThree(Screen):
         self.briefing_text = [
             "MISSION BRIEFING: Protect Star Base",
             "",
-            "I am the Grand master General, I  will adhere myself to your ship",
+            "I am the Grand master General, I  will ride upon your ship",
             "You are to direct your ship to block incoming enemy fire. ",
             "I will deflect ALL projectiles, but I can't protect you from Mellee",
             "",

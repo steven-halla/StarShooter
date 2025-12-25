@@ -43,6 +43,7 @@ class LevelFour(VerticalBattleScreen):
         # self.load_enemy_into_list()
         self.napalm_list: list = []
         self.total_enemies = 40
+        self.creep_last_spawn_time = 0
         self.prev_enemy_count: int = None
         self.enemies_killed: int = 0
 
@@ -70,8 +71,8 @@ class LevelFour(VerticalBattleScreen):
 
 
     def update(self, state) -> None:
-        for boss in self.bossLevelFourGroup:
-            print(f"[LEVEL 4 BOSS HP] {boss.enemyHealth}")
+        # for boss in self.bossLevelFourGroup:
+        #     print(f"[LEVEL 4 BOSS HP] {boss.enemyHealth}")
         BUFFER = -100  # pixels of grace
 
 
@@ -89,20 +90,93 @@ class LevelFour(VerticalBattleScreen):
 
         # screen bounds with padding (WORLD SPACE)
         # screen bounds with padding (WORLD SPACE)
+        # --- FIXED VERSION USING THE CREEP LAYER (ONLY THIS BLOCK) ---
+
+        # get creep layer safely (ONCE, before loop)
+        try:
+            creep_layer = self.tiled_map.get_layer_by_name("creep")
+        except ValueError:
+            creep_layer = None
+
         PADDING = 100
         screen_top = self.camera.y - PADDING
-        screen_bottom = self.camera.y + (self.window_height / self.camera.zoom) + PADDING
+        screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom) + PADDING
+
+        screen_left = self.camera.x
+        screen_right = self.camera.x + (self.camera.window_width / self.camera.zoom)
 
         if worm_on_screen:
             self.map_scroll_speed_per_frame = 0
             now = pygame.time.get_ticks()
 
+            # =====================================
+            # CREEP DETECTION (GLOBAL, ONCE)
+            # =====================================
+            creep_found_on_screen = False
+
+            if creep_layer is not None:
+                tile_w = self.tiled_map.tilewidth
+                tile_h = self.tiled_map.tileheight
+
+                start_x = int(screen_left // tile_w)
+                end_x = int(screen_right // tile_w)
+                start_y = int(screen_top // tile_h)
+                end_y = int(screen_bottom // tile_h)
+
+                for ty in range(start_y, end_y + 1):
+                    if ty < 0 or ty >= len(creep_layer.data):
+                        continue
+
+                    for tx in range(start_x, end_x + 1):
+                        if tx < 0 or tx >= len(creep_layer.data[ty]):
+                            continue
+
+                        if creep_layer.data[ty][tx] != 0:
+                            creep_found_on_screen = True
+                            break
+
+                    if creep_found_on_screen:
+                        break
+
+            # =====================================
+            # CREEP SPAWN (TOP OF SCREEN)
+            # =====================================
+            if creep_found_on_screen:
+                # print("creep detected")
+
+                if now - self.creep_last_spawn_time >= 3000:
+                    bile = BileSpitter()
+
+                    bile.x = self.camera.x + (self.camera.window_width / self.camera.zoom) // 2
+                    bile.y = self.camera.y
+
+                    bile.camera = self.camera
+                    bile.target_player = self.starship
+
+                    bile.width = 16
+                    bile.height = 16
+                    bile.update_hitbox()
+
+                    self.bileSpitterGroup.append(bile)
+                    self.creep_last_spawn_time = now
+
+            # =====================================
+            # WORM SUMMONING (UNCHANGED)
+            # =====================================
             for worm in self.transportWormGroup:
 
-                # ✅ ONLY WORMS ACTUALLY ON SCREEN CAN SUMMON
+                # worm must be on screen
                 if not (
                         worm.y + worm.height >= screen_top and
                         worm.y <= screen_bottom
+                ):
+                    continue
+
+                # player must be on screen
+                player = self.starship
+                if not (
+                        player.y + player.height >= screen_top and
+                        player.y <= screen_bottom
                 ):
                     continue
 
@@ -123,7 +197,6 @@ class LevelFour(VerticalBattleScreen):
                         spawn_y_offset=20
                     )
 
-                    # 🔒 HARD SIZE ENFORCEMENT (LEVEL 4 FIX)
                     for enemy in (
                             self.bileSpitterGroup +
                             self.kamikazeDroneGroup +
@@ -137,6 +210,127 @@ class LevelFour(VerticalBattleScreen):
                     worm.last_summon_time = now
         else:
             self.map_scroll_speed_per_frame = 0.4
+
+        # try:
+        #     creep_layer = self.tiled_map.get_layer_by_name("creep")
+        # except ValueError:
+        #     creep_layer = None
+        #
+        # PADDING = 100
+        # screen_top = self.camera.y - PADDING
+        # screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom) + PADDING
+        #
+        # if worm_on_screen:
+        #     self.map_scroll_speed_per_frame = 0
+        #     now = pygame.time.get_ticks()
+        #
+        #     for worm in self.transportWormGroup:
+        #
+        #         # worm must be on screen
+        #         if not (
+        #                 worm.y + worm.height >= screen_top and
+        #                 worm.y <= screen_bottom
+        #         ):
+        #             continue
+        #
+        #         # creep layer must exist
+        #         if creep_layer is None:
+        #             continue
+        #
+        #         # --- CREEP TILE CHECK ---
+        #         tile_x = int(worm.x // self.tiled_map.tilewidth)
+        #         tile_y = int(worm.y // self.tiled_map.tileheight)
+        #
+        #         # bounds safety
+        #         if tile_y < 0 or tile_y >= len(creep_layer.data):
+        #             continue
+        #         if tile_x < 0 or tile_x >= len(creep_layer.data[tile_y]):
+        #             continue
+        #
+        #         tile = creep_layer.data[tile_y][tile_x]
+        #         if tile is None:
+        #             continue
+        #
+        #         # --- SUMMON ---
+        #         if now - worm.last_summon_time >= worm.summon_interval_ms:
+        #             worm.summon_enemy(
+        #                 enemy_classes=[
+        #                     BileSpitter,
+        #                     KamikazeDrone,
+        #                     TriSpitter,
+        #                     FireLauncher,
+        #                 ],
+        #                 enemy_groups={
+        #                     BileSpitter: self.bileSpitterGroup,
+        #                     KamikazeDrone: self.kamikazeDroneGroup,
+        #                     TriSpitter: self.triSpitterGroup,
+        #                     FireLauncher: self.fireLauncherGroup,
+        #                 },
+        #                 spawn_y_offset=20
+        #             )
+        #
+        #             # HARD SIZE ENFORCEMENT
+        #             for enemy in (
+        #                     self.bileSpitterGroup +
+        #                     self.kamikazeDroneGroup +
+        #                     self.triSpitterGroup +
+        #                     self.fireLauncherGroup
+        #             ):
+        #                 enemy.width = 16
+        #                 enemy.height = 16
+        #                 enemy.update_hitbox()
+        #
+        #             worm.last_summon_time = now
+        # else:
+        #     self.map_scroll_speed_per_frame = 0.4
+        # # PADDING = 100
+        # screen_top = self.camera.y - PADDING
+        # screen_bottom = self.camera.y + (self.window_height / self.camera.zoom) + PADDING
+        #
+        # if worm_on_screen:
+        #     self.map_scroll_speed_per_frame = 0
+        #     now = pygame.time.get_ticks()
+        #
+        #     for worm in self.transportWormGroup:
+        #
+        #         # ✅ ONLY WORMS ACTUALLY ON SCREEN CAN SUMMON
+        #         if not (
+        #                 worm.y + worm.height >= screen_top and
+        #                 worm.y <= screen_bottom
+        #         ):
+        #             continue
+        #
+        #         if now - worm.last_summon_time >= worm.summon_interval_ms:
+        #             worm.summon_enemy(
+        #                 enemy_classes=[
+        #                     BileSpitter,
+        #                     KamikazeDrone,
+        #                     TriSpitter,
+        #                     FireLauncher,
+        #                 ],
+        #                 enemy_groups={
+        #                     BileSpitter: self.bileSpitterGroup,
+        #                     KamikazeDrone: self.kamikazeDroneGroup,
+        #                     TriSpitter: self.triSpitterGroup,
+        #                     FireLauncher: self.fireLauncherGroup,
+        #                 },
+        #                 spawn_y_offset=20
+        #             )
+        #
+        #             # 🔒 HARD SIZE ENFORCEMENT (LEVEL 4 FIX)
+        #             for enemy in (
+        #                     self.bileSpitterGroup +
+        #                     self.kamikazeDroneGroup +
+        #                     self.triSpitterGroup +
+        #                     self.fireLauncherGroup
+        #             ):
+        #                 enemy.width = 16
+        #                 enemy.height = 16
+        #                 enemy.update_hitbox()
+        #
+        #             worm.last_summon_time = now
+        # else:
+        #     self.map_scroll_speed_per_frame = 0.4
         super().update(state)
         print("=== ENEMY LIST ===")
         print(f"BileSpitter: {len(self.bileSpitterGroup)}")
@@ -150,7 +344,7 @@ class LevelFour(VerticalBattleScreen):
             f"TOTAL: "
             f"{len(self.bileSpitterGroup) + len(self.triSpitterGroup) + len(self.bladeSpinnerGroup) + len(self.bossLevelFourGroup)}"
         )
-        # print("==================")
+        print("==================")
         # for worm in list(self.transportWormGroup):
         #         #     worm.update()
         #         #     print(f"[TransportWorm HP] {worm.enemyHealth}")
