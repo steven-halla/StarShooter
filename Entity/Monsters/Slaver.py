@@ -61,7 +61,7 @@ class Slaver(Enemy):
         # -------------------------
         # AI MOVEMENT STATE (DO NOT TOUCH)
         # -------------------------
-        self.moveSpeed: float = 2.0
+        self.moveSpeed: float = .5
         self.edge_padding: int = 30
         self.move_direction: int = random.choice([-1, 1])
 
@@ -73,37 +73,7 @@ class Slaver(Enemy):
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
 
-    def _shoot_bile(self) -> None:
-        if self.target_player is None:
-            return
 
-        cx = self.x + self.width / 2
-        cy = self.y + self.height / 2
-
-        px = self.target_player.hitbox.centerx
-        py = self.target_player.hitbox.centery
-
-        dx = px - cx
-        dy = py - cy
-        dist = math.hypot(dx, dy)
-        if dist == 0:
-            return
-
-        dx /= dist
-        dy /= dist
-
-        bullet = Bullet(cx, cy)
-        bullet.color = self.bulletColor
-        bullet.width = self.bulletWidth
-        bullet.height = self.bulletHeight
-
-        bullet.dx = dx * self.bileSpeed
-        bullet.speed = dy * self.bileSpeed
-        bullet.rect.width = bullet.width
-        bullet.rect.height = bullet.height
-        bullet.damage = 10
-
-        self.enemyBullets.append(bullet)
 
 
     # -------------------------
@@ -136,16 +106,6 @@ class Slaver(Enemy):
         # -------------------------
         # HANDLE BURST
         # -------------------------
-        if self.is_bile_bursting:
-            if now - self.last_bile_shot_time >= self.bile_burst_delay_ms:
-                self._shoot_bile()
-                self.bile_burst_count += 1
-                self.last_bile_shot_time = now
-                print(f"BILE SHOT {self.bile_burst_count}")
-
-                if self.bile_burst_count >= self.bile_burst_max:
-                    self.is_bile_bursting = False
-                    print("BILE BURST END")
 
         # -------------------------
         # MOVE BULLETS

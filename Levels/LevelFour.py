@@ -146,19 +146,19 @@ class LevelFour(VerticalBattleScreen):
                 # print("creep detected")
 
                 if now - self.creep_last_spawn_time >= 3000:
-                    bile = BileSpitter()
+                    slaver = Slaver()
 
-                    bile.x = self.camera.x + (self.camera.window_width / self.camera.zoom) // 2
-                    bile.y = self.camera.y
+                    slaver.x = self.camera.x + (self.camera.window_width / self.camera.zoom) // 2
+                    slaver.y = self.camera.y
 
-                    bile.camera = self.camera
-                    bile.target_player = self.starship
+                    slaver.camera = self.camera
+                    slaver.target_player = self.starship
 
-                    bile.width = 16
-                    bile.height = 16
-                    bile.update_hitbox()
+                    slaver.width = 16
+                    slaver.height = 16
+                    slaver.update_hitbox()
 
-                    self.bileSpitterGroup.append(bile)
+                    self.slaverGroup.append(slaver)
                     self.creep_last_spawn_time = now
 
             # =====================================
@@ -508,6 +508,7 @@ class LevelFour(VerticalBattleScreen):
                 list(self.triSpitterGroup) +
                 list(self.bladeSpinnerGroup) +
                 list(self.bossLevelFourGroup) +
+                list(self.slaverGroup) +
                 list(self.kamikazeDroneGroup) +
                 list(self.fireLauncherGroup) +
                 list(self.transportWormGroup)
