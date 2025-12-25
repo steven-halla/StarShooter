@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="330" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="122">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="330" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="124">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="background" width="25" height="330">
   <data encoding="csv">
@@ -670,7 +670,8 @@
 </data>
  </layer>
  <objectgroup id="3" name="player">
-  <object id="9" name="player" x="157.144" y="5146.16" width="16" height="16"/>
+  <object id="9" name="player" x="142.097" y="5262.99" width="16" height="16"/>
+  <object id="123" name="slaver" x="158.435" y="5130.11" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="4" name="enemies">
   <object id="28" name="transport_worm" x="239.329" y="2972.92" width="32" height="32"/>

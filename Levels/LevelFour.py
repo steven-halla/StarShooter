@@ -9,6 +9,7 @@ from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.Ravager import Ravager
+from Entity.Monsters.Slaver import Slaver
 from Entity.Monsters.SpineLauncher import SpineLauncher
 from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TransportWorm import TransportWorm
@@ -332,19 +333,19 @@ class LevelFour(VerticalBattleScreen):
         # else:
         #     self.map_scroll_speed_per_frame = 0.4
         super().update(state)
-        print("=== ENEMY LIST ===")
-        print(f"BileSpitter: {len(self.bileSpitterGroup)}")
-        print(f"TriSpitter: {len(self.triSpitterGroup)}")
-        print(f"BladeSpinner: {len(self.bladeSpinnerGroup)}")
-        print(f"firelauncher: {len(self.fireLauncherGroup)}")
-        print(f"transportworm: {len(self.transportWormGroup)}")
-        print(f"kamikazedrone: {len(self.kamikazeDroneGroup)}")
-        print(f"BossLevelFour: {len(self.bossLevelFourGroup)}")
-        print(
-            f"TOTAL: "
-            f"{len(self.bileSpitterGroup) + len(self.triSpitterGroup) + len(self.bladeSpinnerGroup) + len(self.bossLevelFourGroup)}"
-        )
-        print("==================")
+        # print("=== ENEMY LIST ===")
+        # print(f"BileSpitter: {len(self.bileSpitterGroup)}")
+        # print(f"TriSpitter: {len(self.triSpitterGroup)}")
+        # print(f"BladeSpinner: {len(self.bladeSpinnerGroup)}")
+        # print(f"firelauncher: {len(self.fireLauncherGroup)}")
+        # print(f"transportworm: {len(self.transportWormGroup)}")
+        # print(f"kamikazedrone: {len(self.kamikazeDroneGroup)}")
+        # print(f"BossLevelFour: {len(self.bossLevelFourGroup)}")
+        # print(
+        #     f"TOTAL: "
+        #     f"{len(self.bileSpitterGroup) + len(self.triSpitterGroup) + len(self.bladeSpinnerGroup) + len(self.bossLevelFourGroup)}"
+        # )
+        # print("==================")
         # for worm in list(self.transportWormGroup):
         #         #     worm.update()
         #         #     print(f"[TransportWorm HP] {worm.enemyHealth}")
@@ -426,6 +427,7 @@ class LevelFour(VerticalBattleScreen):
         current_enemies = (
                 len(self.bileSpitterGroup)
                 + len(self.triSpitterGroup)
+                +len(self.slaverGroup)
                 + len(self.bladeSpinnerGroup)
                 + len(self.bossLevelFourGroup)
                 + len(self.kamikazeDroneGroup)
@@ -468,6 +470,10 @@ class LevelFour(VerticalBattleScreen):
 
 
         for enemy in self.kamikazeDroneGroup:
+            enemy.draw(state.DISPLAY, self.camera)
+
+
+        for enemy in self.slaverGroup:
             enemy.draw(state.DISPLAY, self.camera)
 
 
@@ -642,6 +648,17 @@ class LevelFour(VerticalBattleScreen):
                 enemy_tri_spitter.camera = self.camera
                 enemy_tri_spitter.target_player = self.starship
                 continue
+            if obj.name == "slaver":
+                slaver = Slaver()
+                slaver.x = obj.x
+                slaver.y = obj.y
+                slaver.width = obj.width
+                slaver.height = obj.height
+                slaver.update_hitbox()
+                self.slaverGroup.append(slaver)
+                slaver.camera = self.camera
+                slaver.target_player = self.starship
+                continue
 
     def enemy_helper(self):
         # screen bottom in WORLD coordinates
@@ -763,6 +780,14 @@ class LevelFour(VerticalBattleScreen):
                 self.fireLauncherGroup.remove(fire)
 
         for enemy in self.bileSpitterGroup:
+            enemy.update()
+            enemy.update_hitbox()
+
+            if enemy.enemyBullets:
+                self.enemy_bullets.extend(enemy.enemyBullets)
+                enemy.enemyBullets.clear()
+
+        for enemy in self.slaverGroup:
             enemy.update()
             enemy.update_hitbox()
 
