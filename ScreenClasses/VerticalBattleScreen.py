@@ -16,6 +16,7 @@ from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.Ravager import Ravager
+from Entity.Monsters.Slaver import Slaver
 from Entity.Monsters.SpineLauncher import SpineLauncher
 from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TransportWorm import TransportWorm
@@ -47,6 +48,7 @@ class VerticalBattleScreen:
         self.ravagerGroup: list[Ravager] = []
         self.fireLauncherGroup: list[FireLauncher] = []
         self.transportWormGroup: list[TransportWorm] = []
+        self.slaverGroup: list[Slaver] = []
 
         self.bossLevelOneGroup: list[BossLevelOne] = []
         self.bossLevelTwoGroup: list[BossLevelTwo] = []
@@ -550,6 +552,7 @@ class VerticalBattleScreen:
             enemies = (
                     list(self.bileSpitterGroup) +
                     list(self.triSpitterGroup) +
+                    list(self.slaverGroup) +
                     list(self.bladeSpinnerGroup) +
                     list(self.fireLauncherGroup) +
                     list(self.kamikazeDroneGroup) +
@@ -875,6 +878,7 @@ class VerticalBattleScreen:
                 list(self.kamikazeDroneGroup) +
                 list(self.bileSpitterGroup) +
                 list(self.triSpitterGroup) +
+                list(self.slaverGroup) +
                 list(self.waspStingerGroup) +
                 list(self.bladeSpinnerGroup) +
                 list(self.sporeFlowerGroup) +
@@ -1134,6 +1138,8 @@ class VerticalBattleScreen:
             self.ravagerGroup.remove(enemy)
         elif enemy in self.fireLauncherGroup:
             self.fireLauncherGroup.remove(enemy)
+        elif enemy in self.slaverGroup:
+            self.slaverGroup.remove(enemy)
         elif enemy in self.bossLevelOneGroup:
             self.bossLevelOneGroup.remove(enemy)
         elif enemy in self.bossLevelTwoGroup:
