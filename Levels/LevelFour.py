@@ -47,6 +47,7 @@ class LevelFour(VerticalBattleScreen):
         self.creep_last_spawn_time = 0
         self.prev_enemy_count: int = None
         self.enemies_killed: int = 0
+        self.touched_worms: list[TransportWorm] = []
 
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
@@ -54,6 +55,8 @@ class LevelFour(VerticalBattleScreen):
         self.missed_enemies = []
         self.game_over: bool = False
         self.level_complete = False
+        self.worms_saved: list = []
+        self.touched_worms: list[TransportWorm] = []
 
     def start(self, state) -> None:
         player_x = None
@@ -145,7 +148,7 @@ class LevelFour(VerticalBattleScreen):
             if creep_found_on_screen:
                 # print("creep detected")
 
-                if now - self.creep_last_spawn_time >= 3000:
+                if now - self.creep_last_spawn_time >= 5000:
                     slaver = Slaver()
 
                     slaver.x = self.camera.x
@@ -157,8 +160,13 @@ class LevelFour(VerticalBattleScreen):
                     slaver.width = 16
                     slaver.height = 16
                     slaver.update_hitbox()
+
                     slaver.transport_worms = self.transportWormGroup
-                    slaver.target_worm = worm  # <-- THIS IS CRITICAL
+                    slaver.target_worm = worm
+
+                    # 🔑 ADD THIS LINE
+                    slaver.touched_worms = self.touched_worms
+
                     self.slaverGroup.append(slaver)
                     self.creep_last_spawn_time = now
 
@@ -212,6 +220,15 @@ class LevelFour(VerticalBattleScreen):
                     worm.last_summon_time = now
         else:
             self.map_scroll_speed_per_frame = 0.4
+
+        if self.touched_worms:
+            print(
+                "[LEVEL 4 READ] touched_worms =",
+                [(w.enemyHealth, w.x, w.y) for w in self.touched_worms]
+            )
+
+            if len(self.touched_worms) > 0:
+                print("you lost")
 
         # try:
         #     creep_layer = self.tiled_map.get_layer_by_name("creep")
@@ -789,8 +806,14 @@ class LevelFour(VerticalBattleScreen):
                 self.enemy_bullets.extend(enemy.enemyBullets)
                 enemy.enemyBullets.clear()
 
-        for enemy in self.slaverGroup:
+        for enemy in list(self.slaverGroup):
             enemy.update()
+
+            if enemy.enemyHealth <= 0:
+                self.slaverGroup.remove(enemy)
+                print("[LEVEL 4] Slaver removed after touching worm")
+                continue
+
             enemy.update_hitbox()
 
             if enemy.enemyBullets:
@@ -805,6 +828,10 @@ class LevelFour(VerticalBattleScreen):
 
         for worm in list(self.transportWormGroup):
             worm.update()
+            print(
+                "[LEVEL 4] Touched worms:",
+                [(worm.enemyHealth, worm.x, worm.y) for worm in self.touched_worms]
+            )
 
             if worm.enemyHealth <= 0:
                 self.transportWormGroup.remove(worm)

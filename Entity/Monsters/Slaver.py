@@ -29,7 +29,7 @@ class Slaver(Enemy):
 
         self.burst_cooldown_ms = 3500
         self.last_burst_time = pygame.time.get_ticks() - self.burst_cooldown_ms
-
+        self.tagged_worms: list | None = None
         # -------------------------
         # ENEMY APPEARANCE
         # -------------------------
@@ -52,7 +52,7 @@ class Slaver(Enemy):
         # -------------------------
         # GAMEPLAY STATS
         # -------------------------
-        self.speed: float = 1.0
+        self.speed: float = 1.2
         self.enemyHealth: int = 5
         self.exp: int = 1
         self.credits: int = 5
@@ -124,6 +124,7 @@ class Slaver(Enemy):
         self.target_worm = nearest
 
     def move_toward_target_worm(self) -> None:
+
         if self.target_worm is None:
             return
 
@@ -146,15 +147,15 @@ class Slaver(Enemy):
                 and not self.has_touched_worm
                 and self.hitbox.colliderect(self.target_worm.hitbox)
         ):
-            # ❌ DELETE THE WORM
+            # 🔑 ADD WORM TO LEVEL LIST
+            if hasattr(self, "touched_worms"):
+                if self.target_worm not in self.touched_worms:
+                    self.touched_worms.append(self.target_worm)
+
             self.target_worm.enemyHealth = 0
-
-            # ❌ DELETE THE SLAVER
             self.enemyHealth = 0
-            self.is_active = False  # ✅ THIS IS THE KEY LINE
-
+            self.is_active = False
             self.has_touched_worm = True
-            print("TransportWorm deleted, Slaver destroyed")
         # if self.target_worm is not None:
         #     if self.hitbox.colliderect(self.target_worm.hitbox):
         #         self.enemy_handshake(self.target_worm)
