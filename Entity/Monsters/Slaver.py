@@ -14,7 +14,7 @@ class Slaver(Enemy):
         self.mover: MoveRectangle = MoveRectangle()
         self.id = 0
         self.has_retreat_triggered = False
-
+        self.target_worm = None
         # -------------------------
         # BILE BURST FIRE
         # -------------------------
@@ -84,9 +84,14 @@ class Slaver(Enemy):
         if not self.is_active:
             return
         self.update_hitbox()
+        # acquire target if needed
+
+
+        # move toward it
+        self.move_toward_target_worm()
 
         # ⚠️ MOVEMENT LOGIC — UNCHANGED
-        self.moveAI()
+        # self.moveAI()
 
         now = pygame.time.get_ticks()
 
@@ -114,79 +119,111 @@ class Slaver(Enemy):
             bullet.x += bullet.dx
             bullet.y += bullet.speed
 
+    def find_nearest_transport_worm(self, worms: list) -> None:
+        nearest = None
+        nearest_dist = float("inf")
+
+        for worm in worms:
+            dx = worm.x - self.x
+            dy = worm.y - self.y
+            dist_sq = dx * dx + dy * dy
+
+            if dist_sq < nearest_dist:
+                nearest_dist = dist_sq
+                nearest = worm
+
+        self.target_worm = nearest
+
+    def move_toward_target_worm(self) -> None:
+        if self.target_worm is None:
+            return
+
+        dx = self.target_worm.x - self.x
+        dy = self.target_worm.y - self.y
+
+        dist = math.hypot(dx, dy)
+        if dist == 0:
+            return
+
+        # normalize
+        dx /= dist
+        dy /= dist
+
+        self.x += dx * self.speed
+        self.y += dy * self.speed
     # -------------------------
     # AI MOVEMENT (UNCHANGED)
     # -------------------------
-    def moveAI(self) -> None:
-        if not self.mover.enemy_on_screen(self, self.camera):
-            return
-
-        # One-time init
-        if not hasattr(self, "base_y"):
-            self.base_y = self.y
-            self.move_direction_y = 1
-
-        screen_bottom_world = (
-                self.camera.y
-                + (self.camera.window_height / self.camera.zoom)
-        )
-
-        # -------------------------
-        # START RETREAT
-        # -------------------------
-        if (
-                not self.is_retreating
-                and self.y + self.height >= screen_bottom_world - 50
-        ):
-            self.is_retreating = True
-            self.retreat_start_y = self.y
-            print(f"[RETREAT START] y={self.y:.2f}")
-
-        # -------------------------
-        # RETREAT MOVEMENT (UP 200px)
-        # -------------------------
-        if self.is_retreating:
-            self.mover.enemy_move_up(self)
-
-            moved = self.retreat_start_y - self.y
-            print(f"[RETREAT MOVE] y={self.y:.2f} moved={moved:.2f}")
-
-            # Stop retreat after 200px
-            if moved >= 200:
-                self.is_retreating = False
-                self.base_y = self.y  # reset patrol center
-                print("[RETREAT END]")
-            return
-
-        # -------------------------
-        # NORMAL PATROL (UNCHANGED)
-        # -------------------------
-        desired_top = self.base_y - 100
-        desired_bottom = self.base_y + 100
-
-        cam_top = self.camera.y
-        cam_bottom = (
-                self.camera.y
-                + (self.camera.window_height / self.camera.zoom)
-                - self.height
-        )
-
-        patrol_top = max(desired_top, cam_top)
-        patrol_bottom = min(desired_bottom, cam_bottom)
-
-        if self.move_direction_y > 0:
-            self.mover.enemy_move_down(self)
-        else:
-            self.mover.enemy_move_up(self)
-
-        if self.y <= patrol_top:
-            self.y = patrol_top
-            self.move_direction_y = 1
-        elif self.y >= patrol_bottom:
-            self.y = patrol_bottom
-            self.move_direction_y = -1
-
-        # print(f"[AI MOVE] y={self.y:.2f} dir={self.move_direction_y}")
+    # def moveAI(self) -> None:
+    #     if not self.mover.enemy_on_screen(self, self.camera):
+    #         return
+    #
+    #     # One-time init
+    #     if not hasattr(self, "base_y"):
+    #         self.base_y = self.y
+    #         self.move_direction_y = 1
+    #
+    #     screen_bottom_world = (
+    #             self.camera.y
+    #             + (self.camera.window_height / self.camera.zoom)
+    #     )
+    #
+    #     # -------------------------
+    #     # START RETREAT
+    #     # -------------------------
+    #     if (
+    #             not self.is_retreating
+    #             and self.y + self.height >= screen_bottom_world - 50
+    #     ):
+    #         self.is_retreating = True
+    #         self.retreat_start_y = self.y
+    #         print(f"[RETREAT START] y={self.y:.2f}")
+    #
+    #     # -------------------------
+    #     # RETREAT MOVEMENT (UP 200px)
+    #     # -------------------------
+    #     if self.is_retreating:
+    #         self.mover.enemy_move_up(self)
+    #
+    #         moved = self.retreat_start_y - self.y
+    #         print(f"[RETREAT MOVE] y={self.y:.2f} moved={moved:.2f}")
+    #
+    #         # Stop retreat after 200px
+    #         if moved >= 200:
+    #             self.is_retreating = False
+    #             self.base_y = self.y  # reset patrol center
+    #             print("[RETREAT END]")
+    #         return
+    #
+    #     # -------------------------
+    #     # NORMAL PATROL (UNCHANGED)
+    #     # -------------------------
+    #     desired_top = self.base_y - 100
+    #     desired_bottom = self.base_y + 100
+    #
+    #     cam_top = self.camera.y
+    #     cam_bottom = (
+    #             self.camera.y
+    #             + (self.camera.window_height / self.camera.zoom)
+    #             - self.height
+    #     )
+    #
+    #     patrol_top = max(desired_top, cam_top)
+    #     patrol_bottom = min(desired_bottom, cam_bottom)
+    #
+    #     if self.move_direction_y > 0:
+    #         self.mover.enemy_move_down(self)
+    #     else:
+    #         self.mover.enemy_move_up(self)
+    #
+    #     if self.y <= patrol_top:
+    #         self.y = patrol_top
+    #         self.move_direction_y = 1
+    #     elif self.y >= patrol_bottom:
+    #         self.y = patrol_bottom
+    #         self.move_direction_y = -1
+    #
+    #     # print(f"[AI MOVE] y={self.y:.2f} dir={self.move_direction_y}")
 
     # -------------------------
     # DRAW

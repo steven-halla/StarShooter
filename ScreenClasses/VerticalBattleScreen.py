@@ -187,7 +187,7 @@ class VerticalBattleScreen:
                 self.mover.player_move_down(self.starship)
         self.starship.update()
 
-        self.was_q_pressed_last_frame = self.controller.q_button
+        # self.was_q_pressed_last_frame = self.controller.q_button
 
         self.clamp_starship_to_screen()
         # if not self.playerDead:

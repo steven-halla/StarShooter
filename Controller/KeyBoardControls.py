@@ -3,129 +3,115 @@ import pygame
 
 class KeyBoardControls:
     def __init__(self) -> None:
-        self.isLeftPressed: bool = False
-        self.isRightPressed: bool = False
-        self.isUpPressed: bool = False
-        self.isDownPressed: bool = False
-        self.isExitPressed: bool = False
-        self.isFPressed: bool = False
-        self.isQPressed: bool = False
-        self.isAPressed: bool = False
-        self.isDPressed: bool = False
-        self.isSPressed: bool = False
-        self.isWPressed: bool = False
-        self.dJustReleased = False
-        self.sJustReleased = False
+        # movement
+        self.isLeftPressed = False
+        self.isRightPressed = False
+        self.isUpPressed = False
+        self.isDownPressed = False
 
-    @property
-    def magic_1_released(self):
-        return self.dJustReleased
+        # actions
+        self.isFirePressed = False      # SPACE
+        self.isMagic1Pressed = False    # J
+        self.isMagic2Pressed = False    # K
+        self.isMissilePressed = False   # L
+        self.isExitPressed = False
 
-    @property
-    def magic_2_released(self):
-        return self.sJustReleased
+        # just-released flags
+        self.magic1JustReleased = False
+        self.magic2JustReleased = False
 
-
-
-    def update(self):
-        # reset flags at the start of each frame
-        self.dJustReleased = False
-        self.sJustReleased = False
+    # -------------------------
+    # UPDATE
+    # -------------------------
+    def update(self) -> None:
+        # reset release flags each frame
+        self.magic1JustReleased = False
+        self.magic2JustReleased = False
 
         for event in pygame.event.get():
+
             if event.type == pygame.QUIT:
                 self.isExitPressed = True
 
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_a:
                     self.isLeftPressed = True
-                elif event.key == pygame.K_RIGHT:
-                    self.isRightPressed = True
-                elif event.key == pygame.K_UP:
-                    self.isUpPressed = True
-                elif event.key == pygame.K_DOWN:
-                    self.isDownPressed = True
-                elif event.key == pygame.K_f:
-                    self.isFPressed = True
-                elif event.key == pygame.K_q:
-                    self.isQPressed = True
-                elif event.key == pygame.K_a:
-                    self.isAPressed = True
                 elif event.key == pygame.K_d:
-                    self.isDPressed = True
+                    self.isRightPressed = True
+                elif event.key == pygame.K_w:
+                    self.isUpPressed = True
                 elif event.key == pygame.K_s:
-                    self.isSPressed = True
+                    self.isDownPressed = True
+
+                elif event.key == pygame.K_SPACE:
+                    self.isFirePressed = True
+                elif event.key == pygame.K_j:
+                    self.isMagic1Pressed = True
+                elif event.key == pygame.K_k:
+                    self.isMagic2Pressed = True
+                elif event.key == pygame.K_l:
+                    self.isMissilePressed = True
 
             elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_a:
                     self.isLeftPressed = False
-                elif event.key == pygame.K_RIGHT:
-                    self.isRightPressed = False
-                elif event.key == pygame.K_UP:
-                    self.isUpPressed = False
-                elif event.key == pygame.K_DOWN:
-                    self.isDownPressed = False
-                elif event.key == pygame.K_f:
-                    self.isFPressed = False
-                elif event.key == pygame.K_q:
-                    self.isQPressed = False
-                elif event.key == pygame.K_a:
-                    self.isAPressed = False
                 elif event.key == pygame.K_d:
-                    # D released: clear pressed state and set the "just released" flag
-                    self.isDPressed = False
-                    self.dJustReleased = True
+                    self.isRightPressed = False
+                elif event.key == pygame.K_w:
+                    self.isUpPressed = False
                 elif event.key == pygame.K_s:
-                    # S released: clear pressed state and set the "just released" flag
-                    self.isSPressed = False
-                    self.sJustReleased = True
+                    self.isDownPressed = False
 
+                elif event.key == pygame.K_SPACE:
+                    self.isFirePressed = False
+                elif event.key == pygame.K_j:
+                    self.isMagic1Pressed = False
+                    self.magic1JustReleased = True
+                elif event.key == pygame.K_k:
+                    self.isMagic2Pressed = False
+                    self.magic2JustReleased = True
+                elif event.key == pygame.K_l:
+                    self.isMissilePressed = False
+
+    # -------------------------
+    # PROPERTIES (READ-ONLY)
+    # -------------------------
     @property
     def left_button(self) -> bool:
-        return self.isAPressed
+        return self.isLeftPressed
 
     @property
     def right_button(self) -> bool:
-        return self.isDPressed
+        return self.isRightPressed
 
     @property
     def up_button(self) -> bool:
-        return self.isWPressed
+        return self.isUpPressed
 
     @property
     def down_button(self) -> bool:
-
         return self.isDownPressed
 
     @property
     def main_weapon_button(self) -> bool:
-        return self.isFPressed
-
-
-    @property
-    def fire_missiles(self) -> bool:
-        return self.isAPressed
+        return self.isFirePressed
 
     @property
     def magic_1_button(self) -> bool:
-        return self.isDPressed
+        return self.isMagic1Pressed
 
     @property
     def magic_2_button(self) -> bool:
-        return self.isSPressed
+        return self.isMagic2Pressed
 
     @property
-    def q_button(self) -> bool:
-        return self.isQPressed
+    def magic_1_released(self) -> bool:
+        return self.magic1JustReleased
 
     @property
-    def a_button(self) -> bool:
-        return self.isAPressed
+    def magic_2_released(self) -> bool:
+        return self.magic2JustReleased
 
     @property
-    def d_button(self) -> bool:
-        return self.isDPressed
-
-    @property
-    def s_button(self) -> bool:
-        return self.isSPressed
+    def fire_missiles(self) -> bool:
+        return self.isMissilePressed
