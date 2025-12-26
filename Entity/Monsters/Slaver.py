@@ -214,3 +214,19 @@ class Slaver(Enemy):
         hb_h = int(self.hitbox.height * camera.zoom)
 
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
+
+    def enemy_handshake(self, enemy) -> None:
+        value = enemy.__class__.__name__
+
+        match value:
+            case "TransportWorm":
+                print("Touched TransportWorm")
+
+            case "BileSpitter":
+                print("Touched BileSpitter")
+
+            case "KamikazeDrone":
+                print("Touched KamikazeDrone")
+
+            case _:
+                pass

@@ -14,22 +14,16 @@ class KeyBoardControls:
         self.isDPressed: bool = False
         self.isSPressed: bool = False
         self.isWPressed: bool = False
-        self.isSpacePressed: bool = False
-        self.isJPressed: bool = False
-        self.isKPressed: bool = False
-        self.isLPressed: bool = False
         self.dJustReleased = False
         self.sJustReleased = False
-        self.jJustReleased = False
-        self.kJustReleased = False
 
     @property
     def magic_1_released(self):
-        return self.jJustReleased
+        return self.dJustReleased
 
     @property
     def magic_2_released(self):
-        return self.kJustReleased
+        return self.sJustReleased
 
 
 
@@ -37,8 +31,6 @@ class KeyBoardControls:
         # reset flags at the start of each frame
         self.dJustReleased = False
         self.sJustReleased = False
-        self.jJustReleased = False
-        self.kJustReleased = False
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -63,16 +55,6 @@ class KeyBoardControls:
                     self.isDPressed = True
                 elif event.key == pygame.K_s:
                     self.isSPressed = True
-                elif event.key == pygame.K_w:
-                    self.isWPressed = True
-                elif event.key == pygame.K_SPACE:
-                    self.isSpacePressed = True
-                elif event.key == pygame.K_j:
-                    self.isJPressed = True
-                elif event.key == pygame.K_k:
-                    self.isKPressed = True
-                elif event.key == pygame.K_l:
-                    self.isLPressed = True
 
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
@@ -97,20 +79,6 @@ class KeyBoardControls:
                     # S released: clear pressed state and set the "just released" flag
                     self.isSPressed = False
                     self.sJustReleased = True
-                elif event.key == pygame.K_w:
-                    self.isWPressed = False
-                elif event.key == pygame.K_SPACE:
-                    self.isSpacePressed = False
-                elif event.key == pygame.K_j:
-                    # J released: clear pressed state and set the "just released" flag
-                    self.isJPressed = False
-                    self.jJustReleased = True
-                elif event.key == pygame.K_k:
-                    # K released: clear pressed state and set the "just released" flag
-                    self.isKPressed = False
-                    self.kJustReleased = True
-                elif event.key == pygame.K_l:
-                    self.isLPressed = False
 
     @property
     def left_button(self) -> bool:
@@ -126,24 +94,25 @@ class KeyBoardControls:
 
     @property
     def down_button(self) -> bool:
-        return self.isSPressed
+
+        return self.isDownPressed
 
     @property
     def main_weapon_button(self) -> bool:
-        return self.isSpacePressed
+        return self.isFPressed
 
 
     @property
     def fire_missiles(self) -> bool:
-        return self.isLPressed
+        return self.isAPressed
 
     @property
     def magic_1_button(self) -> bool:
-        return self.isJPressed
+        return self.isDPressed
 
     @property
     def magic_2_button(self) -> bool:
-        return self.isKPressed
+        return self.isSPressed
 
     @property
     def q_button(self) -> bool:
