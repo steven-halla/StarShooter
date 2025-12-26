@@ -45,13 +45,13 @@ class BossLevelFour(Enemy):
         # -------------------------
         # FIRING
         # -------------------------
-        self.triple_fire_interval_ms = 3000
+        self.triple_fire_interval_ms = 3800
         self.last_triple_shot_time = pygame.time.get_ticks()
 
         # -------------------------
         # STATS
         # -------------------------
-        self.enemyHealth = 300
+        self.enemyHealth = 250
         self.exp = 5
         self.credits = 50
 
@@ -99,7 +99,7 @@ class BossLevelFour(Enemy):
         perp_x = -dy
         perp_y = dx
 
-        for offset in (-30, 0, 30):
+        for offset in (-30, 30):
             bullet = Bullet(cx + perp_x * offset, cy + perp_y * offset)
             bullet.dx = dx * self.weapon_speed
             bullet.speed = dy * self.weapon_speed

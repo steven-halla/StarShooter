@@ -24,12 +24,12 @@ class TransportWorm(Enemy):
         # -------------------------
         # GAMEPLAY
         # -------------------------
-        self.enemyHealth: int = 800
+        self.enemyHealth: int = 700
 
         # -------------------------
         # SUMMONING
         # -------------------------
-        self.summon_interval_ms: int = 3000
+        self.summon_interval_ms: int = 4100
         self.last_summon_time: int = pygame.time.get_ticks()
 
         self.summon_level: int = 0

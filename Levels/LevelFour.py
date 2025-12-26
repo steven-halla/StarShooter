@@ -23,6 +23,7 @@ class LevelFour(VerticalBattleScreen):
         super().__init__()
         # self.starship: StarShip = StarShip()
 
+        self.level_start = True
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level4.tmx")
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
@@ -58,6 +59,7 @@ class LevelFour(VerticalBattleScreen):
         self.worms_saved: list = []
         self.touched_worms: list[TransportWorm] = []
 
+
     def start(self, state) -> None:
         player_x = None
         player_y = None
@@ -75,6 +77,9 @@ class LevelFour(VerticalBattleScreen):
 
 
     def update(self, state) -> None:
+        if self.level_start == True:
+            self.level_start = False
+            self.starship.shipHealth = 200
         # for boss in self.bossLevelFourGroup:
         #     print(f"[LEVEL 4 BOSS HP] {boss.enemyHealth}")
         BUFFER = -100  # pixels of grace
@@ -148,7 +153,7 @@ class LevelFour(VerticalBattleScreen):
             if creep_found_on_screen:
                 # print("creep detected")
 
-                if now - self.creep_last_spawn_time >= 5000:
+                if now - self.creep_last_spawn_time >= 5500:
                     slaver = Slaver()
 
                     slaver.x = self.camera.x
