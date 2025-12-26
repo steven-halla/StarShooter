@@ -24,7 +24,7 @@ class TransportWorm(Enemy):
         # -------------------------
         # GAMEPLAY
         # -------------------------
-        self.enemyHealth: int = 700
+        self.enemyHealth: int = 800
 
         # -------------------------
         # SUMMONING
@@ -35,17 +35,22 @@ class TransportWorm(Enemy):
         self.summon_level: int = 0
         self.burning: bool = False   # Napalm disables summoning
         self.about_to_summon: bool = False
+        self.is_active = False
 
     # -------------------------------------------------
     # UPDATE
     # -------------------------------------------------
     def update(self) -> None:
         super().update()
+        if not self.is_active:
+            return
+
         self.update_hitbox()
 
-        # Panic mode
-        if self.enemyHealth < 250:
-            self.summon_interval_ms = 1200
+
+        self.update_hitbox()
+
+
 
     # -------------------------------------------------
     # SUMMON LOGIC

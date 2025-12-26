@@ -792,8 +792,6 @@ class LevelFour(VerticalBattleScreen):
         for enemy in self.slaverGroup:
             enemy.update()
             enemy.update_hitbox()
-            if enemy.enemyHealth <= 0:
-                self.slaverGroup.remove(enemy)
 
             if enemy.enemyBullets:
                 self.enemy_bullets.extend(enemy.enemyBullets)
