@@ -157,7 +157,8 @@ class LevelFour(VerticalBattleScreen):
                     slaver.width = 16
                     slaver.height = 16
                     slaver.update_hitbox()
-
+                    slaver.transport_worms = self.transportWormGroup
+                    slaver.target_worm = worm  # <-- THIS IS CRITICAL
                     self.slaverGroup.append(slaver)
                     self.creep_last_spawn_time = now
 
@@ -791,6 +792,8 @@ class LevelFour(VerticalBattleScreen):
         for enemy in self.slaverGroup:
             enemy.update()
             enemy.update_hitbox()
+            if enemy.enemyHealth <= 0:
+                self.slaverGroup.remove(enemy)
 
             if enemy.enemyBullets:
                 self.enemy_bullets.extend(enemy.enemyBullets)

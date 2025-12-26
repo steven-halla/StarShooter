@@ -15,7 +15,10 @@ class Slaver(Enemy):
         self.id = 0
         self.has_retreat_triggered = False
         self.target_worm = None
-        # -------------------------
+        self.has_touched_worm = False   # ✅ ADD THIS
+
+
+        self.transport_worms: list = []        # -------------------------
         # BILE BURST FIRE
         # -------------------------
         self.bile_burst_count = 0
@@ -83,41 +86,27 @@ class Slaver(Enemy):
         super().update()
         if not self.is_active:
             return
+
         self.update_hitbox()
-        # acquire target if needed
 
+        # ✅ ACQUIRE TARGET IF NEEDED
+        if self.target_worm is None or self.target_worm.enemyHealth <= 0:
+            if self.transport_worms:  # <-- this must be injected by the Level
+                self.find_nearest_transport_worm(self.transport_worms)
 
-        # move toward it
+        # ✅ MOVE TOWARD TARGET
         self.move_toward_target_worm()
-
-        # ⚠️ MOVEMENT LOGIC — UNCHANGED
-        # self.moveAI()
 
         now = pygame.time.get_ticks()
 
-        # -------------------------
-        # START BURST (COOLDOWN GATED)
-        # -------------------------
         if (
-            not self.is_bile_bursting
-            and now - self.last_burst_time >= self.burst_cooldown_ms
+                not self.is_bile_bursting
+                and now - self.last_burst_time >= self.burst_cooldown_ms
         ):
             self.is_bile_bursting = True
             self.bile_burst_count = 0
             self.last_bile_shot_time = now
             self.last_burst_time = now
-            print("BILE BURST START")
-
-        # -------------------------
-        # HANDLE BURST
-        # -------------------------
-
-        # -------------------------
-        # MOVE BULLETS
-        # -------------------------
-        for bullet in self.enemyBullets:
-            bullet.x += bullet.dx
-            bullet.y += bullet.speed
 
     def find_nearest_transport_worm(self, worms: list) -> None:
         nearest = None
@@ -151,6 +140,24 @@ class Slaver(Enemy):
 
         self.x += dx * self.speed
         self.y += dy * self.speed
+        # ✅ COLLISION CHECK WITH TARGET WORM
+        if (
+                self.target_worm is not None
+                and not self.has_touched_worm
+                and self.hitbox.colliderect(self.target_worm.hitbox)
+        ):
+            # ❌ DELETE THE WORM
+            self.target_worm.enemyHealth = 0
+
+            # ❌ DELETE THE SLAVER
+            self.enemyHealth = 0
+            self.is_active = False  # ✅ THIS IS THE KEY LINE
+
+            self.has_touched_worm = True
+            print("TransportWorm deleted, Slaver destroyed")
+        # if self.target_worm is not None:
+        #     if self.hitbox.colliderect(self.target_worm.hitbox):
+        #         self.enemy_handshake(self.target_worm)
     # -------------------------
     # AI MOVEMENT (UNCHANGED)
     # -------------------------
