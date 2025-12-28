@@ -35,6 +35,7 @@ class SporeFlower(Enemy):
         self.spore_flower_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
+        self.enemy_image = self.spore_flower_image  # 🔑 REQUIRED
 
     def shoot_spores(self) -> None:
         cx = self.x + self.width // 2
@@ -77,6 +78,7 @@ class SporeFlower(Enemy):
 
 
     def draw(self, surface: pygame.Surface, camera):
+        super().draw(surface, camera)  # 🔑 REQUIRED
 
         sprite_rect = pygame.Rect(0, 344, 32, 32)
         sprite = self.spore_flower_image.subsurface(sprite_rect)

@@ -33,6 +33,7 @@ class BladeSpinner(Enemy):
         self.kamikaze_drone_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
+        self.enemy_image = self.kamikaze_drone_image  # 🔑 REQUIRED
 
         self.is_on_screen = False
 
@@ -72,6 +73,8 @@ class BladeSpinner(Enemy):
 
 
     def draw(self, surface: pygame.Surface, camera):
+        super().draw(surface, camera)  # 🔑 REQUIRED
+
         sprite_rect = pygame.Rect(10, 425, 32, 32)
         sprite = self.kamikaze_drone_image.subsurface(sprite_rect)
 

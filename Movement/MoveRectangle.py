@@ -1,6 +1,5 @@
 import pygame
 import math
-
 from Constants.GlobalConstants import GlobalConstants
 
 
@@ -8,81 +7,95 @@ class MoveRectangle:
     def __init__(self):
         pass
 
-    def _check_multi_input(self) -> float:
-        keys = pygame.key.get_pressed()
-        directions = [
-            keys[pygame.K_LEFT],
-            keys[pygame.K_RIGHT],
-            keys[pygame.K_UP],
-            keys[pygame.K_DOWN],
-        ]
-        active = sum(directions)
-        if active > 1:
-            return 1 / math.sqrt(2)
-        return 1.0
+    # =====================================================
+    # NEW: GENERIC NORMALIZED MOVEMENT
+    # =====================================================
+    def move_normalized(self, obj, dx: float, dy: float, speed_attr: str = "speed") -> None:
+        """
+        Move any object using a normalized direction vector.
 
+        dx, dy: direction intent (-1, 0, 1)
+        speed_attr: 'speed' (player) or 'moveSpeed' (enemy)
+        """
+
+        speed = getattr(obj, speed_attr, None)
+        if not isinstance(speed, float):
+            raise TypeError(f"{speed_attr} must be a float")
+
+        # No movement
+        if dx == 0 and dy == 0:
+            return
+
+        length = math.hypot(dx, dy)
+        dx /= length
+        dy /= length
+
+        obj.x += dx * speed
+        obj.y += dy * speed
+
+    # =====================================================
+    # PLAYER INPUT → NORMALIZED VECTOR
+    # =====================================================
+    def player_move(self, player) -> None:
+        keys = pygame.key.get_pressed()
+
+        dx = 0
+        dy = 0
+
+        if keys[pygame.K_LEFT]:
+            dx -= 1
+        if keys[pygame.K_RIGHT]:
+            dx += 1
+        if keys[pygame.K_UP]:
+            dy -= 1
+        if keys[pygame.K_DOWN]:
+            dy += 1
+
+        self.move_normalized(player, dx, dy, "speed")
+
+    # =====================================================
+    # ENEMY MOVEMENT → NORMALIZED VECTOR
+    # =====================================================
+    def enemy_move(self, enemy, dx: float, dy: float) -> None:
+        """
+        Enemy AI supplies dx, dy intent.
+        Example: dx=1, dy=0 → move right
+        """
+        self.move_normalized(enemy, dx, dy, "moveSpeed")
+
+    # =====================================================
+    # LEGACY FUNCTIONS (OPTIONAL – SAFE TO KEEP)
+    # =====================================================
     def player_move_left(self, obj) -> None:
-        if not isinstance(obj.speed, float):
-            raise TypeError("speed must be a float")
-        modifier = self._check_multi_input()
-        obj.x -= obj.speed * modifier
-        # print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
+        self.move_normalized(obj, -1, 0, "speed")
 
     def player_move_right(self, obj) -> None:
-        if not isinstance(obj.speed, float):
-            raise TypeError("speed must be a float")
-        modifier = self._check_multi_input()
-        obj.x += obj.speed * modifier
-        # print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
+        self.move_normalized(obj, 1, 0, "speed")
 
     def player_move_up(self, obj) -> None:
-        if not isinstance(obj.speed, float):
-            raise TypeError("speed must be a float")
-        modifier = self._check_multi_input()
-        obj.y -= obj.speed * modifier
-        # print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
+        self.move_normalized(obj, 0, -1, "speed")
 
     def player_move_down(self, obj) -> None:
-        if not isinstance(obj.speed, float):
-            raise TypeError("speed must be a float")
-        modifier = self._check_multi_input()
-        obj.y += obj.speed * modifier
-        # print(f"x={obj.x}, y={obj.y}, modifier={modifier}")
-
-    def enemy_move_right(self, enemy) -> None:
-        if not isinstance(enemy.moveSpeed, float):
-            raise TypeError("moveSpeed must be a float")
-        enemy.x += enemy.moveSpeed
+        self.move_normalized(obj, 0, 1, "speed")
 
     def enemy_move_left(self, enemy) -> None:
-        if not isinstance(enemy.moveSpeed, float):
-            raise TypeError("moveSpeed must be a float")
-        enemy.x -= enemy.moveSpeed
+        self.move_normalized(enemy, -1, 0, "moveSpeed")
+
+    def enemy_move_right(self, enemy) -> None:
+        self.move_normalized(enemy, 1, 0, "moveSpeed")
 
     def enemy_move_up(self, enemy) -> None:
-        if not isinstance(enemy.moveSpeed, float):
-            raise TypeError("moveSpeed must be a float")
-        enemy.y -= enemy.moveSpeed
+        self.move_normalized(enemy, 0, -1, "moveSpeed")
 
     def enemy_move_down(self, enemy) -> None:
-        if not isinstance(enemy.moveSpeed, float):
-            raise TypeError("moveSpeed must be a float")
-        enemy.y += enemy.moveSpeed
+        self.move_normalized(enemy, 0, 1, "moveSpeed")
 
+    # =====================================================
+    # VISIBILITY CHECK (UNCHANGED)
+    # =====================================================
     def enemy_on_screen(self, enemy, camera):
-        """Return True if enemy is visible on the screen."""
         if camera is None:
             return False
 
         screen_y = camera.world_to_screen_y(enemy.y)
-
-        if 0 <= screen_y <= GlobalConstants.WINDOWS_SIZE[1]:
-            # print(f"[ENEMY ON SCREEN] x={enemy.x:.2f}, y={enemy.y:.2f}")
-            return True
-
-        return False
-
-    def player_x_cordinate_lock_on(self):
-        print("enemy now in battle zone")
-
-
+        return 0 <= screen_y <= GlobalConstants.WINDOWS_SIZE[1]

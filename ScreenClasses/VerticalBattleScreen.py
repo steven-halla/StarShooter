@@ -597,6 +597,7 @@ class VerticalBattleScreen:
         state.DISPLAY.fill(GlobalConstants.BLACK)
         state.DISPLAY.blit(scaled_scene, (0, 0))
         self.draw_player_hp_bar(state.DISPLAY)
+        # self.draw_ui_panel(state.DISPLAY)
 
         # -------------------------
         # DRAW PLASMA BLASTER
@@ -1182,3 +1183,23 @@ class VerticalBattleScreen:
 
         # Top-left padding
         surface.blit(text_surface, (10, 10))
+
+    def draw_ui_panel(self, surface: pygame.Surface) -> None:
+        panel_rect = pygame.Rect(
+            0,
+            GlobalConstants.GAMEPLAY_HEIGHT,  # bottom of gameplay
+            GlobalConstants.BASE_WINDOW_WIDTH,
+            GlobalConstants.UI_PANEL_HEIGHT
+        )
+
+        # panel background
+        pygame.draw.rect(surface, (20, 20, 20), panel_rect)
+
+        # top border line
+        pygame.draw.line(
+            surface,
+            (255, 255, 255),
+            (0, GlobalConstants.GAMEPLAY_HEIGHT),
+            (GlobalConstants.BASE_WINDOW_WIDTH, GlobalConstants.GAMEPLAY_HEIGHT),
+            2
+        )

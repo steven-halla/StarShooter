@@ -42,6 +42,7 @@ class Ravager(Enemy):
         self.ravager_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
+        self.enemy_image = self.ravager_image  # 🔑 REQUIRED
 
     # =========================
     # NORMAL FIRE (UNCHANGED)
@@ -213,6 +214,8 @@ class Ravager(Enemy):
 
 
     def draw(self, surface: pygame.Surface, camera):
+        super().draw(surface, camera)  # 🔑 REQUIRED
+
         sprite_rect = pygame.Rect(0, 344, 32, 32)
         sprite = self.ravager_image.subsurface(sprite_rect)
 

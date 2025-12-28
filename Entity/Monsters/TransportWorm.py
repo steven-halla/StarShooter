@@ -20,6 +20,7 @@ class TransportWorm(Enemy):
         self.sprite_sheet = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
+        self.enemy_image = self.sprite_sheet  # 🔑 REQUIRED
 
         # -------------------------
         # GAMEPLAY
@@ -107,6 +108,8 @@ class TransportWorm(Enemy):
     # DRAW
     # -------------------------------------------------
     def draw(self, surface: pygame.Surface, camera) -> None:
+        super().draw(surface, camera)  # 🔑 REQUIRED
+
         sprite_rect = pygame.Rect(0, 344, 32, 32)
         sprite = self.sprite_sheet.subsurface(sprite_rect)
 

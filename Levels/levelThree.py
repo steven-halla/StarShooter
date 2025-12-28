@@ -115,7 +115,7 @@ class LevelThree(VerticalBattleScreen):
         # )
         if self.level_start == True:
             self.level_start = False
-            self.starship.shipHealth = 120
+            self.starship.shipHealth = 180
         total = (
                 len(self.bileSpitterGroup)
                 + len(self.triSpitterGroup)

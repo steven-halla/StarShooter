@@ -4,7 +4,7 @@ from ScreenClasses.Screen import Screen
 from Constants.GlobalConstants import GlobalConstants
 
 
-class MissionBriefingScreenLevelOne(Screen):
+class MissionBriefingScreenLevelFour(Screen):
     def __init__(self):
         super().__init__()
         self.font_title = pygame.font.Font(None, 48)

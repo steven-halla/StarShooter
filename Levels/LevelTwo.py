@@ -70,7 +70,7 @@ class LevelTwo(VerticalBattleScreen):
     def start(self, state) -> None:
         player_x = None
         player_y = None
-        self.starship.shipHealth = 100
+        self.starship.shipHealth = 1500
 
         for obj in self.tiled_map.objects:
             if obj.name == "player":  # this string comes from Tiled
@@ -87,7 +87,7 @@ class LevelTwo(VerticalBattleScreen):
         super().update(state)
         if self.level_start == True:
             self.level_start = False
-            self.starship.shipHealth = 120
+            self.starship.shipHealth = 1500
         # print(self.side_rect_hp)
         print(
             "BileSpitters:", len(self.bileSpitterGroup),

@@ -35,6 +35,7 @@ class KamikazeDrone(Enemy):
         self.kamikaze_drone_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
+        self.enemy_image = self.kamikaze_drone_image  # 🔑 REQUIRED
 
         self.is_on_screen = False
 
@@ -72,6 +73,8 @@ class KamikazeDrone(Enemy):
 
 
     def draw(self, surface: pygame.Surface, camera):
+        super().draw(surface, camera)  # 🔑 REQUIRED
+
         sprite_rect = pygame.Rect(10, 425, 32, 32)
         sprite = self.kamikaze_drone_image.subsurface(sprite_rect)
 
@@ -100,6 +103,7 @@ class KamikazeDrone(Enemy):
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
 
     def on_hit_player(self):
+
         """Handle drone impact damage (player or non-player target)."""
         if self.target_player is None:
             return

@@ -185,14 +185,18 @@ class LevelOne(VerticalBattleScreen):
 
         for enemy in self.bileSpitterGroup:
             enemy.draw(state.DISPLAY, self.camera)
+            enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
         for enemy_tri_spitter in self.triSpitterGroup:
             enemy_tri_spitter.draw(state.DISPLAY, self.camera)
+            enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
         for blade in self.bladeSpinnerGroup:
             blade.draw(state.DISPLAY, self.camera)
+            enemy.draw_damage_flash(state.DISPLAY, self.camera)
         for boss in self.bossLevelOneGroup:
             boss.draw(state.DISPLAY, self.camera)
+            enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
         for enemy_tri_spitter in self.triSpitterGroup:
             hb = pygame.Rect(
@@ -308,6 +312,7 @@ class LevelOne(VerticalBattleScreen):
                 self.triSpitterGroup.append(enemy_tri_spitter)
                 enemy_tri_spitter.camera = self.camera
                 enemy_tri_spitter.target_player = self.starship
+
                 continue
 
     def enemy_helper(self):

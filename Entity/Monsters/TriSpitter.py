@@ -54,6 +54,7 @@ class TriSpitter(Enemy):
         self.tri_spiter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
+        self.enemy_image = self.tri_spiter_image  # 🔑 REQUIRED
 
     def shoot_triple_bullets(self):
         base_x = self.x + self.width // 2 - self.bulletWidth // 2
@@ -208,6 +209,8 @@ class TriSpitter(Enemy):
             self.move_direction = -1  # go left
 
     def draw(self, surface: pygame.Surface, camera):
+        super().draw(surface, camera)  # 🔑 REQUIRED
+
         sprite_rect = pygame.Rect(60, 128, 32, 32)
         sprite = self.tri_spiter_image.subsurface(sprite_rect)
 

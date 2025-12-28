@@ -33,6 +33,7 @@ class WaspStinger(Enemy):
         self.wasp_stinger_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
+        self.enemy_image = self.wasp_stinger_image  # 🔑 REQUIRED
 
     def update(self):
         super().update()
@@ -97,6 +98,8 @@ class WaspStinger(Enemy):
 
         self.update_hitbox()
     def draw(self, surface: pygame.Surface, camera):
+        super().draw(surface, camera)  # 🔑 REQUIRED
+
         sprite_rect = pygame.Rect(60, 128, 32, 32)
         sprite = self.wasp_stinger_image.subsurface(sprite_rect)
 

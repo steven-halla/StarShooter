@@ -52,6 +52,7 @@ class BileSpitter(Enemy):
         self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
+        self.enemy_image = self.bile_spitter_image  # 🔑 REQUIRED
 
     def _shoot_bile(self) -> None:
         """Create a Bullet object and add it to local bullet list."""
@@ -140,6 +141,8 @@ class BileSpitter(Enemy):
         # update last position
         self._last_x = self.x
     def draw(self, surface: pygame.Surface, camera):
+        super().draw(surface, camera)  # 🔑 REQUIRED
+
         sprite_rect = pygame.Rect(0, 344, 32, 32)
         sprite = self.bile_spitter_image.subsurface(sprite_rect)
 

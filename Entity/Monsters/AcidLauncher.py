@@ -41,6 +41,7 @@ class AcidLauncher(Enemy):
         self.acid_launcher_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
+        self.enemy_image = self.acid_launcher_image  # 🔑 REQUIRED
 
     def shoot_spines(self) -> None:
         if self.last_player_x is None or self.last_player_y is None:
@@ -89,6 +90,8 @@ class AcidLauncher(Enemy):
             bullet.update()
 
     def draw(self, surface: pygame.Surface, camera):
+        super().draw(surface, camera)  # 🔑 REQUIRED
+
         sprite_rect = pygame.Rect(0, 344, 32, 32)
         sprite = self.acid_launcher_image.subsurface(sprite_rect)
 

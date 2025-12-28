@@ -4,10 +4,17 @@ import os
 class GlobalConstants():
     def __init__(self):
         self.name: str = ""
+    #
+    # BASE_WINDOW_WIDTH: int = 640
+    # BASE_WINDOW_HEIGHT: int = 480
 
-    BASE_WINDOW_HEIGHT: int = 700
-    BASE_WINDOW_WIDTH: int = 700
+    BASE_WINDOW_WIDTH: int = 800
+    BASE_WINDOW_HEIGHT: int = 600
     WINDOWS_SIZE: tuple[int, int] = (BASE_WINDOW_WIDTH, BASE_WINDOW_HEIGHT)
+
+    UI_PANEL_HEIGHT = 100
+    GAMEPLAY_HEIGHT = BASE_WINDOW_HEIGHT - UI_PANEL_HEIGHT
+
     #colors
     BLACK: tuple[int, int, int] = (0, 0, 0)
     BLUE: tuple[int, int, int] = (0, 0, 255)

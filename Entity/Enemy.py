@@ -1,5 +1,4 @@
 import pygame
-
 from Constants.GlobalConstants import GlobalConstants
 from Movement.MoveRectangle import MoveRectangle
 
@@ -20,12 +19,17 @@ class Enemy:
 
         # combat / stats
         self.enemyHealth: int = 0
+        self.last_enemy_health: int = self.enemyHealth
+
         self.enemyBullets: list = []
         self.exp: int = 0
         self.credits: int = 0
 
-        # rendering
-        self.color = GlobalConstants.RED
+        # rendering / damage flash
+        self.is_flashing: bool = False
+        self.flash_start_time: int = 0
+        self.flash_duration_ms: int = 120
+        self.flash_interval_ms: int = 30
 
         # references (set by level)
         self.camera = None
@@ -37,26 +41,21 @@ class Enemy:
         # state flags
         self.is_on_screen: bool = False
         self.has_entered_screen: bool = False
-        self.is_active: bool = False  # 🔑 THIS IS THE KEY
+        self.is_active: bool = False
 
     # --------------------------------------------------
-    # UPDATE (GLOBAL RULES ONLY)
+    # UPDATE
     # --------------------------------------------------
     def update(self):
         self.update_hitbox()
-        # print("TARGET:", self.target_player)  # ← TEMP DEBUG
 
         if self.camera is None:
             self.is_active = False
             return
 
-        # horizontal clamp ALWAYS
         self._clamp_horizontal()
-
-        # visibility
         self.is_on_screen = self.mover.enemy_on_screen(self, self.camera)
 
-        # activation gate
         if self.is_on_screen and self.player_in_vicinity():
             self.is_active = True
             self.has_entered_screen = True
@@ -64,15 +63,56 @@ class Enemy:
         else:
             self.is_active = False
 
+        # 🔑 DAMAGE DETECTION (THIS IS THE KEY)
+        if self.enemyHealth < self.last_enemy_health:
+            self.is_flashing = True
+            self.flash_start_time = pygame.time.get_ticks()
+
+        self.last_enemy_health = self.enemyHealth
+
+        # 🔑 FLASH TIMER
+        if self.is_flashing:
+            if pygame.time.get_ticks() - self.flash_start_time >= self.flash_duration_ms:
+                self.is_flashing = False
+    # --------------------------------------------------
+    # DAMAGE
+    # --------------------------------------------------
+    def take_damage(self, amount: int) -> None:
+        self.enemyHealth -= amount
+        self.is_flashing = True
+        self.flash_start_time = pygame.time.get_ticks()
+
+    # --------------------------------------------------
+    # DRAW DAMAGE FLASH (CALLED AFTER CHILD DRAW)
+    # --------------------------------------------------
+    def draw(self, surface: pygame.Surface, camera) -> None:
+        if not self.is_flashing:
+            return
+
+        elapsed = pygame.time.get_ticks() - self.flash_start_time
+        if elapsed >= self.flash_duration_ms:
+            self.is_flashing = False
+            return
+
+        # blink timing
+        if (elapsed // self.flash_interval_ms) % 2 != 0:
+            return
+
+        x = camera.world_to_screen_x(self.hitbox.x)
+        y = camera.world_to_screen_y(self.hitbox.y)
+        w = int(self.hitbox.width * camera.zoom)
+        h = int(self.hitbox.height * camera.zoom)
+
+        flash = pygame.Surface((w, h), pygame.SRCALPHA)
+        flash.fill((*GlobalConstants.RED, 160))
+        surface.blit(flash, (x, y))
+
     # --------------------------------------------------
     # CLAMPING
     # --------------------------------------------------
     def _clamp_horizontal(self) -> None:
         max_x = (self.camera.window_width / self.camera.zoom) - self.width
-        if self.x < 0:
-            self.x = 0
-        elif self.x > max_x:
-            self.x = max_x
+        self.x = max(0, min(self.x, max_x))
 
     def _clamp_vertical(self) -> None:
         cam_top = self.camera.y
@@ -81,32 +121,17 @@ class Enemy:
             + (self.camera.window_height / self.camera.zoom)
             - self.height
         )
-
-        if self.y < cam_top:
-            self.y = cam_top
-        elif self.y > cam_bottom:
-            self.y = cam_bottom
+        self.y = max(cam_top, min(self.y, cam_bottom))
 
     # --------------------------------------------------
-    # PLAYER PROXIMITY GATE
+    # PROXIMITY
     # --------------------------------------------------
     def player_in_vicinity(self) -> bool:
         if self.camera is None or self.target_player is None:
             return False
 
-        enemy_screen_y = self.camera.world_to_screen_y(self.y)
-        player_screen_y = self.camera.world_to_screen_y(self.target_player.y)
-
-        window_h = self.camera.window_height
-
-        if not (0 <= enemy_screen_y <= window_h):
-            return False
-        if not (0 <= player_screen_y <= window_h):
-            return False
-
         dx = abs(self.x - self.target_player.x)
         dy = abs(self.y - self.target_player.y)
-
         return dx <= 400 and dy <= 300
 
     # --------------------------------------------------
@@ -120,8 +145,23 @@ class Enemy:
             int(self.height),
         )
 
-    # --------------------------------------------------
-    # DAMAGE HOOK
-    # --------------------------------------------------
-    def on_hit(self):
-        self.color = (255, 255, 0)
+    def draw_damage_flash(self, surface: pygame.Surface, camera) -> None:
+        if not self.is_flashing:
+            return
+
+        elapsed = pygame.time.get_ticks() - self.flash_start_time
+        if elapsed >= self.flash_duration_ms:
+            self.is_flashing = False
+            return
+
+        if (elapsed // self.flash_interval_ms) % 2 != 0:
+            return
+
+        x = camera.world_to_screen_x(self.hitbox.x)
+        y = camera.world_to_screen_y(self.hitbox.y)
+        w = int(self.hitbox.width * camera.zoom)
+        h = int(self.hitbox.height * camera.zoom)
+
+        flash = pygame.Surface((w, h), pygame.SRCALPHA)
+        flash.fill((*GlobalConstants.RED, 160))
+        surface.blit(flash, (x, y))
