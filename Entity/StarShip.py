@@ -49,7 +49,7 @@ class StarShip:
         self.missileDamage: int = 100
         self.missileSpeed: int = 10
         self.missile_spread_offset: int = 20
-        self.equipped_magic: list = ["Hyper Laser", None]
+        self.equipped_magic: list = ["Buster Cannon", None]
         self.hyper_laser_damage: int = 100
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
@@ -354,8 +354,6 @@ class StarShip:
         hb_h = int(self.hitbox.height * camera.zoom)
 
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
-        # 🔑 COLOR SWITCH BASED ON BUSTER CHARGE
-
 
 
     def update_hitbox(self) -> None:
@@ -364,4 +362,4 @@ class StarShip:
     def on_hit(self) -> None:
         if not self.was_hit:
             self.was_hit = True
-
+            self.color = GlobalConstants.YELLOW
