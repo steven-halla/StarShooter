@@ -35,6 +35,8 @@ class StarShip:
         # the weapon itself manages charge status
         self.buster_cannon = BusterCanon(self.x, self.y)
 
+        self.shipHealthMax: int = 150
+
         # firing stats for machien gun
         self.bullet_fire_interval_seconds: float = 0.05
         self.bullet_timer: Timer = Timer(self.bullet_fire_interval_seconds)

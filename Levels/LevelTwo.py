@@ -88,7 +88,7 @@ class LevelTwo(VerticalBattleScreen):
         super().update(state)
         if self.level_start == True:
             self.level_start = False
-            self.starship.shipHealth = 1500
+            self.starship.shipHealth = 150
         # print(self.side_rect_hp)
         print(
             "BileSpitters:", len(self.bileSpitterGroup),

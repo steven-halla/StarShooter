@@ -582,6 +582,7 @@ class VerticalBattleScreen:
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
         window_height = GlobalConstants.GAMEPLAY_HEIGHT
         zoom = self.camera.zoom
+        self.starship.shipHealth
 
         # Gameplay render surface (NO UI PANEL INCLUDED)
         scene_surface = pygame.Surface((window_width, window_height))
@@ -1195,17 +1196,20 @@ class VerticalBattleScreen:
         surface.blit(text_surface, (10, 10))
 
     def draw_ui_panel(self, surface: pygame.Surface) -> None:
+        # -----------------------------
+        # PANEL RECT
+        # -----------------------------
         panel_rect = pygame.Rect(
             0,
-            GlobalConstants.GAMEPLAY_HEIGHT,  # bottom of gameplay
+            GlobalConstants.GAMEPLAY_HEIGHT,
             GlobalConstants.BASE_WINDOW_WIDTH,
             GlobalConstants.UI_PANEL_HEIGHT
         )
 
-        # panel background
+        # background
         pygame.draw.rect(surface, (20, 20, 20), panel_rect)
 
-        # top border line
+        # top border
         pygame.draw.line(
             surface,
             (255, 255, 255),
@@ -1213,3 +1217,50 @@ class VerticalBattleScreen:
             (GlobalConstants.BASE_WINDOW_WIDTH, GlobalConstants.GAMEPLAY_HEIGHT),
             2
         )
+
+        # -----------------------------
+        # HP TEXT
+        # -----------------------------
+        font = pygame.font.Font(None, 24)
+
+        current_hp = max(0, int(self.starship.shipHealth))
+        max_hp = max(1, int(self.starship.shipHealthMax))  # safety
+
+        hp_text = f"HP: {current_hp}"
+        text_surface = font.render(hp_text, True, (255, 255, 255))
+
+        text_x = 10
+        text_y = GlobalConstants.GAMEPLAY_HEIGHT + 10
+        surface.blit(text_surface, (text_x, text_y))
+
+        # -----------------------------
+        # HP BAR (50px wide, 2% per pixel)
+        # -----------------------------
+        BAR_WIDTH = 100
+        BAR_HEIGHT = 20
+
+        # % health
+        hp_percent = current_hp / max_hp
+
+        filled_width = int(BAR_WIDTH * hp_percent)
+        filled_width = max(0, min(BAR_WIDTH, filled_width))
+
+
+        bar_x = text_x + text_surface.get_width() + 10
+        bar_y = text_y + 6
+
+        # outline
+        pygame.draw.rect(
+            surface,
+            (255, 255, 255),
+            (bar_x, bar_y, BAR_WIDTH, BAR_HEIGHT),
+            1
+        )
+
+        # fill
+        if filled_width > 0:
+            pygame.draw.rect(
+                surface,
+                (0, 200, 0),
+                (bar_x + 1, bar_y + 1, filled_width - 2, BAR_HEIGHT - 2)
+            )
