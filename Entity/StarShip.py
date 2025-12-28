@@ -2,6 +2,8 @@
 # from Constants.GlobalConstants import GlobalConstants
 # from Constants.Timer import Timer
 # from Movement.MoveRectangle import MoveRectangle
+import random
+
 import math
 
 import pygame
@@ -82,6 +84,13 @@ class StarShip:
         self.wave_crash_speed: int = 6
         self.wave_crash_width: int = 12
         self.wave_crash_height: int = 12
+
+        # -------------------------
+        # DAMAGE VISUAL EFFECT
+        # -------------------------
+        self.is_electrocuted: bool = False
+        self.electric_start_time: int = 0
+        self.electric_duration_ms: int = 180
 
     def start_invincibility(self) -> None:
         # Begin a 10-second invincibility period
@@ -306,26 +315,41 @@ class StarShip:
 
     def update(self) -> None:
         self.update_hitbox()
-        # print(self.shipHealth)
 
-        # Detect health drop → trigger invincibility
-        # Detect health drop → trigger invincibility AND lock in new health
+        # --------------------------------
+        # DETECT DAMAGE (HEALTH DROP)
+        # --------------------------------
         if self.shipHealth < self.last_health and not self.invincible:
-            self.last_health = self.shipHealth  # lock in the new lower HP
-            self.start_invincibility()
+            # trigger invincibility
+            self.invincible = True
+            self.invincibility_timer.reset()
 
-        # If invincible, check if timer has finished
+            # trigger electric visual
+            self.is_electrocuted = True
+            self.electric_start_time = pygame.time.get_ticks()
+
+            # lock health
+            self.last_health = self.shipHealth
+
+        # --------------------------------
+        # INVINCIBILITY TIMER
+        # --------------------------------
         if self.invincible:
             if self.invincibility_timer.is_ready():
-                # End invincibility
                 self.invincible = False
             else:
-                # Ignore any incoming damage (freeze HP)
+                # freeze health during invincibility
                 self.shipHealth = self.last_health
 
-        # After invincibility ends, allow last_health to match current HP normally
         if not self.invincible:
             self.last_health = self.shipHealth
+
+        # --------------------------------
+        # ELECTRIC VISUAL TIMER (GRAPHICS ONLY)
+        # --------------------------------
+        if self.is_electrocuted:
+            if pygame.time.get_ticks() - self.electric_start_time >= self.electric_duration_ms:
+                self.is_electrocuted = False
 
     def draw(self, surface: pygame.Surface, camera):
         sprite_rect = pygame.Rect(10, 220, 32, 32)
@@ -355,11 +379,41 @@ class StarShip:
 
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
 
+        if self.is_electrocuted:
+            self.draw_electric_effect(surface, camera)
 
     def update_hitbox(self) -> None:
         self.hitbox.topleft = (int(self.x), int(self.y))
 
     def on_hit(self) -> None:
-        if not self.was_hit:
-            self.was_hit = True
-            self.color = GlobalConstants.YELLOW
+        if self.invincible:
+            return
+
+        self.was_hit = True
+        self.is_electrocuted = True
+        self.electric_start_time = pygame.time.get_ticks()
+
+    def draw_electric_effect(self, surface: pygame.Surface, camera) -> None:
+        cx = camera.world_to_screen_x(self.x + self.width / 2)
+        cy = camera.world_to_screen_y(self.y + self.height / 2)
+        scale = camera.zoom
+
+        for _ in range(6):
+            points = [(cx, cy)]
+            angle = random.uniform(0, math.tau)
+            length = random.randint(int(10 * scale), int(24 * scale))
+
+            x, y = cx, cy
+            for _ in range(random.randint(4, 7)):
+                angle += random.uniform(-0.6, 0.6)
+                x += math.cos(angle) * (length / 6)
+                y += math.sin(angle) * (length / 6)
+                points.append((x, y))
+
+            pygame.draw.lines(
+                surface,
+                (120, 200, 255),
+                False,
+                points,
+                2
+            )
