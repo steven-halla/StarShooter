@@ -79,7 +79,10 @@ class LevelFour(VerticalBattleScreen):
     def update(self, state) -> None:
         if self.level_start == True:
             self.level_start = False
-            self.starship.shipHealth = 350
+            self.starship.shipHealth = 222
+            self.save_state.capture_player(self.starship, self.__class__.__name__)
+            self.save_state.save_to_file("player_save.json")
+
         # for boss in self.bossLevelFourGroup:
         #     print(f"[LEVEL 4 BOSS HP] {boss.enemyHealth}")
         BUFFER = -100  # pixels of grace

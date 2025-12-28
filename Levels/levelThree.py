@@ -115,7 +115,10 @@ class LevelThree(VerticalBattleScreen):
         # )
         if self.level_start == True:
             self.level_start = False
-            self.starship.shipHealth = 180
+            self.starship.shipHealth = 150
+            self.save_state.capture_player(self.starship, self.__class__.__name__)
+            self.save_state.save_to_file("player_save.json")
+
         total = (
                 len(self.bileSpitterGroup)
                 + len(self.triSpitterGroup)
