@@ -30,7 +30,8 @@ class LevelTwo(VerticalBattleScreen):
         self.map_height_tiles: int = self.tiled_map.height
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400  # y position of map
 
-        window_width, window_height = GlobalConstants.WINDOWS_SIZE
+        window_width = GlobalConstants.BASE_WINDOW_WIDTH
+        window_height = GlobalConstants.GAMEPLAY_HEIGHT
         self.camera_y = self.WORLD_HEIGHT - window_height  # look at bottom of map
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)

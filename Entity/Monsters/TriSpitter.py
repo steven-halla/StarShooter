@@ -178,7 +178,7 @@ class TriSpitter(Enemy):
 
     def moveAI(self) -> None:
         """Simple AI: move left/right using MoveRectangle helpers."""
-        window_width, _ = GlobalConstants.WINDOWS_SIZE
+        window_width = GlobalConstants.BASE_WINDOW_WIDTH
         now = pygame.time.get_ticks()
 
         # every 3 seconds, toggle moving / not moving
@@ -192,7 +192,6 @@ class TriSpitter(Enemy):
 
         if not self.is_moving:
             return
-
 
         # 🔹 use YOUR helpers instead of touching x directly
         if self.move_direction > 0:

@@ -108,7 +108,8 @@ class BileSpitter(Enemy):
     #     )
 
     def moveAI(self) -> None:
-        window_width, _ = GlobalConstants.WINDOWS_SIZE
+        window_width = GlobalConstants.BASE_WINDOW_WIDTH
+        gameplay_height = GlobalConstants.GAMEPLAY_HEIGHT
 
         # store last position (once)
         if not hasattr(self, "_last_x"):

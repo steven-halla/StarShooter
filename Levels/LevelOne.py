@@ -25,7 +25,8 @@ class LevelOne(VerticalBattleScreen):
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400 # y position of map
-        window_width, window_height = GlobalConstants.WINDOWS_SIZE
+        window_width: int = GlobalConstants.BASE_WINDOW_WIDTH
+        window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
         self.camera_y = self.WORLD_HEIGHT - window_height # look at bottom of map
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
@@ -189,7 +190,7 @@ class LevelOne(VerticalBattleScreen):
 
         for enemy_tri_spitter in self.triSpitterGroup:
             enemy_tri_spitter.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
+            enemy_tri_spitter.draw_damage_flash(state.DISPLAY, self.camera)
 
         for blade in self.bladeSpinnerGroup:
             blade.draw(state.DISPLAY, self.camera)

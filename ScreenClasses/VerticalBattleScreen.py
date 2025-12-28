@@ -84,13 +84,13 @@ class VerticalBattleScreen:
         self.player_missiles: list = []
         self.enemy_bullets: list = []     # LevelOne can append to this list
 
-        self.WORLD_HEIGHT: int = GlobalConstants.WINDOWS_SIZE[1] * 3
-
+        self.WORLD_HEIGHT: int = GlobalConstants.GAMEPLAY_HEIGHT * 3
         self.SCROLL_SPEED_PER_SECOND: float = 55.0
         self.camera_y: float = 0.0
         self.SCROLL_SPEED_PER_FRAME: float = 55.0
+        window_width: int = GlobalConstants.BASE_WINDOW_WIDTH
+        window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
 
-        window_width, window_height = GlobalConstants.WINDOWS_SIZE
         self.window_width = window_width
         self.window_height = window_height
 
@@ -135,7 +135,8 @@ class VerticalBattleScreen:
             self.starship.y = max_y
 
     def move_map_y_axis(self):
-        _, window_height = GlobalConstants.WINDOWS_SIZE
+        window_width = GlobalConstants.BASE_WINDOW_WIDTH
+        window_height = GlobalConstants.GAMEPLAY_HEIGHT
 
         # move camera UP in world space (so map scrolls down)
         self.camera_y -= self.map_scroll_speed_per_frame
@@ -576,26 +577,34 @@ class VerticalBattleScreen:
                     self.starship.on_hit()
                     break  # ⛔ only one hit per frame
 
-
-
     def draw(self, state) -> None:
 
-
-
-        window_width, window_height = GlobalConstants.WINDOWS_SIZE
+        window_width = GlobalConstants.BASE_WINDOW_WIDTH
+        window_height = GlobalConstants.GAMEPLAY_HEIGHT
         zoom = self.camera.zoom
 
+        # Gameplay render surface (NO UI PANEL INCLUDED)
         scene_surface = pygame.Surface((window_width, window_height))
 
+        # Draw map + gameplay objects into gameplay surface
         self.draw_tiled_background(scene_surface)
 
+        # Scale gameplay scene
         scaled_scene = pygame.transform.scale(
             scene_surface,
             (int(window_width * zoom), int(window_height * zoom))
         )
 
+        # Clear full display (includes UI area)
         state.DISPLAY.fill(GlobalConstants.BLACK)
+
+        # Draw gameplay area at top
         state.DISPLAY.blit(scaled_scene, (0, 0))
+
+        # 🔽 UI PANEL (BOTTOM BAR)
+        self.draw_ui_panel(state.DISPLAY)
+
+        # 🔽 UI CONTENT (TEXT, HP, ETC)
         self.draw_player_hp_bar(state.DISPLAY)
         # self.draw_ui_panel(state.DISPLAY)
 
@@ -840,7 +849,8 @@ class VerticalBattleScreen:
 
     def draw_tiled_background(self, surface: Surface) -> None:
         tile_size = self.tile_size
-        window_width, window_height = GlobalConstants.WINDOWS_SIZE
+        window_width = GlobalConstants.BASE_WINDOW_WIDTH
+        window_height = GlobalConstants.GAMEPLAY_HEIGHT
         bg_layer = self.tiled_map.get_layer_by_name("background")
 
         for col, row, image in bg_layer.tiles():

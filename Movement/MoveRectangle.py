@@ -98,4 +98,4 @@ class MoveRectangle:
             return False
 
         screen_y = camera.world_to_screen_y(enemy.y)
-        return 0 <= screen_y <= GlobalConstants.WINDOWS_SIZE[1]
+        return 0 <= screen_y <= GlobalConstants.GAMEPLAY_HEIGHT

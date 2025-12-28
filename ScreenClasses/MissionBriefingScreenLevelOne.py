@@ -54,7 +54,9 @@ class MissionBriefingScreenLevelOne(Screen):
             else:
                 text_surface = self.font_body.render(line, True, (200, 200, 200))
 
-            rect = text_surface.get_rect(center=(GlobalConstants.WINDOWS_SIZE[0] // 2, y))
+            rect = text_surface.get_rect(
+    center=(GlobalConstants.WINDOWS_SIZE[0] // 2, y)
+)
             state.DISPLAY.blit(text_surface, rect)
             y += 36
 
