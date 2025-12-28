@@ -18,11 +18,12 @@ class SaveState:
     # -------------------------------------------------
     # PLAYER
     # -------------------------------------------------
-    def capture_player(self, starship) -> None:
+    def capture_player(self, starship, level_name: str) -> None:
         self.data["player"] = {
             "shipHealth": starship.shipHealth,
             "shipHealthMax": starship.shipHealthMax,
             "equipped_magic": list(starship.equipped_magic),
+            "level": level_name,
         }
 
     def restore_player(self, starship) -> None:

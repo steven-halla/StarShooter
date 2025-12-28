@@ -37,11 +37,10 @@ class MissionBriefingScreenLevelOne(Screen):
         ]
 
     def update(self, state):
-        if self.level_start == True:
-            self.level_start = False
-
-            self.save_state.capture_player(state.starship)
-            self.save_state.save_to_file("player_save.json")
+        # if self.level_start == True:
+        #     self.level_start = False
+            # self.save_state.capture_player(self.starship, self.__class__.__name__)
+            # self.save_state.save_to_file("player_save.json")
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
 
