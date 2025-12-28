@@ -24,6 +24,7 @@ from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from Entity.StarShip import StarShip
 from Movement.MoveRectangle import MoveRectangle
+from SaveStates.SaveState import SaveState
 from ScreenClasses.Camera import Camera
 from Weapons.Bullet import Bullet
 # from game_state import GameState
@@ -101,7 +102,7 @@ class VerticalBattleScreen:
             scroll_speed_per_frame=self.SCROLL_SPEED_PER_FRAME,
             initial_zoom=2.5,   # DO NOT TOUCH CAMERA SETTINGS
         )
-
+        self.save_state = SaveState()
 
     def start(self, state):
         pass
@@ -158,6 +159,23 @@ class VerticalBattleScreen:
         # print("PLAYER UPDATE Y:", self.starship.y)
         # print("STARSHIP INSTANCE:", id(self.starship))
         # now handle map scroll ONLY in LevelOne
+        # --------------------------------
+        # PLAYER DEATH → LOAD SAVE
+        # --------------------------------
+        if self.starship.shipHealth <= 0:
+            from Levels.LevelOne import LevelOne
+
+            # reload save
+            if self.save_state.load_from_file(""
+                                              "player_save.json"):
+                new_level = LevelOne()
+                state.currentScreen = new_level
+                new_level.start(state)
+
+                # restore player AFTER start() sets spawn point
+                self.save_state.restore_player(state.starship)
+
+            return
         self.move_map_y_axis()
 
 

@@ -44,7 +44,7 @@ class GameState:
         # --------------------------------------------------
         # CURRENT SCREEN
         # --------------------------------------------------
-        self.currentScreen = MissionBriefingScreenLevelTwo()
+        self.currentScreen = MissionBriefingScreenLevelOne()
 
 
 

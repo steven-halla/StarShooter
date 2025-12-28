@@ -1,5 +1,6 @@
 import pygame
 
+from SaveStates.SaveState import SaveState
 from ScreenClasses.Screen import Screen
 from Constants.GlobalConstants import GlobalConstants
 
@@ -7,10 +8,13 @@ from Constants.GlobalConstants import GlobalConstants
 class MissionBriefingScreenLevelOne(Screen):
     def __init__(self):
         super().__init__()
+        self.level_start:bool = True
         self.font_title = pygame.font.Font(None, 48)
         self.font_body = pygame.font.Font(None, 26)
         self.set_player = "None"
         self.skip_ready_time = pygame.time.get_ticks() + 2500
+        self.save_state = SaveState()
+
 
         self.briefing_text = [
             "Mission Briefing: Save the colony",
@@ -33,8 +37,14 @@ class MissionBriefingScreenLevelOne(Screen):
         ]
 
     def update(self, state):
+        if self.level_start == True:
+            self.level_start = False
+
+            self.save_state.capture_player(state.starship)
+            self.save_state.save_to_file("player_save.json")
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+
                 if pygame.time.get_ticks() < self.skip_ready_time:
                     return
                 from Levels.LevelOne import LevelOne

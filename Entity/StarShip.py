@@ -65,7 +65,7 @@ class StarShip:
             self.height
         )
         self.was_hit: bool = False
-        self.shipHealth: int = 140
+        self.shipHealth: int = 50
 
         self.player_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"

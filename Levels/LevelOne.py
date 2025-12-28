@@ -11,6 +11,7 @@ from Entity.Monsters.Ravager import Ravager
 from Entity.Monsters.SpineLauncher import SpineLauncher
 from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TriSpitter import TriSpitter
+from SaveStates.SaveState import SaveState
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
@@ -20,6 +21,7 @@ class LevelOne(VerticalBattleScreen):
         super().__init__()
         # self.starship: StarShip = StarShip()
 
+        self.level_start:bool = True
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level1.tmx")
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
@@ -46,6 +48,7 @@ class LevelOne(VerticalBattleScreen):
         self.missed_enemies = []
         self.game_over: bool = False
         self.level_complete = False
+        self.save_state = SaveState()
 
     def start(self, state) -> None:
         player_x = None
@@ -56,28 +59,39 @@ class LevelOne(VerticalBattleScreen):
                 player_x = obj.x
                 player_y = obj.y
                 break
+        self.starship = state.starship
 
         self.starship.x = player_x
         self.starship.y = player_y
+        self.starship.update_hitbox()
+        # self.starship.x = player_x
+        # self.starship.y = player_y
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
         self.load_enemy_into_list()
 
 
     def update(self, state) -> None:
         super().update(state)
-        print("=== ENEMY LIST ===")
-        print(f"BileSpitter: {len(self.bileSpitterGroup)}")
-        print(f"TriSpitter: {len(self.triSpitterGroup)}")
-        print(f"BladeSpinner: {len(self.bladeSpinnerGroup)}")
-        print(f"BossLevelOne: {len(self.bossLevelOneGroup)}")
-        print(
-            f"TOTAL: "
-            f"{len(self.bileSpitterGroup) + len(self.triSpitterGroup) + len(self.bladeSpinnerGroup) + len(self.bossLevelOneGroup)}"
-        )
-        print("==================")
+        # print("=== ENEMY LIST ===")
+        # print(f"BileSpitter: {len(self.bileSpitterGroup)}")
+        # print(f"TriSpitter: {len(self.triSpitterGroup)}")
+        # print(f"BladeSpinner: {len(self.bladeSpinnerGroup)}")
+        # print(f"BossLevelOne: {len(self.bossLevelOneGroup)}")
+        # print(
+        #     f"TOTAL: "
+        #     f"{len(self.bileSpitterGroup) + len(self.triSpitterGroup) + len(self.bladeSpinnerGroup) + len(self.bossLevelOneGroup)}"
+        # )
+        # print("==================")
         if len(self.missed_enemies) > 9:
             print("GAME OVER!!!")
             self.game_over = True
+
+        if self.level_start == True:
+            self.level_start = False
+            self.starship.shipHealth = 22
+
+
+
         now = pygame.time.get_ticks()
         elapsed = now - self.level_start_time
 
