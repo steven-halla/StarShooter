@@ -621,9 +621,6 @@ class VerticalBattleScreen:
         # Draw gameplay area at top
         state.DISPLAY.blit(scaled_scene, (0, 0))
 
-        # 🔽 UI PANEL (BOTTOM BAR)
-        self.draw_ui_panel(state.DISPLAY)
-
         # 🔽 UI CONTENT (TEXT, HP, ETC)
         # Removed call to draw_player_hp_bar to ensure only one heart image is displayed
         # self.draw_ui_panel(state.DISPLAY)
@@ -866,6 +863,9 @@ class VerticalBattleScreen:
                 (bx , by ,  55,  55),
                 10
             )
+
+        # 🔽 UI PANEL (BOTTOM BAR) - Draw last to ensure it covers anything that comes into contact with it
+        self.draw_ui_panel(state.DISPLAY)
 
     def draw_tiled_background(self, surface: Surface) -> None:
         tile_size = self.tile_size
