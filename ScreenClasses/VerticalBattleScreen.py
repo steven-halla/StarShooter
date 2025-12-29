@@ -38,6 +38,7 @@ class VerticalBattleScreen:
         self.tiled_map = pytmx.load_pygame("")
         self.tile_size: int = self.tiled_map.tileheight
 
+
         # enemy groups
         self.bileSpitterGroup: list[BileSpitter] = []
         self.kamikazeDroneGroup: list[KamikazeDrone] = []
@@ -51,6 +52,8 @@ class VerticalBattleScreen:
         self.fireLauncherGroup: list[FireLauncher] = []
         self.transportWormGroup: list[TransportWorm] = []
         self.slaverGroup: list[Slaver] = []
+
+
 
         self.bossLevelOneGroup: list[BossLevelOne] = []
         self.bossLevelTwoGroup: list[BossLevelTwo] = []
@@ -595,6 +598,103 @@ class VerticalBattleScreen:
                     self.starship.shipHealth -= 10
                     self.starship.on_hit()
                     break  # ⛔ only one hit per frame
+
+        # -------------------------
+        # ENEMY COLLISION WITH UI PANEL (ERASE ENEMIES)
+        # -------------------------
+        ui_panel_rect = pygame.Rect(
+            0,
+            GlobalConstants.GAMEPLAY_HEIGHT,
+            GlobalConstants.BASE_WINDOW_WIDTH,
+            GlobalConstants.UI_PANEL_HEIGHT
+        )
+
+        enemies = (
+                list(self.bileSpitterGroup) +
+                list(self.triSpitterGroup) +
+                list(self.slaverGroup) +
+                list(self.bladeSpinnerGroup) +
+                list(self.fireLauncherGroup) +
+                list(self.kamikazeDroneGroup) +
+                list(self.transportWormGroup) +
+                list(self.waspStingerGroup) +
+                list(self.sporeFlowerGroup) +
+                list(self.spineLauncherGroup) +
+                list(self.acidLauncherGroup) +
+                list(self.ravagerGroup) +
+                list(self.bossLevelThreeGroup) +
+                list(self.bossLevelTwoGroup) +
+                list(self.bossLevelOneGroup) +
+                list(self.bossLevelFourGroup)
+        )
+
+        for enemy in list(enemies):
+            # Convert enemy position to screen coordinates
+            enemy_screen_y = enemy.y - self.camera.y
+
+            # Create enemy rect in screen coordinates
+            enemy_rect = pygame.Rect(
+                enemy.x,
+                enemy_screen_y,
+                enemy.width,
+                enemy.height
+            )
+
+            # Check if enemy intersects with UI panel
+            if enemy_rect.colliderect(ui_panel_rect):
+                # Set enemy health to zero and is_active to False to ensure it's removed and not drawn
+                enemy.enemyHealth = 0
+                enemy.is_active = False
+                self.remove_enemy_if_dead(enemy)
+
+        screen_bottom = self.camera.y + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
+
+        all_enemies = (
+                list(self.kamikazeDroneGroup)
+                + list(self.bileSpitterGroup)
+                + list(self.triSpitterGroup)
+                + list(self.waspStingerGroup)
+                + list(self.bladeSpinnerGroup)
+                + list(self.sporeFlowerGroup)
+                + list(self.spineLauncherGroup)
+                + list(self.acidLauncherGroup)
+                + list(self.ravagerGroup)
+                + list(self.fireLauncherGroup)
+                + list(self.slaverGroup)
+                + list(self.transportWormGroup)
+                + list(self.bossLevelOneGroup)
+                + list(self.bossLevelTwoGroup)
+                + list(self.bossLevelThreeGroup)
+                + list(self.bossLevelFourGroup)
+        )
+
+        for enemy in list(all_enemies):
+            if enemy.y > screen_bottom:
+                enemy_groups = (
+                    self.kamikazeDroneGroup,
+                    self.bileSpitterGroup,
+                    self.triSpitterGroup,
+                    self.waspStingerGroup,
+                    self.bladeSpinnerGroup,
+                    self.sporeFlowerGroup,
+                    self.spineLauncherGroup,
+                    self.acidLauncherGroup,
+                    self.ravagerGroup,
+                    self.fireLauncherGroup,
+                    self.slaverGroup,
+                    self.transportWormGroup,
+                    self.bossLevelOneGroup,
+                    self.bossLevelTwoGroup,
+                    self.bossLevelThreeGroup,
+                    self.bossLevelFourGroup,
+                )
+
+                for group in enemy_groups:
+                    if enemy in group:
+                        group.remove(enemy)
+                        break
+
+
 
     def draw(self, state) -> None:
 
@@ -1149,38 +1249,9 @@ class VerticalBattleScreen:
         if enemy.enemyHealth > 0:
             return
 
-        if enemy in self.kamikazeDroneGroup:
-            self.kamikazeDroneGroup.remove(enemy)
-        elif enemy in self.bileSpitterGroup:
-            self.bileSpitterGroup.remove(enemy)
-        elif enemy in self.triSpitterGroup:
-            self.triSpitterGroup.remove(enemy)
-        elif enemy in self.waspStingerGroup:
-            self.waspStingerGroup.remove(enemy)
-        elif enemy in self.bladeSpinnerGroup:
-            self.bladeSpinnerGroup.remove(enemy)
-        elif enemy in self.sporeFlowerGroup:
-            self.sporeFlowerGroup.remove(enemy)
-        elif enemy in self.spineLauncherGroup:
-            self.spineLauncherGroup.remove(enemy)
-        elif enemy in self.acidLauncherGroup:
-            self.acidLauncherGroup.remove(enemy)
-        elif enemy in self.ravagerGroup:
-            self.ravagerGroup.remove(enemy)
-        elif enemy in self.fireLauncherGroup:
-            self.fireLauncherGroup.remove(enemy)
-        elif enemy in self.slaverGroup:
-            self.slaverGroup.remove(enemy)
-        elif enemy in self.bossLevelOneGroup:
-            self.bossLevelOneGroup.remove(enemy)
-        elif enemy in self.bossLevelTwoGroup:
-            self.bossLevelTwoGroup.remove(enemy)
+    # one place, no elif chain, no duplication
 
-        elif enemy in self.bossLevelThreeGroup:
-            self.bossLevelThreeGroup.remove(enemy)
 
-        elif enemy in self.bossLevelFourGroup:
-            self.bossLevelFourGroup.remove(enemy)
 
     def get_enemy_screen_rect(self, enemy) -> pygame.Rect:
         return pygame.Rect(
@@ -1290,3 +1361,5 @@ class VerticalBattleScreen:
         heart_y = GlobalConstants.GAMEPLAY_HEIGHT + 6
 
         surface.blit(scaled_heart, (heart_x, heart_y))
+
+

@@ -86,6 +86,10 @@ class Enemy:
     # DRAW DAMAGE FLASH (CALLED AFTER CHILD DRAW)
     # --------------------------------------------------
     def draw(self, surface: pygame.Surface, camera) -> None:
+        # Don't draw if not active (e.g., removed due to collision with UI panel)
+        if not self.is_active:
+            return
+
         if not self.is_flashing:
             return
 
@@ -146,6 +150,10 @@ class Enemy:
         )
 
     def draw_damage_flash(self, surface: pygame.Surface, camera) -> None:
+        # Don't draw if not active (e.g., removed due to collision with UI panel)
+        if not self.is_active:
+            return
+
         if not self.is_flashing:
             return
 

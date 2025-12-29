@@ -142,6 +142,10 @@ class BileSpitter(Enemy):
         # update last position
         self._last_x = self.x
     def draw(self, surface: pygame.Surface, camera):
+        # Don't draw if not active (e.g., removed due to collision with UI panel)
+        if not self.is_active:
+            return
+
         super().draw(surface, camera)  # 🔑 REQUIRED
 
         sprite_rect = pygame.Rect(0, 344, 32, 32)
