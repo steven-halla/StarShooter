@@ -113,25 +113,110 @@ class VerticalBattleScreen:
         ).convert_alpha()
 
         # extract the 8th icon (index 7)
-        icon_rect = pygame.Rect(7 * 16, 0, 16, 16)
-
-
-
-        self.special_icon = self.hud_sheet.subsurface(icon_rect)
-
-        # scale once
-        self.special_icon = pygame.transform.scale(self.special_icon, (32, 32))
         # VerticalBattleScreen __init__
 
-    # 2nd icon (index 1) → Buster Cannon
-        icon_rect = pygame.Rect(16, 0, 16, 16)
+        # load HUD sprite sheet once
+        self.hud_sheet = pygame.image.load(
+            "./Assets/Images/hud_icons.png"
+        ).convert_alpha()
 
-        self.buster_cannon_icon = self.hud_sheet.subsurface(icon_rect)
+        ICON_SIZE = 16
+        UI_ICON_SIZE = 24  # smaller than 32 since you said it was too big
 
-        # scale once for UI
-        self.buster_cannon_icon = pygame.transform.scale(
-            self.buster_cannon_icon, (24,24)
+        # -------------------------------------------------
+        # HUD ICONS (explicit order, no guessing)
+        # -------------------------------------------------
+
+        # heart (index 0)
+        heart_rect = pygame.Rect(0 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
+        self.heart_icon = pygame.transform.scale(
+            self.hud_sheet.subsurface(heart_rect),
+            (UI_ICON_SIZE, UI_ICON_SIZE)
         )
+
+        # buster cannon (index 1)
+        buster_rect = pygame.Rect(1 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
+        self.buster_cannon_icon = pygame.transform.scale(
+            self.hud_sheet.subsurface(buster_rect),
+            (UI_ICON_SIZE, UI_ICON_SIZE)
+        )
+
+        # wind slicer (index 2)
+        wind_rect = pygame.Rect(2 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
+        self.wind_slicer_icon = pygame.transform.scale(
+            self.hud_sheet.subsurface(wind_rect),
+            (UI_ICON_SIZE, UI_ICON_SIZE)
+        )
+
+        # napalm spread (index 3)
+        napalm_rect = pygame.Rect(3 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
+        self.napalm_spread_icon = pygame.transform.scale(
+            self.hud_sheet.subsurface(napalm_rect),
+            (UI_ICON_SIZE, UI_ICON_SIZE)
+        )
+
+        # energy ball (index 4)
+        energy_rect = pygame.Rect(4 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
+        self.energy_ball_icon = pygame.transform.scale(
+            self.hud_sheet.subsurface(energy_rect),
+            (UI_ICON_SIZE, UI_ICON_SIZE)
+        )
+
+        # plasma blaster (index 5)
+        plasma_rect = pygame.Rect(5 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
+        self.plasma_blaster_icon = pygame.transform.scale(
+            self.hud_sheet.subsurface(plasma_rect),
+            (UI_ICON_SIZE, UI_ICON_SIZE)
+        )
+
+        # metal shield (index 6)
+        metal_rect = pygame.Rect(6 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
+        self.metal_shield_icon = pygame.transform.scale(
+            self.hud_sheet.subsurface(metal_rect),
+            (UI_ICON_SIZE, UI_ICON_SIZE)
+        )
+
+        # MISSILE (index 7)
+        self.missile_icon = pygame.transform.scale(
+            self.hud_sheet.subsurface(pygame.Rect(7 * 16, 0, 16, 16)),
+            (32, 32)
+        )
+
+        # hyper laser (index 8) — missile skipped on purpose
+        hyper_rect = pygame.Rect(8 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
+        self.hyper_laser_icon = pygame.transform.scale(
+            self.hud_sheet.subsurface(hyper_rect),
+            (UI_ICON_SIZE, UI_ICON_SIZE)
+        )
+
+        # wave crash (index 9)
+        wave_rect = pygame.Rect(9 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
+        self.wave_crash_icon = pygame.transform.scale(
+            self.hud_sheet.subsurface(wave_rect),
+            (UI_ICON_SIZE, UI_ICON_SIZE)
+        )
+
+        # engine (index 10) — optional / future use
+        engine_rect = pygame.Rect(10 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
+        self.engine_icon = pygame.transform.scale(
+            self.hud_sheet.subsurface(engine_rect),
+            (UI_ICON_SIZE, UI_ICON_SIZE)
+        )
+        # VerticalBattleScreen __init__
+
+    # All weapon icons are loaded in update() method
+        self.SUB_WEAPON_ICON_INDEX = {
+            "Buster Cannon": 1,
+            "Wind Slicer": 2,
+            "Napalm Spread": 3,
+            "Energy Ball": 4,
+            "Plasma Blaster": 5,
+            "Metal Shield": 6,
+            "Hyper Laser": 8,
+            "Wave Crash": 9,
+        }
+
+        self.sub_weapon_icons = {}
     def start(self, state):
         pass
 
@@ -187,9 +272,15 @@ class VerticalBattleScreen:
         # print("PLAYER UPDATE Y:", self.starship.y)
         # print("STARSHIP INSTANCE:", id(self.starship))
         # now handle map scroll ONLY in LevelOne
+
+        for weapon_name, icon_index in self.SUB_WEAPON_ICON_INDEX.items():
+            rect = pygame.Rect(icon_index * 16, 0, 16, 16)
+            icon = self.hud_sheet.subsurface(rect)
+            self.sub_weapon_icons[weapon_name] = pygame.transform.scale(icon, (24, 24))
         # --------------------------------
         # PLAYER DEATH → LOAD SAVE
         # --------------------------------
+
         if self.starship.shipHealth <= 0:
             from Levels.LevelOne import LevelOne
 
@@ -1319,6 +1410,10 @@ class VerticalBattleScreen:
         surface.blit(text_surface, (10, 10))
 
     def draw_ui_panel(self, surface: pygame.Surface) -> None:
+        font = pygame.font.Font(None, 24)
+
+        missile_text = f"{self.starship.current_missiles}/{self.starship.max_missiles}"
+        missile_text_surface = font.render(missile_text, True, (255, 255, 255))
         # -----------------------------
         # PANEL RECT
         # -----------------------------
@@ -1376,44 +1471,65 @@ class VerticalBattleScreen:
         # HUD ICON (LOAD ONCE)
         # -----------------------------
 
-
         # -----------------------------
-        # HEART ICON (SUBSURFACE PATTERN)
+        # HEART ICON (PRELOADED, NO IMAGE.LOAD HERE)
         # -----------------------------
-        # load once elsewhere (e.g., __init__), shown inline here per request
 
-        heart_rect = pygame.Rect(0, 0, 16, 16)  # adjust if heart is offset
-        heart_sprite = pygame.image.load(
-            "./Assets/Images/hud_icons.png"
-        ).convert_alpha().subsurface(heart_rect)
-
-        scaled_heart = pygame.transform.scale(heart_sprite, (32, 32))
-
-        # Position heart at the beginning of the UI panel
+        # draw heart icon (already sliced + scaled in __init__)
         heart_x = 10
         heart_y = GlobalConstants.GAMEPLAY_HEIGHT + 6
+        surface.blit(self.heart_icon, (heart_x, heart_y))
 
-        surface.blit(scaled_heart, (heart_x, heart_y))
+        # -----------------------------
+        # HP BAR (POSITIONED AFTER HEART)
+        # -----------------------------
+
+        bar_x = heart_x + self.heart_icon.get_width() + 8
+        bar_y = GlobalConstants.GAMEPLAY_HEIGHT + 10
+
+        pygame.draw.rect(
+            surface,
+            (255, 255, 255),
+            (bar_x, bar_y, BAR_WIDTH, BAR_HEIGHT),
+            1
+        )
+
+        if filled_width > 0:
+            pygame.draw.rect(
+                surface,
+                (0, 200, 0),
+                (bar_x + 1, bar_y + 1, filled_width - 2, BAR_HEIGHT - 2)
+            )
+
+        # -----------------------------
+        # MISSILE ICON (PRELOADED)
+        # -----------------------------
 
         icon_x = bar_x + BAR_WIDTH + 10
-        icon_y = bar_y - 6  # vertical alignment tweak
+        icon_y = bar_y - 4
+        surface.blit(self.missile_icon, (icon_x, icon_y))
 
-        surface.blit(self.special_icon, (icon_x, icon_y))
+        # -----------------------------
+        # MISSILE COUNT TEXT
+        # -----------------------------
 
-
-        # Draw missile count
         font = pygame.font.Font(None, 24)
         missile_text = f"{self.starship.current_missiles}/{self.starship.max_missiles}"
-        text_surface = font.render(missile_text, True, (255, 255, 255))
+        missile_surface = font.render(missile_text, True, (255, 255, 255))
 
-        # Position text right after the missile icon
-        missile_text_x = icon_x + 32 + 5  # 32 is the width of the scaled icon, 5 is padding
-        missile_text_y = icon_y + 8  # Vertical alignment to center with icon
+        missile_text_x = icon_x + 32 + 5
+        missile_text_y = icon_y + 8
 
-        surface.blit(text_surface, (missile_text_x, missile_text_y))
+        surface.blit(missile_text_surface, (missile_text_x, missile_text_y))
+        # -----------------------------
+        # EQUIPPED WEAPON ICON POSITION
+        # -----------------------------
+
+        buster_icon_x = missile_text_x + missile_surface.get_width() + 16
+        buster_icon_y = icon_y + 8
 
         # Draw yellow box for image placeholder (smaller size)
-        box_x = missile_text_x + text_surface.get_width() + 10  # Position after missile text with some padding
+        box_x = missile_text_x + missile_surface.get_width() + 10
         box_y = icon_y + 4  # Align with the missile icon vertically, moved down by 4 pixels
         box_width = 40  # Width is good
         box_height = 36  # Reduced height further
@@ -1478,9 +1594,19 @@ class VerticalBattleScreen:
 
     # FIX — use the variables that actually exist above
 
+        # buster_icon_x = missile_text_x + missile_surface.get_width() + 16
+        # buster_icon_y = icon_y  + 10
+        #
+        # surface.blit(self.buster_cannon_icon, (buster_icon_x, buster_icon_y))
+        #
+        weapon_name = self.starship.equipped_magic[0]
 
-        buster_icon_x = missile_text_x + text_surface.get_width() + 16
-        buster_icon_y = icon_y  + 10
+        if weapon_name is not None:
+            icon_index = self.SUB_WEAPON_ICON_INDEX.get(weapon_name)
 
-        surface.blit(self.buster_cannon_icon, (buster_icon_x, buster_icon_y))
+            if icon_index is not None:
+                icon_rect = pygame.Rect(icon_index * 16, 0, 16, 16)
+                icon = self.hud_sheet.subsurface(icon_rect)
+                icon = pygame.transform.scale(icon, (24, 24))
 
+                surface.blit(icon, (buster_icon_x, buster_icon_y))

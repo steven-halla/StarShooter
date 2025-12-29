@@ -54,7 +54,7 @@ class StarShip:
         self.max_missiles: int = 1
         self.current_missiles: int = 1
 
-        self.equipped_magic: list = ["Buster Cannon", None]
+        self.equipped_magic: list = ["Metal Shield", None]
         self.hyper_laser_damage: int = 100
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
