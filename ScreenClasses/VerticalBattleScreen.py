@@ -1397,3 +1397,67 @@ class VerticalBattleScreen:
         missile_text_y = icon_y + 8  # Vertical alignment to center with icon
 
         surface.blit(text_surface, (missile_text_x, missile_text_y))
+
+        # Draw yellow box for image placeholder (smaller size)
+        box_x = missile_text_x + text_surface.get_width() + 10  # Position after missile text with some padding
+        box_y = icon_y + 4  # Align with the missile icon vertically, moved down by 4 pixels
+        box_width = 40  # Width is good
+        box_height = 36  # Reduced height further
+
+        # Draw the number "1" in the middle of the top line of the box (bigger font)
+        number_font = pygame.font.Font(None, 28)  # Increased from 20 to make the number bigger
+        number_text = "1"
+        number_surface = number_font.render(number_text, True, (255, 255, 0))  # Yellow text
+
+        # Position the number in the middle of the top line
+        number_x = box_x + (box_width - number_surface.get_width()) // 2
+        number_y = box_y - number_surface.get_height() // 2  # Position number to be centered on the top line
+
+        # Draw the yellow box with gaps in the top line for the number
+        # Left side
+        pygame.draw.line(
+            surface,
+            (255, 255, 0),  # Yellow color
+            (box_x, box_y),
+            (number_x - 5, box_y),  # Stop 5 pixels before the number (increased from 3 for larger font)
+            1  # 1 pixel width for the line
+        )
+
+        # Right side
+        pygame.draw.line(
+            surface,
+            (255, 255, 0),  # Yellow color
+            (number_x + number_surface.get_width() + 5, box_y),  # Start 5 pixels after the number (increased from 3)
+            (box_x + box_width, box_y),
+            1  # 1 pixel width for the line
+        )
+
+        # Bottom line
+        pygame.draw.line(
+            surface,
+            (255, 255, 0),  # Yellow color
+            (box_x, box_y + box_height - 4),
+            (box_x + box_width, box_y + box_height - 4),
+            1  # 1 pixel width for the line
+        )
+
+        # Left side line
+        pygame.draw.line(
+            surface,
+            (255, 255, 0),  # Yellow color
+            (box_x, box_y),
+            (box_x, box_y + box_height - 4),
+            1  # 1 pixel width for the line
+        )
+
+        # Right side line
+        pygame.draw.line(
+            surface,
+            (255, 255, 0),  # Yellow color
+            (box_x + box_width, box_y),
+            (box_x + box_width, box_y + box_height - 4),
+            1  # 1 pixel width for the line
+        )
+
+        # Draw the number
+        surface.blit(number_surface, (number_x, number_y))
