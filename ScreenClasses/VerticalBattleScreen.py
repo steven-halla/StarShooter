@@ -3,6 +3,7 @@ from pygame import Surface
 import pytmx
 import math
 
+from Assets.Images.SpriteSheetExtractor import SpriteSheetExtractor
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Controller.KeyBoardControls import KeyBoardControls
@@ -1224,10 +1225,8 @@ class VerticalBattleScreen:
             GlobalConstants.UI_PANEL_HEIGHT
         )
 
-        # background
         pygame.draw.rect(surface, (20, 20, 20), panel_rect)
 
-        # top border
         pygame.draw.line(
             surface,
             (255, 255, 255),
@@ -1242,32 +1241,26 @@ class VerticalBattleScreen:
         font = pygame.font.Font(None, 24)
 
         current_hp = max(0, int(self.starship.shipHealth))
-        max_hp = max(1, int(self.starship.shipHealthMax))  # safety
+        max_hp = max(1, int(self.starship.shipHealthMax))
 
-        hp_text = f"HP: {current_hp}"
-        text_surface = font.render(hp_text, True, (255, 255, 255))
+        text_surface = font.render(f"HP: {current_hp}", True, (255, 255, 255))
 
         text_x = 10
         text_y = GlobalConstants.GAMEPLAY_HEIGHT + 10
         surface.blit(text_surface, (text_x, text_y))
 
         # -----------------------------
-        # HP BAR (50px wide, 2% per pixel)
+        # HP BAR
         # -----------------------------
         BAR_WIDTH = 100
         BAR_HEIGHT = 20
 
-        # % health
         hp_percent = current_hp / max_hp
-
-        filled_width = int(BAR_WIDTH * hp_percent)
-        filled_width = max(0, min(BAR_WIDTH, filled_width))
-
+        filled_width = max(0, min(BAR_WIDTH, int(BAR_WIDTH * hp_percent)))
 
         bar_x = text_x + text_surface.get_width() + 10
         bar_y = text_y + 6
 
-        # outline
         pygame.draw.rect(
             surface,
             (255, 255, 255),
@@ -1275,10 +1268,31 @@ class VerticalBattleScreen:
             1
         )
 
-        # fill
         if filled_width > 0:
             pygame.draw.rect(
                 surface,
                 (0, 200, 0),
                 (bar_x + 1, bar_y + 1, filled_width - 2, BAR_HEIGHT - 2)
             )
+
+        # -----------------------------
+        # HUD ICON (LOAD ONCE)
+        # -----------------------------
+
+
+        # -----------------------------
+        # HEART ICON (SUBSURFACE PATTERN)
+        # -----------------------------
+        # load once elsewhere (e.g., __init__), shown inline here per request
+
+        heart_rect = pygame.Rect(0, 0, 16, 16)  # adjust if heart is offset
+        heart_sprite = pygame.image.load(
+            "./Assets/Images/hud_icons.png"
+        ).convert_alpha().subsurface(heart_rect)
+
+        scaled_heart = pygame.transform.scale(heart_sprite, (32, 32))
+
+        heart_x = bar_x + BAR_WIDTH + 10
+        heart_y = GlobalConstants.GAMEPLAY_HEIGHT + 6
+
+        surface.blit(scaled_heart, (heart_x, heart_y))

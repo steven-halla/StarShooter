@@ -1,7 +1,7 @@
 {
   "version": 1,
   "player": {
-    "shipHealth": 22,
+    "shipHealth": 100,
     "shipHealthMax": 150,
     "equipped_magic": [
       "Buster Cannon",
