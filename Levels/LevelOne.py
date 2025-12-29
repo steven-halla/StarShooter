@@ -50,6 +50,7 @@ class LevelOne(VerticalBattleScreen):
         self.level_complete = False
         self.save_state = SaveState()
 
+
     def start(self, state) -> None:
         player_x = None
         player_y = None
@@ -223,6 +224,9 @@ class LevelOne(VerticalBattleScreen):
                 int(enemy_tri_spitter.hitbox.height * zoom)
             )
             pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
+
+        self.draw_ui_panel(state.DISPLAY)
+
 
         pygame.display.flip()
 

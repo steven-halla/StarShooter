@@ -526,6 +526,8 @@ class LevelFour(VerticalBattleScreen):
             )
             pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
 
+        self.draw_ui_panel(state.DISPLAY)
+
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
@@ -851,4 +853,3 @@ class LevelFour(VerticalBattleScreen):
             if enemy_tri_spitter.enemyBullets:
                 self.enemy_bullets.extend(enemy_tri_spitter.enemyBullets)
                 enemy_tri_spitter.enemyBullets.clear()
-

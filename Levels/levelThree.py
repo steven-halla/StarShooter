@@ -212,6 +212,8 @@ class LevelThree(VerticalBattleScreen):
             self.space_station.draw(state.DISPLAY, self.camera)
 
 
+        self.draw_ui_panel(state.DISPLAY)
+
         pygame.display.flip()
     def get_nearest_enemy(self, missile):
 

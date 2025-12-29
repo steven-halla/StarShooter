@@ -676,6 +676,9 @@ class VerticalBattleScreen:
 
         for enemy in list(all_enemies):
             if enemy.y > screen_bottom:
+                # Set is_active to False to ensure it's not drawn
+                enemy.is_active = False
+
                 enemy_groups = (
                     self.kamikazeDroneGroup,
                     self.bileSpitterGroup,
@@ -1367,5 +1370,3 @@ class VerticalBattleScreen:
         heart_y = GlobalConstants.GAMEPLAY_HEIGHT + 6
 
         surface.blit(scaled_heart, (heart_x, heart_y))
-
-

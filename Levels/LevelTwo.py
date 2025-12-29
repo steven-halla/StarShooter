@@ -223,6 +223,8 @@ class LevelTwo(VerticalBattleScreen):
             1
         )
 
+        self.draw_ui_panel(state.DISPLAY)
+
         pygame.display.flip()
     def get_nearest_enemy(self, missile):
         enemies = (
