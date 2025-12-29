@@ -648,7 +648,13 @@ class VerticalBattleScreen:
                 self.remove_enemy_if_dead(enemy)
 
         screen_bottom = self.camera.y + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
+        UI_KILL_PADDING = 12  # pixels ABOVE the UI panel (tweak this)
 
+        screen_bottom = (
+                self.camera.y
+                + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
+                - UI_KILL_PADDING
+        )
         all_enemies = (
                 list(self.kamikazeDroneGroup)
                 + list(self.bileSpitterGroup)
