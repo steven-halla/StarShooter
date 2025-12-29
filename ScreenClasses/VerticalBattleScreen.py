@@ -625,7 +625,7 @@ class VerticalBattleScreen:
         self.draw_ui_panel(state.DISPLAY)
 
         # 🔽 UI CONTENT (TEXT, HP, ETC)
-        self.draw_player_hp_bar(state.DISPLAY)
+        # Removed call to draw_player_hp_bar to ensure only one heart image is displayed
         # self.draw_ui_panel(state.DISPLAY)
 
         # -------------------------
@@ -1236,18 +1236,10 @@ class VerticalBattleScreen:
         )
 
         # -----------------------------
-        # HP TEXT
+        # Get current HP values
         # -----------------------------
-        font = pygame.font.Font(None, 24)
-
         current_hp = max(0, int(self.starship.shipHealth))
         max_hp = max(1, int(self.starship.shipHealthMax))
-
-        text_surface = font.render(f"HP: {current_hp}", True, (255, 255, 255))
-
-        text_x = 10
-        text_y = GlobalConstants.GAMEPLAY_HEIGHT + 10
-        surface.blit(text_surface, (text_x, text_y))
 
         # -----------------------------
         # HP BAR
@@ -1258,8 +1250,9 @@ class VerticalBattleScreen:
         hp_percent = current_hp / max_hp
         filled_width = max(0, min(BAR_WIDTH, int(BAR_WIDTH * hp_percent)))
 
-        bar_x = text_x + text_surface.get_width() + 10
-        bar_y = text_y + 6
+        # Position the bar directly after the heart image
+        bar_x = 50  # Starting position for the bar
+        bar_y = GlobalConstants.GAMEPLAY_HEIGHT + 10
 
         pygame.draw.rect(
             surface,
@@ -1292,7 +1285,8 @@ class VerticalBattleScreen:
 
         scaled_heart = pygame.transform.scale(heart_sprite, (32, 32))
 
-        heart_x = bar_x + BAR_WIDTH + 10
+        # Position heart at the beginning of the UI panel
+        heart_x = 10
         heart_y = GlobalConstants.GAMEPLAY_HEIGHT + 6
 
         surface.blit(scaled_heart, (heart_x, heart_y))
