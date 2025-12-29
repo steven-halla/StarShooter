@@ -17,9 +17,9 @@ class TextBox:
         height: int = 140,
         bottom_offset: int = 20,
         font_size: int = 24,
-        padding: int = 12,
+        padding: int = 15,
         portrait_width: int = 150,
-        gap: int = 10,
+        gap: int = 15,
     ) -> None:
 
         self.screen_width = screen_width
@@ -32,7 +32,7 @@ class TextBox:
         # SINGLE SOURCE OF TRUTH
         # Move this to move BOTH boxes
         # ─────────────────────────────
-        self.base_x = 70
+        self.base_x = 20
         self.y = screen_height - bottom_offset - height
 
         # ─────────────────────────────
