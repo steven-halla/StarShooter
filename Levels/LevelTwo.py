@@ -20,8 +20,8 @@ from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
 class LevelTwo(VerticalBattleScreen):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, textbox):
+        super().__init__(textbox)
         # self.starship: StarShip = StarShip()
 
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level2.tmx")

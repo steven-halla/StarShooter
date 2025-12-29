@@ -9,6 +9,7 @@ from ScreenClasses.MissionBriefingScreenLevelFour import MissionBriefingScreenLe
 from ScreenClasses.MissionBriefingScreenLevelOne import MissionBriefingScreenLevelOne
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.Screen import Screen
+from ScreenClasses.TextBox import TextBox
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 from Levels.LevelOne import LevelOne
 
@@ -30,6 +31,15 @@ class GameState:
         )
 
         pygame.display.set_caption("Star Shooter")
+
+
+        # --------------------------------------------------
+        # Text box to make it global
+        # --------------------------------------------------
+        self.textbox = TextBox(
+            GlobalConstants.BASE_WINDOW_WIDTH,
+            GlobalConstants.BASE_WINDOW_HEIGHT
+        )
 
         # --------------------------------------------------
         # GAME STATE

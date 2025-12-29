@@ -27,14 +27,16 @@ from Entity.StarShip import StarShip
 from Movement.MoveRectangle import MoveRectangle
 from SaveStates.SaveState import SaveState
 from ScreenClasses.Camera import Camera
+from ScreenClasses.TextBox import TextBox
 from Weapons.Bullet import Bullet
 # from game_state import GameState
 
 
 class VerticalBattleScreen:
-    def __init__(self):
+    def __init__(self, textbox):
         # self.isStart: bool = True
         self.playerDead: bool = False
+        self.textbox = textbox
         self.tiled_map = pytmx.load_pygame("")
         self.tile_size: int = self.tiled_map.tileheight
 
@@ -217,6 +219,12 @@ class VerticalBattleScreen:
         }
 
         self.sub_weapon_icons = {}
+
+        self.textbox = TextBox(
+            GlobalConstants.BASE_WINDOW_WIDTH,
+            GlobalConstants.BASE_WINDOW_HEIGHT
+        )
+        self.textbox.show("")
     def start(self, state):
         pass
 
@@ -287,7 +295,7 @@ class VerticalBattleScreen:
             # reload save
             if self.save_state.load_from_file(""
                                               "player_save.json"):
-                new_level = LevelOne()
+                new_level = LevelOne(state.textbox)
                 state.currentScreen = new_level
                 new_level.start(state)
 
@@ -1091,6 +1099,7 @@ class VerticalBattleScreen:
         # 🔽 UI PANEL (BOTTOM BAR) - Draw last to ensure it covers anything that comes into contact with it
         self.draw_ui_panel(state.DISPLAY)
 
+
     def draw_tiled_background(self, surface: Surface) -> None:
         tile_size = self.tile_size
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
@@ -1146,225 +1155,79 @@ class VerticalBattleScreen:
                 list(self.bossLevelTwoGroup) +
                 list(self.bossLevelThreeGroup) +
                 list(self.bossLevelFourGroup)
-
-
-
         )
+
         # -------------------------
-        # PLASMA BLASTER → ENEMY COLLISION
+        # PLASMA BLASTER
         # -------------------------
         for plasma in list(self.plasma_blaster_bullets):
-            plasma_rect = self.weapon_rectangle(plasma)
+            plasma_rect = pygame.Rect(plasma.x, plasma.y, plasma.width, plasma.height)
+
             for enemy in all_enemies:
-                enemy_rect = self.get_enemy_screen_rect(enemy)
-                if plasma_rect.colliderect(enemy_rect):
-                    print("⚡ PLASMA BLASTER HIT", type(enemy).__name__)
+                if plasma_rect.colliderect(enemy.hitbox):
                     enemy.enemyHealth -= plasma.damage
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-                    break  # plasma is gone, stop checking
-        # -------------------------
-        # WIND SLICER → ENEMY COLLISION
-        # -------------------------
-        for slicer in list(self.wind_slicer_bullets):
-            slicer_rect = self.weapon_rectangle(slicer)
-            for enemy in all_enemies:
-                enemy_rect = self.get_enemy_screen_rect(enemy)
-                if slicer_rect.colliderect(enemy_rect):
-                    print("🌪️ WIND SLICER HIT", type(enemy).__name__)
-                    enemy.enemyHealth -= slicer.damage
-                    # 🔥 WIND SLICER IS CONSUMED ON ENEMY HIT
-                    if slicer in self.wind_slicer_bullets:
-                        self.wind_slicer_bullets.remove(slicer)
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-                    break  # slicer is gone, stop checking
-        # -------------------------
-        # WIND SLICER → ENEMY BULLET COLLISION
-        # -------------------------
-        for slicer in list(self.wind_slicer_bullets):
-            slicer_rect = self.weapon_rectangle(slicer)
-            for enemy_bullet in list(self.enemy_bullets):
-                enemy_rect = self.get_enemy_screen_rect(enemy)
-                if slicer_rect.colliderect(enemy_rect):
-                    print("🌪️ WIND SLICER CUT BULLET")
-                    self.enemy_bullets.remove(enemy_bullet)
-                    self.wind_slicer_bullets.remove(slicer)
-                    break
-        # -------------------------
-        # ENERGY BALL → ENEMY COLLISION
-        # -------------------------
-        for ball in list(self.energy_balls):
-            ball_rect = self.weapon_rectangle(ball)
-            for enemy in all_enemies:
-                enemy_rect = self.get_enemy_screen_rect(enemy)
-                if ball_rect.colliderect(enemy_rect):
-                    enemy.enemyHealth -= ball.damage
-                    ball.is_active = False
-                    if ball in self.energy_balls:
-                        self.energy_balls.remove(ball)
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-                    break  # ball is gone, stop checking
-        # -------------------------
-        # HYPER LASER → ENEMY COLLISION
-        # -------------------------
-        for laser in list(self.hyper_laser_bullets):
-            laser_rect = self.weapon_rectangle(laser)
-            for enemy in all_enemies:
-                enemy_rect = self.get_enemy_screen_rect(enemy)
-                if laser_rect.colliderect(enemy_rect):
-                    enemy.enemyHealth -= self.starship.hyper_laser_damage
-                    laser.is_active = False
-                    if laser in self.hyper_laser_bullets:
-                        self.hyper_laser_bullets.remove(laser)
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-                    break  # laser is gone, stop checking
-        # ------------------------
-        # METAL SHIELD → ENEMY COLLISION
-        # -------------------------
-        for metal in list(self.metal_shield_bullets):
-            metal_rect = self.weapon_rectangle(metal)
-            for enemy in all_enemies:
-                enemy_rect = self.get_enemy_screen_rect(enemy)
-                if metal_rect.colliderect(enemy_rect):
-                    enemy.enemyHealth -= self.starship.missileDamage
-                    metal.is_active = False
-                    if metal in self.metal_shield_bullets:
-                        self.metal_shield_bullets.remove(metal)
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-                    break  # shield is gone, stop checking
-        # -------------------------
-        # MISSILE → ENEMY COLLISION
-        # -------------------------
-        for missile in list(self.player_missiles):
-            missile_rect = self.weapon_rectangle(missile)
-            for enemy in all_enemies:
-                enemy_rect = self.get_enemy_screen_rect(enemy)
-                if missile_rect.colliderect(enemy_rect):
-                    enemy.enemyHealth -= self.starship.missileDamage
-                    missile.is_active = False
-                    if missile in self.player_missiles:
-                        self.player_missiles.remove(missile)
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-                    break  # missile is gone, stop checking
-        # -------------------------
-        # NAPALM SPREAD → ENEMY COLLISION / AOE
-        # -------------------------
-        for napalm in list(self.napalm_spread_bullets):
-            napalm_rect = pygame.Rect(
-                napalm.x,
-                napalm.y,
-                napalm.width,
-                napalm.height
-            )
-            # ----------------------------------
-            # DIRECT HIT → FORCE EXPLOSION
-            # ----------------------------------
-            if not napalm.has_exploded:
-                for enemy in all_enemies:
-                    if napalm_rect.colliderect(enemy.hitbox):
-                        napalm.has_exploded = True
-                        napalm.explosion_timer.reset()
-                        enemy.enemyHealth -= napalm.damage
-                        if enemy.enemyHealth <= 0:
-                            self.remove_enemy_if_dead(enemy)
-                        break  # only ONE direct-hit explosion
-            # ----------------------------------
-            # EXPLOSION AOE DAMAGE (ONCE)
-            # ----------------------------------
-            # ----------------------------------
-            # EXPLOSION AOE DAMAGE (LINGERING – TICKED)
-            # ----------------------------------
-            # ----------------------------------
-            # EXPLOSION AOE DAMAGE (TIMED TICKS)
-            # ----------------------------------
-            if napalm.has_exploded and not napalm.explosion_timer.is_ready():
+                    self.plasma_blaster_bullets.remove(plasma)
 
-                if napalm.damage_timer.is_ready():
-
-                    cx = napalm.x + napalm.width // 2
-                    cy = napalm.y + napalm.height // 2
-                    aoe_rect = pygame.Rect(
-                        cx - napalm.area_of_effect_x // 2,
-                        cy - napalm.area_of_effect_y // 2,
-                        napalm.area_of_effect_x,
-                        napalm.area_of_effect_y
-                    )
-
-                    for enemy in all_enemies:
-                        if aoe_rect.colliderect(enemy.hitbox):
-                            enemy.enemyHealth -= napalm.damage
-
-                            if isinstance(enemy, TransportWorm):
-                                print(f"[NAPALM] TransportWorm HP: {enemy.enemyHealth}")
-
-                            if enemy.enemyHealth <= 0:
-                                self.remove_enemy_if_dead(enemy)
-
-                    napalm.damage_timer.reset()
-                # 🔒 AOE MUST ONLY APPLY ONCE
-            # ----------------------------------
-            # EXPLOSION AOE DAMAGE (LINGERING)
-            # ----------------------------------
-            if napalm.has_exploded and not napalm.explosion_timer.is_ready():
-                cx = napalm.x + napalm.width // 2
-                cy = napalm.y + napalm.height // 2
-                aoe_rect = pygame.Rect(
-                    cx - napalm.area_of_effect_x // 2,
-                    cy - napalm.area_of_effect_y // 2,
-                    napalm.area_of_effect_x,
-                    napalm.area_of_effect_y
-                )
-                for enemy in all_enemies:
-                    if aoe_rect.colliderect(enemy.hitbox) and napalm.damage_timer.is_ready():
-                        enemy.enemyHealth -= napalm.damage
-                        napalm.damage_timer.reset()
-        # -------------------------
-        # BUSTER CANNON → ENEMY COLLISION
-        # -------------------------
-        for bc in list(self.buster_cannon_bullets):
-            bc_rect = self.weapon_rectangle(bc)
-            for enemy in all_enemies:
-                enemy_rect = self.get_enemy_screen_rect(enemy)
-                if bc_rect.colliderect(enemy_rect):
-                    enemy.enemyHealth -= bc.damage
-                    bc.is_active = False
-                    if bc in self.buster_cannon_bullets:
-                        self.buster_cannon_bullets.remove(bc)
                     if enemy.enemyHealth <= 0:
                         self.remove_enemy_if_dead(enemy)
                     break
+
         # -------------------------
-        # PLAYER BULLETS → ENEMY COLLISION
+        # PLAYER BULLETS
         # -------------------------
         for bullet in list(self.player_bullets):
-            b_rect = self.weapon_rectangle(bullet)
+            bullet_rect = pygame.Rect(bullet.x, bullet.y, bullet.width, bullet.height)
+
             for enemy in all_enemies:
-                enemy_rect = self.get_enemy_screen_rect(enemy)
-                if b_rect.colliderect(enemy_rect):
+                if bullet_rect.colliderect(enemy.hitbox):
                     enemy.enemyHealth -= self.starship.bulletDamage
-                    bullet.is_active = False
-                    if bullet in self.player_bullets:
-                        self.player_bullets.remove(bullet)
+                    self.player_bullets.remove(bullet)
+
                     if enemy.enemyHealth <= 0:
                         self.remove_enemy_if_dead(enemy)
                     break
+
         # -------------------------
-        # WAVE CRASH → ENEMY COLLISION
+        # MISSILES
+        # -------------------------
+        for missile in list(self.player_missiles):
+            missile_rect = pygame.Rect(missile.x, missile.y, missile.width, missile.height)
+
+            for enemy in all_enemies:
+                if missile_rect.colliderect(enemy.hitbox):
+                    enemy.enemyHealth -= self.starship.missileDamage
+                    self.player_missiles.remove(missile)
+
+                    if enemy.enemyHealth <= 0:
+                        self.remove_enemy_if_dead(enemy)
+                    break
+
+        # -------------------------
+        # BUSTER CANNON
+        # -------------------------
+        for bc in list(self.buster_cannon_bullets):
+            bc_rect = pygame.Rect(bc.x, bc.y, bc.width, bc.height)
+
+            for enemy in all_enemies:
+                if bc_rect.colliderect(enemy.hitbox):
+                    enemy.enemyHealth -= bc.damage
+                    self.buster_cannon_bullets.remove(bc)
+
+                    if enemy.enemyHealth <= 0:
+                        self.remove_enemy_if_dead(enemy)
+                    break
+
+        # -------------------------
+        # WAVE CRASH
         # -------------------------
         for wave in list(self.wave_crash_bullets):
-            w_rect = self.weapon_rectangle(wave)
+            wave_rect = pygame.Rect(wave.x, wave.y, wave.width, wave.height)
+
             for enemy in all_enemies:
-                enemy_rect = self.get_enemy_screen_rect(enemy)
-                if w_rect.colliderect(enemy_rect):
+                if wave_rect.colliderect(enemy.hitbox):
                     enemy.enemyHealth -= wave.damage
-                    wave.is_active = False
-                    if wave in self.wave_crash_bullets:
-                        self.wave_crash_bullets.remove(wave)
+                    self.wave_crash_bullets.remove(wave)
+
                     if enemy.enemyHealth <= 0:
                         self.remove_enemy_if_dead(enemy)
                     break
@@ -1373,6 +1236,31 @@ class VerticalBattleScreen:
         if enemy.enemyHealth > 0:
             return
 
+        enemy.is_active = False
+
+        enemy_groups = (
+            self.kamikazeDroneGroup,
+            self.bileSpitterGroup,
+            self.triSpitterGroup,
+            self.waspStingerGroup,
+            self.bladeSpinnerGroup,
+            self.sporeFlowerGroup,
+            self.spineLauncherGroup,
+            self.acidLauncherGroup,
+            self.ravagerGroup,
+            self.fireLauncherGroup,
+            self.slaverGroup,
+            self.transportWormGroup,
+            self.bossLevelOneGroup,
+            self.bossLevelTwoGroup,
+            self.bossLevelThreeGroup,
+            self.bossLevelFourGroup,
+        )
+
+        for group in enemy_groups:
+            if enemy in group:
+                group.remove(enemy)
+                break
     # one place, no elif chain, no duplication
 
 

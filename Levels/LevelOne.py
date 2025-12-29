@@ -17,8 +17,8 @@ from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
 class LevelOne(VerticalBattleScreen):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,textbox):
+        super().__init__(textbox)
         # self.starship: StarShip = StarShip()
 
         self.level_start:bool = True

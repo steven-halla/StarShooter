@@ -48,7 +48,7 @@ class MissionBriefingScreenLevelOne(Screen):
                     return
                 from Levels.LevelOne import LevelOne
 
-                next_level = LevelOne()
+                next_level = LevelOne(state.textbox)
                 next_level.set_player(state.starship)
                 state.currentScreen = next_level
                 next_level.start(state)

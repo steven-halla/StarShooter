@@ -36,7 +36,7 @@ class MissionBriefingScreenLevelTwo(Screen):
                     return
                 from Levels.LevelTwo import LevelTwo
 
-                next_level = LevelTwo()
+                next_level = LevelTwo(state.textbox)
                 next_level.set_player(state.starship)
                 state.currentScreen = next_level
                 next_level.start(state)
