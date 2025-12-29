@@ -46,17 +46,23 @@ class StarShip:
         # missile stats
         self.missile_fire_interval_seconds: float = 3.0
         self.missile_timer: Timer = Timer(self.missile_fire_interval_seconds)
-        self.hyper_laser_fire_interval_seconds: float = .1
-        self.hyper_laser_timer: Timer = Timer(self.hyper_laser_fire_interval_seconds)
-        self.energy_ball_fire_interval_seconds: float = 1.2
-        self.energy_ball_timer: Timer = Timer(self.energy_ball_fire_interval_seconds)
+        self.missile_regen_interval_seconds: float = 3.0
+        self.missile_regen_timer: Timer = Timer(self.missile_regen_interval_seconds)
         self.missileDamage: int = 100
         self.missileSpeed: int = 10
         self.missile_spread_offset: int = 20
+        self.max_missiles: int = 1
+        self.current_missiles: int = 1
+
         self.equipped_magic: list = ["Buster Cannon", None]
         self.hyper_laser_damage: int = 100
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
+
+        self.hyper_laser_fire_interval_seconds: float = .1
+        self.hyper_laser_timer: Timer = Timer(self.hyper_laser_fire_interval_seconds)
+        self.energy_ball_fire_interval_seconds: float = 1.2
+        self.energy_ball_timer: Timer = Timer(self.energy_ball_fire_interval_seconds)
 
         self.hitbox: pygame.Rect = pygame.Rect(
             int(self.x),
@@ -192,8 +198,8 @@ class StarShip:
         return bullets
 
     def fire_missile(self):
-        # Only fire if timer is ready
-        if not self.missile_timer.is_ready():
+        # Only fire if timer is ready and we have missiles
+        if not self.missile_timer.is_ready() or self.current_missiles <= 0:
             return None
 
         # Spawn position (center of ship)
@@ -203,8 +209,11 @@ class StarShip:
         # Create the missile
         missile = Missile(missile_x, missile_y)
 
-        # Reset cooldown
+        # Reset cooldown and decrease missile count
         self.missile_timer.reset()
+        self.current_missiles -= 1
+        # Reset the regeneration timer to ensure a 3-second delay before recovery
+        self.missile_regen_timer.reset()
 
         return missile
 
@@ -317,6 +326,13 @@ class StarShip:
 
     def update(self) -> None:
         self.update_hitbox()
+
+        # --------------------------------
+        # MISSILE REGENERATION
+        # --------------------------------
+        if self.current_missiles < self.max_missiles and self.missile_regen_timer.is_ready():
+            self.current_missiles += 1
+            self.missile_regen_timer.reset()
 
         # --------------------------------
         # DETECT DAMAGE (HEALTH DROP)

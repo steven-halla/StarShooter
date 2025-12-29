@@ -108,6 +108,17 @@ class VerticalBattleScreen:
         )
         self.save_state = SaveState()
 
+        self.hud_sheet = pygame.image.load(
+            "./Assets/Images/hud_icons.png"
+        ).convert_alpha()
+
+        # extract the 8th icon (index 7)
+        icon_rect = pygame.Rect(7 * 16, 0, 16, 16)
+        self.special_icon = self.hud_sheet.subsurface(icon_rect)
+
+        # scale once
+        self.special_icon = pygame.transform.scale(self.special_icon, (32, 32))
+
     def start(self, state):
         pass
 
@@ -1370,3 +1381,19 @@ class VerticalBattleScreen:
         heart_y = GlobalConstants.GAMEPLAY_HEIGHT + 6
 
         surface.blit(scaled_heart, (heart_x, heart_y))
+
+        icon_x = bar_x + BAR_WIDTH + 10
+        icon_y = bar_y - 6  # vertical alignment tweak
+
+        surface.blit(self.special_icon, (icon_x, icon_y))
+
+        # Draw missile count
+        font = pygame.font.Font(None, 24)
+        missile_text = f"{self.starship.current_missiles}/{self.starship.max_missiles}"
+        text_surface = font.render(missile_text, True, (255, 255, 255))
+
+        # Position text right after the missile icon
+        missile_text_x = icon_x + 32 + 5  # 32 is the width of the scaled icon, 5 is padding
+        missile_text_y = icon_y + 8  # Vertical alignment to center with icon
+
+        surface.blit(text_surface, (missile_text_x, missile_text_y))
