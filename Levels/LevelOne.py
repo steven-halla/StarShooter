@@ -226,7 +226,7 @@ class LevelOne(VerticalBattleScreen):
             pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
 
         self.draw_ui_panel(state.DISPLAY)
-        self.textbox.show("WARNING: CRITICAL DAMAGE")
+        self.textbox.show("I am the ultimate man on the battlefiled. You cannot hope to win aginst the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla;")
 
         self.textbox.draw(state.DISPLAY)
 

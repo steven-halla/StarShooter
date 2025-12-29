@@ -16,7 +16,7 @@ class TextBox:
         screen_height: int,
         height: int = 140,
         bottom_offset: int = 20,
-        font_size: int = 24,
+        font_size: int = 32,
         padding: int = 15,
         portrait_width: int = 150,
         gap: int = 15,
@@ -108,27 +108,70 @@ class TextBox:
         x = self.rect.x + self.padding
         y = self.rect.y + self.padding
 
-        current_line = []
+        lines: list[list[str]] = []
+        current_line: list[str] = []
         current_width = 0
 
         for word in words:
             word_surface = self.font.render(word, True, self.text_color)
             word_width = word_surface.get_width()
 
+            # does this word fit on the current line?
             if current_width + word_width <= max_width:
                 current_line.append(word)
                 current_width += word_width + space_width
             else:
-                surface.blit(
-                    self.font.render(" ".join(current_line), True, self.text_color),
-                    (x, y),
-                )
-                y += line_height + 4
+                # push line and start new one
+                lines.append(current_line)
                 current_line = [word]
                 current_width = word_width + space_width
 
-        if current_line:
-            surface.blit(
-                self.font.render(" ".join(current_line), True, self.text_color),
-                (x, y),
+                # stop if we already have 3 lines
+                if len(lines) == 3:
+                    break
+
+        # add last line if space remains
+        if len(lines) < 3 and current_line:
+            lines.append(current_line)
+
+        # render lines (max 3)
+        for i, line_words in enumerate(lines[:3]):
+            line_surface = self.font.render(
+                " ".join(line_words), True, self.text_color
             )
+            surface.blit(
+                line_surface,
+                (x, y + i * (line_height + 10))  # 10px line spacing
+            )
+    # def _draw_text(self, surface: pygame.Surface) -> None:
+    #     words = self.text.split(" ")
+    #     space_width, line_height = self.font.size(" ")
+    #
+    #     max_width = self.rect.width - self.padding * 2
+    #     x = self.rect.x + self.padding
+    #     y = self.rect.y + self.padding
+    #
+    #     current_line = []
+    #     current_width = 0
+    #
+    #     for word in words:
+    #         word_surface = self.font.render(word, True, self.text_color)
+    #         word_width = word_surface.get_width()
+    #
+    #         if current_width + word_width <= max_width:
+    #             current_line.append(word)
+    #             current_width += word_width + space_width
+    #         else:
+    #             surface.blit(
+    #                 self.font.render(" ".join(current_line), True, self.text_color),
+    #                 (x, y),
+    #             )
+    #             y += line_height + 4
+    #             current_line = [word]
+    #             current_width = word_width + space_width
+    #
+    #     if current_line:
+    #         surface.blit(
+    #             self.font.render(" ".join(current_line), True, self.text_color),
+    #             (x, y),
+    #         )
