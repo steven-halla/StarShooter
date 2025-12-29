@@ -89,7 +89,7 @@ class LevelOne(VerticalBattleScreen):
 
         if self.level_start == True:
             self.level_start = False
-            self.starship.shipHealth = 100
+            self.starship.shipHealth = 11
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
 
@@ -226,7 +226,9 @@ class LevelOne(VerticalBattleScreen):
             pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
 
         self.draw_ui_panel(state.DISPLAY)
+        self.textbox.show("WARNING: CRITICAL DAMAGE")
 
+        self.textbox.draw(state.DISPLAY)
 
         pygame.display.flip()
 

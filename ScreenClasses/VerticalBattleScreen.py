@@ -835,6 +835,7 @@ class VerticalBattleScreen:
         zoom = self.camera.zoom
         self.starship.shipHealth
 
+
         # Gameplay render surface (NO UI PANEL INCLUDED)
         scene_surface = pygame.Surface((window_width, window_height))
 
@@ -1095,6 +1096,7 @@ class VerticalBattleScreen:
                 (bx , by ,  55,  55),
                 10
             )
+
 
         # 🔽 UI PANEL (BOTTOM BAR) - Draw last to ensure it covers anything that comes into contact with it
         self.draw_ui_panel(state.DISPLAY)
