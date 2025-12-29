@@ -114,11 +114,24 @@ class VerticalBattleScreen:
 
         # extract the 8th icon (index 7)
         icon_rect = pygame.Rect(7 * 16, 0, 16, 16)
+
+
+
         self.special_icon = self.hud_sheet.subsurface(icon_rect)
 
         # scale once
         self.special_icon = pygame.transform.scale(self.special_icon, (32, 32))
+        # VerticalBattleScreen __init__
 
+    # 2nd icon (index 1) → Buster Cannon
+        icon_rect = pygame.Rect(16, 0, 16, 16)
+
+        self.buster_cannon_icon = self.hud_sheet.subsurface(icon_rect)
+
+        # scale once for UI
+        self.buster_cannon_icon = pygame.transform.scale(
+            self.buster_cannon_icon, (24,24)
+        )
     def start(self, state):
         pass
 
@@ -1387,6 +1400,7 @@ class VerticalBattleScreen:
 
         surface.blit(self.special_icon, (icon_x, icon_y))
 
+
         # Draw missile count
         font = pygame.font.Font(None, 24)
         missile_text = f"{self.starship.current_missiles}/{self.starship.max_missiles}"
@@ -1461,3 +1475,12 @@ class VerticalBattleScreen:
 
         # Draw the number
         surface.blit(number_surface, (number_x, number_y))
+
+    # FIX — use the variables that actually exist above
+
+
+        buster_icon_x = missile_text_x + text_surface.get_width() + 16
+        buster_icon_y = icon_y  + 10
+
+        surface.blit(self.buster_cannon_icon, (buster_icon_x, buster_icon_y))
+
