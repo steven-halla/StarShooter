@@ -9,12 +9,13 @@ class KeyBoardControls:
         self.isDownPressed: bool = False
         self.isExitPressed: bool = False
         self.isFPressed: bool = False
-        self.isQPressed: bool = False
         self.isAPressed: bool = False
         self.isDPressed: bool = False
         self.isSPressed: bool = False
         self.dJustReleased = False
         self.sJustReleased = False
+        self.isQPressed = False
+        self.qJustPressed = False
 
     @property
     def magic_1_released(self):
@@ -30,6 +31,7 @@ class KeyBoardControls:
         # reset flags at the start of each frame
         self.dJustReleased = False
         self.sJustReleased = False
+        self.qJustPressed = False  # ← MISSING
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -47,6 +49,8 @@ class KeyBoardControls:
                 elif event.key == pygame.K_f:
                     self.isFPressed = True
                 elif event.key == pygame.K_q:
+                    if not self.isQPressed:  # ← prevents repeat
+                        self.qJustPressed = True  # ← ONE FRAME ONLY
                     self.isQPressed = True
                 elif event.key == pygame.K_a:
                     self.isAPressed = True
@@ -113,9 +117,10 @@ class KeyBoardControls:
     def magic_2_button(self) -> bool:
         return self.isSPressed
 
-    @property
-    def q_button(self) -> bool:
-        return self.isQPressed
+    # @property
+    # def q_button(self) -> bool:
+    #     print("Yak")
+    #     return self.isQPressed
 
     @property
     def a_button(self) -> bool:

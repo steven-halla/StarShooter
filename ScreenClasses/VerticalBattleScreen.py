@@ -280,6 +280,17 @@ class VerticalBattleScreen:
         # print("PLAYER UPDATE Y:", self.starship.y)
         # print("STARSHIP INSTANCE:", id(self.starship))
         # now handle map scroll ONLY in LevelOne
+        # FIRST: update input
+        self.controller.update()
+
+        # THEN: react to input
+        if self.textbox.is_visible():
+            if self.controller.qJustPressed:
+                self.textbox.advance()
+
+        if self.controller.qJustPressed:
+            print("Q ADVANCE FIRED")
+
 
         for weapon_name, icon_index in self.SUB_WEAPON_ICON_INDEX.items():
             rect = pygame.Rect(icon_index * 16, 0, 16, 16)

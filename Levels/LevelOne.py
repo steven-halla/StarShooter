@@ -22,6 +22,7 @@ class LevelOne(VerticalBattleScreen):
         # self.starship: StarShip = StarShip()
 
         self.level_start:bool = True
+        self.current_page_lines: list[list[str]] = []
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level1.tmx")
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
@@ -50,9 +51,17 @@ class LevelOne(VerticalBattleScreen):
         self.level_complete = False
         self.save_state = SaveState()
 
+        self.intro_dialogue = (
+            "I am the ultimate man on the battlefield. "
+            "You cannot hope to win against the likes of me. "
+            "Prepare yourself, dum dum mortal head. "
+            "Bla bla bla bla bla. "
+            "Win against the likes of me if you dare."
+        )
 
     def start(self, state) -> None:
         player_x = None
+        self.textbox.show(self.intro_dialogue)
         player_y = None
 
         for obj in self.tiled_map.objects:
@@ -226,7 +235,7 @@ class LevelOne(VerticalBattleScreen):
             pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
 
         self.draw_ui_panel(state.DISPLAY)
-        self.textbox.show("I am the ultimate man on the battlefiled. You cannot hope to win aginst the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla;")
+        # self.textbox.show("I am the ultimate man on the battlefiled. You cannot hope to win aginst the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla; win  the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla")
 
         self.textbox.draw(state.DISPLAY)
 
@@ -338,7 +347,10 @@ class LevelOne(VerticalBattleScreen):
 
                 continue
 
+
+
     def enemy_helper(self):
+
         # screen bottom in WORLD coordinates
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
