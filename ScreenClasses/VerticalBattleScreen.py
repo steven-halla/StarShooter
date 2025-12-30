@@ -706,6 +706,8 @@ class VerticalBattleScreen:
         player_rect = self.starship.hitbox
 
         if not self.starship.invincible:
+            # TODO this MUST be reading from current_level.enemies or something, not
+            # checking every f'n enemy every single time
             enemies = (
                     list(self.bileSpitterGroup) +
                     list(self.triSpitterGroup) +
@@ -843,15 +845,18 @@ class VerticalBattleScreen:
 
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
         window_height = GlobalConstants.GAMEPLAY_HEIGHT
+        scene_surface = pygame.Surface((window_width, window_height))
+        # scene_surface.fill((0, 0, 0))  # OR sky color
+        scene_surface.fill((20, 20, 40))  # sky / space color
         zoom = self.camera.zoom
         self.starship.shipHealth
 
 
         # Gameplay render surface (NO UI PANEL INCLUDED)
-        scene_surface = pygame.Surface((window_width, window_height))
 
         # Draw map + gameplay objects into gameplay surface
-        self.draw_tiled_background(scene_surface)
+
+        self.draw_tiled_layers(scene_surface)
 
         # Scale gameplay scene
         scaled_scene = pygame.transform.scale(
@@ -1113,42 +1118,6 @@ class VerticalBattleScreen:
         self.draw_ui_panel(state.DISPLAY)
 
 
-    def draw_tiled_background(self, surface: Surface) -> None:
-        tile_size = self.tile_size
-        window_width = GlobalConstants.BASE_WINDOW_WIDTH
-        window_height = GlobalConstants.GAMEPLAY_HEIGHT
-        bg_layer = self.tiled_map.get_layer_by_name("background")
-
-        for col, row, image in bg_layer.tiles():
-            world_x = col * tile_size
-            world_y = row * tile_size
-
-            # only apply vertical camera offset, NO zoom here
-            screen_x = world_x
-            screen_y = world_y - self.camera_y
-
-            # cull off-screen tiles
-            if screen_y + tile_size < 0 or screen_y > window_height:
-                continue
-
-            surface.blit(image, (screen_x, screen_y))
-
-            # -----------------------------
-            # Draw HAZARD layer
-            # -----------------------------
-        hazard_layer = self.tiled_map.get_layer_by_name("hazard")
-
-        for col, row, image in hazard_layer.tiles():
-            world_x = col * tile_size
-            world_y = row * tile_size
-
-            screen_x = world_x
-            screen_y = world_y - self.camera_y
-
-            if screen_y + tile_size < 0 or screen_y > window_height:
-                continue
-
-            surface.blit(image, (screen_x, screen_y))
 
     def bullet_helper(self):
         all_enemies = (
@@ -1511,3 +1480,24 @@ class VerticalBattleScreen:
                 icon = pygame.transform.scale(icon, (24, 24))
 
                 surface.blit(icon, (buster_icon_x, buster_icon_y))
+
+    def draw_tiled_layers(self, surface: pygame.Surface) -> None:
+        tile_size = self.tile_size
+        window_height = GlobalConstants.GAMEPLAY_HEIGHT
+
+        # Ordered render: BACKGROUND → GROUND → HAZARD
+        for layer_name in ("background", "hazard"):
+            layer = self.tiled_map.get_layer_by_name(layer_name)
+
+            for col, row, image in layer.tiles():
+                if image is None:
+                    continue
+
+                world_y = row * tile_size
+                screen_y = world_y - self.camera_y
+
+                # Cull off-screen tiles
+                if screen_y + tile_size < 0 or screen_y > window_height:
+                    continue
+
+                surface.blit(image, (col * tile_size, screen_y))

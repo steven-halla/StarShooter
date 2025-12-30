@@ -1,7 +1,7 @@
 {
   "version": 1,
   "player": {
-    "shipHealth": 11,
+    "shipHealth": 44,
     "shipHealthMax": 150,
     "equipped_magic": [
       "Metal Shield",

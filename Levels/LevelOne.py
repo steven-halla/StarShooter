@@ -2,6 +2,7 @@ import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelOne import BossLevelOne
+from Entity.Enemy import Enemy
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
@@ -37,6 +38,7 @@ class LevelOne(VerticalBattleScreen):
         self.bileSpitterGroup: list[BileSpitter] = []
         self.kamikazeDroneGroup: list[KamikazeDrone] = []
         self.triSpitterGroup: list[TriSpitter] = []
+        # self.enemies: list[Enemy] = [] # consolidate all enemies into one list
         # self.load_enemy_into_list()
         self.napalm_list: list = []
         self.total_enemies = 40
@@ -98,7 +100,7 @@ class LevelOne(VerticalBattleScreen):
 
         if self.level_start == True:
             self.level_start = False
-            self.starship.shipHealth = 11
+            self.starship.shipHealth = 44
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
 
