@@ -354,8 +354,8 @@ class LevelFive(VerticalBattleScreen):
 
             # Check collision with player
             if self.starship.hitbox.colliderect(raptor.hitbox):
-                # When player touches a spinal raptor, set raptor's health to 0
-                raptor.enemyHealth = 0
+                # We don't want the raptor to explode when it touches the starship
+                # Just change color to indicate collision
                 raptor.color = (135, 206, 235)
                 print("Raptor collided with player!")
             else:

@@ -29,7 +29,7 @@ class RescuePod(Enemy):
     def update(self) -> None:
         super().update()
         self.update_hitbox()
-        print(f"Rescue Pod HP: {self.enemyHealth}")
+        # print(f"Rescue Pod HP: {self.enemyHealth}")?
 
 
 

@@ -20,7 +20,7 @@ class SpinalRaptor(Enemy):
         self.color: tuple[int, int, int] = GlobalConstants.RED
 
         # movement stats
-        self.speed: float = .8
+        self.speed: float = .9
 
         # gameplay stats
         self.enemyHealth: int = 10
@@ -80,8 +80,15 @@ class SpinalRaptor(Enemy):
         dy = target_y - self.y
         dist = max(1, (dx * dx + dy * dy) ** 0.5)
 
-        self.x += (dx / dist) * self.speed
-        self.y += (dy / dist) * self.speed
+        # Implement pounce move: triple speed when 100 pixels from target
+        current_speed = self.speed
+        if dist <= 100:
+            print("raptor nomming time")
+            # Pounce! Triple the speed when close to target
+            current_speed = self.speed * 3
+
+        self.x += (dx / dist) * current_speed
+        self.y += (dy / dist) * current_speed
 
         self.update_hitbox()
 
