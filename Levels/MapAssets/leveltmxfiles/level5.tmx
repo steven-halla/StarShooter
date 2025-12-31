@@ -730,7 +730,7 @@
 </data>
  </layer>
  <objectgroup id="3" name="enemies">
-  <object id="2" name="rescue_pod" x="78.4242" y="5545.32" width="16" height="16"/>
+  <object id="2" name="rescue_pod" x="84.8076" y="5643.81" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="4" name="player">
   <object id="1" name="player" x="69.4965" y="5745.04" width="16" height="16"/>

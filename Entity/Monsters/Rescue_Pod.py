@@ -35,7 +35,7 @@ class RescuePod(Enemy):
     def draw(self, surface: pygame.Surface, camera):
         super().draw(surface, camera)  # 🔑 REQUIRED
 
-        sprite_rect = pygame.Rect(0, 344, 32, 32)
+        sprite_rect = pygame.Rect(10, 267, 32, 32)
         sprite = self.spore_flower_image.subsurface(sprite_rect)
 
         scale = camera.zoom
