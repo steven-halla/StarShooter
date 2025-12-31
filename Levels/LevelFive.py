@@ -40,6 +40,7 @@ class LevelFive(VerticalBattleScreen):
         self.camera.y = float(self.camera_y)
         self.map_scroll_speed_per_frame: float = .4 # move speed of camera
 
+        self.rescue_pod_destroyed = 0  # Counter for destroyed rescue pods
         self.rescuePodGroup: list[RescuePod] = []
         self.spinalRaptorGroup: list[SpinalRaptor] = []
         self.bossLevelFiveGroup: list[BossLevelFive] = []
@@ -85,7 +86,10 @@ class LevelFive(VerticalBattleScreen):
     def update(self, state) -> None:
         super().update(state)
 
-
+        # Check if 3 or more rescue pods are destroyed
+        if self.rescue_pod_destroyed >= 3:
+            print("game over")
+            # You might want to add additional game over logic here
 
         if self.level_start == True:
             self.level_start = False
@@ -357,7 +361,7 @@ class LevelFive(VerticalBattleScreen):
                 # We don't want the raptor to explode when it touches the starship
                 # Just change color to indicate collision
                 raptor.color = (135, 206, 235)
-                print("Raptor collided with player!")
+                # print("Raptor collided with player!")
             else:
                 raptor.color = GlobalConstants.RED
 
@@ -365,6 +369,9 @@ class LevelFive(VerticalBattleScreen):
             for pod in list(self.rescuePodGroup):
                 if raptor.hitbox.colliderect(pod.hitbox):
                     # When spinal raptor touches a rescue pod, set pod's health to 0
+                    # Only increment counter if pod was not already destroyed
+                    if pod.enemyHealth > 0:
+                        self.rescue_pod_destroyed += 1
+                        print(f"Raptor collided with rescue pod! Total destroyed: {self.rescue_pod_destroyed}")
                     pod.enemyHealth = 0
                     pod.color = (135, 206, 235)
-                    print("Raptor collided with rescue pod!")

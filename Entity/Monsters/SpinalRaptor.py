@@ -134,7 +134,7 @@ class SpinalRaptor(Enemy):
         # Reset the timer
         self.rectangle_attack_timer.reset()
 
-        print("SpinalRaptor shot a rectangle attack!")
+        # print("SpinalRaptor shot a rectangle attack!")
 
     def update(self):
         super().update()
@@ -162,7 +162,7 @@ class SpinalRaptor(Enemy):
                     self.target_player.take_damage(attack.damage)
                 # Deactivate the attack
                 attack.is_active = False
-                print("Rectangle attack hit player!")
+                # print("Rectangle attack hit player!")
 
             # Remove inactive attacks
             if not attack.is_active:
@@ -176,7 +176,7 @@ class SpinalRaptor(Enemy):
                 self.has_damaged_player = True
                 self.is_frozen = True
                 self.freeze_timer.reset()
-                print("raptor hit player, freezing for 3 seconds")
+                # print("raptor hit player, freezing for 3 seconds")
                 return  # Don't move after hitting player
 
         # Handle freeze state
@@ -186,7 +186,7 @@ class SpinalRaptor(Enemy):
                 self.is_frozen = False
                 self.has_pounced = False  # Reset pounce flag to allow pouncing again
                 self.has_damaged_player = False  # Reset damage flag to allow freezing again
-                print("raptor unfrozen, can pounce again")
+                # print("raptor unfrozen, can pounce again")
             return  # Don't move while frozen
 
         # Handle post-pounce timer
@@ -195,7 +195,7 @@ class SpinalRaptor(Enemy):
                 # After 3 seconds, freeze the raptor
                 self.is_frozen = True
                 self.freeze_timer.reset()
-                print("raptor frozen")
+                # print("raptor frozen")
                 return  # Don't move when just frozen
 
         # Check if there are any rescue pods on screen to target
@@ -230,17 +230,17 @@ class SpinalRaptor(Enemy):
         # Implement pounce move: triple speed when 100 pixels from target
         current_speed = self.speed
         if dist <= 100 and not self.has_pounced:
-            print("raptor nomming time")
+            # print("raptor nomming time")
             # Pounce! Triple the speed when close to target
             current_speed = self.speed * 3
             # Set pounce flag and start the post-pounce timer
             self.has_pounced = True
             self.post_pounce_timer.reset()
-            print("raptor pounced, timer started")
+            # print("raptor pounced, timer started")
         elif self.has_pounced and not self.is_frozen:
             # Continue using triple speed during the post-pounce period
             current_speed = self.speed * 3
-            print("raptor still in pounce mode")
+            # print("raptor still in pounce mode")
 
         self.x += (dx / dist) * current_speed
         self.y += (dy / dist) * current_speed
