@@ -1,10 +1,10 @@
 {
   "version": 1,
   "player": {
-    "shipHealth": 150,
+    "shipHealth": 450,
     "shipHealthMax": 150,
     "equipped_magic": [
-      "Metal Shield",
+      "Wind Slicer",
       null
     ],
     "level": "LevelFive"
