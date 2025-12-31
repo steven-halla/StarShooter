@@ -164,7 +164,7 @@ class LevelFive(VerticalBattleScreen):
 
     def get_nearest_enemy(self, missile):
         enemies = (
-                list(self.rescuePodGroup) +
+                # Excluding rescue pods from missile targeting
                 list(self.spinalRaptorGroup) +
                 list(self.bossLevelFiveGroup)
         )
@@ -252,6 +252,7 @@ class LevelFive(VerticalBattleScreen):
                 self.spinalRaptorGroup.append(enemy)
                 enemy.camera = self.camera
                 enemy.target_player = self.starship
+                enemy.rescue_pod_group = self.rescuePodGroup
 
 
 
@@ -349,10 +350,21 @@ class LevelFive(VerticalBattleScreen):
 
             if raptor.enemyHealth <= 0:
                 self.spinalRaptorGroup.remove(raptor)
+                continue
 
+            # Check collision with player
             if self.starship.hitbox.colliderect(raptor.hitbox):
-                # When player touches a rescue pod, set pod's health to 0
+                # When player touches a spinal raptor, set raptor's health to 0
                 raptor.enemyHealth = 0
                 raptor.color = (135, 206, 235)
+                print("Raptor collided with player!")
             else:
                 raptor.color = GlobalConstants.RED
+
+            # Check collision with rescue pods
+            for pod in list(self.rescuePodGroup):
+                if raptor.hitbox.colliderect(pod.hitbox):
+                    # When spinal raptor touches a rescue pod, set pod's health to 0
+                    pod.enemyHealth = 0
+                    pod.color = (135, 206, 235)
+                    print("Raptor collided with rescue pod!")

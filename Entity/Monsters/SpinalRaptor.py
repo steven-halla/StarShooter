@@ -29,6 +29,7 @@ class SpinalRaptor(Enemy):
 
         # kamikaze-specific
         self.target_player = None     # will be assigned externally
+        self.rescue_pod_group = None  # will be assigned externally
         self.is_exploding = False     # state toggle for explosion
         self.explosion_damage: int = 20  # huge damage on hit
 
@@ -54,12 +55,29 @@ class SpinalRaptor(Enemy):
         if self.target_player is None:
             return
 
-        # direction vector toward player
-        px = self.target_player.x
-        py = self.target_player.y
+        # Check if there are any rescue pods on screen to target
+        target_x = self.target_player.x
+        target_y = self.target_player.y
 
-        dx = px - self.x
-        dy = py - self.y
+        # Default to targeting player
+        target_rescue_pod = False
+
+        # If we have access to rescue pods, check if any are on screen
+        if self.rescue_pod_group is not None and len(self.rescue_pod_group) > 0:
+            for pod in self.rescue_pod_group:
+                # Check if pod is on screen
+                if self.mover.enemy_on_screen(pod, self.camera):
+                    # Found a rescue pod on screen, target it instead of player
+                    target_x = pod.x
+                    target_y = pod.y
+                    target_rescue_pod = True
+                    break
+
+        # If no rescue pods on screen, target player (already set as default)
+
+        # Calculate direction vector toward target (either rescue pod or player)
+        dx = target_x - self.x
+        dy = target_y - self.y
         dist = max(1, (dx * dx + dy * dy) ** 0.5)
 
         self.x += (dx / dist) * self.speed
@@ -99,5 +117,3 @@ class SpinalRaptor(Enemy):
         hb_h = int(self.hitbox.height * camera.zoom)
 
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
-
-
