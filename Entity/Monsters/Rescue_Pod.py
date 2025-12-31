@@ -6,6 +6,8 @@ from Entity.Enemy import Enemy
 from Weapons.Bullet import Bullet
 
 
+# in future shold damage player for 10 shields, but nothing if no shields
+
 class RescuePod(Enemy):
     def __init__(self) -> None:
         super().__init__()

@@ -309,7 +309,8 @@ class LevelFive(VerticalBattleScreen):
                 self.rescuePodGroup.remove(pod)
 
             if self.starship.hitbox.colliderect(pod.hitbox):
+                # When player touches a rescue pod, set pod's health to 0
+                pod.enemyHealth = 0
                 pod.color = (135, 206, 235)
             else:
                 pod.color = GlobalConstants.RED
-
