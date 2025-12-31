@@ -1190,6 +1190,22 @@ class VerticalBattleScreen:
                     break
 
         # -------------------------
+        # WIND SLICER
+        # -------------------------
+        for slicer in list(self.wind_slicer_bullets):
+
+            for enemy in all_enemies:
+                if slicer.hitbox.colliderect(enemy.hitbox):
+                    enemy.enemyHealth -= slicer.damage
+
+                    # remove slicer unless it is piercing
+                    self.wind_slicer_bullets.remove(slicer)
+
+                    if enemy.enemyHealth <= 0:
+                        self.remove_enemy_if_dead(enemy)
+                    break
+
+        # -------------------------
         # MISSILES
         # -------------------------
         for missile in list(self.player_missiles):

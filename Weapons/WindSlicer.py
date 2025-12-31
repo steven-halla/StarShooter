@@ -1,3 +1,4 @@
+import pygame
 from Weapons.Weapon import Weapon
 
 class WindSlicer(Weapon):
@@ -15,9 +16,12 @@ class WindSlicer(Weapon):
 
         self.WIND_SLICER: str = "Wind Slicer"
 
+        # ✅ REQUIRED: hitbox
+        self.hitbox = pygame.Rect(self.x, self.y, self.width, self.height)
+
     def update(self) -> None:
         self.x += self.dx
         self.y += self.dy
 
-
-
+        # ✅ REQUIRED: keep hitbox in sync
+        self.hitbox.topleft = (self.x, self.y)
