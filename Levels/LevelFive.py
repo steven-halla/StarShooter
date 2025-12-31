@@ -11,6 +11,8 @@ from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.Ravager import Ravager
 from Entity.Monsters.Rescue_Pod import RescuePod
+from Entity.Monsters.Slaver import Slaver
+from Entity.Monsters.SpinalRaptor import SpinalRaptor
 from Entity.Monsters.SpineLauncher import SpineLauncher
 from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TriSpitter import TriSpitter
@@ -37,8 +39,9 @@ class LevelFive(VerticalBattleScreen):
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
         self.map_scroll_speed_per_frame: float = .4 # move speed of camera
-        self.rescuePodGroup: list[RescuePod] = []
 
+        self.rescuePodGroup: list[RescuePod] = []
+        self.spinalRaptorGroup: list[SpinalRaptor] = []
         self.bossLevelFiveGroup: list[BossLevelFive] = []
 
 
@@ -144,6 +147,10 @@ class LevelFive(VerticalBattleScreen):
             enemy.draw(state.DISPLAY, self.camera)
             enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
+        for enemy in self.spinalRaptorGroup:
+            enemy.draw(state.DISPLAY, self.camera)
+            enemy.draw_damage_flash(state.DISPLAY, self.camera)
+
         for boss in self.bossLevelFiveGroup:
             boss.draw(state.DISPLAY, self.camera)
             boss.draw_damage_flash(state.DISPLAY, self.camera)
@@ -158,6 +165,7 @@ class LevelFive(VerticalBattleScreen):
     def get_nearest_enemy(self, missile):
         enemies = (
                 list(self.rescuePodGroup) +
+                list(self.spinalRaptorGroup) +
                 list(self.bossLevelFiveGroup)
         )
 
@@ -232,6 +240,22 @@ class LevelFive(VerticalBattleScreen):
                 self.rescuePodGroup.append(enemy)
 
                 continue
+
+            if obj.name == "spinal_raptor":
+                enemy = SpinalRaptor()
+                enemy.x = obj.x
+                enemy.y = obj.y
+                enemy.width = obj.width
+                enemy.height = obj.height
+                enemy.update_hitbox()
+                enemy.camera = self.camera
+                self.spinalRaptorGroup.append(enemy)
+                enemy.camera = self.camera
+                enemy.target_player = self.starship
+
+
+
+
 
 
 
@@ -314,3 +338,21 @@ class LevelFive(VerticalBattleScreen):
                 pod.color = (135, 206, 235)
             else:
                 pod.color = GlobalConstants.RED
+
+
+        # -------------------------
+        # spinal raptors
+        # -------------------------
+        for raptor in list(self.spinalRaptorGroup):
+
+            raptor.update()
+
+            if raptor.enemyHealth <= 0:
+                self.spinalRaptorGroup.remove(raptor)
+
+            if self.starship.hitbox.colliderect(raptor.hitbox):
+                # When player touches a rescue pod, set pod's health to 0
+                raptor.enemyHealth = 0
+                raptor.color = (135, 206, 235)
+            else:
+                raptor.color = GlobalConstants.RED
