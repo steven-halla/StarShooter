@@ -9,7 +9,7 @@ For stage 4 the slavers can make the worms vanish
 
 Save states for player so they dont have to redo levels
 
-
+Special weapons should have seperate upgrades for power to scale
 
 After QOL:
 Level 5,6,7
@@ -51,4 +51,152 @@ monsters
 space station
 escort ship
 bunny girl sales girl
+
+Level 5
+Rescue pods
+touch the hostages before the monsters
+Don't hit the hostages
+Give pods HP
+Fail to resue 5 and you lost
+
+Level 6
+Grab pyrithem
+Grab the jade coins
+Coins can be hidden behind breakable blocks
+Coins can be inside enemies - special monster specific
+
+Level 7
+Co Op Race Vs mode
+2nd pilot who will attack enemy
+your kill count needs to be higher than his.
+if you lose  you have to go on a date
+if you win they have to teac you their ki technique
+Give him access to a ssb weapon that player can have if they win
+
+
+ITEMS
+items are coming soon, very soon
+Every level up should have a choice of 3 cards.
+
+Items:
+
+SHARED:
+
+
+
+Impact saver - takes x damage less from collidign with envirnoment  x = 1/4, 1/3, 1/2 ( 3 total )
+Posion Saver - take x damge less from poison x = 1/4, 1/3, 1/2 ( 3 total)
+
+
+Bullet size up - bullets are X2, X3 times bigger ( 2 total)
+
+Bullet attack up - bullets add + 1, ( 4 total)
+
+Bullet speed up - bullets fire rate + .02  ( 7 total)
+
+Bullet gun up - add new barrel. Double shot, triple shot ( 2 total)
+
+Bullet heat down - better cooling (3 total)
+
+Missile - adds new missile to counter - ( 7 total)
+MIssile - adds damage - (3 total) unknown for now
+missile - adds speed - ( 5 total) .5 per level up
+missile - Less heat ( 3 total )
+
+Engine - Max Heat  ( 5 total ) 200 engine max
+Engine - Heat recharge rate ( 2 total)
+Shield - Max Shield ( 10 total ) 300 shield max
+shield - shield recharge rate ( 2 total )
+Ship - Max HP (9 total ) 100 HP max
+Ship - Double special weapon ( 1 total )
+Ship - Speed (5 steps)
+
+
+
+
+Specail weapon attack up - Each weapon has unique damage steps. 3 steps total (24 total)
+Special weapon unique up - Each specail weapon gains a unique property based on its type.(16 total)
+wind slicer - now deletes bullets
+wind slicer - adds new row of bullets
+buster cannon - .5 second off charge up time
+buster cannon - increase ROF for basic bullets
+napalm - bigger aoe + 20%
+npaalm - longer burn time .5 second enough for 1 more tick whatever that is
+metal shield - faster rotate
+metal shield - smaller shield more efficient
+laser sword - faster ramp up  to max damage
+laser sword - increaed range of blade
+wave crash - increased ROF
+wave crash - quad shot 2 on each side
+plasma laser - destroys enemy bullets
+plasma laster - pierces all enemies
+energy ball - make ball bigger
+energy ball - shoot ball faster
+
+
+48 rewards total
+
+For Tier 1 Release 1:
+1 town only
+have new items happen at level 5, just have a new shop open
+
+
+
+SHOPS:
+New Town after you beat level 5
+
+New Town after you beat level 10
+
+New Town after you beat level 15
+
+
+Equip screen:
+Machien gun
+missiles
+special
+
+Shop up to level 10:
+2 guns each tier
+macine gun basic - + 1  attack speed
+macine gun less heat -1 heat
+
+Missile + 1 speed
+MIssiile + 1 attack
+
+Bronze Engine - 110 heat
+Bronze shields + 60 shield
+
+special weapon upgrade
+
+---------shop 2----------
+machine gun +1 attack +1 speed + 1 heat usage
+macine gun - 1 heat +10 Ship hull
+
+Missile + 1 counter
+Missle + 1 speed + 1 attack
+
+Bronze Engine - 120 heat + 1 heat recharge
+Bronze shields + 90 shield
+
+special weapon upgrade
+special weapon upgrade
+
+Duel linked gun
+Double Spells
++10 Ship Hull
++ 10 shields
++ 1 missile
+
+
+
+I AM THINKING:
+Having both upgrades level ups at every level
+and
+shops to buy stuff
+
+both is too much for this scale.
+Having level up items is a NICE TO HAVE.
+For smaller scope ALL items will be bought at shops.
+For now Level rewards can be the following:
+New sub weapons 8 total
 

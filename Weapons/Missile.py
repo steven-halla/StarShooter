@@ -8,7 +8,7 @@ class Missile(Weapon):
         super().__init__(x, y)
         self.width = 12
         self.height = 12
-        self.speed = -5
+        self.speed = -2.5 # -5 original value
         self.rateOfFire = .5
         self.missileNumber = 1
         self.damage = 3  # Adding damage property that was missing

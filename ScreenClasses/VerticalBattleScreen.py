@@ -281,6 +281,7 @@ class VerticalBattleScreen:
         # print("STARSHIP INSTANCE:", id(self.starship))
         # now handle map scroll ONLY in LevelOne
         # FIRST: update input
+
         self.controller.update()
 
         # THEN: react to input
@@ -300,20 +301,20 @@ class VerticalBattleScreen:
         # PLAYER DEATH → LOAD SAVE
         # --------------------------------
 
-        if self.starship.shipHealth <= 0:
-            from Levels.LevelOne import LevelOne
-
-            # reload save
-            if self.save_state.load_from_file(""
-                                              "player_save.json"):
-                new_level = LevelOne(state.textbox)
-                state.currentScreen = new_level
-                new_level.start(state)
-
-                # restore player AFTER start() sets spawn point
-                self.save_state.restore_player(state.starship)
-
-            return
+        # if self.starship.shipHealth <= 0:
+        #     from Levels.LevelOne import LevelOne
+        #
+        #     # reload save
+        #     if self.save_state.load_from_file(""
+        #                                       "player_save.json"):
+        #         new_level = LevelOne(state.textbox)
+        #         state.currentScreen = new_level
+        #         new_level.start(state)
+        #
+        #         # restore player AFTER start() sets spawn point
+        #         self.save_state.restore_player(state.starship)
+        #
+        #     return
         self.move_map_y_axis()
 
 

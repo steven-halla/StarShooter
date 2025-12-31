@@ -38,7 +38,7 @@ class StarShip:
         self.shipHealthMax: int = 150
 
         # firing stats for machien gun
-        self.bullet_fire_interval_seconds: float = 0.05
+        self.bullet_fire_interval_seconds: float = 0.10 # orginal value 0.05 # base value .24
         self.bullet_timer: Timer = Timer(self.bullet_fire_interval_seconds)
         self.bullet_spread_offset: int = 18
         self.bullets_per_shot: int = 2
@@ -49,7 +49,7 @@ class StarShip:
         self.missile_regen_interval_seconds: float = 3.0
         self.missile_regen_timer: Timer = Timer(self.missile_regen_interval_seconds)
         self.missileDamage: int = 100
-        self.missileSpeed: int = 10
+        # self.missileSpeed: int = 10 # 10 original
         self.missile_spread_offset: int = 20
         self.max_missiles: int = 1
         self.current_missiles: int = 1
