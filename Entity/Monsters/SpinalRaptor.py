@@ -20,10 +20,10 @@ class SpinalRaptor(Enemy):
         self.color: tuple[int, int, int] = GlobalConstants.RED
 
         # movement stats
-        self.speed: float = 2.0
+        self.speed: float = .8
 
         # gameplay stats
-        self.enemyHealth: int = 1
+        self.enemyHealth: int = 10
         self.exp: int = 1
         self.credits: int = 5
 

@@ -7,6 +7,7 @@ from Assets.Images.SpriteSheetExtractor import SpriteSheetExtractor
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Controller.KeyBoardControls import KeyBoardControls
+from Entity.Bosses.BossLevelFive import BossLevelFive
 from Entity.Bosses.BossLevelFour import BossLevelFour
 from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Bosses.BossLevelThree import BossLevelThree
@@ -18,6 +19,7 @@ from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.Ravager import Ravager
 from Entity.Monsters.Slaver import Slaver
+from Entity.Monsters.SpinalRaptor import SpinalRaptor
 from Entity.Monsters.SpineLauncher import SpineLauncher
 from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TransportWorm import TransportWorm
@@ -53,6 +55,7 @@ class VerticalBattleScreen:
         self.ravagerGroup: list[Ravager] = []
         self.fireLauncherGroup: list[FireLauncher] = []
         self.transportWormGroup: list[TransportWorm] = []
+        self.spinalRaptorGroup: list[SpinalRaptor] = []
         self.slaverGroup: list[Slaver] = []
 
 
@@ -61,6 +64,7 @@ class VerticalBattleScreen:
         self.bossLevelTwoGroup: list[BossLevelTwo] = []
         self.bossLevelThreeGroup: list[BossLevelThree] = []
         self.bossLevelFourGroup: list[BossLevelFour] = []
+        self.bossLevelFiveGroup: list[BossLevelFive] = []
 
         #boss
 
@@ -711,16 +715,19 @@ class VerticalBattleScreen:
             # checking every f'n enemy every single time
             enemies = (
                     list(self.bileSpitterGroup) +
+                    list(self.spinalRaptorGroup) +
                     list(self.triSpitterGroup) +
                     list(self.slaverGroup) +
                     list(self.bladeSpinnerGroup) +
                     list(self.fireLauncherGroup) +
                     list(self.kamikazeDroneGroup) +
                     list(self.transportWormGroup) +
+
                     list(self.bossLevelThreeGroup) +
                     list(self.bossLevelTwoGroup) +
                     list(self.bossLevelOneGroup) +
-                    list(self.bossLevelFourGroup)
+                    list(self.bossLevelFourGroup) +
+                    list(self.bossLevelFiveGroup)
             )
 
             for enemy in enemies:
@@ -759,10 +766,13 @@ class VerticalBattleScreen:
                 list(self.spineLauncherGroup) +
                 list(self.acidLauncherGroup) +
                 list(self.ravagerGroup) +
+                list(self.spinalRaptorGroup) +
+
                 list(self.bossLevelThreeGroup) +
                 list(self.bossLevelTwoGroup) +
                 list(self.bossLevelOneGroup) +
-                list(self.bossLevelFourGroup)
+                list(self.bossLevelFourGroup) +
+                list(self.bossLevelFiveGroup)
         )
 
         for enemy in list(enemies):
@@ -805,10 +815,13 @@ class VerticalBattleScreen:
                 + list(self.fireLauncherGroup)
                 + list(self.slaverGroup)
                 + list(self.transportWormGroup)
+                + list(self.spinalRaptorGroup)
+
                 + list(self.bossLevelOneGroup)
                 + list(self.bossLevelTwoGroup)
                 + list(self.bossLevelThreeGroup)
                 + list(self.bossLevelFourGroup)
+                + list(self.bossLevelFiveGroup)
         )
 
         for enemy in list(all_enemies):
@@ -829,10 +842,13 @@ class VerticalBattleScreen:
                     self.fireLauncherGroup,
                     self.slaverGroup,
                     self.transportWormGroup,
+                    self.spinalRaptorGroup,
+
                     self.bossLevelOneGroup,
                     self.bossLevelTwoGroup,
                     self.bossLevelThreeGroup,
                     self.bossLevelFourGroup,
+                    self.bossLevelFiveGroup
                 )
 
                 for group in enemy_groups:
@@ -1134,10 +1150,13 @@ class VerticalBattleScreen:
                 list(self.ravagerGroup) +
                 list(self.transportWormGroup) +
                 list(self.fireLauncherGroup) +
+                list(self.spinalRaptorGroup) +
+
                 list(self.bossLevelOneGroup) +
                 list(self.bossLevelTwoGroup) +
                 list(self.bossLevelThreeGroup) +
-                list(self.bossLevelFourGroup)
+                list(self.bossLevelFourGroup) +
+                list(self.bossLevelFiveGroup)
         )
 
         # -------------------------
@@ -1234,10 +1253,13 @@ class VerticalBattleScreen:
             self.fireLauncherGroup,
             self.slaverGroup,
             self.transportWormGroup,
+            self.bossLevelFiveGroup,
+
             self.bossLevelOneGroup,
             self.bossLevelTwoGroup,
             self.bossLevelThreeGroup,
             self.bossLevelFourGroup,
+            self.bossLevelFiveGroup
         )
 
         for group in enemy_groups:

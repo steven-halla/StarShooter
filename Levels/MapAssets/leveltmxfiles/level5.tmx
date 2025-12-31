@@ -731,7 +731,7 @@
  </layer>
  <objectgroup id="3" name="enemies">
   <object id="2" name="rescue_pod" x="26.4454" y="5618.27" width="16" height="16"/>
-  <object id="4" name="spinal_raptor" x="99.3981" y="5654.75" width="16" height="16"/>
+  <object id="4" name="spinal_raptor" x="137.698" y="5487.87" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="4" name="player">
   <object id="1" name="player" x="69.4965" y="5745.04" width="16" height="16"/>
