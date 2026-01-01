@@ -265,7 +265,7 @@ class VerticalBattleScreen:
         window_height = GlobalConstants.GAMEPLAY_HEIGHT
 
         # move camera UP in world space (so map scrolls down)
-        # self.camera_y -= self.map_scroll_speed_per_frame
+        self.camera_y -= self.map_scroll_speed_per_frame
 
         # clamp so we never scroll past top or bottom of the map
         max_camera_y = self.WORLD_HEIGHT - window_height

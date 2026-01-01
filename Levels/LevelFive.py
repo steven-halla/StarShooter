@@ -97,6 +97,20 @@ class LevelFive(VerticalBattleScreen):
         self.MAX_FIRE_ROW_LENGTH = 27
         self.MAX_FIRE_ROWS = 20
 
+    def is_boss_on_screen(self) -> bool:
+        cam_top = self.camera.y
+        cam_bottom = cam_top + GlobalConstants.GAMEPLAY_HEIGHT
+
+        for boss in self.bossLevelFiveGroup:
+            boss_top = boss.y
+            boss_bottom = boss.y + boss.height
+
+            # World-space overlap check (NO zoom math)
+            if boss_bottom >= cam_top and boss_top <= cam_bottom:
+                return True
+
+        return False
+
 
     def start(self, state) -> None:
         player_x = None
@@ -164,14 +178,14 @@ class LevelFive(VerticalBattleScreen):
     #     pygame.draw.rect(display, color, (left_x, h - (2 * size) - offset, size, size))
     #     pygame.draw.rect(display, color, (right_x, h - (2 * size) - offset, size, size))
 
-    def update_hazard_damage(self, surface_height: int) -> None:
-        if not self._hazard_active:
+    def update_hazard_square(self, current_time_ms: int) -> None:
+        if not self.is_boss_on_screen():
             return
-
+            # rest of function unchanged
         tile_size = 32
         offset = 50
+        h = GlobalConstants.GAMEPLAY_HEIGHT
         damage = 5
-        h = surface_height
 
         player_screen_rect = pygame.Rect(
             self.camera.world_to_screen_x(self.starship.hitbox.x),
@@ -257,29 +271,47 @@ class LevelFive(VerticalBattleScreen):
         self.extract_object_names()
         print(self.starship.shipHealth)
 
-    def update_hazard_square(self, current_time_ms: int) -> None:
-        if self._hazard_start_time is None:
-            self._hazard_start_time = current_time_ms
-            return
-
+    def update_hazard_damage(self, surface_height: int) -> None:
         if not self._hazard_active:
-            if current_time_ms - self._hazard_start_time >= 500:
-                self._hazard_active = True
-                self._fire_last_growth_time = current_time_ms
-                self.fire_row_length = 0
-                self.fire_rows_completed = 0
             return
 
-        if self.fire_rows_completed >= self.MAX_FIRE_ROWS:
-            return
+        tile_size = 32
+        offset = 50
+        damage = 5
+        h = surface_height
 
-        if current_time_ms - self._fire_last_growth_time >= 500:
-            self._fire_last_growth_time = current_time_ms
-            self.fire_row_length += 1
+        player_screen_rect = pygame.Rect(
+            self.camera.world_to_screen_x(self.starship.hitbox.x),
+            self.camera.world_to_screen_y(self.starship.hitbox.y),
+            self.starship.hitbox.width,
+            self.starship.hitbox.height
+        )
 
-            if self.fire_row_length >= self.MAX_FIRE_ROW_LENGTH:
-                self.fire_rows_completed += 1
-                self.fire_row_length = 0
+        # 1️⃣ Damage completed rows
+        for row in range(self.fire_rows_completed):
+            y = h - offset - (row + 1) * tile_size
+            for col in range(self.MAX_FIRE_ROW_LENGTH):
+                x = col * tile_size
+                rect = pygame.Rect(x, y, tile_size, tile_size)
+
+                if rect.colliderect(player_screen_rect):
+                    if not self.starship.invincible:
+                        self.starship.shipHealth -= damage
+                        self.starship.on_hit()
+                    return
+
+        # 2️⃣ Damage current growing row
+        if self.fire_rows_completed < self.MAX_FIRE_ROWS:
+            y = h - offset - (self.fire_rows_completed + 1) * tile_size
+            for col in range(self.fire_row_length):
+                x = col * tile_size
+                rect = pygame.Rect(x, y, tile_size, tile_size)
+
+                if rect.colliderect(player_screen_rect):
+                    if not self.starship.invincible:
+                        self.starship.shipHealth -= damage
+                        self.starship.on_hit()
+                    return
     def draw(self, state):
         # 1️⃣ Let BattleScreen draw map, bullets, UI, etc.
         super().draw(state)
