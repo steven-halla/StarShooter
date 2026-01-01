@@ -89,6 +89,32 @@ class LevelFive(VerticalBattleScreen):
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
         self.load_enemy_into_list()
 
+    def update_hazard_square(self, current_time_ms: int) -> None:
+        # Initialize timer once
+        if not hasattr(self, "_hazard_start_time"):
+            self._hazard_start_time = current_time_ms
+            self._hazard_active = False
+
+        # Activate after 3 seconds
+        if not self._hazard_active and current_time_ms - self._hazard_start_time >= 3000:
+            self._hazard_active = True
+
+    def draw_hazard_square(self, display) -> None:
+        if not getattr(self, "_hazard_active", False):
+            return
+
+        size = 16
+        offset = 50
+        h = display.get_height()
+        color = (255, 0, 0)
+
+        # bottom row
+        pygame.draw.rect(display, color, (0, h - size - offset, size, size))
+        pygame.draw.rect(display, color, (size, h - size - offset, size, size))
+
+        # top row (touching bottom row)
+        pygame.draw.rect(display, color, (0, h - (2 * size) - offset, size, size))
+        pygame.draw.rect(display, color, (size, h - (2 * size) - offset, size, size))
 
     def update(self, state) -> None:
         super().update(state)
@@ -140,9 +166,9 @@ class LevelFive(VerticalBattleScreen):
 
         self.enemy_helper()
 
-
-
+        self.update_hazard_square(now)
         self.extract_object_names()
+
 
     def draw(self, state):
         # 1️⃣ Let BattleScreen draw map, bullets, UI, etc.
@@ -194,6 +220,8 @@ class LevelFive(VerticalBattleScreen):
             boss.draw_damage_flash(state.DISPLAY, self.camera)
 
         # 5️⃣ Flip ONCE, LAST
+        self.draw_hazard_square(state.DISPLAY)
+
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):

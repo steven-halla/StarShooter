@@ -36,14 +36,14 @@ class BossLevelFive(Enemy):
         self.fire_interval_ms = 1000
         self.last_shot_time = pygame.time.get_ticks()
 
-        self.triple_fire_interval_ms = 3000
+        self.triple_fire_interval_ms = 1500
         self.last_triple_shot_time = pygame.time.get_ticks()
 
         # -------------------------
         # MOVEMENT
         # -------------------------
-        self.moveSpeed = 2.0
-        self.move_interval_ms = 1400
+        self.moveSpeed = 4.0
+        self.move_interval_ms = 1200
         self.last_move_toggle = pygame.time.get_ticks()
         self.move_direction = random.choice([-1, 1])
 
@@ -68,57 +68,31 @@ class BossLevelFive(Enemy):
     # =====================================================
     # ORIGINAL SINGLE SHOT (UNCHANGED)
     # =====================================================
-    def _shoot_bile(self) -> None:
-        bullet_x = self.x + self.width // 2 - self.bulletWidth // 2
-        bullet_y = self.y + self.height
 
-        bullet = Bullet(bullet_x, bullet_y)
-        bullet.color = self.bulletColor
-        bullet.width = self.bulletWidth
-        bullet.height = self.bulletHeight
-        bullet.speed = self.weapon_speed
-        bullet.damage = 10
-
-        bullet.rect.width = bullet.width
-        bullet.rect.height = bullet.height
-
-        self.enemyBullets.append(bullet)
 
     # =====================================================
-    # TRIPLE FIRE — SHOOTS AT PLAYER LAST POSITION
+    # barrage FIRE — SHOOTS AT PLAYER LAST POSITION
     # =====================================================
-    def shoot_triple_line(self) -> None:
-        if self.target_player is None:
-            return
+    def shoot_barrage(self) -> None:
+        bullet_count = 15
 
-        cx = self.x + self.width / 2
-        cy = self.y + self.height / 2
+        base_y = self.y + self.height
 
-        px = self.target_player.hitbox.centerx
-        py = self.target_player.hitbox.centery
+        # ⬅️➡️ extend 10px beyond boss width
+        left_x = self.x - 40
+        right_x = self.x + self.width + 40
 
-        dx = px - cx
-        dy = py - cy
-        dist = math.hypot(dx, dy)
-        if dist == 0:
-            return
+        spacing = (right_x - left_x) / (bullet_count - 1)
 
-        dx /= dist
-        dy /= dist
+        for i in range(bullet_count):
+            bx = left_x + i * spacing
 
-        perp_x = -dy
-        perp_y = dx
-
-        spacing = 30
-        offsets = [-spacing, 0, spacing]
-
-        for offset in offsets:
-            bx = cx + perp_x * offset
-            by = cy + perp_y * offset
+            # stagger Y so bullets don't align
+            by = base_y + random.randint(-60, 60)
 
             bullet = Bullet(bx, by)
-            bullet.dx = dx * self.weapon_speed
-            bullet.speed = dy * self.weapon_speed
+            bullet.dx = 0  # straight down
+            bullet.speed = self.weapon_speed
             bullet.width = self.bulletWidth
             bullet.height = self.bulletHeight
             bullet.color = self.bulletColor
@@ -144,14 +118,14 @@ class BossLevelFive(Enemy):
         self.moveAI()
         now = pygame.time.get_ticks()
 
-        # ORIGINAL FIRE
-        if now - self.last_shot_time >= self.fire_interval_ms:
-            self._shoot_bile()
-            self.last_shot_time = now
+        # # ORIGINAL FIRE
+        # if now - self.last_shot_time >= self.fire_interval_ms:
+        #     self._shoot_bile()
+        #     self.last_shot_time = now
 
         # TRIPLE FIRE
         if now - self.last_triple_shot_time >= self.triple_fire_interval_ms:
-            self.shoot_triple_line()
+            self.shoot_barrage()
             self.last_triple_shot_time = now
 
         for bullet in self.enemyBullets:
@@ -201,7 +175,7 @@ class BossLevelFive(Enemy):
     # DRAW
     # =====================================================
     def draw(self, surface: pygame.Surface, camera):
-        sprite_rect = pygame.Rect(0, 344, 32, 32)
+        sprite_rect = pygame.Rect(65, 130, 32, 32)
         sprite = self.bile_spitter_image.subsurface(sprite_rect)
 
         scale = camera.zoom
