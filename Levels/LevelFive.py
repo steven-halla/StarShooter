@@ -73,6 +73,19 @@ class LevelFive(VerticalBattleScreen):
         self.save_state = SaveState()
 
 
+
+
+
+
+        self._hazard_active = False
+        self._hazard_start_time = None
+        self._fire_growth_start_time = None
+        self._fire_last_growth_time = None
+
+        self.fire_row_length = 1
+        self.MAX_FIRE_ROW_LENGTH = 27
+
+
     def start(self, state) -> None:
         player_x = None
         # self.textbox.show(self.intro_dialogue)
@@ -94,22 +107,23 @@ class LevelFive(VerticalBattleScreen):
         self.load_enemy_into_list()
 
     def draw_hazard_square(self, surface: pygame.Surface, camera) -> None:
-        if not getattr(self, "_hazard_active", False):
+        if not self._hazard_active:
             return
 
         tile_size = 16
         total_size = tile_size * 2
         offset = 50
-        h = surface.get_height()  # ✅ correct coordinate space
+        h = surface.get_height()
 
-        x = 0
         y = h - total_size - offset
 
         sprite_rect = pygame.Rect(65, 130, 32, 32)
         sprite = self.flame_image.subsurface(sprite_rect)
         sprite = pygame.transform.scale(sprite, (total_size, total_size))
 
-        surface.blit(sprite, (x, y))
+        for i in range(self.fire_row_length):
+            x = i * total_size
+            surface.blit(sprite, (x, y))
 
     # def draw_hazard_square(self, display) -> None:
     #     if not getattr(self, "_hazard_active", False):
@@ -132,24 +146,16 @@ class LevelFive(VerticalBattleScreen):
     #     pygame.draw.rect(display, color, (right_x, h - (2 * size) - offset, size, size))
 
     def update_hazard_damage(self, surface_height: int) -> None:
-        if not getattr(self, "_hazard_active", False):
+        if not self._hazard_active:
             return
 
-        size = 16
+        tile_size = 16
+        total_size = tile_size * 2
         offset = 50
         damage = 5
-        h = surface_height  # ✅ MATCHES DRAW
+        h = surface_height
 
-        left_x = 0
-        right_x = size
-
-        hazard_rects = [
-            pygame.Rect(left_x, h - size - offset, size, size),
-            pygame.Rect(right_x, h - size - offset, size, size),
-            pygame.Rect(left_x, h - (2 * size) - offset, size, size),
-            pygame.Rect(right_x, h - (2 * size) - offset, size, size),
-        ]
-
+        # Player rect in SCREEN space
         player_screen_rect = pygame.Rect(
             self.camera.world_to_screen_x(self.starship.hitbox.x),
             self.camera.world_to_screen_y(self.starship.hitbox.y),
@@ -157,8 +163,19 @@ class LevelFive(VerticalBattleScreen):
             self.starship.hitbox.height
         )
 
-        for rect in hazard_rects:
-            if rect.colliderect(player_screen_rect):
+        y = h - total_size - offset
+
+        for i in range(self.fire_row_length):
+            x = i * total_size
+
+            hazard_rect = pygame.Rect(
+                x,
+                y,
+                total_size,
+                total_size
+            )
+
+            if hazard_rect.colliderect(player_screen_rect):
                 if not self.starship.invincible:
                     self.starship.shipHealth -= damage
                     self.starship.on_hit()
@@ -221,12 +238,23 @@ class LevelFive(VerticalBattleScreen):
         print(self.starship.shipHealth)
 
     def update_hazard_square(self, current_time_ms: int) -> None:
-        if not hasattr(self, "_hazard_start_time"):
+        # Initialize start time on first call
+        if self._hazard_start_time is None:
             self._hazard_start_time = current_time_ms
-            self._hazard_active = False
+            return
 
-        if not self._hazard_active and current_time_ms - self._hazard_start_time >= 3000:
-            self._hazard_active = True
+        # Initial activation delay
+        if not self._hazard_active:
+            if current_time_ms - self._hazard_start_time >= 500:
+                self._hazard_active = True
+                self._fire_last_growth_time = current_time_ms
+            return
+
+        # Grow fire row every 3 seconds until cap
+        if self.fire_row_length < self.MAX_FIRE_ROW_LENGTH:
+            if current_time_ms - self._fire_last_growth_time >= 500:
+                self.fire_row_length += 1
+                self._fire_last_growth_time = current_time_ms
 
     def draw(self, state):
         # 1️⃣ Let BattleScreen draw map, bullets, UI, etc.
