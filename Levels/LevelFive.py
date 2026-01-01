@@ -179,42 +179,34 @@ class LevelFive(VerticalBattleScreen):
     #     pygame.draw.rect(display, color, (right_x, h - (2 * size) - offset, size, size))
 
     def update_hazard_square(self, current_time_ms: int) -> None:
+        # Fire only exists when boss is visible
         if not self.is_boss_on_screen():
             return
-            # rest of function unchanged
-        tile_size = 32
-        offset = 50
-        h = GlobalConstants.GAMEPLAY_HEIGHT
-        damage = 5
 
-        player_screen_rect = pygame.Rect(
-            self.camera.world_to_screen_x(self.starship.hitbox.x),
-            self.camera.world_to_screen_y(self.starship.hitbox.y),
-            self.starship.hitbox.width,
-            self.starship.hitbox.height
-        )
+        # Activate fire ONCE when boss appears
+        if not self._hazard_active:
+            self._hazard_active = True
+            self._hazard_start_time = current_time_ms
+            self._fire_last_growth_time = current_time_ms
+            self.fire_rows_completed = 0
+            self.fire_row_length = 0
+            return
 
-        # Completed rows
-        for row in range(self.fire_rows_completed):
-            y = h - offset - (row + 1) * tile_size
-            for col in range(self.MAX_FIRE_ROW_LENGTH):
-                x = col * tile_size
-                hazard_rect = pygame.Rect(x, y, tile_size, tile_size)
+        # Stop growing after max rows
+        if self.fire_rows_completed >= self.MAX_FIRE_ROWS:
+            return
 
-                if hazard_rect.colliderect(player_screen_rect):
-                    self.starship.shipHealth -= damage
-                    return  # one fire hit per frame
+        # Grow every 500ms
+        if current_time_ms - self._fire_last_growth_time >= 500:
+            self._fire_last_growth_time = current_time_ms
 
-        # Current growing row
-        if self.fire_rows_completed < self.MAX_FIRE_ROWS:
-            y = h - offset - (self.fire_rows_completed + 1) * tile_size
-            for col in range(self.fire_row_length):
-                x = col * tile_size
-                hazard_rect = pygame.Rect(x, y, tile_size, tile_size)
+            # Grow current row
+            self.fire_row_length += 1
 
-                if hazard_rect.colliderect(player_screen_rect):
-                    self.starship.shipHealth -= damage
-                    return
+            # Move to next row when full
+            if self.fire_row_length >= self.MAX_FIRE_ROW_LENGTH:
+                self.fire_row_length = 0
+                self.fire_rows_completed += 1
     def update(self, state) -> None:
         super().update(state)
         for ravager in list(self.ravagerGroup):
