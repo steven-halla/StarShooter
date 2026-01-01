@@ -70,6 +70,7 @@ class LevelFive(VerticalBattleScreen):
         self.missed_escape_pods = []
         self.game_over: bool = False
         self.level_complete = False
+
         self.save_state = SaveState()
 
 
@@ -84,6 +85,17 @@ class LevelFive(VerticalBattleScreen):
 
         self.fire_row_length = 1
         self.MAX_FIRE_ROW_LENGTH = 27
+
+        self.fire_row_length = 0  # columns in current row
+        self.fire_row_index = 0  # which row we are on (0 = bottom)
+        self.MAX_FIRE_ROW_LENGTH = 27  # columns per row
+        self.MAX_FIRE_ROWS = 10  # total rows
+
+        self.fire_rows_completed = 0
+        self.fire_row_length = 0
+
+        self.MAX_FIRE_ROW_LENGTH = 27
+        self.MAX_FIRE_ROWS = 20
 
 
     def start(self, state) -> None:
@@ -110,20 +122,27 @@ class LevelFive(VerticalBattleScreen):
         if not self._hazard_active:
             return
 
-        tile_size = 16
-        total_size = tile_size * 2
+        tile_size = 32
         offset = 50
         h = surface.get_height()
 
-        y = h - total_size - offset
-
         sprite_rect = pygame.Rect(65, 130, 32, 32)
-        sprite = self.flame_image.subsurface(sprite_rect)
-        sprite = pygame.transform.scale(sprite, (total_size, total_size))
+        base_sprite = self.flame_image.subsurface(sprite_rect)
+        sprite = pygame.transform.scale(base_sprite, (tile_size, tile_size))
 
-        for i in range(self.fire_row_length):
-            x = i * total_size
-            surface.blit(sprite, (x, y))
+        # 1️⃣ Draw ALL completed rows (never disappear)
+        for row in range(self.fire_rows_completed):
+            y = h - offset - (row + 1) * tile_size
+            for col in range(self.MAX_FIRE_ROW_LENGTH):
+                x = col * tile_size
+                surface.blit(sprite, (x, y))
+
+        # 2️⃣ Draw current growing row
+        if self.fire_rows_completed < self.MAX_FIRE_ROWS:
+            y = h - offset - (self.fire_rows_completed + 1) * tile_size
+            for col in range(self.fire_row_length):
+                x = col * tile_size
+                surface.blit(sprite, (x, y))
 
     # def draw_hazard_square(self, display) -> None:
     #     if not getattr(self, "_hazard_active", False):
@@ -238,24 +257,28 @@ class LevelFive(VerticalBattleScreen):
         print(self.starship.shipHealth)
 
     def update_hazard_square(self, current_time_ms: int) -> None:
-        # Initialize start time on first call
         if self._hazard_start_time is None:
             self._hazard_start_time = current_time_ms
             return
 
-        # Initial activation delay
         if not self._hazard_active:
             if current_time_ms - self._hazard_start_time >= 500:
                 self._hazard_active = True
                 self._fire_last_growth_time = current_time_ms
+                self.fire_row_length = 0
+                self.fire_rows_completed = 0
             return
 
-        # Grow fire row every 3 seconds until cap
-        if self.fire_row_length < self.MAX_FIRE_ROW_LENGTH:
-            if current_time_ms - self._fire_last_growth_time >= 500:
-                self.fire_row_length += 1
-                self._fire_last_growth_time = current_time_ms
+        if self.fire_rows_completed >= self.MAX_FIRE_ROWS:
+            return
 
+        if current_time_ms - self._fire_last_growth_time >= 500:
+            self._fire_last_growth_time = current_time_ms
+            self.fire_row_length += 1
+
+            if self.fire_row_length >= self.MAX_FIRE_ROW_LENGTH:
+                self.fire_rows_completed += 1
+                self.fire_row_length = 0
     def draw(self, state):
         # 1️⃣ Let BattleScreen draw map, bullets, UI, etc.
         super().draw(state)
