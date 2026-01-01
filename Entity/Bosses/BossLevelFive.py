@@ -43,7 +43,7 @@ class BossLevelFive(Enemy):
         # MOVEMENT
         # -------------------------
         self.moveSpeed = 2.0
-        self.move_interval_ms = 3000
+        self.move_interval_ms = 1400
         self.last_move_toggle = pygame.time.get_ticks()
         self.move_direction = random.choice([-1, 1])
 
@@ -53,6 +53,10 @@ class BossLevelFive(Enemy):
         self.enemyHealth = 400
         self.exp = 5
         self.credits = 50
+
+        self.target_update_interval_ms = 3000
+        self.last_target_update = pygame.time.get_ticks()
+        self.target_x = self.x
 
         # -------------------------
         # SPRITE
@@ -157,21 +161,35 @@ class BossLevelFive(Enemy):
     # MOVEMENT
     # =====================================================
     def moveAI(self) -> None:
-        if self.camera is None:
+        if self.camera is None or self.target_player is None:
             return
 
         now = pygame.time.get_ticks()
         window_width = self.camera.window_width / self.camera.zoom
 
-        if now - self.last_move_toggle >= self.move_interval_ms:
-            self.last_move_toggle = now
-            self.move_direction = random.choice([-1, 1])
+        # -------------------------------------------------
+        # RETARGET ONLY ON INTERVAL (NO PER-FRAME FLIPS)
+        # -------------------------------------------------
+        if now - self.last_target_update >= self.target_update_interval_ms:
+            self.last_target_update = now
 
+            # lock a new direction toward player
+            if self.target_player.x > self.x:
+                self.move_direction = 1
+            else:
+                self.move_direction = -1
+
+        # -------------------------------------------------
+        # ALWAYS MOVE — NO CONDITIONS
+        # -------------------------------------------------
         if self.move_direction > 0:
             self.mover.enemy_move_right(self)
         else:
             self.mover.enemy_move_left(self)
 
+        # -------------------------------------------------
+        # HARD CLAMP (ONLY PLACE DIRECTION MAY FLIP)
+        # -------------------------------------------------
         if self.x <= 0:
             self.x = 0
             self.move_direction = 1

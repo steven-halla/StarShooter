@@ -1,12 +1,12 @@
 {
   "version": 1,
   "player": {
-    "shipHealth": 44,
+    "shipHealth": 450,
     "shipHealthMax": 150,
     "equipped_magic": [
       "Wind Slicer",
       null
     ],
-    "level": "LevelOne"
+    "level": "LevelFive"
   }
 }
