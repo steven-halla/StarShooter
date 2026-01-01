@@ -51,6 +51,10 @@ class LevelFive(VerticalBattleScreen):
         self.spineLauncherGroup: list[SpineLauncher] = []
         self.bossLevelFiveGroup: list[BossLevelFive] = []
 
+        self.flame_image = pygame.image.load(
+            "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
+        ).convert_alpha()
+
 
 
         # self.enemies: list[Enemy] = [] # consolidate all enemies into one list
@@ -89,35 +93,52 @@ class LevelFive(VerticalBattleScreen):
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
         self.load_enemy_into_list()
 
-    def draw_hazard_square(self, display) -> None:
+    def draw_hazard_square(self, surface: pygame.Surface, camera) -> None:
         if not getattr(self, "_hazard_active", False):
             return
 
-        size = 16
+        tile_size = 16
+        total_size = tile_size * 2
         offset = 50
-        h = display.get_height()
-        color = (255, 0, 0)
+        h = surface.get_height()  # ✅ correct coordinate space
 
-        left_x = 0
-        right_x = size
+        x = 0
+        y = h - total_size - offset
 
-        # bottom row
-        pygame.draw.rect(display, color, (left_x, h - size - offset, size, size))
-        pygame.draw.rect(display, color, (right_x, h - size - offset, size, size))
+        sprite_rect = pygame.Rect(65, 130, 32, 32)
+        sprite = self.flame_image.subsurface(sprite_rect)
+        sprite = pygame.transform.scale(sprite, (total_size, total_size))
 
-        # top row (touching bottom row)
-        pygame.draw.rect(display, color, (left_x, h - (2 * size) - offset, size, size))
-        pygame.draw.rect(display, color, (right_x, h - (2 * size) - offset, size, size))
+        surface.blit(sprite, (x, y))
 
+    # def draw_hazard_square(self, display) -> None:
+    #     if not getattr(self, "_hazard_active", False):
+    #         return
+    #
+    #     size = 16
+    #     offset = 50
+    #     h = display.get_height()
+    #     color = (255, 0, 0)
+    #
+    #     left_x = 0
+    #     right_x = size
+    #
+    #     # bottom row
+    #     pygame.draw.rect(display, color, (left_x, h - size - offset, size, size))
+    #     pygame.draw.rect(display, color, (right_x, h - size - offset, size, size))
+    #
+    #     # top row (touching bottom row)
+    #     pygame.draw.rect(display, color, (left_x, h - (2 * size) - offset, size, size))
+    #     pygame.draw.rect(display, color, (right_x, h - (2 * size) - offset, size, size))
 
-    def update_hazard_damage(self) -> None:
+    def update_hazard_damage(self, surface_height: int) -> None:
         if not getattr(self, "_hazard_active", False):
             return
 
         size = 16
         offset = 50
         damage = 5
-        h = GlobalConstants.GAMEPLAY_HEIGHT
+        h = surface_height  # ✅ MATCHES DRAW
 
         left_x = 0
         right_x = size
@@ -128,6 +149,7 @@ class LevelFive(VerticalBattleScreen):
             pygame.Rect(left_x, h - (2 * size) - offset, size, size),
             pygame.Rect(right_x, h - (2 * size) - offset, size, size),
         ]
+
         player_screen_rect = pygame.Rect(
             self.camera.world_to_screen_x(self.starship.hitbox.x),
             self.camera.world_to_screen_y(self.starship.hitbox.y),
@@ -194,7 +216,7 @@ class LevelFive(VerticalBattleScreen):
 
         now = pygame.time.get_ticks()
         self.update_hazard_square(now)
-        self.update_hazard_damage()
+        self.update_hazard_damage(state.DISPLAY.get_height())
         self.extract_object_names()
         print(self.starship.shipHealth)
 
@@ -256,7 +278,7 @@ class LevelFive(VerticalBattleScreen):
             boss.draw_damage_flash(state.DISPLAY, self.camera)
 
         # 5️⃣ Flip ONCE, LAST
-        self.draw_hazard_square(state.DISPLAY)
+        self.draw_hazard_square(state.DISPLAY, self.camera)
 
         pygame.display.flip()
 
