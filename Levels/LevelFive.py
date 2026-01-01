@@ -168,13 +168,11 @@ class LevelFive(VerticalBattleScreen):
         if not self._hazard_active:
             return
 
-        tile_size = 16
-        total_size = tile_size * 2
+        tile_size = 32
         offset = 50
         damage = 5
         h = surface_height
 
-        # Player rect in SCREEN space
         player_screen_rect = pygame.Rect(
             self.camera.world_to_screen_x(self.starship.hitbox.x),
             self.camera.world_to_screen_y(self.starship.hitbox.y),
@@ -182,24 +180,27 @@ class LevelFive(VerticalBattleScreen):
             self.starship.hitbox.height
         )
 
-        y = h - total_size - offset
+        # Completed rows
+        for row in range(self.fire_rows_completed):
+            y = h - offset - (row + 1) * tile_size
+            for col in range(self.MAX_FIRE_ROW_LENGTH):
+                x = col * tile_size
+                hazard_rect = pygame.Rect(x, y, tile_size, tile_size)
 
-        for i in range(self.fire_row_length):
-            x = i * total_size
-
-            hazard_rect = pygame.Rect(
-                x,
-                y,
-                total_size,
-                total_size
-            )
-
-            if hazard_rect.colliderect(player_screen_rect):
-                if not self.starship.invincible:
+                if hazard_rect.colliderect(player_screen_rect):
                     self.starship.shipHealth -= damage
-                    self.starship.on_hit()
-                break
+                    return  # one fire hit per frame
 
+        # Current growing row
+        if self.fire_rows_completed < self.MAX_FIRE_ROWS:
+            y = h - offset - (self.fire_rows_completed + 1) * tile_size
+            for col in range(self.fire_row_length):
+                x = col * tile_size
+                hazard_rect = pygame.Rect(x, y, tile_size, tile_size)
+
+                if hazard_rect.colliderect(player_screen_rect):
+                    self.starship.shipHealth -= damage
+                    return
     def update(self, state) -> None:
         super().update(state)
         for ravager in list(self.ravagerGroup):
