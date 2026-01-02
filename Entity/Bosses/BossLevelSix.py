@@ -54,40 +54,62 @@ class BossLevelSix(Enemy):
         self.barrage_rects: list[pygame.Rect] = []
         self.BARRAGE_SIZE = 64
         self.BARRAGE_SPACING = 96  # > 64 guarantees NO overlap
-        self.BARRAGE_COUNT = 5
+        self.BARRAGE_COUNT = 64
 
     # =====================================================
     # BARRAGE SPAWN
 
     def call_barrage(self) -> None:
-        if self.barrage_active:
-            return
+        self.barrage_rects.clear()
+
+        SIZE = 64
+
+        # Base offsets RELATIVE TO CAMERA (screen layout)
+        BASE_COORDS = [
+            # Row 1 (y = 60)
+            (30, 60), (56, 60), (82, 60), (108, 60),
+            (134, 60), (160, 60), (186, 60), (212, 60),
+            (238, 60), (264, 60),
+
+            # Row 2 (y = 86)
+            (30, 86), (56, 86), (82, 86), (108, 86),
+            (134, 86), (160, 86), (186, 86), (212, 86),
+            (238, 86), (264, 86),
+
+            # Row 3 (y = 112)
+            (30, 112), (56, 112), (82, 112), (108, 112),
+            (134, 112), (160, 112), (186, 112), (212, 112),
+            (238, 112), (264, 112),
+
+            # Row 4 (y = 138)
+            (30, 138), (56, 138), (82, 138), (108, 138),
+            (134, 138), (160, 138), (186, 138), (212, 138),
+            (238, 138), (264, 138),
+
+            # Row 5 (y = 164)
+            (30, 164), (56, 164), (82, 164), (108, 164),
+            (134, 164), (160, 164), (186, 164), (212, 164),
+            (238, 164), (264, 164),
+
+            # Row 6 (y = 190)
+            (30, 190), (56, 190), (82, 190), (108, 190),
+            (134, 190), (160, 190), (186, 190), (212, 190),
+            (238, 190), (264, 190),
+        ]
+        # Convert screen-relative → WORLD space
+        cam_x = int(self.camera.x)
+        cam_y = int(self.camera.y)
+
+        for sx, sy in BASE_COORDS:
+            world_x = cam_x + sx
+            world_y = cam_y + sy
+
+            self.barrage_rects.append(
+                pygame.Rect(world_x, world_y, SIZE, SIZE)
+            )
 
         self.barrage_active = True
         self.barrage_start_time = pygame.time.get_ticks()
-        self.barrage_rects.clear()
-
-        base_x = int(self.x + self.width // 2)
-        base_y = int(self.y + self.height)
-
-        for i in range(self.BARRAGE_COUNT):
-            x_offset = i * (self.BARRAGE_SIZE + self.BARRAGE_SPACING)
-            x = base_x - (
-                    (self.BARRAGE_COUNT - 1) * (self.BARRAGE_SIZE + self.BARRAGE_SPACING)
-            ) // 2 + x_offset
-
-            # ✅ Random Y spread (1–200)
-            y = base_y + random.randint(1, 200)
-
-            rect = pygame.Rect(
-                x,
-                y,
-                self.BARRAGE_SIZE,
-                self.BARRAGE_SIZE
-            )
-
-            self.barrage_rects.append(rect)
-
     # =====================================================
     # BARRAGE UPDATE
     # =====================================================
