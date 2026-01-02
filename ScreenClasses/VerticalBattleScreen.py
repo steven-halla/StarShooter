@@ -1555,13 +1555,11 @@ class VerticalBattleScreen:
     def update_collision_tiles(self, damage: int = 5) -> None:
         layer = self.tiled_map.get_layer_by_name("collision")
         tile_size = self.tile_size
+        KNOCKBACK = 4
 
-        player_rect = pygame.Rect(
-            self.starship.hitbox.x,
-            self.starship.hitbox.y,
-            self.starship.hitbox.width,
-            self.starship.hitbox.height
-        )
+        # ---------- PLAYER ----------
+        player = self.starship
+        player_rect = player.hitbox
 
         for col, row, image in layer.tiles():
             if image is None:
@@ -1574,12 +1572,90 @@ class VerticalBattleScreen:
                 tile_size
             )
 
-            # World-space collision
-            if tile_rect.colliderect(player_rect):
-                if not self.starship.invincible:
-                    self.starship.shipHealth -= damage
-                    self.starship.on_hit()
-                return
+            if player_rect.colliderect(tile_rect):
+                if not player.invincible:
+                    player.shipHealth -= damage
+                    player.on_hit()
+
+                # --- resolve collision by minimal overlap ---
+                dx_left = player_rect.right - tile_rect.left
+                dx_right = tile_rect.right - player_rect.left
+                dy_top = player_rect.bottom - tile_rect.top
+                dy_bottom = tile_rect.bottom - player_rect.top
+
+                min_dx = min(dx_left, dx_right)
+                min_dy = min(dy_top, dy_bottom)
+
+                if min_dx < min_dy:
+                    # resolve X
+                    if dx_left < dx_right:
+                        player.x -= dx_left + KNOCKBACK
+                    else:
+                        player.x += dx_right + KNOCKBACK
+                else:
+                    # resolve Y
+                    if dy_top < dy_bottom:
+                        player.y -= dy_top + KNOCKBACK
+                    else:
+                        player.y += dy_bottom + KNOCKBACK
+
+                player.update_hitbox()
+                break
+
+        # ---------- ENEMIES ----------
+        enemy_groups = (
+            self.bileSpitterGroup,
+            self.spinalRaptorGroup,
+            self.triSpitterGroup,
+            self.slaverGroup,
+            self.bladeSpinnerGroup,
+            self.fireLauncherGroup,
+            self.kamikazeDroneGroup,
+            self.transportWormGroup,
+            self.acidLauncherGroup,
+            self.ravagerGroup,
+            self.waspStingerGroup,
+            self.sporeFlowerGroup,
+            self.spineLauncherGroup,
+        )
+
+        for group in enemy_groups:
+            for enemy in list(group):
+                enemy_rect = enemy.hitbox
+
+                for col, row, image in layer.tiles():
+                    if image is None:
+                        continue
+
+                    tile_rect = pygame.Rect(
+                        col * tile_size,
+                        row * tile_size,
+                        tile_size,
+                        tile_size
+                    )
+
+                    if enemy_rect.colliderect(tile_rect):
+                        dx_left = enemy_rect.right - tile_rect.left
+                        dx_right = tile_rect.right - enemy_rect.left
+                        dy_top = enemy_rect.bottom - tile_rect.top
+                        dy_bottom = tile_rect.bottom - enemy_rect.top
+
+                        min_dx = min(dx_left, dx_right)
+                        min_dy = min(dy_top, dy_bottom)
+
+                        if min_dx < min_dy:
+                            if dx_left < dx_right:
+                                enemy.x -= dx_left + KNOCKBACK
+                            else:
+                                enemy.x += dx_right + KNOCKBACK
+                        else:
+                            if dy_top < dy_bottom:
+                                enemy.y -= dy_top + KNOCKBACK
+                            else:
+                                enemy.y += dy_bottom + KNOCKBACK
+
+                        enemy.update_hitbox()
+                        break
 
     def draw_collision_tiles(self, surface: pygame.Surface) -> None:
         tile_size = self.tile_size
