@@ -2,6 +2,7 @@ import pygame
 import json
 
 from Constants.GlobalConstants import GlobalConstants
+from Entity.Enemy import Enemy
 from Entity.StarShip import StarShip
 from Levels.LevelFive import LevelFive
 from Levels.LevelTwo import LevelTwo
@@ -53,9 +54,19 @@ class GameState:
         self.starship: StarShip = StarShip()
 
         # --------------------------------------------------
+        # enemies global
+        # --------------------------------------------------
+        self.enemy_list: list[Enemy]
+
+        # --------------------------------------------------
         # CURRENT SCREEN
         # --------------------------------------------------
         self.currentScreen = LevelFive(self.textbox)
+
+        # --------------------------------------------------
+        # Bullet list
+        # --------------------------------------------------
+        # bullets TO DO
 
 
 

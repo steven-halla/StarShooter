@@ -42,6 +42,7 @@ class Enemy:
         self.is_on_screen: bool = False
         self.has_entered_screen: bool = False
         self.is_active: bool = False
+        self.enemy_list: list[Enemy] = []
 
     # --------------------------------------------------
     # UPDATE

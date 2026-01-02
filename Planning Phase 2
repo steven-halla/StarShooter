@@ -64,6 +64,9 @@ Grab pyrithem
 Grab the jade coins
 Coins can be hidden behind breakable blocks
 Coins can be inside enemies - special monster specific
+Breakable blocks
+Non breakable blocks
+collision damage
 
 Level 7
 Co Op Race Vs mode
@@ -200,3 +203,4 @@ For smaller scope ALL items will be bought at shops.
 For now Level rewards can be the following:
 New sub weapons 8 total
 
+I need to call
