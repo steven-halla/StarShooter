@@ -59,21 +59,34 @@ class BossLevelSix(Enemy):
     # =====================================================
     # BARRAGE SPAWN
 
-
     def call_barrage(self) -> None:
-        # ⛔ DO NOT restart if already active
         if self.barrage_active:
             return
 
         self.barrage_active = True
         self.barrage_start_time = pygame.time.get_ticks()
+        self.barrage_rects.clear()
 
-        self.barrage_rect = pygame.Rect(
-            int(self.x + self.width // 2 - 32),
-            int(self.y + self.height),
-            64,
-            64
-        )
+        base_x = int(self.x + self.width // 2)
+        base_y = int(self.y + self.height)
+
+        for i in range(self.BARRAGE_COUNT):
+            x_offset = i * (self.BARRAGE_SIZE + self.BARRAGE_SPACING)
+            x = base_x - (
+                    (self.BARRAGE_COUNT - 1) * (self.BARRAGE_SIZE + self.BARRAGE_SPACING)
+            ) // 2 + x_offset
+
+            # ✅ Random Y spread (1–200)
+            y = base_y + random.randint(1, 200)
+
+            rect = pygame.Rect(
+                x,
+                y,
+                self.BARRAGE_SIZE,
+                self.BARRAGE_SIZE
+            )
+
+            self.barrage_rects.append(rect)
 
     # =====================================================
     # BARRAGE UPDATE
@@ -84,7 +97,7 @@ class BossLevelSix(Enemy):
 
         if pygame.time.get_ticks() - self.barrage_start_time >= 2000:
             self.barrage_active = False
-            self.barrage_rect = None
+            self.barrage_rects.clear()
 
     # =====================================================
     # UPDATE
@@ -138,14 +151,15 @@ class BossLevelSix(Enemy):
     # BARRAGE DRAW
     # =====================================================
     def draw_barrage(self, surface, camera) -> None:
-        if not self.barrage_active or self.barrage_rect is None:
+        if not self.barrage_active:
             return
 
-        x = camera.world_to_screen_x(self.barrage_rect.x)
-        y = camera.world_to_screen_y(self.barrage_rect.y)
+        for rect in self.barrage_rects:
+            x = camera.world_to_screen_x(rect.x)
+            y = camera.world_to_screen_y(rect.y)
 
-        pygame.draw.rect(
-            surface,
-            (255, 0, 0),
-            (x, y, 64, 64)
-        )
+            pygame.draw.rect(
+                surface,
+                (255, 0, 0),
+                (x, y, rect.width, rect.height)
+            )
