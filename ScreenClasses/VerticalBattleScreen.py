@@ -10,6 +10,7 @@ from Controller.KeyBoardControls import KeyBoardControls
 from Entity.Bosses.BossLevelFive import BossLevelFive
 from Entity.Bosses.BossLevelFour import BossLevelFour
 from Entity.Bosses.BossLevelOne import BossLevelOne
+from Entity.Bosses.BossLevelSix import BossLevelSix
 from Entity.Bosses.BossLevelThree import BossLevelThree
 from Entity.Bosses.BossLevelTwo import BossLevelTwo
 from Entity.Monsters.AcidLauncher import AcidLauncher
@@ -65,6 +66,7 @@ class VerticalBattleScreen:
         self.bossLevelThreeGroup: list[BossLevelThree] = []
         self.bossLevelFourGroup: list[BossLevelFour] = []
         self.bossLevelFiveGroup: list[BossLevelFive] = []
+        self.bossLevelSixGroup: list[BossLevelSix] = []
 
         #boss
 
@@ -265,7 +267,7 @@ class VerticalBattleScreen:
         window_height = GlobalConstants.GAMEPLAY_HEIGHT
 
         # move camera UP in world space (so map scrolls down)
-        self.camera_y -= self.map_scroll_speed_per_frame
+        # self.camera_y -= self.map_scroll_speed_per_frame
 
         # clamp so we never scroll past top or bottom of the map
         max_camera_y = self.WORLD_HEIGHT - window_height
@@ -727,7 +729,8 @@ class VerticalBattleScreen:
                     list(self.bossLevelTwoGroup) +
                     list(self.bossLevelOneGroup) +
                     list(self.bossLevelFourGroup) +
-                    list(self.bossLevelFiveGroup)
+                    list(self.bossLevelFiveGroup) +
+                    list(self.bossLevelSixGroup)
             )
 
             for enemy in enemies:
@@ -772,7 +775,8 @@ class VerticalBattleScreen:
                 list(self.bossLevelTwoGroup) +
                 list(self.bossLevelOneGroup) +
                 list(self.bossLevelFourGroup) +
-                list(self.bossLevelFiveGroup)
+                list(self.bossLevelFiveGroup) +
+                list(self.bossLevelSixGroup)
         )
 
         for enemy in list(enemies):
@@ -822,6 +826,7 @@ class VerticalBattleScreen:
                 + list(self.bossLevelThreeGroup)
                 + list(self.bossLevelFourGroup)
                 + list(self.bossLevelFiveGroup)
+                + list(self.bossLevelSixGroup)
         )
 
         for enemy in list(all_enemies):
@@ -848,15 +853,14 @@ class VerticalBattleScreen:
                     self.bossLevelTwoGroup,
                     self.bossLevelThreeGroup,
                     self.bossLevelFourGroup,
-                    self.bossLevelFiveGroup
+                    self.bossLevelFiveGroup,
+                    self.bossLevelSixGroup
                 )
 
                 for group in enemy_groups:
                     if enemy in group:
                         group.remove(enemy)
                         break
-
-
 
     def draw(self, state) -> None:
 
@@ -874,6 +878,12 @@ class VerticalBattleScreen:
         # Draw map + gameplay objects into gameplay surface
 
         self.draw_tiled_layers(scene_surface)
+        # if hasattr(self, "draw_level_collision"):
+        # self.draw_collision_tiles(scene_surface)
+        # self.draw_collision_tiles(scene_surface)
+        # after self.draw_tiled_layers(scene_surface)
+        if hasattr(self, "draw_level_collision"):
+            self.draw_collision_tiles(scene_surface)
 
         # Scale gameplay scene
         scaled_scene = pygame.transform.scale(
@@ -1130,7 +1140,6 @@ class VerticalBattleScreen:
                 10
             )
 
-
         # 🔽 UI PANEL (BOTTOM BAR) - Draw last to ensure it covers anything that comes into contact with it
         self.draw_ui_panel(state.DISPLAY)
 
@@ -1156,7 +1165,8 @@ class VerticalBattleScreen:
                 list(self.bossLevelTwoGroup) +
                 list(self.bossLevelThreeGroup) +
                 list(self.bossLevelFourGroup) +
-                list(self.bossLevelFiveGroup)
+                list(self.bossLevelFiveGroup) +
+                list(self.bossLevelSixGroup)
         )
 
         # -------------------------
@@ -1275,7 +1285,8 @@ class VerticalBattleScreen:
             self.bossLevelTwoGroup,
             self.bossLevelThreeGroup,
             self.bossLevelFourGroup,
-            self.bossLevelFiveGroup
+            self.bossLevelFiveGroup,
+            self.bossLevelSixGroup
         )
 
         for group in enemy_groups:
@@ -1540,3 +1551,51 @@ class VerticalBattleScreen:
                     continue
 
                 surface.blit(image, (col * tile_size, screen_y))
+
+    def update_collision_tiles(self, damage: int = 5) -> None:
+        layer = self.tiled_map.get_layer_by_name("collision")
+        tile_size = self.tile_size
+
+        player_rect = pygame.Rect(
+            self.starship.hitbox.x,
+            self.starship.hitbox.y,
+            self.starship.hitbox.width,
+            self.starship.hitbox.height
+        )
+
+        for col, row, image in layer.tiles():
+            if image is None:
+                continue
+
+            tile_rect = pygame.Rect(
+                col * tile_size,
+                row * tile_size,
+                tile_size,
+                tile_size
+            )
+
+            # World-space collision
+            if tile_rect.colliderect(player_rect):
+                if not self.starship.invincible:
+                    self.starship.shipHealth -= damage
+                    self.starship.on_hit()
+                return
+
+    def draw_collision_tiles(self, surface: pygame.Surface) -> None:
+        tile_size = self.tile_size
+        window_height = GlobalConstants.GAMEPLAY_HEIGHT
+
+        layer = self.tiled_map.get_layer_by_name("collision")
+
+        for col, row, image in layer.tiles():
+            if image is None:
+                continue
+
+            world_y = row * tile_size
+            screen_y = world_y - self.camera_y
+
+            # Cull off-screen tiles (same as background)
+            if screen_y + tile_size < 0 or screen_y > window_height:
+                continue
+
+            surface.blit(image, (col * tile_size, screen_y))

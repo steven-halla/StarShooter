@@ -5,6 +5,7 @@ from Constants.GlobalConstants import GlobalConstants
 from Entity.Enemy import Enemy
 from Entity.StarShip import StarShip
 from Levels.LevelFive import LevelFive
+from Levels.LevelSix import LevelSix
 from Levels.LevelTwo import LevelTwo
 from Levels.levelThree import LevelThree
 from ScreenClasses.MissionBriefingScreenLevelFour import MissionBriefingScreenLevelFour
@@ -61,7 +62,7 @@ class GameState:
         # --------------------------------------------------
         # CURRENT SCREEN
         # --------------------------------------------------
-        self.currentScreen = LevelFive(self.textbox)
+        self.currentScreen = LevelSix(self.textbox)
 
         # --------------------------------------------------
         # Bullet list

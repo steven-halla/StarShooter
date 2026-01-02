@@ -745,30 +745,27 @@ class LevelFive(VerticalBattleScreen):
             else:
                 launcher.color = GlobalConstants.RED
 
-                # -------------------------
-                # acid launchers
-                # -------------------------
-            for launcher in list(self.spineLauncherGroup):
+        # -------------------------
+        # acid launchers
+        # -------------------------
+        for launcher in list(self.acidLauncherGroup):
 
-                launcher.update()
+            launcher.update()
 
-                # Handle bullets from acid launcher
-                if launcher.enemyBullets:
-                    self.enemy_bullets.extend(launcher.enemyBullets)
-                    launcher.enemyBullets.clear()
+            # Handle bullets fired by acid launcher
+            if launcher.enemyBullets:
+                self.enemy_bullets.extend(launcher.enemyBullets)
+                launcher.enemyBullets.clear()
 
-                if launcher.enemyHealth <= 0:
-                    self.spineLauncherGroup.remove(launcher)
-                    continue
+            if launcher.enemyHealth <= 0:
+                self.acidLauncherGroup.remove(launcher)
+                continue
 
-                # Check collision with player
-                if self.starship.hitbox.colliderect(launcher.hitbox):
-                    # Change color to indicate collision
-                    launcher.color = (135, 206, 235)
-                    # Apply damage to player if not invincible
-                    if not self.starship.invincible:
-                        self.starship.shipHealth -= 10  # Damage amount
-                        self.starship.on_hit()
-                else:
-                    launcher.color = GlobalConstants.RED
-
+            # Check collision with player
+            if self.starship.hitbox.colliderect(launcher.hitbox):
+                launcher.color = (135, 206, 235)
+                if not self.starship.invincible:
+                    self.starship.shipHealth -= 10
+                    self.starship.on_hit()
+            else:
+                launcher.color = GlobalConstants.RED
