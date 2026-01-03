@@ -163,7 +163,6 @@ class LevelSix(VerticalBattleScreen):
         now = pygame.time.get_ticks()
 
         self.extract_object_names()
-        print(self.starship.shipHealth)
         self.update_collision_tiles(damage=5)
 
 

@@ -261,7 +261,6 @@ class LevelFive(VerticalBattleScreen):
         self.update_hazard_square(now)
         self.update_hazard_damage(state.DISPLAY.get_height())
         self.extract_object_names()
-        print(self.starship.shipHealth)
 
     def update_hazard_damage(self, surface_height: int) -> None:
         if not self._hazard_active:

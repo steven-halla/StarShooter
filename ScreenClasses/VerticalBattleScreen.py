@@ -1,5 +1,5 @@
 import pygame
-from pygame import Surface
+from pygame import Surface, surface
 import pytmx
 import math
 
@@ -13,6 +13,7 @@ from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Bosses.BossLevelSix import BossLevelSix
 from Entity.Bosses.BossLevelThree import BossLevelThree
 from Entity.Bosses.BossLevelTwo import BossLevelTwo
+from Entity.Enemy import Enemy
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
@@ -58,6 +59,8 @@ class VerticalBattleScreen:
         self.transportWormGroup: list[TransportWorm] = []
         self.spinalRaptorGroup: list[SpinalRaptor] = []
         self.slaverGroup: list[Slaver] = []
+
+        self.enemies: list[Enemy] = []
 
 
 
@@ -864,6 +867,7 @@ class VerticalBattleScreen:
 
     def draw(self, state) -> None:
 
+
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
         window_height = GlobalConstants.GAMEPLAY_HEIGHT
         scene_surface = pygame.Surface((window_width, window_height))
@@ -885,6 +889,8 @@ class VerticalBattleScreen:
         if hasattr(self, "draw_level_collision"):
             self.draw_collision_tiles(scene_surface)
 
+
+
         # Scale gameplay scene
         scaled_scene = pygame.transform.scale(
             scene_surface,
@@ -896,6 +902,8 @@ class VerticalBattleScreen:
 
         # Draw gameplay area at top
         state.DISPLAY.blit(scaled_scene, (0, 0))
+
+
 
         # 🔽 UI CONTENT (TEXT, HP, ETC)
         # Removed call to draw_player_hp_bar to ensure only one heart image is displayed
@@ -1142,8 +1150,10 @@ class VerticalBattleScreen:
 
         # 🔽 UI PANEL (BOTTOM BAR) - Draw last to ensure it covers anything that comes into contact with it
         self.draw_ui_panel(state.DISPLAY)
-
-
+        for enemy in self.bossLevelSixGroup:
+            if hasattr(enemy, "draw_barrage"):
+                enemy.draw_barrage(state.DISPLAY, self.camera)
+        print(self.enemies)
 
     def bullet_helper(self):
         all_enemies = (

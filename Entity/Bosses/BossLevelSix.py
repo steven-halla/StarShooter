@@ -56,6 +56,10 @@ class BossLevelSix(Enemy):
         self.BARRAGE_SPACING = 96  # > 64 guarantees NO overlap
         self.BARRAGE_COUNT = 64
 
+        self.barrage_visible = False
+        self.barrage_cycle_ms = 2000  # 2 seconds on / 2 seconds off
+        self.barrage_timer = pygame.time.get_ticks()
+
     # =====================================================
     # BARRAGE SPAWN
 
@@ -114,13 +118,21 @@ class BossLevelSix(Enemy):
     # BARRAGE UPDATE
     # =====================================================
     def update_barrage(self) -> None:
-        if not self.barrage_active:
+        now = pygame.time.get_ticks()
+
+        if now - self.barrage_timer < self.barrage_cycle_ms:
             return
 
-        if pygame.time.get_ticks() - self.barrage_start_time >= 2000:
-            self.barrage_active = False
-            self.barrage_rects.clear()
+        self.barrage_timer = now
 
+        if self.barrage_visible:
+            # TURN OFF
+            self.barrage_visible = False
+            self.barrage_rects.clear()
+        else:
+            # TURN ON
+            self.barrage_visible = True
+            self.call_barrage()
     # =====================================================
     # UPDATE
     # =====================================================
@@ -149,6 +161,8 @@ class BossLevelSix(Enemy):
     # DRAW
     # =====================================================
     def draw(self, surface: pygame.Surface, camera):
+        # self.draw_barrage(surface, camera)
+
         # Draw boss sprite
         sprite_rect = pygame.Rect(65, 130, 32, 32)
         sprite = self.bile_spitter_image.subsurface(sprite_rect)
@@ -167,12 +181,12 @@ class BossLevelSix(Enemy):
         )
 
         # 🔴 Draw barrage LAST so it overlays
-        self.draw_barrage(surface, camera)
 
     # =====================================================
     # BARRAGE DRAW
     # =====================================================
     def draw_barrage(self, surface, camera) -> None:
+        print("Draw my barrage")
         if not self.barrage_active:
             return
 
