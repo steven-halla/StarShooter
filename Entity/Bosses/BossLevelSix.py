@@ -33,7 +33,7 @@ class BossLevelSix(Enemy):
         # MASTER GRID (never modified)
         self.barrage_rects: list[pygame.Rect] = []
 
-        # TEMP GRID (used for draw + damage)
+        # TEMP GRID (ONLY thing draw/damage ever uses)
         self.active_barrage_rects: list[pygame.Rect] = []
 
         # -------------------------
@@ -51,6 +51,7 @@ class BossLevelSix(Enemy):
         self.OFF_MS = 2000
 
         self._grid_built = False
+        self._barrage_built_this_cycle = False
 
     # =====================================================
     # BUILD FIXED MASTER GRID (ONCE)
@@ -96,17 +97,30 @@ class BossLevelSix(Enemy):
         self._grid_built = True
 
     # =====================================================
-    # REBUILD TEMP GRID (REMOVE ONE TOP ROW TILE)
+    # REBUILD TEMP GRID (REMOVE EXACTLY ONE TOP-ROW TILE)
+    # =====================================================
+    # =====================================================
+    # REBUILD TEMP GRID (KEEP EXACTLY ONE TOP-ROW TILE)
     # =====================================================
     def rebuild_active_barrage(self) -> None:
-        # Start fresh from master grid (copy list)
-        self.active_barrage_rects = list(self.barrage_rects)
+        # Start EMPTY
+        self.active_barrage_rects.clear()
 
-        # Top row indices = 0..9
-        disabled_index = random.randrange(self.BARRAGE_COLS)
+        # Top row = first 10 rects of the master grid
+        top_row = self.barrage_rects[:self.BARRAGE_COLS]
 
-        # DELETE BY INDEX (not by Rect object)
-        del self.active_barrage_rects[disabled_index]
+        # Pick EXACTLY ONE
+        chosen_rect = random.choice(top_row)
+
+        # Add ONLY THAT ONE to temp
+        self.active_barrage_rects.append(
+            pygame.Rect(
+                chosen_rect.x,
+                chosen_rect.y,
+                chosen_rect.width,
+                chosen_rect.height,
+            )
+        )
 
     # =====================================================
     # BARRAGE PHASE CONTROLLER
@@ -124,6 +138,7 @@ class BossLevelSix(Enemy):
                 print("\n=== TEMP GRID (ACTIVE / DRAWN) ===")
                 for i, rect in enumerate(self.active_barrage_rects):
                     print(f"[{i:02d}] x={rect.x}, y={rect.y}")
+
                 self.barrage_phase = self.PHASE_ORANGE
                 self.barrage_timer = now
 
@@ -177,7 +192,7 @@ class BossLevelSix(Enemy):
         )
 
     # =====================================================
-    # DRAW BARRAGE (USES TEMP GRID ONLY)
+    # DRAW BARRAGE — TEMP GRID ONLY (ONE TILE MISSING)
     # =====================================================
     def draw_barrage(self, surface, camera) -> None:
         if self.barrage_phase == self.PHASE_OFF:
@@ -198,7 +213,7 @@ class BossLevelSix(Enemy):
             )
 
     # =====================================================
-    # DAMAGE PLAYER (USES TEMP GRID ONLY)
+    # DAMAGE PLAYER — TEMP GRID ONLY
     # =====================================================
     def apply_barrage_damage(self, player) -> None:
         if self.barrage_phase != self.PHASE_ORANGE:
