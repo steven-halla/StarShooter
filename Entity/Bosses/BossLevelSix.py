@@ -1,5 +1,3 @@
-import math
-import random
 import pygame
 
 from Constants.GlobalConstants import GlobalConstants
@@ -31,108 +29,92 @@ class BossLevelSix(Enemy):
         self.enemyHealth = 400
 
         # -------------------------
-        # BARRAGE TIMING
-        # -------------------------
-        self.barrage_interval_ms = 1500
-        self.last_barrage_time = pygame.time.get_ticks()
-
-        self.barrage_active = False
-        self.barrage_start_time = 0
-        self.barrage_rect: pygame.Rect | None = None
-
-        # -------------------------
         # SPRITE
         # -------------------------
         self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
 
-        self.barrage_active = False
-        self.barrage_start_time = 0
-
-
+        # -------------------------
+        # BARRAGE DATA
+        # -------------------------
         self.barrage_rects: list[pygame.Rect] = []
         self.BARRAGE_SIZE = 64
-        self.BARRAGE_SPACING = 96  # > 64 guarantees NO overlap
-        self.BARRAGE_COUNT = 64
 
+        # -------------------------
+        # BARRAGE TIMING (AUTHORITATIVE)
+        # -------------------------
         self.barrage_visible = False
-        self.barrage_cycle_ms = 2000  # 2 seconds on / 2 seconds off
         self.barrage_timer = pygame.time.get_ticks()
 
-    # =====================================================
-    # BARRAGE SPAWN
+        self.BARRAGE_ON_MS = 2000
+        self.BARRAGE_OFF_MS = 2000
 
+    # =====================================================
+    # BARRAGE SPAWN (HARD-CODED GRID)
+    # =====================================================
     def call_barrage(self) -> None:
         self.barrage_rects.clear()
+        SIZE = self.BARRAGE_SIZE
 
-        SIZE = 64
-
-        # Base offsets RELATIVE TO CAMERA (screen layout)
         BASE_COORDS = [
-            # Row 1 (y = 60)
+            # Row 1
             (30, 60), (56, 60), (82, 60), (108, 60),
             (134, 60), (160, 60), (186, 60), (212, 60),
             (238, 60), (264, 60),
 
-            # Row 2 (y = 86)
+            # Row 2
             (30, 86), (56, 86), (82, 86), (108, 86),
             (134, 86), (160, 86), (186, 86), (212, 86),
             (238, 86), (264, 86),
 
-            # Row 3 (y = 112)
+            # Row 3
             (30, 112), (56, 112), (82, 112), (108, 112),
             (134, 112), (160, 112), (186, 112), (212, 112),
             (238, 112), (264, 112),
 
-            # Row 4 (y = 138)
+            # Row 4
             (30, 138), (56, 138), (82, 138), (108, 138),
             (134, 138), (160, 138), (186, 138), (212, 138),
             (238, 138), (264, 138),
 
-            # Row 5 (y = 164)
+            # Row 5
             (30, 164), (56, 164), (82, 164), (108, 164),
             (134, 164), (160, 164), (186, 164), (212, 164),
             (238, 164), (264, 164),
 
-            # Row 6 (y = 190)
+            # Row 6
             (30, 190), (56, 190), (82, 190), (108, 190),
             (134, 190), (160, 190), (186, 190), (212, 190),
             (238, 190), (264, 190),
         ]
-        # Convert screen-relative → WORLD space
+
         cam_x = int(self.camera.x)
         cam_y = int(self.camera.y)
 
         for sx, sy in BASE_COORDS:
-            world_x = cam_x + sx
-            world_y = cam_y + sy
-
             self.barrage_rects.append(
-                pygame.Rect(world_x, world_y, SIZE, SIZE)
+                pygame.Rect(cam_x + sx, cam_y + sy, SIZE, SIZE)
             )
 
-        self.barrage_active = True
-        self.barrage_start_time = pygame.time.get_ticks()
     # =====================================================
-    # BARRAGE UPDATE
+    # BARRAGE TIMING CONTROLLER (SINGLE SOURCE OF TRUTH)
     # =====================================================
     def update_barrage(self) -> None:
         now = pygame.time.get_ticks()
-
-        if now - self.barrage_timer < self.barrage_cycle_ms:
-            return
-
-        self.barrage_timer = now
+        elapsed = now - self.barrage_timer
 
         if self.barrage_visible:
-            # TURN OFF
-            self.barrage_visible = False
-            self.barrage_rects.clear()
+            if elapsed >= self.BARRAGE_ON_MS:
+                self.barrage_visible = False
+                self.barrage_rects.clear()
+                self.barrage_timer = now
         else:
-            # TURN ON
-            self.barrage_visible = True
-            self.call_barrage()
+            if elapsed >= self.BARRAGE_OFF_MS:
+                self.barrage_visible = True
+                self.call_barrage()
+                self.barrage_timer = now
+
     # =====================================================
     # UPDATE
     # =====================================================
@@ -142,28 +124,15 @@ class BossLevelSix(Enemy):
             return
 
         self.update_hitbox()
-
-        now = pygame.time.get_ticks()
-
-        # 🔴 Spawn barrage on interval
-        if now - self.last_barrage_time >= self.barrage_interval_ms:
-            self.call_barrage()
-            self.last_barrage_time = now
-
-        # 🔴 Maintain barrage lifetime
         self.update_barrage()
 
-        # Update bullets (unchanged behavior)
         for bullet in self.enemyBullets:
             bullet.update()
 
     # =====================================================
-    # DRAW
+    # DRAW (BOSS ONLY)
     # =====================================================
     def draw(self, surface: pygame.Surface, camera):
-        # self.draw_barrage(surface, camera)
-
-        # Draw boss sprite
         sprite_rect = pygame.Rect(65, 130, 32, 32)
         sprite = self.bile_spitter_image.subsurface(sprite_rect)
 
@@ -180,22 +149,21 @@ class BossLevelSix(Enemy):
             ),
         )
 
-        # 🔴 Draw barrage LAST so it overlays
-
     # =====================================================
-    # BARRAGE DRAW
+    # BARRAGE DRAW (CALLED FROM BATTLE SCREEN)
     # =====================================================
     def draw_barrage(self, surface, camera) -> None:
-        print("Draw my barrage")
-        if not self.barrage_active:
+        if not self.barrage_visible:
             return
 
         for rect in self.barrage_rects:
-            x = camera.world_to_screen_x(rect.x)
-            y = camera.world_to_screen_y(rect.y)
-
             pygame.draw.rect(
                 surface,
                 (255, 0, 0),
-                (x, y, rect.width, rect.height)
+                (
+                    camera.world_to_screen_x(rect.x),
+                    camera.world_to_screen_y(rect.y),
+                    rect.width,
+                    rect.height,
+                ),
             )
