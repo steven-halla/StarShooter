@@ -52,6 +52,9 @@ class BossLevelSix(Enemy):
 
         self._grid_built = False
         self._barrage_built_this_cycle = False
+        self._barrage_drawn_this_frame = False  # 🔑 HARD DRAW GUARD
+        self.may_fire_barrage: bool = True
+
 
     # =====================================================
     # BUILD FIXED MASTER GRID (ONCE)
@@ -97,22 +100,14 @@ class BossLevelSix(Enemy):
         self._grid_built = True
 
     # =====================================================
-    # REBUILD TEMP GRID (REMOVE EXACTLY ONE TOP-ROW TILE)
-    # =====================================================
-    # =====================================================
-    # REBUILD TEMP GRID (KEEP EXACTLY ONE TOP-ROW TILE)
+    # TEMP GRID — KEEP EXACTLY ONE TOP ROW TILE
     # =====================================================
     def rebuild_active_barrage(self) -> None:
-        # Start EMPTY
         self.active_barrage_rects.clear()
 
-        # Top row = first 10 rects of the master grid
         top_row = self.barrage_rects[:self.BARRAGE_COLS]
-
-        # Pick EXACTLY ONE
         chosen_rect = random.choice(top_row)
 
-        # Add ONLY THAT ONE to temp
         self.active_barrage_rects.append(
             pygame.Rect(
                 chosen_rect.x,
@@ -128,6 +123,8 @@ class BossLevelSix(Enemy):
     def update_barrage(self) -> None:
         now = pygame.time.get_ticks()
         elapsed = now - self.barrage_timer
+        if not self.may_fire_barrage:
+            return
 
         if self.barrage_phase == self.PHASE_RED:
             if elapsed >= self.RED_MS:
@@ -147,13 +144,17 @@ class BossLevelSix(Enemy):
                 self.barrage_phase = self.PHASE_OFF
                 self.barrage_timer = now
                 self.active_barrage_rects.clear()
+                self._barrage_built_this_cycle = False
 
         elif self.barrage_phase == self.PHASE_OFF:
             if elapsed >= self.OFF_MS:
                 if not self._grid_built:
                     self.build_barrage_grid()
 
-                self.rebuild_active_barrage()
+                if not self._barrage_built_this_cycle:
+                    self.rebuild_active_barrage()
+                    self._barrage_built_this_cycle = True
+
                 self.barrage_phase = self.PHASE_RED
                 self.barrage_timer = now
 
@@ -162,6 +163,9 @@ class BossLevelSix(Enemy):
     # =====================================================
     def update(self) -> None:
         super().update()
+
+        self._barrage_drawn_this_frame = False  # 🔑 reset once per frame
+
         if not self.is_active or self.camera is None:
             return
 
@@ -192,17 +196,30 @@ class BossLevelSix(Enemy):
         )
 
     # =====================================================
-    # DRAW BARRAGE — TEMP GRID ONLY (ONE TILE MISSING)
+    # DRAW BARRAGE — ONCE PER FRAME, TEMP GRID ONLY
     # =====================================================
     def draw_barrage(self, surface, camera) -> None:
+        if self._barrage_drawn_this_frame:
+            return
+        self._barrage_drawn_this_frame = True
         if self.barrage_phase == self.PHASE_OFF:
             return
 
+        # --- create temp surface once ---
+        if not hasattr(self, "_barrage_surface"):
+            self._barrage_surface = pygame.Surface(
+                surface.get_size(), pygame.SRCALPHA
+            )
+
+        # --- HARD CLEAR every frame ---
+        self._barrage_surface.fill((0, 0, 0, 0))
+
         color = (255, 0, 0) if self.barrage_phase == self.PHASE_RED else (255, 165, 0)
 
+        # draw ONLY temp-grid rects
         for rect in self.active_barrage_rects:
             pygame.draw.rect(
-                surface,
+                self._barrage_surface,
                 color,
                 (
                     camera.world_to_screen_x(rect.x),
@@ -211,6 +228,9 @@ class BossLevelSix(Enemy):
                     rect.height,
                 ),
             )
+
+        # blit cleared surface ONCE
+        surface.blit(self._barrage_surface, (0, 0))
 
     # =====================================================
     # DAMAGE PLAYER — TEMP GRID ONLY

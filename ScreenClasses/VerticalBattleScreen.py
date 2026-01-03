@@ -1150,9 +1150,10 @@ class VerticalBattleScreen:
 
         # 🔽 UI PANEL (BOTTOM BAR) - Draw last to ensure it covers anything that comes into contact with it
         self.draw_ui_panel(state.DISPLAY)
-        for enemy in self.bossLevelSixGroup:
-            if hasattr(enemy, "draw_barrage"):
-                enemy.draw_barrage(state.DISPLAY, self.camera)
+        for boss in list(self.bossLevelSixGroup):
+            boss.update()
+            boss.draw_barrage(state.DISPLAY, self.camera)
+            boss.apply_barrage_damage(self.starship)
         # print(self.enemies)
 
     def bullet_helper(self):

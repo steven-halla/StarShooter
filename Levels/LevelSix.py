@@ -73,6 +73,7 @@ class LevelSix(VerticalBattleScreen):
         self.level_complete = False
 
         self.save_state = SaveState()
+        self.may_fire_barrage: bool = True
 
 
 
@@ -121,7 +122,7 @@ class LevelSix(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
-
+        self.assign_single_barrage_owner()
 
 
 
@@ -169,6 +170,7 @@ class LevelSix(VerticalBattleScreen):
 
     def draw(self, state):
         # 1️⃣ Let BattleScreen draw map, bullets, UI, etc.
+        state.DISPLAY.fill((0, 0, 0))  # ← CLEAR SCREEN FIRST
         super().draw(state)
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
         window_height = GlobalConstants.GAMEPLAY_HEIGHT
@@ -281,11 +283,13 @@ class LevelSix(VerticalBattleScreen):
         return names
 
     def load_enemy_into_list(self):
+        print("🔥 load_enemy_into_list CALLED")
         self.spinalRaptorGroup.clear()
         self.waspStingerGroup.clear()
         self.ravagerGroup.clear()
         self.acidLauncherGroup.clear()
         self.bossLevelSixGroup.clear()
+        print(f"BossLevelSixGroup count = {len(self.bossLevelSixGroup)}")
         for obj in self.tiled_map.objects:
             # ⭐ LOAD ENEMIES (existing code)
             if obj.name == "level_6_boss":
@@ -517,3 +521,14 @@ class LevelSix(VerticalBattleScreen):
 
     def draw_level_collision(self, surface: pygame.Surface) -> None:
         self.draw_collision_tiles(surface)
+
+    def assign_single_barrage_owner(self) -> None:
+        if not self.bossLevelSixGroup:
+            return
+
+        # reset all
+        for boss in self.bossLevelSixGroup:
+            boss.may_fire_barrage = False
+
+        # choose exactly one
+        self.bossLevelSixGroup[0].may_fire_barrage = True
