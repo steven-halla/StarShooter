@@ -1153,7 +1153,7 @@ class VerticalBattleScreen:
         for enemy in self.bossLevelSixGroup:
             if hasattr(enemy, "draw_barrage"):
                 enemy.draw_barrage(state.DISPLAY, self.camera)
-        print(self.enemies)
+        # print(self.enemies)
 
     def bullet_helper(self):
         all_enemies = (

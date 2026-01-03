@@ -1,3 +1,4 @@
+import random
 import pygame
 
 from Constants.GlobalConstants import GlobalConstants
@@ -11,35 +12,29 @@ class BossLevelSix(Enemy):
         super().__init__()
         self.mover: MoveRectangle = MoveRectangle()
 
-        # -------------------------
-        # APPEARANCE
-        # -------------------------
         self.width = 40
         self.height = 40
         self.color = GlobalConstants.RED
 
-        # -------------------------
-        # BULLETS
-        # -------------------------
         self.enemyBullets: list[Bullet] = []
-
-        # -------------------------
-        # STATS
-        # -------------------------
         self.enemyHealth = 400
 
-        # -------------------------
-        # SPRITE
-        # -------------------------
         self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
 
         # -------------------------
-        # BARRAGE DATA
+        # BARRAGE GRID
         # -------------------------
-        self.barrage_rects: list[pygame.Rect] = []
         self.BARRAGE_SIZE = 64
+        self.BARRAGE_ROWS = 6
+        self.BARRAGE_COLS = 10
+
+        # MASTER GRID (never modified)
+        self.barrage_rects: list[pygame.Rect] = []
+
+        # TEMP GRID (used for draw + damage)
+        self.active_barrage_rects: list[pygame.Rect] = []
 
         # -------------------------
         # BARRAGE PHASES
@@ -55,10 +50,12 @@ class BossLevelSix(Enemy):
         self.ORANGE_MS = 1000
         self.OFF_MS = 2000
 
+        self._grid_built = False
+
     # =====================================================
-    # BARRAGE SPAWN (UNCHANGED GRID)
+    # BUILD FIXED MASTER GRID (ONCE)
     # =====================================================
-    def call_barrage(self) -> None:
+    def build_barrage_grid(self) -> None:
         self.barrage_rects.clear()
         SIZE = self.BARRAGE_SIZE
 
@@ -96,6 +93,21 @@ class BossLevelSix(Enemy):
                 pygame.Rect(cam_x + sx, cam_y + sy, SIZE, SIZE)
             )
 
+        self._grid_built = True
+
+    # =====================================================
+    # REBUILD TEMP GRID (REMOVE ONE TOP ROW TILE)
+    # =====================================================
+    def rebuild_active_barrage(self) -> None:
+        # Start fresh from master grid (copy list)
+        self.active_barrage_rects = list(self.barrage_rects)
+
+        # Top row indices = 0..9
+        disabled_index = random.randrange(self.BARRAGE_COLS)
+
+        # DELETE BY INDEX (not by Rect object)
+        del self.active_barrage_rects[disabled_index]
+
     # =====================================================
     # BARRAGE PHASE CONTROLLER
     # =====================================================
@@ -103,24 +115,31 @@ class BossLevelSix(Enemy):
         now = pygame.time.get_ticks()
         elapsed = now - self.barrage_timer
 
-        # 🔴 RED
         if self.barrage_phase == self.PHASE_RED:
             if elapsed >= self.RED_MS:
+                print("\n=== MASTER GRID (ALL COORDS) ===")
+                for i, rect in enumerate(self.barrage_rects):
+                    print(f"[{i:02d}] x={rect.x}, y={rect.y}")
+
+                print("\n=== TEMP GRID (ACTIVE / DRAWN) ===")
+                for i, rect in enumerate(self.active_barrage_rects):
+                    print(f"[{i:02d}] x={rect.x}, y={rect.y}")
                 self.barrage_phase = self.PHASE_ORANGE
                 self.barrage_timer = now
 
-        # 🟧 ORANGE FLASH
         elif self.barrage_phase == self.PHASE_ORANGE:
             if elapsed >= self.ORANGE_MS:
                 self.barrage_phase = self.PHASE_OFF
-                self.barrage_rects.clear()
                 self.barrage_timer = now
+                self.active_barrage_rects.clear()
 
-        # ❌ OFF
         elif self.barrage_phase == self.PHASE_OFF:
             if elapsed >= self.OFF_MS:
+                if not self._grid_built:
+                    self.build_barrage_grid()
+
+                self.rebuild_active_barrage()
                 self.barrage_phase = self.PHASE_RED
-                self.call_barrage()
                 self.barrage_timer = now
 
     # =====================================================
@@ -138,7 +157,7 @@ class BossLevelSix(Enemy):
             bullet.update()
 
     # =====================================================
-    # DRAW (BOSS ONLY)
+    # DRAW BOSS
     # =====================================================
     def draw(self, surface: pygame.Surface, camera):
         sprite_rect = pygame.Rect(65, 130, 32, 32)
@@ -158,7 +177,7 @@ class BossLevelSix(Enemy):
         )
 
     # =====================================================
-    # BARRAGE DRAW (CALLED FROM BATTLE SCREEN)
+    # DRAW BARRAGE (USES TEMP GRID ONLY)
     # =====================================================
     def draw_barrage(self, surface, camera) -> None:
         if self.barrage_phase == self.PHASE_OFF:
@@ -166,7 +185,7 @@ class BossLevelSix(Enemy):
 
         color = (255, 0, 0) if self.barrage_phase == self.PHASE_RED else (255, 165, 0)
 
-        for rect in self.barrage_rects:
+        for rect in self.active_barrage_rects:
             pygame.draw.rect(
                 surface,
                 color,
@@ -178,18 +197,19 @@ class BossLevelSix(Enemy):
                 ),
             )
 
+    # =====================================================
+    # DAMAGE PLAYER (USES TEMP GRID ONLY)
+    # =====================================================
     def apply_barrage_damage(self, player) -> None:
-        # Only damage during ORANGE phase
         if self.barrage_phase != self.PHASE_ORANGE:
             return
-
         if player.invincible:
             return
 
         player_rect = player.hitbox
 
-        for rect in self.barrage_rects:
+        for rect in self.active_barrage_rects:
             if player_rect.colliderect(rect):
                 player.shipHealth -= 30
                 player.on_hit()
-                return  # only hit once per frame
+                return
