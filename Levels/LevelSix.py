@@ -406,6 +406,7 @@ class LevelSix(VerticalBattleScreen):
         for boss in list(self.bossLevelSixGroup):
 
             boss.update()
+            boss.apply_barrage_damage(self.starship)
 
             if boss.enemyBullets:
                 self.enemy_bullets.extend(boss.enemyBullets)

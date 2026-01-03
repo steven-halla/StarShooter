@@ -177,3 +177,19 @@ class BossLevelSix(Enemy):
                     rect.height,
                 ),
             )
+
+    def apply_barrage_damage(self, player) -> None:
+        # Only damage during ORANGE phase
+        if self.barrage_phase != self.PHASE_ORANGE:
+            return
+
+        if player.invincible:
+            return
+
+        player_rect = player.hitbox
+
+        for rect in self.barrage_rects:
+            if player_rect.colliderect(rect):
+                player.shipHealth -= 30
+                player.on_hit()
+                return  # only hit once per frame
