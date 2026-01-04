@@ -6,6 +6,8 @@ from Entity.Enemy import Enemy
 from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 
+#NOTE NOTE NOTE
+# We need to add more to this boss, it should have 3 phases to it
 
 class BossLevelSix(Enemy):
     def __init__(self) -> None:

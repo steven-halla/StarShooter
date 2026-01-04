@@ -14,6 +14,7 @@ from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.Ravager import Ravager
 from Entity.Monsters.RescuePod import RescuePod
 from Entity.Monsters.Slaver import Slaver
+from Entity.Monsters.SpikeyBall import SpikeyBall
 from Entity.Monsters.SpinalRaptor import SpinalRaptor
 from Entity.Monsters.SpineLauncher import SpineLauncher
 from Entity.Monsters.SporeFlower import SporeFlower
@@ -43,15 +44,8 @@ class LevelSix(VerticalBattleScreen):
         self.camera.y = float(self.camera_y)
         self.map_scroll_speed_per_frame: float = .4 # move speed of camera
 
-        self.rescue_pod_destroyed = 0  # Counter for destroyed rescue pods
-        self.rescuePodGroup: list[RescuePod] = []
-        self.spinalRaptorGroup: list[SpinalRaptor] = []
-        self.waspStingerGroup: list[WaspStinger] = []
-        self.ravagerGroup: list[Ravager] = []
-        self.bileSpitterGroup: list[BileSpitter] = []
-        self.acidLauncherGroup: list[AcidLauncher] = []
-        self.spineLauncherGroup: list[SpineLauncher] = []
         self.coinsGroup: list[Coins] = []
+        self.spikeyBallGroup: list[SpikeyBall] = []
         self.bossLevelSixGroup: list[BossLevelSix] = []
 
         self.coins_missed = []
@@ -66,18 +60,18 @@ class LevelSix(VerticalBattleScreen):
         # self.load_enemy_into_list()
         self.napalm_list: list = []
         self.wind_slicer_list: list = []
-        self.total_enemies = 40
         self.prev_enemy_count: int = None
 
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
-        self.missed_escape_pods = []
         self.game_over: bool = False
         self.level_complete = False
 
         self.save_state = SaveState()
         self.may_fire_barrage: bool = True
+        self.crush_start_time = None
+        self.CRUSH_TIME_MS = 500
 
 
 
@@ -122,10 +116,37 @@ class LevelSix(VerticalBattleScreen):
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
         self.load_enemy_into_list()
 
+    def check_player_touching_collision_bottom(self) -> None:
+        player = self.starship
+
+        # 1px probe BELOW player
+        probe_below = pygame.Rect(
+            player.hitbox.x,
+            player.hitbox.bottom,
+            player.hitbox.width,
+            1
+        )
 
 
     def update(self, state) -> None:
         super().update(state)
+        print("=== ENEMIES ===")
+
+        print(f"Gold Coins ({len(self.coinsGroup)}):")
+        for i, coin in enumerate(self.coinsGroup):
+            print(f"  [{i}] Coins @ (x={coin.x}, y={coin.y})")
+
+        print(f"\nBoss 6 ({len(self.bossLevelSixGroup)}):")
+        for i, boss in enumerate(self.bossLevelSixGroup):
+            print(f"  [{i}] BossLevelSix @ (x={boss.x}, y={boss.y})")
+
+        print(f"\nSpikey Balls ({len(self.spikeyBallGroup)}):")
+        for i, ball in enumerate(self.spikeyBallGroup):
+            print(f"  [{i}] SpikeyBall @ (x={ball.x}, y={ball.y})")
+
+        print("================\n")
+        self.check_player_touching_collision_bottom()
+
 
         self.assign_single_barrage_owner()
         if len(self.coinsGroup) > 9:
@@ -229,21 +250,8 @@ class LevelSix(VerticalBattleScreen):
         for coin in self.coinsGroup:
             coin.draw(state.DISPLAY, self.camera)
 
-        for enemy in self.spinalRaptorGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
-        for enemy in self.waspStingerGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
-
-        for enemy in self.ravagerGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
-
-
-
-        for enemy in self.acidLauncherGroup:
+        for enemy in self.spikeyBallGroup:
             enemy.draw(state.DISPLAY, self.camera)
             enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
@@ -258,18 +266,17 @@ class LevelSix(VerticalBattleScreen):
 
         # self.draw_collision_tiles(state.DISPLAY)
 
-
+        # this is so no enmies are drawn above it
+        self.draw_ui_panel(state.DISPLAY)
 
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
         enemies = (
                 # Excluding rescue pods from missile targeting
-                list(self.spinalRaptorGroup) +
-                list(self.waspStingerGroup) +
-                list(self.ravagerGroup) +
 
-                list(self.acidLauncherGroup) +
+
+                list(self.spikeyBallGroup) +
 
                 list(self.bossLevelSixGroup)
         )
@@ -318,13 +325,12 @@ class LevelSix(VerticalBattleScreen):
 
     def load_enemy_into_list(self):
         print("🔥 load_enemy_into_list CALLED")
-        self.spinalRaptorGroup.clear()
-        self.waspStingerGroup.clear()
-        self.ravagerGroup.clear()
-        self.acidLauncherGroup.clear()
+
         self.coinsGroup.clear()
+        self.spikeyBallGroup.clear()
         self.bossLevelSixGroup.clear()
         print(f"BossLevelSixGroup count = {len(self.bossLevelSixGroup)}")
+
         for obj in self.tiled_map.objects:
             # ⭐ LOAD ENEMIES (existing code)
             if obj.name == "level_6_boss":
@@ -340,6 +346,18 @@ class LevelSix(VerticalBattleScreen):
                 enemy.target_player = self.starship
             # LOAD COINS (LevelSix.load_enemy_into_list)
 
+            if obj.name == "spikey_ball":
+                enemy = SpikeyBall()
+                enemy.x = obj.x
+                enemy.y = obj.y
+                enemy.width = obj.width
+                enemy.height = obj.height
+                enemy.update_hitbox()
+                enemy.camera = self.camera
+                self.spikeyBallGroup.append(enemy)
+                enemy.camera = self.camera
+                enemy.target_player = self.starship
+
             if obj.name == "coins":
                 enemy = Coins()
                 enemy.x = obj.x
@@ -351,6 +369,7 @@ class LevelSix(VerticalBattleScreen):
                 self.coinsGroup.append(enemy)
                 enemy.camera = self.camera
                 enemy.target_player = self.starship
+
 
 
 
@@ -430,102 +449,35 @@ class LevelSix(VerticalBattleScreen):
 
 
 
-        # -------------------------
-        # spinal raptors
-        # -------------------------
-        for raptor in list(self.spinalRaptorGroup):
 
-            raptor.update()
-
-            if raptor.enemyHealth <= 0:
-                self.spinalRaptorGroup.remove(raptor)
-                continue
-
-            # Check collision with player
-            if self.starship.hitbox.colliderect(raptor.hitbox):
-                # We don't want the raptor to explode when it touches the starship
-                # Just change color to indicate collision
-                raptor.color = (135, 206, 235)
-                # print("Raptor collided with player!")
-            else:
-                raptor.color = GlobalConstants.RED
 
 
 
         # -------------------------
         # wasp stingers
         # -------------------------
-        for wasp in list(self.waspStingerGroup):
+        for ball in list(self.spikeyBallGroup):
 
-            wasp.update()
+            ball.update()
 
-            if wasp.enemyHealth <= 0:
-                self.waspStingerGroup.remove(wasp)
+            if ball.enemyHealth <= 0:
+                self.spikeyBallGroup.remove(ball)
                 continue
 
             # Check collision with player
-            if self.starship.hitbox.colliderect(wasp.hitbox):
+            if self.starship.hitbox.colliderect(ball.hitbox):
                 # Change color to indicate collision
-                wasp.color = (135, 206, 235)
+                ball.color = (135, 206, 235)
                 # Apply damage to player if not invincible
                 if not self.starship.invincible:
                     self.starship.shipHealth -= 5  # Damage amount
                     self.starship.on_hit()
             else:
-                wasp.color = GlobalConstants.RED
-
-        # -------------------------
-        # ravagers
-        # -------------------------
-        for ravager in list(self.ravagerGroup):
-
-            ravager.update()
-
-            # Handle bullets from ravager
-            if ravager.enemyBullets:
-                self.enemy_bullets.extend(ravager.enemyBullets)
-                ravager.enemyBullets.clear()
+                ball.color = GlobalConstants.RED
 
 
-            if ravager.enemyHealth <= 0:
-                self.ravagerGroup.remove(ravager)
-                continue
 
-            # Check collision with player
-            if self.starship.hitbox.colliderect(ravager.hitbox):
-                # Change color to indicate collision
-                ravager.color = (135, 206, 235)
-                # Apply damage to player if not invincible
-                if not self.starship.invincible:
-                    self.starship.shipHealth -= 10  # Damage amount
-                    self.starship.on_hit()
-            else:
-                ravager.color = GlobalConstants.RED
 
-        # -------------------------
-        # acid launchers
-        # -------------------------
-        for launcher in list(self.acidLauncherGroup):
-
-            launcher.update()
-
-            # Handle bullets fired by acid launcher
-            if launcher.enemyBullets:
-                self.enemy_bullets.extend(launcher.enemyBullets)
-                launcher.enemyBullets.clear()
-
-            if launcher.enemyHealth <= 0:
-                self.acidLauncherGroup.remove(launcher)
-                continue
-
-            # Check collision with player
-            if self.starship.hitbox.colliderect(launcher.hitbox):
-                launcher.color = (135, 206, 235)
-                if not self.starship.invincible:
-                    self.starship.shipHealth -= 10
-                    self.starship.on_hit()
-            else:
-                launcher.color = GlobalConstants.RED
 
     def draw_level_collision(self, surface: pygame.Surface) -> None:
         self.draw_collision_tiles(surface)

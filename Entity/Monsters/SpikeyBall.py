@@ -8,7 +8,7 @@ from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 
 
-class Coins(Enemy):
+class SpikeyBall(Enemy):
     def __init__(self) -> None:
         super().__init__()
 
@@ -22,7 +22,7 @@ class Coins(Enemy):
 
 
         # gameplay stats (not used yet)
-        self.enemyHealth: int = 1
+        self.enemyHealth: int = 201
         self.is_active = True
 
 
@@ -60,7 +60,7 @@ class Coins(Enemy):
 
         super().draw(surface, camera)  # 🔑 REQUIRED
 
-        sprite_rect = pygame.Rect(202, 70, 32, 32)
+        sprite_rect = pygame.Rect(0, 344, 32, 32)
         sprite = self.coins_image.subsurface(sprite_rect)
 
         # scale ship with zoom

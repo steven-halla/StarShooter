@@ -28,6 +28,8 @@ from Entity.Monsters.TransportWorm import TransportWorm
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from Entity.Monsters.Coins import Coins
+from Entity.Monsters.SpikeyBall import SpikeyBall
+
 from Entity.StarShip import StarShip
 from Movement.MoveRectangle import MoveRectangle
 from SaveStates.SaveState import SaveState
@@ -61,6 +63,7 @@ class VerticalBattleScreen:
         self.spinalRaptorGroup: list[SpinalRaptor] = []
         self.slaverGroup: list[Slaver] = []
         self.coinsGroup: list[Coins] = []
+        self.spikeyBallGroup: list[SpikeyBall] = []
 
         self.enemies: list[Enemy] = []
 
@@ -729,6 +732,7 @@ class VerticalBattleScreen:
                     list(self.fireLauncherGroup) +
                     list(self.kamikazeDroneGroup) +
                     list(self.transportWormGroup) +
+                    list(self.spikeyBallGroup) +
 
                     list(self.bossLevelThreeGroup) +
                     list(self.bossLevelTwoGroup) +
@@ -775,6 +779,7 @@ class VerticalBattleScreen:
                 list(self.acidLauncherGroup) +
                 list(self.ravagerGroup) +
                 list(self.spinalRaptorGroup) +
+                list(self.spikeyBallGroup) +
 
                 list(self.bossLevelThreeGroup) +
                 list(self.bossLevelTwoGroup) +
@@ -825,6 +830,8 @@ class VerticalBattleScreen:
                 + list(self.slaverGroup)
                 + list(self.transportWormGroup)
                 + list(self.spinalRaptorGroup)
+                + list(self.spikeyBallGroup)
+
 
                 + list(self.bossLevelOneGroup)
                 + list(self.bossLevelTwoGroup)
@@ -853,6 +860,7 @@ class VerticalBattleScreen:
                     self.slaverGroup,
                     self.transportWormGroup,
                     self.spinalRaptorGroup,
+                    self.spikeyBallGroup,
 
                     self.bossLevelOneGroup,
                     self.bossLevelTwoGroup,
@@ -1173,6 +1181,7 @@ class VerticalBattleScreen:
                 list(self.transportWormGroup) +
                 list(self.fireLauncherGroup) +
                 list(self.spinalRaptorGroup) +
+                list(self.spikeyBallGroup) +
 
                 list(self.bossLevelOneGroup) +
                 list(self.bossLevelTwoGroup) +
@@ -1293,6 +1302,7 @@ class VerticalBattleScreen:
             self.slaverGroup,
             self.transportWormGroup,
             self.coinsGroup,
+            self.spikeyBallGroup,
 
             self.bossLevelOneGroup,
             self.bossLevelTwoGroup,
@@ -1631,7 +1641,8 @@ class VerticalBattleScreen:
             self.waspStingerGroup,
             self.sporeFlowerGroup,
             self.spineLauncherGroup,
-            self.coinsGroup
+            self.coinsGroup,
+            self.spikeyBallGroup
         )
 
         for group in enemy_groups:
