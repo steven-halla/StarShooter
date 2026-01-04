@@ -26,7 +26,7 @@ class BossLevelSix(Enemy):
         # -------------------------
         # BARRAGE GRID
         # -------------------------
-        self.BARRAGE_SIZE = 64
+        self.BARRAGE_SIZE = 32
         self.BARRAGE_ROWS = 6
         self.BARRAGE_COLS = 10
 
@@ -197,7 +197,7 @@ class BossLevelSix(Enemy):
 
     # =====================================================
     # DRAW BARRAGE — ONCE PER FRAME, TEMP GRID ONLY
-    # =====================================================
+
     def draw_barrage(self, surface, camera) -> None:
         if self._barrage_drawn_this_frame:
             return
@@ -205,33 +205,29 @@ class BossLevelSix(Enemy):
         if self.barrage_phase == self.PHASE_OFF:
             return
 
-        # --- create temp surface once ---
         if not hasattr(self, "_barrage_surface"):
-            self._barrage_surface = pygame.Surface(
-                surface.get_size(), pygame.SRCALPHA
-            )
+            self._barrage_surface = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
 
-        # --- HARD CLEAR every frame ---
         self._barrage_surface.fill((0, 0, 0, 0))
 
         color = (255, 0, 0) if self.barrage_phase == self.PHASE_RED else (255, 165, 0)
 
-        # draw ONLY temp-grid rects
+        z = camera.zoom
+
         for rect in self.active_barrage_rects:
+            # ✅ FIX: scale rect size by camera.zoom
+            screen_x = camera.world_to_screen_x(rect.x)
+            screen_y = camera.world_to_screen_y(rect.y)
+            screen_w = int(rect.width * z)
+            screen_h = int(rect.height * z)
+
             pygame.draw.rect(
                 self._barrage_surface,
                 color,
-                (
-                    camera.world_to_screen_x(rect.x),
-                    camera.world_to_screen_y(rect.y),
-                    rect.width,
-                    rect.height,
-                ),
+                (screen_x, screen_y, screen_w, screen_h),
             )
 
-        # blit cleared surface ONCE
         surface.blit(self._barrage_surface, (0, 0))
-
     # =====================================================
     # DAMAGE PLAYER — TEMP GRID ONLY
     # =====================================================
@@ -244,7 +240,21 @@ class BossLevelSix(Enemy):
         player_rect = player.hitbox
 
         for rect in self.active_barrage_rects:
-            if player_rect.colliderect(rect):
+            # 🔥 HALF-SIZE DAMAGE AREA (centered)
+            damage_w = rect.width // 2
+            damage_h = rect.height // 2
+
+            damage_x = rect.x + (rect.width - damage_w) // 2
+            damage_y = rect.y + (rect.height - damage_h) // 2
+
+            damage_rect = pygame.Rect(
+                damage_x,
+                damage_y,
+                damage_w,
+                damage_h,
+            )
+
+            if player_rect.colliderect(damage_rect):
                 player.shipHealth -= 30
                 player.on_hit()
                 return
