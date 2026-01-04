@@ -27,8 +27,8 @@ class BossLevelSix(Enemy):
         # BARRAGE GRID
         # -------------------------
         self.BARRAGE_SIZE = 32
-        self.BARRAGE_ROWS = 6
-        self.BARRAGE_COLS = 10
+        self.BARRAGE_ROWS = 5
+        self.BARRAGE_COLS = 8
 
         # MASTER GRID (never modified)
         self.barrage_rects: list[pygame.Rect] = []
@@ -64,29 +64,27 @@ class BossLevelSix(Enemy):
         SIZE = self.BARRAGE_SIZE
 
         BASE_COORDS = [
-            (30, 60), (56, 60), (82, 60), (108, 60),
-            (134, 60), (160, 60), (186, 60), (212, 60),
-            (238, 60), (264, 60),
+            # Row 1
+            (30, 60), (64, 60), (98, 60), (132, 60),
+            (166, 60), (200, 60), (234, 60), (268, 60),
 
-            (30, 86), (56, 86), (82, 86), (108, 86),
-            (134, 86), (160, 86), (186, 86), (212, 86),
-            (238, 86), (264, 86),
+            # Row 2
+            (30, 94), (64, 94), (98, 94), (132, 94),
+            (166, 94), (200, 94), (234, 94), (268, 94),
 
-            (30, 112), (56, 112), (82, 112), (108, 112),
-            (134, 112), (160, 112), (186, 112), (212, 112),
-            (238, 112), (264, 112),
+            # Row 3
+            (30, 128), (64, 128), (98, 128), (132, 128),
+            (166, 128), (200, 128), (234, 128), (268, 128),
 
-            (30, 138), (56, 138), (82, 138), (108, 138),
-            (134, 138), (160, 138), (186, 138), (212, 138),
-            (238, 138), (264, 138),
+            # Row 4
+            (30, 162), (64, 162), (98, 162), (132, 162),
+            (166, 162), (200, 162), (234, 162), (268, 162),
 
-            (30, 164), (56, 164), (82, 164), (108, 164),
-            (134, 164), (160, 164), (186, 164), (212, 164),
-            (238, 164), (264, 164),
+            # Row 5
+            (30, 196), (64, 196), (98, 196), (132, 196),
+            (166, 196), (200, 196), (234, 196), (268, 196),
 
-            (30, 190), (56, 190), (82, 190), (108, 190),
-            (134, 190), (160, 190), (186, 190), (212, 190),
-            (238, 190), (264, 190),
+
         ]
 
         cam_x = int(self.camera.x)
@@ -101,22 +99,29 @@ class BossLevelSix(Enemy):
 
     # =====================================================
     # TEMP GRID — KEEP EXACTLY ONE TOP ROW TILE
-    # =====================================================
     def rebuild_active_barrage(self) -> None:
         self.active_barrage_rects.clear()
 
-        top_row = self.barrage_rects[:self.BARRAGE_COLS]
-        chosen_rect = random.choice(top_row)
+        cols = self.BARRAGE_COLS
+        rows = self.BARRAGE_ROWS
 
-        self.active_barrage_rects.append(
-            pygame.Rect(
-                chosen_rect.x,
-                chosen_rect.y,
-                chosen_rect.width,
-                chosen_rect.height,
-            )
-        )
+        for row_index in range(rows):
+            start = row_index * cols
+            end = start + cols
+            row_rects = self.barrage_rects[start:end]
 
+            # pick 3 UNIQUE rects from this row
+            chosen = random.sample(row_rects, 3)
+
+            for rect in chosen:
+                self.active_barrage_rects.append(
+                    pygame.Rect(
+                        rect.x,
+                        rect.y,
+                        rect.width,
+                        rect.height,
+                    )
+                )
     # =====================================================
     # BARRAGE PHASE CONTROLLER
     # =====================================================
