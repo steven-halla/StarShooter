@@ -8,6 +8,7 @@ from Entity.Enemy import Enemy
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
+from Entity.Monsters.Coins import Coins
 from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.Ravager import Ravager
@@ -50,7 +51,10 @@ class LevelSix(VerticalBattleScreen):
         self.bileSpitterGroup: list[BileSpitter] = []
         self.acidLauncherGroup: list[AcidLauncher] = []
         self.spineLauncherGroup: list[SpineLauncher] = []
+        self.coinsGroup: list[Coins] = []
         self.bossLevelSixGroup: list[BossLevelSix] = []
+
+        self.coins_missed = []
 
         self.flame_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
@@ -122,7 +126,32 @@ class LevelSix(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
+
         self.assign_single_barrage_owner()
+        if len(self.coinsGroup) > 9:
+            print("game over")
+
+
+        # print(len(self.coinsGroup))
+        for coin in list(self.coinsGroup):
+            coin.update()
+
+            # SCREEN-space bottom (this bypasses Enemy._clamp_vertical)
+            screen_y = self.camera.world_to_screen_y(coin.y)
+
+            if screen_y > GlobalConstants.GAMEPLAY_HEIGHT:
+                if coin not in self.coins_missed:
+                    self.coins_missed.append(coin)
+                coin.is_active = False
+                self.coinsGroup.remove(coin)
+                continue
+
+            if self.starship.hitbox.colliderect(coin.hitbox):
+                coin.enemyHealth = 0
+                coin.is_active = False
+                self.remove_enemy_if_dead(coin)
+
+
 
 
 
@@ -194,7 +223,11 @@ class LevelSix(VerticalBattleScreen):
 
         # 4️⃣ DRAW ALL ENEMIES — EXPLICIT AND ORDERED
 
+            # KILL COINS ON TOUCH (LevelSix.enemy_helper)
 
+        # DRAW COINS (same level as other enemies)
+        for coin in self.coinsGroup:
+            coin.draw(state.DISPLAY, self.camera)
 
         for enemy in self.spinalRaptorGroup:
             enemy.draw(state.DISPLAY, self.camera)
@@ -219,6 +252,7 @@ class LevelSix(VerticalBattleScreen):
         for boss in self.bossLevelSixGroup:
             boss.draw(state.DISPLAY, self.camera)
             boss.draw_damage_flash(state.DISPLAY, self.camera)
+
 
         # 5️⃣ Flip ONCE, LAST
 
@@ -288,6 +322,7 @@ class LevelSix(VerticalBattleScreen):
         self.waspStingerGroup.clear()
         self.ravagerGroup.clear()
         self.acidLauncherGroup.clear()
+        self.coinsGroup.clear()
         self.bossLevelSixGroup.clear()
         print(f"BossLevelSixGroup count = {len(self.bossLevelSixGroup)}")
         for obj in self.tiled_map.objects:
@@ -303,57 +338,30 @@ class LevelSix(VerticalBattleScreen):
                 self.bossLevelSixGroup.append(enemy)
                 enemy.camera = self.camera
                 enemy.target_player = self.starship
+            # LOAD COINS (LevelSix.load_enemy_into_list)
 
-
-            if obj.name == "spinal_raptor":
-                enemy = SpinalRaptor()
+            if obj.name == "coins":
+                enemy = Coins()
                 enemy.x = obj.x
                 enemy.y = obj.y
                 enemy.width = obj.width
                 enemy.height = obj.height
                 enemy.update_hitbox()
                 enemy.camera = self.camera
-                self.spinalRaptorGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-                enemy.rescue_pod_group = self.rescuePodGroup
-
-            if obj.name == "wasp_stinger":
-                enemy = WaspStinger()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.waspStingerGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-
-            if obj.name == "ravager":
-                enemy = Ravager()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.ravagerGroup.append(enemy)
+                self.coinsGroup.append(enemy)
                 enemy.camera = self.camera
                 enemy.target_player = self.starship
 
 
-            if obj.name == "acid_launcher":
-                enemy = AcidLauncher()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.acidLauncherGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
+
+
+
+
+
+
+
+
+
 
 
 

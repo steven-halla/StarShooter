@@ -27,6 +27,7 @@ from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TransportWorm import TransportWorm
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
+from Entity.Monsters.Coins import Coins
 from Entity.StarShip import StarShip
 from Movement.MoveRectangle import MoveRectangle
 from SaveStates.SaveState import SaveState
@@ -59,6 +60,7 @@ class VerticalBattleScreen:
         self.transportWormGroup: list[TransportWorm] = []
         self.spinalRaptorGroup: list[SpinalRaptor] = []
         self.slaverGroup: list[Slaver] = []
+        self.coinsGroup: list[Coins] = []
 
         self.enemies: list[Enemy] = []
 
@@ -270,7 +272,7 @@ class VerticalBattleScreen:
         window_height = GlobalConstants.GAMEPLAY_HEIGHT
 
         # move camera UP in world space (so map scrolls down)
-        # self.camera_y -= self.map_scroll_speed_per_frame
+        self.camera_y -= self.map_scroll_speed_per_frame
 
         # clamp so we never scroll past top or bottom of the map
         max_camera_y = self.WORLD_HEIGHT - window_height
@@ -1290,7 +1292,7 @@ class VerticalBattleScreen:
             self.fireLauncherGroup,
             self.slaverGroup,
             self.transportWormGroup,
-            self.bossLevelFiveGroup,
+            self.coinsGroup,
 
             self.bossLevelOneGroup,
             self.bossLevelTwoGroup,
@@ -1617,6 +1619,7 @@ class VerticalBattleScreen:
         enemy_groups = (
             self.bileSpitterGroup,
             self.spinalRaptorGroup,
+            self.coinsGroup,
             self.triSpitterGroup,
             self.slaverGroup,
             self.bladeSpinnerGroup,
@@ -1628,6 +1631,7 @@ class VerticalBattleScreen:
             self.waspStingerGroup,
             self.sporeFlowerGroup,
             self.spineLauncherGroup,
+            self.coinsGroup
         )
 
         for group in enemy_groups:
