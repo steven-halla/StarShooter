@@ -565,6 +565,9 @@ class LevelSeven(VerticalBattleScreen):
 
         for rect in self.flame_rects:
             if player_screen_rect.colliderect(rect):
+                if not self.starship.invincible:
+                    self.starship.shipHealth -= 40
+                    self.starship.on_hit()
                 print("🔥 PLAYER COLLIDED WITH ORANGE FLAME")
 
             pygame.draw.rect(surface, color, rect)
