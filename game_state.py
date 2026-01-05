@@ -6,6 +6,7 @@ from Entity.Enemy import Enemy
 from Entity.StarShip import StarShip
 from Levels.LevelFive import LevelFive
 from Levels.LevelSix import LevelSix
+from Levels.LevelSeven import LevelSeven
 from Levels.LevelTwo import LevelTwo
 from Levels.levelThree import LevelThree
 from ScreenClasses.MissionBriefingScreenLevelFour import MissionBriefingScreenLevelFour
@@ -62,7 +63,7 @@ class GameState:
         # --------------------------------------------------
         # CURRENT SCREEN
         # --------------------------------------------------
-        self.currentScreen = LevelSix(self.textbox)
+        self.currentScreen = LevelSeven(self.textbox)
 
         # --------------------------------------------------
         # Bullet list
