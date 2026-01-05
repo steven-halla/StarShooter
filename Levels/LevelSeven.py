@@ -21,6 +21,7 @@ from Weapons.Weapon import Weapon
 UI_HEIGHT = 0
 BULLET_SIZE = 64
 NUM_BULLETS = 10
+BULLET_DAMAGE = 30
 
 
 class LevelSeven(VerticalBattleScreen):
@@ -462,6 +463,7 @@ class LevelSeven(VerticalBattleScreen):
                     # Static bottom bullets using Weapon
 
     def update_static_bullets(self, bullets: list[Weapon], player_hitbox: pygame.Rect) -> None:
+
         player_screen_rect = pygame.Rect(
             self.camera.world_to_screen_x(player_hitbox.x),
             self.camera.world_to_screen_y(player_hitbox.y),
@@ -471,7 +473,7 @@ class LevelSeven(VerticalBattleScreen):
 
         for bullet in bullets:
             if bullet.rect.colliderect(player_screen_rect):
-                self.starship.shipHealth -= bullet.damage
+                self.starship.shipHealth -= BULLET_DAMAGE
                 print("Player bullet collision")
 
     def draw_static_bullets(
