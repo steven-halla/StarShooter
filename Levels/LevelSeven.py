@@ -49,10 +49,9 @@ class LevelSeven(VerticalBattleScreen):
         self.flame_rects: list[pygame.Rect] = []
         self.flame_rows_built = 0
         self.max_flame_rows = 8
-        self.flame_row_interval_ms = 6000
+        self.flame_row_interval_ms = 3000
         self.last_flame_row_time = pygame.time.get_ticks()
-
-
+        self.flame_base_world_y = None  # 🔒 STABLE WORLD ANCHOR
 
     # -------------------------------------------------
     # FLAMES
@@ -171,14 +170,15 @@ class LevelSeven(VerticalBattleScreen):
         # self.update_static_bullets(self.static_bullets, self.starship.hitbox)
         now = pygame.time.get_ticks()
 
-
         now = pygame.time.get_ticks()
 
-        now = pygame.time.get_ticks()
-        if now - self.last_flame_row_time >= self.flame_row_interval_ms:
+        if (
+                self.flame_rows_built < self.max_flame_rows
+                and now - self.last_flame_row_time >= self.flame_row_interval_ms
+        ):
+            self.flame_rows_built += 1
             self.last_flame_row_time = now
             self.build_flame_grid()
-            # self.add_flame_row()
 
 
         # print("=== ENEMY LIST ===")
@@ -532,62 +532,64 @@ class LevelSeven(VerticalBattleScreen):
     # draw_flames must NOT change rect.y per-rect.
 
     def build_flame_grid(self) -> None:
-        SIZE = 32
+        SIZE = 82
         GAP = 6
         START_X = 8
-
         COLS = 9
 
-        if self.flame_rows_built >= self.max_flame_rows:
-            return
+        self.flame_rects.clear()
 
-        row = self.flame_rows_built
+        screen_height = GlobalConstants.GAMEPLAY_HEIGHT
 
-        for col in range(COLS):
-            x = START_X + col * (SIZE + GAP)
-            y = -(row * (SIZE + GAP))  # stacked upward
-            self.flame_rects.append(
-                pygame.Rect(x, y, SIZE, SIZE)
-            )
-
-        self.flame_rows_built += 1
+        for row in range(self.flame_rows_built):
+            row_y = screen_height - SIZE - row * (SIZE + GAP)
+            for col in range(COLS):
+                x = START_X + col * (SIZE + GAP)
+                self.flame_rects.append(pygame.Rect(x, row_y, SIZE, SIZE))
 
     def draw_flames(self, surface: pygame.Surface, camera) -> None:
         if not self.flame_rects:
             return
 
-        SIZE = 32
         color = (255, 165, 0)
-        z = camera.zoom
 
-        bottom_world_y = (
-                camera.y
-                + (camera.window_height / camera.zoom)
-                - SIZE
+        # player in SCREEN space
+        z = camera.zoom
+        player_hitbox = self.starship.hitbox
+        player_screen_rect = pygame.Rect(
+            camera.world_to_screen_x(player_hitbox.x),
+            camera.world_to_screen_y(player_hitbox.y),
+            int(player_hitbox.width * z),
+            int(player_hitbox.height * z),
         )
 
-        player_rect = self.starship.hitbox
-
         for rect in self.flame_rects:
-            world_y = bottom_world_y + rect.y
-
-            flame_world_rect = pygame.Rect(
-                rect.x,
-                world_y,
-                rect.width,
-                rect.height,
-            )
-
-            if player_rect.colliderect(flame_world_rect):
+            if player_screen_rect.colliderect(rect):
                 print("🔥 PLAYER COLLIDED WITH ORANGE FLAME")
 
-            pygame.draw.rect(
-                surface,
-                color,
-                (
-                    camera.world_to_screen_x(flame_world_rect.x),
-                    camera.world_to_screen_y(flame_world_rect.y),
-                    int(flame_world_rect.width * z),
-                    int(flame_world_rect.height * z),
-                ),
+            pygame.draw.rect(surface, color, rect)
+    def build_flame_row(self) -> None:
+        SIZE = 82
+        GAP = 6
+        START_X = 8
+        COLS = 9
+
+        if self.flame_rows_built >= self.max_flame_rows:
+            return
+
+        # 🔒 anchor ONCE
+        if self.flame_base_world_y is None:
+            self.flame_base_world_y = (
+                    self.camera.y
+                    + (self.camera.window_height / self.camera.zoom)
+                    - SIZE
             )
+
+        row_offset_y = -(self.flame_rows_built * (SIZE + GAP))
+
+        for col in range(COLS):
+            x = START_X + col * (SIZE + GAP)
+            y = self.flame_base_world_y + row_offset_y
+            self.flame_rects.append(pygame.Rect(x, y, SIZE, SIZE))
+
+        self.flame_rows_built += 1
