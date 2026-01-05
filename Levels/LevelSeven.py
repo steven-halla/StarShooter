@@ -12,53 +12,7 @@ UI_HEIGHT = 0
 BULLET_SIZE = 64
 NUM_BULLETS = 10
 BULLET_DAMAGE = 30
-FLAME_POSITIONS: list[list[tuple[int, int]]] = [
-    # Row 0 (bottom)
-    [
-        (8, 500), (88, 500), (168, 500), (248, 500), (328, 500),
-        (408, 500), (488, 500), (568, 500), (648, 500), (728, 500),
-    ],
-    # Row 1
-    [
-        (8, 436), (88, 436), (168, 436), (248, 436), (328, 436),
-        (408, 436), (488, 436), (568, 436), (648, 436), (728, 436),
-    ],
-    # Row 2
-    [
-        (8, 372), (88, 372), (168, 372), (248, 372), (328, 372),
-        (408, 372), (488, 372), (568, 372), (648, 372), (728, 372),
-    ],
-    # Row 3
-    [
-        (8, 308), (88, 308), (168, 308), (248, 308), (328, 308),
-        (408, 308), (488, 308), (568, 308), (648, 308), (728, 308),
-    ],
-    # Row 4
-    [
-        (8, 244), (88, 244), (168, 244), (248, 244), (328, 244),
-        (408, 244), (488, 244), (568, 244), (648, 244), (728, 244),
-    ],
-    # Row 5
-    [
-        (8, 180), (88, 180), (168, 180), (248, 180), (328, 180),
-        (408, 180), (488, 180), (568, 180), (648, 180), (728, 180),
-    ],
-    # Row 6
-    [
-        (8, 116), (88, 116), (168, 116), (248, 116), (328, 116),
-        (408, 116), (488, 116), (568, 116), (648, 116), (728, 116),
-    ],
-    # Row 7
-    [
-        (8, 52), (88, 52), (168, 52), (248, 52), (328, 52),
-        (408, 52), (488, 52), (568, 52), (648, 52), (728, 52),
-    ],
-    # Row 8
-    [
-        (8, -12), (88, -12), (168, -12), (248, -12), (328, -12),
-        (408, -12), (488, -12), (568, -12), (648, -12), (728, -12),
-    ],
-]
+
 
 class LevelSeven(VerticalBattleScreen):
     def __init__(self, textbox):
@@ -92,52 +46,60 @@ class LevelSeven(VerticalBattleScreen):
 
         self.napalm_list: list = []
 
+        self.flame_rects: list[pygame.Rect] = []
+        self.flame_rows_built = 0
+        self.max_flame_rows = 8
+        self.flame_row_interval_ms = 6000
+        self.last_flame_row_time = pygame.time.get_ticks()
+
+
+
     # -------------------------------------------------
     # FLAMES
     # -------------------------------------------------
-    def add_flame_row(self) -> None:
-        print("🔥 add_flame_row fired")
+    # def add_flame_row(self) -> None:
+    #     print("🔥 add_flame_row fired")
+    #
+    #     FLAME_SIZE = 64
+    #     DAMAGE = 30
+    #
+    #     row_index = len(self.flame_rows)
+    #
+    #     if row_index >= len(FLAME_POSITIONS):
+    #         print("🔥 No more rows")
+    #         return
+    #
+    #     row: list[Weapon] = []
+    #
+    #     for x, y in FLAME_POSITIONS[row_index]:
+    #         flame = Weapon(x, y)
+    #         flame.width = FLAME_SIZE
+    #         flame.height = FLAME_SIZE
+    #         flame.damage = DAMAGE
+    #         flame.speed = 0
+    #         flame.dx = 0
+    #         flame.update_rect()
+    #
+    #         print(f"🔥 Flame created at {x}, {y}")
+    #         row.append(flame)
+    #
+    #     self.flame_rows.append(row)
 
-        FLAME_SIZE = 64
-        DAMAGE = 30
-
-        row_index = len(self.flame_rows)
-
-        if row_index >= len(FLAME_POSITIONS):
-            print("🔥 No more rows")
-            return
-
-        row: list[Weapon] = []
-
-        for x, y in FLAME_POSITIONS[row_index]:
-            flame = Weapon(x, y)
-            flame.width = FLAME_SIZE
-            flame.height = FLAME_SIZE
-            flame.damage = DAMAGE
-            flame.speed = 0
-            flame.dx = 0
-            flame.update_rect()
-
-            print(f"🔥 Flame created at {x}, {y}")
-            row.append(flame)
-
-        self.flame_rows.append(row)
-
-    def create_static_bottom_bullets(self, screen_width: int, screen_height: int):
-        bullets = []
-
-        spacing = screen_width // NUM_BULLETS
-        y = screen_height - UI_HEIGHT - BULLET_SIZE
-
-        for i in range(NUM_BULLETS):
-            x = i * spacing + (spacing - BULLET_SIZE) // 2
-            bullet = Weapon(x, y)
-            bullet.width = BULLET_SIZE
-            bullet.height = BULLET_SIZE
-            bullet.update_rect()
-            bullets.append(bullet)
-
-        return bullets
+    # def create_static_bottom_bullets(self, screen_width: int, screen_height: int):
+    #     bullets = []
+    #
+    #     spacing = screen_width // NUM_BULLETS
+    #     y = screen_height - UI_HEIGHT - BULLET_SIZE
+    #
+    #     for i in range(NUM_BULLETS):
+    #         x = i * spacing + (spacing - BULLET_SIZE) // 2
+    #         bullet = Weapon(x, y)
+    #         bullet.width = BULLET_SIZE
+    #         bullet.height = BULLET_SIZE
+    #         bullet.update_rect()
+    #         bullets.append(bullet)
+    #
+    #     return bullets
 
     def clear_all_enemy_groups(self) -> None:
         self.bileSpitterGroup.clear()
@@ -163,10 +125,10 @@ class LevelSeven(VerticalBattleScreen):
         # self.textbox.show(self.intro_dialogue)
         player_y = None
 
-        self.static_bullets = self.create_static_bottom_bullets(
-            GlobalConstants.BASE_WINDOW_WIDTH,
-            GlobalConstants.GAMEPLAY_HEIGHT
-        )
+        # self.static_bullets = self.create_static_bottom_bullets(
+        #     GlobalConstants.BASE_WINDOW_WIDTH,
+        #     GlobalConstants.GAMEPLAY_HEIGHT
+        # )
 
         for obj in self.tiled_map.objects:
             if obj.name == "player":  # this string comes from Tiled
@@ -206,14 +168,17 @@ class LevelSeven(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
-        self.update_static_bullets(self.static_bullets, self.starship.hitbox)
+        # self.update_static_bullets(self.static_bullets, self.starship.hitbox)
         now = pygame.time.get_ticks()
+
 
         now = pygame.time.get_ticks()
 
+        now = pygame.time.get_ticks()
         if now - self.last_flame_row_time >= self.flame_row_interval_ms:
             self.last_flame_row_time = now
-            self.add_flame_row()
+            self.build_flame_grid()
+            # self.add_flame_row()
 
 
         # print("=== ENEMY LIST ===")
@@ -234,6 +199,7 @@ class LevelSeven(VerticalBattleScreen):
             self.level_start = False
             self.starship.shipHealth = 244
             self.clear_all_enemy_groups()
+            self.build_flame_grid()
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
 
@@ -242,6 +208,7 @@ class LevelSeven(VerticalBattleScreen):
         now = pygame.time.get_ticks()
         elapsed = now - self.level_start_time
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
+
 
 
 
@@ -336,7 +303,7 @@ class LevelSeven(VerticalBattleScreen):
             boss.draw(state.DISPLAY, self.camera)
             boss.draw_damage_flash(state.DISPLAY, self.camera)
 
-        self.draw_static_bullets(self.static_bullets, state.DISPLAY)
+        # self.draw_static_bullets(self.static_bullets, state.DISPLAY)
 
 
         for row in self.flame_rows:
@@ -352,6 +319,12 @@ class LevelSeven(VerticalBattleScreen):
                     )
                 )
 
+        # inside LevelSeven.draw(self, state)
+
+        # AFTER map / background draw
+        # BEFORE UI draw
+
+        self.draw_flames(state.DISPLAY, self.camera)
         self.draw_ui_panel(state.DISPLAY)
         # self.textbox.show("I am the ultimate man on the battlefiled. You cannot hope to win aginst the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla; win  the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla")
 
@@ -526,19 +499,19 @@ class LevelSeven(VerticalBattleScreen):
 
                     # Static bottom bullets using Weapon
 
-    def update_static_bullets(self, bullets: list[Weapon], player_hitbox: pygame.Rect) -> None:
-
-        player_screen_rect = pygame.Rect(
-            self.camera.world_to_screen_x(player_hitbox.x),
-            self.camera.world_to_screen_y(player_hitbox.y),
-            player_hitbox.width,
-            player_hitbox.height
-        )
-
-        for bullet in bullets:
-            if bullet.rect.colliderect(player_screen_rect):
-                self.starship.shipHealth -= BULLET_DAMAGE
-                print("Player bullet collision")
+    # def update_static_bullets(self, bullets: list[Weapon], player_hitbox: pygame.Rect) -> None:
+    #
+    #     player_screen_rect = pygame.Rect(
+    #         self.camera.world_to_screen_x(player_hitbox.x),
+    #         self.camera.world_to_screen_y(player_hitbox.y),
+    #         player_hitbox.width,
+    #         player_hitbox.height
+    #     )
+    #
+    #     for bullet in bullets:
+    #         if bullet.rect.colliderect(player_screen_rect):
+    #             self.starship.shipHealth -= BULLET_DAMAGE
+    #             print("Player bullet collision")
 
     def draw_static_bullets(
             self,
@@ -547,3 +520,74 @@ class LevelSeven(VerticalBattleScreen):
     ) -> None:
         for bullet in bullets:
             bullet.draw(surface)
+
+    # BUILD — WORLD SPACE ONLY (NO CAMERA)
+    # BUILD — WORLD Y LOCKED TO SCREEN BOTTOM (LEVEL 6 PATTERN)
+    # PROBLEM:
+    # You are overwriting rect.y every frame in draw_flames,
+    # so ALL rows collapse into ONE row.
+
+    # FIX:
+    # Encode row offset into the RECT ITSELF.
+    # draw_flames must NOT change rect.y per-rect.
+
+    def build_flame_grid(self) -> None:
+        SIZE = 32
+        GAP = 6
+        START_X = 8
+
+        COLS = 9
+
+        if self.flame_rows_built >= self.max_flame_rows:
+            return
+
+        row = self.flame_rows_built
+
+        for col in range(COLS):
+            x = START_X + col * (SIZE + GAP)
+            y = -(row * (SIZE + GAP))  # stacked upward
+            self.flame_rects.append(
+                pygame.Rect(x, y, SIZE, SIZE)
+            )
+
+        self.flame_rows_built += 1
+
+    def draw_flames(self, surface: pygame.Surface, camera) -> None:
+        if not self.flame_rects:
+            return
+
+        SIZE = 32
+        color = (255, 165, 0)
+        z = camera.zoom
+
+        bottom_world_y = (
+                camera.y
+                + (camera.window_height / camera.zoom)
+                - SIZE
+        )
+
+        player_rect = self.starship.hitbox
+
+        for rect in self.flame_rects:
+            world_y = bottom_world_y + rect.y
+
+            flame_world_rect = pygame.Rect(
+                rect.x,
+                world_y,
+                rect.width,
+                rect.height,
+            )
+
+            if player_rect.colliderect(flame_world_rect):
+                print("🔥 PLAYER COLLIDED WITH ORANGE FLAME")
+
+            pygame.draw.rect(
+                surface,
+                color,
+                (
+                    camera.world_to_screen_x(flame_world_rect.x),
+                    camera.world_to_screen_y(flame_world_rect.y),
+                    int(flame_world_rect.width * z),
+                    int(flame_world_rect.height * z),
+                ),
+            )
