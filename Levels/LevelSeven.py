@@ -3,16 +3,6 @@ import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Bosses.BossLevelSeven import BossLevelSeven
-from Entity.Enemy import Enemy
-from Entity.Monsters.AcidLauncher import AcidLauncher
-from Entity.Monsters.BileSpitter import BileSpitter
-from Entity.Monsters.BladeSpinners import BladeSpinner
-from Entity.Monsters.FireLauncher import FireLauncher
-from Entity.Monsters.KamikazeDrone import KamikazeDrone
-from Entity.Monsters.Ravager import Ravager
-from Entity.Monsters.SpineLauncher import SpineLauncher
-from Entity.Monsters.SporeFlower import SporeFlower
-from Entity.Monsters.TriSpitter import TriSpitter
 from SaveStates.SaveState import SaveState
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
@@ -22,53 +12,116 @@ UI_HEIGHT = 0
 BULLET_SIZE = 64
 NUM_BULLETS = 10
 BULLET_DAMAGE = 30
-
+FLAME_POSITIONS: list[list[tuple[int, int]]] = [
+    # Row 0 (bottom)
+    [
+        (8, 500), (88, 500), (168, 500), (248, 500), (328, 500),
+        (408, 500), (488, 500), (568, 500), (648, 500), (728, 500),
+    ],
+    # Row 1
+    [
+        (8, 436), (88, 436), (168, 436), (248, 436), (328, 436),
+        (408, 436), (488, 436), (568, 436), (648, 436), (728, 436),
+    ],
+    # Row 2
+    [
+        (8, 372), (88, 372), (168, 372), (248, 372), (328, 372),
+        (408, 372), (488, 372), (568, 372), (648, 372), (728, 372),
+    ],
+    # Row 3
+    [
+        (8, 308), (88, 308), (168, 308), (248, 308), (328, 308),
+        (408, 308), (488, 308), (568, 308), (648, 308), (728, 308),
+    ],
+    # Row 4
+    [
+        (8, 244), (88, 244), (168, 244), (248, 244), (328, 244),
+        (408, 244), (488, 244), (568, 244), (648, 244), (728, 244),
+    ],
+    # Row 5
+    [
+        (8, 180), (88, 180), (168, 180), (248, 180), (328, 180),
+        (408, 180), (488, 180), (568, 180), (648, 180), (728, 180),
+    ],
+    # Row 6
+    [
+        (8, 116), (88, 116), (168, 116), (248, 116), (328, 116),
+        (408, 116), (488, 116), (568, 116), (648, 116), (728, 116),
+    ],
+    # Row 7
+    [
+        (8, 52), (88, 52), (168, 52), (248, 52), (328, 52),
+        (408, 52), (488, 52), (568, 52), (648, 52), (728, 52),
+    ],
+    # Row 8
+    [
+        (8, -12), (88, -12), (168, -12), (248, -12), (328, -12),
+        (408, -12), (488, -12), (568, -12), (648, -12), (728, -12),
+    ],
+]
 
 class LevelSeven(VerticalBattleScreen):
-    def __init__(self,textbox):
+    def __init__(self, textbox):
         super().__init__(textbox)
-        # self.starship: StarShip = StarShip()
 
         self.bossLevelSevenGroup: list[BossLevelSeven] = []
-        self.level_start:bool = True
-        self.current_page_lines: list[list[str]] = []
-        self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level7.tmx")
-        self.tile_size: int = self.tiled_map.tileheight
-        self.map_width_tiles: int = self.tiled_map.width
-        self.map_height_tiles: int = self.tiled_map.height
-        self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400 # y position of map
-        window_width: int = GlobalConstants.BASE_WINDOW_WIDTH
-        window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
-        self.camera_y = self.WORLD_HEIGHT - window_height # look at bottom of map
+        self.level_start: bool = True
+
+        self.tiled_map = pytmx.load_pygame(
+            "./Levels/MapAssets/leveltmxfiles/level7.tmx"
+        )
+        self.tile_size = self.tiled_map.tileheight
+        self.map_height_tiles = self.tiled_map.height
+        self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
+
+        window_height = GlobalConstants.GAMEPLAY_HEIGHT
+        self.camera_y = self.WORLD_HEIGHT - window_height
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
-        self.map_scroll_speed_per_frame: float = .4 # move speed of camera
 
-        # self.enemies: list[Enemy] = [] # consolidate all enemies into one list
-        # self.load_enemy_into_list()
-        self.napalm_list: list = []
-        self.total_enemies = 40
-        self.prev_enemy_count: int = None
-        self.enemies_killed: int = 0
+        self.map_scroll_speed_per_frame = 0.4
 
-        self.level_start_time = pygame.time.get_ticks()
-
-        self.game_over: bool = False
-        self.level_complete = False
         self.save_state = SaveState()
-        self.bullet_damage = 10
-        self.bullet_size = 64
-        self.bullet_y_offset = 50
 
-        # self.intro_dialogue = (
-        #     "I am the ultimate man on the battlefield. "
-        #     "You cannot hope to win against the likes of me. "
-        #     "Prepare yourself, dum dum mortal head. "
-        #     "Bla bla bla bla bla. "
-        #     "Win against the likes of me if you dare."
-        # )
+        self.flame_row_interval_ms = 5000
+        self.last_flame_row_time = pygame.time.get_ticks()
 
-    from Weapons.Weapon import Weapon
+        self.flame_rows: list[list[Weapon]] = []
+        self.level_start_time = pygame.time.get_ticks()
+        # LevelSeven.__init__()
+
+        self.napalm_list: list = []
+
+    # -------------------------------------------------
+    # FLAMES
+    # -------------------------------------------------
+    def add_flame_row(self) -> None:
+        print("🔥 add_flame_row fired")
+
+        FLAME_SIZE = 64
+        DAMAGE = 30
+
+        row_index = len(self.flame_rows)
+
+        if row_index >= len(FLAME_POSITIONS):
+            print("🔥 No more rows")
+            return
+
+        row: list[Weapon] = []
+
+        for x, y in FLAME_POSITIONS[row_index]:
+            flame = Weapon(x, y)
+            flame.width = FLAME_SIZE
+            flame.height = FLAME_SIZE
+            flame.damage = DAMAGE
+            flame.speed = 0
+            flame.dx = 0
+            flame.update_rect()
+
+            print(f"🔥 Flame created at {x}, {y}")
+            row.append(flame)
+
+        self.flame_rows.append(row)
 
     def create_static_bottom_bullets(self, screen_width: int, screen_height: int):
         bullets = []
@@ -154,6 +207,15 @@ class LevelSeven(VerticalBattleScreen):
     def update(self, state) -> None:
         super().update(state)
         self.update_static_bullets(self.static_bullets, self.starship.hitbox)
+        now = pygame.time.get_ticks()
+
+        now = pygame.time.get_ticks()
+
+        if now - self.last_flame_row_time >= self.flame_row_interval_ms:
+            self.last_flame_row_time = now
+            self.add_flame_row()
+
+
         # print("=== ENEMY LIST ===")
         # print(f"BileSpitter: {len(self.bileSpitterGroup)}")
         # print(f"TriSpitter: {len(self.triSpitterGroup)}")
@@ -175,11 +237,10 @@ class LevelSeven(VerticalBattleScreen):
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
 
-
+        # FIX: use the attribute that already exists
 
         now = pygame.time.get_ticks()
         elapsed = now - self.level_start_time
-
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
 
@@ -254,21 +315,9 @@ class LevelSeven(VerticalBattleScreen):
         )
         # print(current_enemies)
         # initialize on first frame
-        if self.prev_enemy_count is None:
-            self.prev_enemy_count = current_enemies
-        else:
-            # if enemies decreased, count the difference
-            if current_enemies < self.prev_enemy_count:
-                self.enemies_killed += (self.prev_enemy_count - current_enemies)
 
-            self.prev_enemy_count = current_enemies
 
-        enemy_text = font.render(
-            f"Enemies {self.enemies_killed}/40",
-            True,
-            (255, 255, 255)
-        )
-        state.DISPLAY.blit(enemy_text, (10, 50))
+
         for napalm in self.napalm_list:
             napalm.draw(state.DISPLAY, self.camera)
         zoom = self.camera.zoom
@@ -289,10 +338,25 @@ class LevelSeven(VerticalBattleScreen):
 
         self.draw_static_bullets(self.static_bullets, state.DISPLAY)
 
+
+        for row in self.flame_rows:
+            for flame in row:
+                pygame.draw.rect(
+                    state.DISPLAY,
+                    (255, 100, 0),
+                    pygame.Rect(
+                        flame.x,
+                        flame.y,
+                        flame.width,
+                        flame.height
+                    )
+                )
+
         self.draw_ui_panel(state.DISPLAY)
         # self.textbox.show("I am the ultimate man on the battlefiled. You cannot hope to win aginst the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla; win  the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla")
 
         # self.textbox.draw(state.DISPLAY)
+
 
         pygame.display.flip()
 
