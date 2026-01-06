@@ -14,6 +14,10 @@ NUM_BULLETS = 10
 BULLET_DAMAGE = 30
 
 
+
+# INCLUDE GATES TO MAKE CERTAIN PARTS OF MAP NONE ASSEBIBLE OVER TIME
+
+
 class LevelSeven(VerticalBattleScreen):
     def __init__(self, textbox):
         super().__init__(textbox)
@@ -37,7 +41,6 @@ class LevelSeven(VerticalBattleScreen):
 
         self.save_state = SaveState()
 
-        self.flame_row_interval_ms = 5000
         self.last_flame_row_time = pygame.time.get_ticks()
 
         self.flame_rows: list[list[Weapon]] = []
@@ -49,7 +52,7 @@ class LevelSeven(VerticalBattleScreen):
         self.flame_rects: list[pygame.Rect] = []
         self.flame_rows_built = 0
         self.max_flame_rows = 8
-        self.flame_row_interval_ms = 3000
+        self.flame_row_interval_ms = 60000
         self.last_flame_row_time = pygame.time.get_ticks()
         self.flame_base_world_y = None  # 🔒 STABLE WORLD ANCHOR
 
@@ -120,6 +123,7 @@ class LevelSeven(VerticalBattleScreen):
 
 
     def start(self, state) -> None:
+
         player_x = None
         # self.textbox.show(self.intro_dialogue)
         player_y = None
@@ -380,25 +384,42 @@ class LevelSeven(VerticalBattleScreen):
         # print(names)
         return names
 
-    def load_enemy_into_list(self):
-
+    def load_enemy_into_list(self) -> None:
         self.bossLevelSevenGroup.clear()
-        for obj in self.tiled_map.objects:
-            # ⭐ LOAD ENEMIES (existing code)
-            if obj.name == "level_7_boss":
-                enemy = BossLevelOne()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.bossLevelOneGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
 
+        # --- get the tile layer named "boss_appear_point" ---
+        try:
+            layer = self.tiled_map.get_layer_by_name("boss_appear_point")
+        except ValueError:
+            print("[LEVEL 7] No tile layer named 'boss_appear_point'")
+            return
 
+        # --- find the first non-empty tile in that layer ---
+        spawn_x = None
+        spawn_y = None
 
+        # pytmx iter for tile layers: for x, y, gid in layer
+        for tx, ty, gid in layer:
+            if gid == 0:
+                continue  # empty tile
+            spawn_x = tx * self.tile_size
+            spawn_y = ty * self.tile_size
+            break
+
+        if spawn_x is None:
+            print("[LEVEL 7] 'boss_appear_point' layer has no tiles set")
+            return
+
+        # --- spawn boss at that tile’s world position ---
+        boss = BossLevelSeven()
+        boss.x = spawn_x
+        boss.y = spawn_y
+        boss.update_hitbox()
+        boss.camera = self.camera
+        boss.target_player = self.starship
+        self.bossLevelSevenGroup.append(boss)
+
+        print(f"[LEVEL 7] Boss spawned at tile ({spawn_x}, {spawn_y})")
 
 
 
@@ -566,7 +587,7 @@ class LevelSeven(VerticalBattleScreen):
         for rect in self.flame_rects:
             if player_screen_rect.colliderect(rect):
                 if not self.starship.invincible:
-                    self.starship.shipHealth -= 40
+                    self.starship.shipHealth -= 20
                     self.starship.on_hit()
                 print("🔥 PLAYER COLLIDED WITH ORANGE FLAME")
 
@@ -596,3 +617,6 @@ class LevelSeven(VerticalBattleScreen):
             self.flame_rects.append(pygame.Rect(x, y, SIZE, SIZE))
 
         self.flame_rows_built += 1
+
+
+

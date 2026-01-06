@@ -10,6 +10,7 @@ from Controller.KeyBoardControls import KeyBoardControls
 from Entity.Bosses.BossLevelFive import BossLevelFive
 from Entity.Bosses.BossLevelFour import BossLevelFour
 from Entity.Bosses.BossLevelOne import BossLevelOne
+from Entity.Bosses.BossLevelSeven import BossLevelSeven
 from Entity.Bosses.BossLevelSix import BossLevelSix
 from Entity.Bosses.BossLevelThree import BossLevelThree
 from Entity.Bosses.BossLevelTwo import BossLevelTwo
@@ -75,6 +76,7 @@ class VerticalBattleScreen:
         self.bossLevelFourGroup: list[BossLevelFour] = []
         self.bossLevelFiveGroup: list[BossLevelFive] = []
         self.bossLevelSixGroup: list[BossLevelSix] = []
+        self.bossLevelSevenGroup: list[BossLevelSeven] = []
 
         #boss
 
@@ -739,7 +741,8 @@ class VerticalBattleScreen:
                     list(self.bossLevelOneGroup) +
                     list(self.bossLevelFourGroup) +
                     list(self.bossLevelFiveGroup) +
-                    list(self.bossLevelSixGroup)
+                    list(self.bossLevelSixGroup) +
+                    list(self.bossLevelSevenGroup)
             )
 
             for enemy in enemies:
@@ -786,7 +789,8 @@ class VerticalBattleScreen:
                 list(self.bossLevelOneGroup) +
                 list(self.bossLevelFourGroup) +
                 list(self.bossLevelFiveGroup) +
-                list(self.bossLevelSixGroup)
+                list(self.bossLevelSixGroup) +
+                list(self.bossLevelSevenGroup)
         )
 
         for enemy in list(enemies):
@@ -839,6 +843,7 @@ class VerticalBattleScreen:
                 + list(self.bossLevelFourGroup)
                 + list(self.bossLevelFiveGroup)
                 + list(self.bossLevelSixGroup)
+                + list(self.bossLevelSevenGroup)
         )
 
         for enemy in list(all_enemies):
@@ -867,7 +872,8 @@ class VerticalBattleScreen:
                     self.bossLevelThreeGroup,
                     self.bossLevelFourGroup,
                     self.bossLevelFiveGroup,
-                    self.bossLevelSixGroup
+                    self.bossLevelSixGroup,
+                    self.bossLevelSevenGroup
                 )
 
                 for group in enemy_groups:
@@ -1188,7 +1194,8 @@ class VerticalBattleScreen:
                 list(self.bossLevelThreeGroup) +
                 list(self.bossLevelFourGroup) +
                 list(self.bossLevelFiveGroup) +
-                list(self.bossLevelSixGroup)
+                list(self.bossLevelSixGroup) +
+                list(self.bossLevelSevenGroup)
         )
 
         # -------------------------
@@ -1309,7 +1316,8 @@ class VerticalBattleScreen:
             self.bossLevelThreeGroup,
             self.bossLevelFourGroup,
             self.bossLevelFiveGroup,
-            self.bossLevelSixGroup
+            self.bossLevelSixGroup,
+            self.bossLevelSevenGroup,
         )
 
         for group in enemy_groups:
