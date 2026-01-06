@@ -24,6 +24,7 @@ class LevelSeven(VerticalBattleScreen):
 
         self.bossLevelSevenGroup: list[BossLevelSeven] = []
         self.level_start: bool = True
+        self.move_boss:bool = False
 
         self.tiled_map = pytmx.load_pygame(
             "./Levels/MapAssets/leveltmxfiles/level7.tmx"
@@ -48,7 +49,8 @@ class LevelSeven(VerticalBattleScreen):
         # LevelSeven.__init__()
 
         self.napalm_list: list = []
-
+        self.boss_shift_start_time: int | None = None
+        self.boss_shift_done: bool = False
         self.flame_rects: list[pygame.Rect] = []
         self.flame_rows_built = 0
         self.max_flame_rows = 8
@@ -56,6 +58,13 @@ class LevelSeven(VerticalBattleScreen):
         self.last_flame_row_time = pygame.time.get_ticks()
         self.flame_base_world_y = None  # 🔒 STABLE WORLD ANCHOR
 
+        self.boss_shift_start_time: int | None = None
+        self.boss_shift_done: bool = False
+
+        # Optional explicit teleport target (leave as None to use x+300)
+
+        self.boss_teleport_x = 2000  # whatever absolute world X works with your clamp
+        self.boss_teleport_y = 500  # whatever absolute world Y you want
     # -------------------------------------------------
     # FLAMES
     # -------------------------------------------------
@@ -263,12 +272,18 @@ class LevelSeven(VerticalBattleScreen):
         #
         #     return
 
+        self.repeat_map()
+
+        # debug print
+        self.debug_print_player_and_boss_visible()
+
         self.move_map_y_axis()
 
         self.update_collision_tiles(damage=5)
 
 
         self.repeat_map()
+
 
     def draw_level_collision(self, surface: pygame.Surface) -> None:
         self.draw_collision_tiles(surface)
@@ -618,5 +633,57 @@ class LevelSeven(VerticalBattleScreen):
 
         self.flame_rows_built += 1
 
+    def _is_rect_on_screen(self, x: float, y: float, w: int, h: int) -> bool:
+        visible_left = self.camera.x
+        visible_top = self.camera.y
+        visible_right = self.camera.x + (self.window_width / self.camera.zoom)
+        visible_bottom = self.camera.y + (self.window_height / self.camera.zoom)
 
+        if x + w < visible_left:
+            return False
+        if x > visible_right:
+            return False
+        if y + h < visible_top:
+            return False
+        if y > visible_bottom:
+            return False
+        return True
 
+    def debug_print_player_and_boss_visible(self) -> None:
+        player_on_screen = self._is_rect_on_screen(
+            self.starship.x,
+            self.starship.y,
+            self.starship.width,
+            self.starship.height,
+        )
+
+        boss_on_screen = any(
+            self._is_rect_on_screen(boss.x, boss.y, boss.width, boss.height)
+            for boss in self.bossLevelSevenGroup
+        )
+
+        now = pygame.time.get_ticks()
+
+        if player_on_screen and boss_on_screen:
+            print("boss and player are on screen")
+
+            # start timer on first frame where both are visible
+            if self.boss_shift_start_time is None:
+                self.boss_shift_start_time = now
+
+            # after 3 seconds, teleport once (absolute coords only)
+            elif (not self.boss_shift_done
+                  and now - self.boss_shift_start_time >= 3000):
+
+                if self.boss_teleport_x is None or self.boss_teleport_y is None:
+                    print("⚠ boss teleport coords not set; skipping teleport")
+                else:
+                    for boss in self.bossLevelSevenGroup:
+                        boss.x = self.boss_teleport_x
+                        boss.y = self.boss_teleport_y
+                        boss.update_hitbox()
+
+                    self.boss_shift_done = True
+        else:
+            # if they stop being on screen together, reset timer
+            self.boss_shift_start_time = None
