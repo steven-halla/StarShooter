@@ -180,6 +180,12 @@ class LevelSeven(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
+
+        if self.bossLevelSevenGroup:
+            boss = self.bossLevelSevenGroup[0]
+            print(f"Boss world position: ({boss.x}, {boss.y})")
+        else:
+            print("No boss in bossLevelSevenGroup")
         # self.update_static_bullets(self.static_bullets, self.starship.hitbox)
         now = pygame.time.get_ticks()
 
@@ -411,32 +417,46 @@ class LevelSeven(VerticalBattleScreen):
             print("[LEVEL 7] No tile layer named 'boss_appear_point'")
             return
 
-        # --- find the first non-empty tile in that layer ---
-        spawn_x = None
-        spawn_y = None
-
-        # pytmx iter for tile layers: for x, y, gid in layer
+        # collect ALL boss_appear_point tiles
+        spawn_tiles: list[tuple[int, int]] = []
         for tx, ty, gid in layer:
-            if gid == 0:
-                continue  # empty tile
-            spawn_x = tx * self.tile_size
-            spawn_y = ty * self.tile_size
-            break
+            if gid != 0:
+                spawn_tiles.append((tx, ty))
 
-        if spawn_x is None:
+        if not spawn_tiles:
             print("[LEVEL 7] 'boss_appear_point' layer has no tiles set")
             return
 
-        # --- spawn boss at that tile’s world position ---
+        # pick the BOTTOM-MOST tile (largest ty)
+        tx, ty = max(spawn_tiles, key=lambda t: t[1])
+
+        tile_world_x = tx * self.tile_size
+        tile_world_y = ty * self.tile_size
+
         boss = BossLevelSeven()
-        boss.x = spawn_x
-        boss.y = spawn_y
+        boss_width = boss.width
+        boss_height = boss.height
+
+        # center boss on that tile
+        boss.x = tile_world_x + (self.tile_size - boss_width) // 2
+        boss.y = tile_world_y + (self.tile_size - boss_height) // 2
+
         boss.update_hitbox()
         boss.camera = self.camera
         boss.target_player = self.starship
         self.bossLevelSevenGroup.append(boss)
 
-        print(f"[LEVEL 7] Boss spawned at tile ({spawn_x}, {spawn_y})")
+        # debug prints
+        print("[LEVEL 7] boss_appear_point tiles (world):")
+        for sx, sy in spawn_tiles:
+            print(f"  tile -> ({sx * self.tile_size}, {sy * self.tile_size})")
+
+        print(f"[LEVEL 7] Boss spawned world: ({boss.x}, {boss.y})")
+
+        # also show where that is on SCREEN to verify visibility
+        sx = self.camera.world_to_screen_x(boss.x)
+        sy = self.camera.world_to_screen_y(boss.y)
+        print(f"[LEVEL 7] Boss spawned SCREEN: ({sx}, {sy})")
 
 
 
