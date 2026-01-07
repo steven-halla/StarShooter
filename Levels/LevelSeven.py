@@ -672,6 +672,8 @@ class LevelSeven(VerticalBattleScreen):
         return True
 
     def debug_print_player_and_boss_visible(self) -> None:
+        now = pygame.time.get_ticks()
+
         player_on_screen = self._is_rect_on_screen(
             self.starship.x,
             self.starship.y,
@@ -679,35 +681,46 @@ class LevelSeven(VerticalBattleScreen):
             self.starship.height,
         )
 
-        boss_on_screen = any(
-            self._is_rect_on_screen(boss.x, boss.y, boss.width, boss.height)
-            for boss in self.bossLevelSevenGroup
+        boss_on_screen = self._is_rect_on_screen(
+            self.bossLevelSevenGroup[0].x,
+            self.bossLevelSevenGroup[0].y,
+            self.bossLevelSevenGroup[0].width,
+            self.bossLevelSevenGroup[0].height,
         )
 
-        now = pygame.time.get_ticks()
+        boss = self.bossLevelSevenGroup[0]
 
-        if player_on_screen and boss_on_screen:
-            # print("boss and player are on screen")
-
-            # start timer on first frame where both are visible
+        # PHASE 1 — player + boss visible → start disengage timer
+        if player_on_screen and boss_on_screen and not self.boss_shift_done:
             if self.boss_shift_start_time is None:
                 self.boss_shift_start_time = now
 
-            # after 3 seconds, teleport once (absolute coords only)
-            elif (not self.boss_shift_done
-                  and now - self.boss_shift_start_time >= 3000):
+            elif now - self.boss_shift_start_time >= 3000:
+                boss.x = self.boss_teleport_x
+                boss.y = self.boss_teleport_y
+                boss.update_hitbox()
 
-                if self.boss_teleport_x is None or self.boss_teleport_y is None:
-                    print("⚠ boss teleport coords not set; skipping teleport")
-                else:
-                    for boss in self.bossLevelSevenGroup:
-                        boss.x = self.boss_teleport_x
-                        boss.y = self.boss_teleport_y
+                self.boss_shift_done = True
+                self.boss_shift_start_time = now  # reuse timer
+                print(f"[BOSS VANISHED] at ({boss.x}, {boss.y})")
+
+        # PHASE 2 — boss vanished → wait 30s → reappear
+        elif self.boss_shift_done:
+            if now - self.boss_shift_start_time >= 5000:
+                # pick next spawn (example: reuse first boss_appear_point)
+                layer = self.tiled_map.get_layer_by_name("boss_appear_point")
+                for tx, ty, gid in layer:
+                    if gid != 0:
+                        boss.x = tx * self.tile_size
+                        boss.y = ty * self.tile_size
                         boss.update_hitbox()
+                        break
 
-                    self.boss_shift_done = True
+                self.boss_shift_done = False
+                self.boss_shift_start_time = None
+                print(f"[BOSS REAPPEARED] at ({boss.x}, {boss.y})")
+
         else:
-            # if they stop being on screen together, reset timer
             self.boss_shift_start_time = None
 
     def teleport_boss_to_new_point(self) -> None:
