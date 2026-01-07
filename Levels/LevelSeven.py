@@ -65,6 +65,8 @@ class LevelSeven(VerticalBattleScreen):
 
         self.boss_teleport_x = 2000  # whatever absolute world X works with your clamp
         self.boss_teleport_y = 500  # whatever absolute world Y you want
+        self.boss_shift_done = True
+        self.boss_shift_start_time = None  # ⛔ stop timer
     # -------------------------------------------------
     # FLAMES
     # -------------------------------------------------
@@ -183,7 +185,7 @@ class LevelSeven(VerticalBattleScreen):
 
         if self.bossLevelSevenGroup:
             boss = self.bossLevelSevenGroup[0]
-            print(f"Boss world position: ({boss.x}, {boss.y})")
+            # print(f"Boss world position: ({boss.x}, {boss.y})")
         else:
             print("No boss in bossLevelSevenGroup")
         # self.update_static_bullets(self.static_bullets, self.starship.hitbox)
@@ -287,7 +289,7 @@ class LevelSeven(VerticalBattleScreen):
 
         self.move_map_y_axis()
 
-        self.update_collision_tiles(damage=5)
+        # self.update_collision_tiles(damage=5)
 
 
         self.repeat_map()
@@ -351,7 +353,7 @@ class LevelSeven(VerticalBattleScreen):
         # AFTER map / background draw
         # BEFORE UI draw
 
-        self.draw_flames(state.DISPLAY, self.camera)
+        # self.draw_flames(state.DISPLAY, self.camera)
         self.draw_ui_panel(state.DISPLAY)
         # self.textbox.show("I am the ultimate man on the battlefiled. You cannot hope to win aginst the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla; win  the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla")
 
@@ -674,6 +676,14 @@ class LevelSeven(VerticalBattleScreen):
     def debug_print_player_and_boss_visible(self) -> None:
         now = pygame.time.get_ticks()
 
+        # no boss → no timer
+        if not self.bossLevelSevenGroup:
+            self.boss_shift_start_time = None
+            print("[BOSS TIMER] no boss present")
+            return
+
+        boss = self.bossLevelSevenGroup[0]
+
         player_on_screen = self._is_rect_on_screen(
             self.starship.x,
             self.starship.y,
@@ -682,45 +692,35 @@ class LevelSeven(VerticalBattleScreen):
         )
 
         boss_on_screen = self._is_rect_on_screen(
-            self.bossLevelSevenGroup[0].x,
-            self.bossLevelSevenGroup[0].y,
-            self.bossLevelSevenGroup[0].width,
-            self.bossLevelSevenGroup[0].height,
+            boss.x,
+            boss.y,
+            boss.width,
+            boss.height,
         )
 
-        boss = self.bossLevelSevenGroup[0]
-
-        # PHASE 1 — player + boss visible → start disengage timer
-        if player_on_screen and boss_on_screen and not self.boss_shift_done:
+        # timer ONLY when both visible
+        if player_on_screen and boss_on_screen:
             if self.boss_shift_start_time is None:
                 self.boss_shift_start_time = now
+                print("[BOSS TIMER] started")
 
-            elif now - self.boss_shift_start_time >= 3000:
+            elapsed = now - self.boss_shift_start_time
+            print(f"[BOSS TIMER] boss_shift_done={self.boss_shift_done} elapsed={elapsed}")
+
+            # vanish after 3 seconds EVERY PHASE
+            if elapsed >= 3000:
                 boss.x = self.boss_teleport_x
                 boss.y = self.boss_teleport_y
                 boss.update_hitbox()
 
                 self.boss_shift_done = True
-                self.boss_shift_start_time = now  # reuse timer
-                print(f"[BOSS VANISHED] at ({boss.x}, {boss.y})")
-
-        # PHASE 2 — boss vanished → wait 30s → reappear
-        elif self.boss_shift_done:
-            if now - self.boss_shift_start_time >= 5000:
-                # pick next spawn (example: reuse first boss_appear_point)
-                layer = self.tiled_map.get_layer_by_name("boss_appear_point")
-                for tx, ty, gid in layer:
-                    if gid != 0:
-                        boss.x = tx * self.tile_size
-                        boss.y = ty * self.tile_size
-                        boss.update_hitbox()
-                        break
-
-                self.boss_shift_done = False
-                self.boss_shift_start_time = None
-                print(f"[BOSS REAPPEARED] at ({boss.x}, {boss.y})")
+                self.boss_shift_start_time = None  # stop timer
+                print("[BOSS VANISHED]")
 
         else:
+            # boss not on screen → timer stopped
+            if self.boss_shift_start_time is not None:
+                print("[BOSS TIMER] stopped (boss not on screen)")
             self.boss_shift_start_time = None
 
     def teleport_boss_to_new_point(self) -> None:
@@ -740,7 +740,7 @@ class LevelSeven(VerticalBattleScreen):
                     world_y = y * self.tile_size
                     coords.append((world_x, world_y))
 
-        for (wx, wy) in coords:
-            print(f"boss_appear_point tile world coord: ({wx}, {wy})")
-
-        print(f"TOTAL boss_appear_point tiles found: {len(coords)}")
+        # for (wx, wy) in coords:
+        #     print(f"boss_appear_point tile world coord: ({wx}, {wy})")
+        #
+        # print(f"TOTAL boss_appear_point tiles found: {len(coords)}")
