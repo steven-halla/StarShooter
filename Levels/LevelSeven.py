@@ -256,6 +256,8 @@ class LevelSeven(VerticalBattleScreen):
                 #           f"at ({missile.target_enemy.x}, {missile.target_enemy.y})")
                 # else:
                 #     print("Missile locked onto: NONE (no enemies found)")
+
+        self.teleport_boss_to_new_point()
         self.enemy_helper()
         # if not self.bossLevelSevenGroup and not self.level_complete:
         #     self.level_complete = True
@@ -665,7 +667,7 @@ class LevelSeven(VerticalBattleScreen):
         now = pygame.time.get_ticks()
 
         if player_on_screen and boss_on_screen:
-            print("boss and player are on screen")
+            # print("boss and player are on screen")
 
             # start timer on first frame where both are visible
             if self.boss_shift_start_time is None:
@@ -687,3 +689,25 @@ class LevelSeven(VerticalBattleScreen):
         else:
             # if they stop being on screen together, reset timer
             self.boss_shift_start_time = None
+
+    def teleport_boss_to_new_point(self) -> None:
+        """
+        Debug helper.
+        Print the world coords of every tile in the 'boss_appear_point' tile layer.
+        """
+        coords: list[tuple[int, int]] = []
+
+        for layer in self.tiled_map.layers:
+            if isinstance(layer, pytmx.TiledTileLayer) and layer.name == "boss_appear_point":
+                for x, y, gid in layer:
+                    if gid == 0:
+                        continue
+
+                    world_x = x * self.tile_size
+                    world_y = y * self.tile_size
+                    coords.append((world_x, world_y))
+
+        for (wx, wy) in coords:
+            print(f"boss_appear_point tile world coord: ({wx}, {wy})")
+
+        print(f"TOTAL boss_appear_point tiles found: {len(coords)}")
