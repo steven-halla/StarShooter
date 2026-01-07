@@ -11,14 +11,15 @@ from Weapons.Bullet import Bullet
 class BossLevelSeven(Enemy):
     def __init__(self) -> None:
         super().__init__()
+        self.last_bile_shot_time: int | None = None
         self.mover: MoveRectangle = MoveRectangle()
         self.id = 0
 
         # -------------------------
         # APPEARANCE
         # -------------------------
-        self.width = 40
-        self.height = 40
+        self.width = 90
+        self.height = 16
         self.color = GlobalConstants.RED
 
         # -------------------------
@@ -33,7 +34,7 @@ class BossLevelSeven(Enemy):
         # -------------------------
         # FIRING TIMERS
         # -------------------------
-        self.fire_interval_ms = 1000
+        self.fire_interval_ms = 1000  # fires every second
         self.last_shot_time = pygame.time.get_ticks()
 
         self.triple_fire_interval_ms = 3000
@@ -62,68 +63,52 @@ class BossLevelSeven(Enemy):
         ).convert_alpha()
 
     # =====================================================
-    # ORIGINAL SINGLE SHOT (UNCHANGED)
+    # RADIAL BILE BURST (8–12 bullets, random directions)
     # =====================================================
     def _shoot_bile(self) -> None:
-        bullet_x = self.x + self.width // 2 - self.bulletWidth // 2
-        bullet_y = self.y + self.height
+        now = pygame.time.get_ticks()
+
+        if self.last_bile_shot_time is None:
+            self.last_bile_shot_time = now
+            return
+
+        if now - self.last_bile_shot_time < 1000:
+            return
+
+        self.last_bile_shot_time = now
+
+        bullet_x = self.x + self.width
+        bullet_y = self.y + self.height // 2 - self.bulletHeight // 2
 
         bullet = Bullet(bullet_x, bullet_y)
         bullet.color = self.bulletColor
         bullet.width = self.bulletWidth
         bullet.height = self.bulletHeight
-        bullet.speed = self.weapon_speed
         bullet.damage = 10
+
+        # 50% stage speed boost
+        speed = self.weapon_speed * 1.5
+
+        # 🔒 HARD OVERRIDE — RIGHT ONLY
+        bullet.dx = speed
+        bullet.dy = 0
+
+        # KILL ANY OTHER MOTION PATHS
+        if hasattr(bullet, "direction_x"):
+            bullet.direction_x = 0
+        if hasattr(bullet, "direction_y"):
+            bullet.direction_y = 0
+        if hasattr(bullet, "speed"):
+            bullet.speed = 0  # Bullet.update must NOT use this
 
         bullet.rect.width = bullet.width
         bullet.rect.height = bullet.height
 
         self.enemyBullets.append(bullet)
 
-    # =====================================================
-    # TRIPLE FIRE — SHOOTS AT PLAYER LAST POSITION
-    # =====================================================
-    def shoot_triple_line(self) -> None:
-        if self.target_player is None:
-            return
+        print(f"[BOSS FIRE TEST] dx={bullet.dx} dy={bullet.dy}")
 
-        cx = self.x + self.width / 2
-        cy = self.y + self.height / 2
 
-        px = self.target_player.hitbox.centerx
-        py = self.target_player.hitbox.centery
-
-        dx = px - cx
-        dy = py - cy
-        dist = math.hypot(dx, dy)
-        if dist == 0:
-            return
-
-        dx /= dist
-        dy /= dist
-
-        perp_x = -dy
-        perp_y = dx
-
-        spacing = 30
-        offsets = [-spacing, 0, spacing]
-
-        for offset in offsets:
-            bx = cx + perp_x * offset
-            by = cy + perp_y * offset
-
-            bullet = Bullet(bx, by)
-            bullet.dx = dx * self.weapon_speed
-            bullet.speed = dy * self.weapon_speed
-            bullet.width = self.bulletWidth
-            bullet.height = self.bulletHeight
-            bullet.color = self.bulletColor
-            bullet.damage = 10
-
-            bullet.rect.width = bullet.width
-            bullet.rect.height = bullet.height
-
-            self.enemyBullets.append(bullet)
 
     # =====================================================
     # UPDATE
@@ -132,6 +117,7 @@ class BossLevelSeven(Enemy):
         super().update()
         if not self.is_active:
             return
+
         self.update_hitbox()
 
         if self.camera is None:
@@ -140,15 +126,10 @@ class BossLevelSeven(Enemy):
         self.moveAI()
         now = pygame.time.get_ticks()
 
-        # ORIGINAL FIRE
+        # FIRE RADIAL BURST EVERY SECOND
         if now - self.last_shot_time >= self.fire_interval_ms:
             self._shoot_bile()
             self.last_shot_time = now
-
-        # TRIPLE FIRE
-        if now - self.last_triple_shot_time >= self.triple_fire_interval_ms:
-            self.shoot_triple_line()
-            self.last_triple_shot_time = now
 
         for bullet in self.enemyBullets:
             bullet.update()

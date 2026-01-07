@@ -18,6 +18,7 @@ BULLET_DAMAGE = 30
 
 
 # INCLUDE GATES TO MAKE CERTAIN PARTS OF MAP NONE ASSEBIBLE OVER TIME
+# Dont forget put FIRE back in
 
 
 class LevelSeven(VerticalBattleScreen):
@@ -747,7 +748,7 @@ class LevelSeven(VerticalBattleScreen):
             #     self.boss_shift_start_time = None
             #     print("[BOSS VANISHED]")
 
-            if elapsed >= 3000:
+            if elapsed >= 10000:
                 self.respawn_boss_at_random_tile(boss)
                 self.boss_shift_done = True
                 self.boss_shift_start_time = None
