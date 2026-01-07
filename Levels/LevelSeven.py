@@ -557,15 +557,21 @@ class LevelSeven(VerticalBattleScreen):
             self.starship.y += wrap_offset
             self.starship.update_hitbox()
 
+            # NEW LINE 1: only act if boss exists
+            if self.bossLevelSevenGroup:  # NEW
+                # NEW LINE 2: reposition existing boss using boss_appear_point layer
+                self.respawn_boss_at_random_tile(self.bossLevelSevenGroup[0])  # NEW
+                # NEW LINE 3: hard stop any active boss timer on wrap
+                self.boss_shift_start_time = None  # NEW
+
             # shift all world entities down
-            for group in (
-                    self.coinsGroup,
-                    self.spikeyBallGroup,
-                    self.bossLevelSixGroup,
-            ):
-                for enemy in group:
-                    enemy.y += wrap_offset
-                    enemy.update_hitbox()
+            # for group in (
+            #
+            #         self.bossLevelSevenGroup,
+            # ):
+            #     for enemy in group:
+            #         enemy.y += wrap_offset
+            #         enemy.update_hitbox()
 
                     # Static bottom bullets using Weapon
 
