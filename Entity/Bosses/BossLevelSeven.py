@@ -77,37 +77,62 @@ class BossLevelSeven(Enemy):
 
         self.last_bile_shot_time = now
 
-        bullet_x = self.x + self.width
-        bullet_y = self.y + self.height // 2 - self.bulletHeight // 2
+        center_y = self.y + self.height // 2 - self.bulletHeight // 2
+        speed = self.weapon_speed * 1.5  # 50% stage speed boost
 
-        bullet = Bullet(bullet_x, bullet_y)
-        bullet.color = self.bulletColor
-        bullet.width = self.bulletWidth
-        bullet.height = self.bulletHeight
-        bullet.damage = 10
+        # -------------------------
+        # BULLET 1 — RIGHT
+        # -------------------------
+        bullet_right = Bullet(self.x + self.width, center_y)
+        bullet_right.color = self.bulletColor
+        bullet_right.width = self.bulletWidth
+        bullet_right.height = self.bulletHeight
+        bullet_right.damage = 10
 
-        # 50% stage speed boost
-        speed = self.weapon_speed * 1.5
+        bullet_right.dx = speed
+        bullet_right.dy = 0
 
-        # 🔒 HARD OVERRIDE — RIGHT ONLY
-        bullet.dx = speed
-        bullet.dy = 0
+        if hasattr(bullet_right, "direction_x"):
+            bullet_right.direction_x = 0
+        if hasattr(bullet_right, "direction_y"):
+            bullet_right.direction_y = 0
+        if hasattr(bullet_right, "speed"):
+            bullet_right.speed = 0
 
-        # KILL ANY OTHER MOTION PATHS
-        if hasattr(bullet, "direction_x"):
-            bullet.direction_x = 0
-        if hasattr(bullet, "direction_y"):
-            bullet.direction_y = 0
-        if hasattr(bullet, "speed"):
-            bullet.speed = 0  # Bullet.update must NOT use this
+        bullet_right.rect.width = bullet_right.width
+        bullet_right.rect.height = bullet_right.height
 
-        bullet.rect.width = bullet.width
-        bullet.rect.height = bullet.height
+        self.enemyBullets.append(bullet_right)
 
-        self.enemyBullets.append(bullet)
+        # -------------------------
+        # BULLET 2 — LEFT
+        # -------------------------
+        bullet_left = Bullet(self.x, center_y)
+        bullet_left.color = self.bulletColor
+        bullet_left.width = self.bulletWidth
+        bullet_left.height = self.bulletHeight
+        bullet_left.damage = 10
 
-        print(f"[BOSS FIRE TEST] dx={bullet.dx} dy={bullet.dy}")
+        bullet_left.dx = -speed
+        bullet_left.dy = 0
 
+        if hasattr(bullet_left, "direction_x"):
+            bullet_left.direction_x = 0
+        if hasattr(bullet_left, "direction_y"):
+            bullet_left.direction_y = 0
+        if hasattr(bullet_left, "speed"):
+            bullet_left.speed = 0
+
+        bullet_left.rect.width = bullet_left.width
+        bullet_left.rect.height = bullet_left.height
+
+        self.enemyBullets.append(bullet_left)
+
+        print(
+            f"[BOSS FIRE TEST] "
+            f"RIGHT(dx={bullet_right.dx}, dy={bullet_right.dy}) | "
+            f"LEFT(dx={bullet_left.dx}, dy={bullet_left.dy})"
+        )
 
 
     # =====================================================
