@@ -8,7 +8,7 @@ from Entity.Bosses.BossLevelSeven import BossLevelSeven
 from SaveStates.SaveState import SaveState
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
-from Weapons.Weapon import Weapon
+from Weapons.Bullet import Bullet
 
 UI_HEIGHT = 0
 BULLET_SIZE = 64
@@ -47,7 +47,7 @@ class LevelSeven(VerticalBattleScreen):
 
         self.last_flame_row_time = pygame.time.get_ticks()
 
-        self.flame_rows: list[list[Weapon]] = []
+        self.flame_rows: list[list[Bullet]] = []
         self.level_start_time = pygame.time.get_ticks()
         # LevelSeven.__init__()
 
@@ -592,7 +592,7 @@ class LevelSeven(VerticalBattleScreen):
 
     def draw_static_bullets(
             self,
-            bullets: list[Weapon],
+            bullets: list[Bullet],
             surface: pygame.Surface
     ) -> None:
         for bullet in bullets:

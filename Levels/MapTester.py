@@ -17,16 +17,19 @@ from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
 class MapTester(VerticalBattleScreen):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,textbox):
+        super().__init__(textbox)
         # self.starship: StarShip = StarShip()
+
+
 
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level1.tmx")
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400 # y position of map
-        window_width, window_height = GlobalConstants.GAMEPLAY_HEIGHT
+        window_width = GlobalConstants.BASE_WINDOW_WIDTH
+        window_height = GlobalConstants.GAMEPLAY_HEIGHT
         self.camera_y = self.WORLD_HEIGHT - window_height # look at bottom of map
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
@@ -38,18 +41,23 @@ class MapTester(VerticalBattleScreen):
         self.napalm_list: list = []
 
     def start(self, state) -> None:
+        print("start fun called")
         player_x = None
         player_y = None
 
+        # 🔧 REQUIRED: bind global starship into this screen
+        self.starship = state.starship
+
         for obj in self.tiled_map.objects:
-            if obj.name == "player":  # this string comes from Tiled
+            if obj.name == "player":
                 player_x = obj.x
                 player_y = obj.y
                 break
 
         self.starship.x = player_x
         self.starship.y = player_y
-        self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
+        self.starship.update_hitbox()
+
         self.load_enemy_into_list()
 
 

@@ -24,6 +24,7 @@ from Constants.GlobalConstants import GlobalConstants
 from Entity.StarShip import StarShip
 from Levels.LevelOne import LevelOne
 from ScreenClasses.MissionBriefingScreenLevelOne import MissionBriefingScreenLevelOne
+from Weapons.Bullet import Bullet
 
 
 class GameState:
@@ -56,6 +57,12 @@ class GameState:
         # --------------------------------------------------
         self.starship: StarShip = StarShip()
 
+        # # --------------------------------------------------
+        # # bullets
+        # # --------------------------------------------------
+        # self.bullet: Bullet = Bullet()
+
+
         # --------------------------------------------------
         # enemies global
         # --------------------------------------------------
@@ -64,7 +71,7 @@ class GameState:
         # --------------------------------------------------
         # CURRENT SCREEN
         # --------------------------------------------------
-        self.currentScreen = MapTester()
+        self.currentScreen = MapTester(self.textbox)
 
         # --------------------------------------------------
         # Bullet list
