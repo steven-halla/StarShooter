@@ -41,7 +41,7 @@ class MapTester(VerticalBattleScreen):
         self.napalm_list: list = []
 
     def start(self, state) -> None:
-        print("start fun called")
+        print("start fun calledf")
         player_x = None
         player_y = None
 

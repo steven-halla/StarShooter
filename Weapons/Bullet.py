@@ -1,63 +1,63 @@
+
+
 import pygame
 
 class Bullet:
-    """
-    Base class for all weapons in the game.
-    This class contains common functionality shared by Bullet, Missile, and other weapon types.
-    """
-    def __init__(self, x: float, y: float) -> None:
-        self.x: float = x
-        self.y: float = y
-        self.width: int = 0  # To be overridden by subclasses
-        self.height: int = 0  # To be overridden by subclasses
-        self.speed: float = 1.0  # To be overridden by subclasses
-        self.damage: int = 0  # To be overridden by subclasses
-        self.rate_of_fire: float = 1.0  # To be overridden by subclasses
-        self.bullet_speed: float = 1.0
+    def __init__(self, x: float, y: float):
+        self.x = float(x)
+        self.y = float(y)
 
-        # HITBOX RECT — matches position + size
-        self.rect: pygame.Rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.width = 8
+        self.height = 8
 
-        # Movement variables
-        self.diag_speed_x: float = 0.0  # left/right diagonal velocity
-        self.diag_speed_y: float = 0.0  # downward velocity
-        # self.dx = 0  # horizontal movement per frame
-        #diagnal shooting
-        self.vx: float = 0.0
-        self.vy: float = 0.0
+        self.vx = 0.0
+        self.vy = 0.0
+        self.bullet_speed = 0.0
 
-        # Active state
-        self.is_active: bool = True
+        self.damage = 1
+        self.is_active = True
 
-    def update_rect(self) -> None:
-        """Updates the hitbox rectangle to match the weapon's position and size."""
-        self.rect.x = int(self.x)
-        self.rect.y = int(self.y)
-        self.rect.width = self.width
-        self.rect.height = self.height
+        self.camera = None
+
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
     def update(self) -> None:
-        """
-        Updates the weapon's position.
-        This method should be overridden by subclasses to implement specific movement patterns.
-        """
-        self.x += self.dx  # horizontal drift
-        self.y += self.speed
-        self.update_rect()  # ALWAYS keep hitbox matched
+        # -------------------------
+        # VECTOR-BASED MOVEMENT
+        # -------------------------
+        self.x += self.vx * self.bullet_speed
+        self.y += self.vy * self.bullet_speed
 
-    def draw(self, surface: "pygame.Surface") -> None:
-        """
-        Draws the weapon on the given surface.
-        This method can be overridden by subclasses to implement specific visual appearances.
-        """
-        pygame.draw.rect(surface, (128, 0, 128), self.rect)  # Default purple color
+        self.rect.topleft = (int(self.x), int(self.y))
 
-    def collide_with_rect(self, other: pygame.Rect) -> bool:
-        """
-        Returns True if this weapon hits `other`.
-        Also sets is_active = False so the owner can remove it.
-        """
-        if self.rect.colliderect(other):
-            self.is_active = False
-            return True
-        return False
+        # -------------------------
+        # DESPAWN OFF CAMERA
+        # -------------------------
+        if self.camera is not None:
+            visible_top = self.camera.y - 100
+            visible_bottom = (
+                self.camera.y
+                + (self.camera.window_height / self.camera.zoom)
+                + 100
+            )
+
+            if self.y + self.height < visible_top or self.y > visible_bottom:
+                self.is_active = False
+
+    def draw(self, surface: pygame.Surface, camera) -> None:
+        if not self.is_active:
+            return
+
+        screen_x = camera.world_to_screen_x(self.x)
+        screen_y = camera.world_to_screen_y(self.y)
+
+        pygame.draw.rect(
+            surface,
+            (255, 255, 255),
+            pygame.Rect(
+                screen_x,
+                screen_y,
+                int(self.width * camera.zoom),
+                int(self.height * camera.zoom),
+            ),
+        )

@@ -36,6 +36,7 @@ class StarShip:
         self.buster_cannon = BusterCanon(self.x, self.y)
 
         self.shipHealthMax: int = 150
+        self.camera = None
 
         # firing stats for machien gun
         self.bullet_fire_interval_seconds: float = 0.10 # orginal value 0.05 # base value .24
@@ -281,31 +282,56 @@ class StarShip:
         return bullets
 
     def fire_twin_linked_machinegun(self) -> list:
-        # If the weapon is not ready, return no bullets
+        machine_gun_bullet_width = 42
+
+        print("[MACHINEGUN] timer ready:", self.bullet_timer.is_ready())
+
         if not self.bullet_timer.is_ready():
+            print("[MACHINEGUN] cooldown blocking fire")
             return []
 
         bullets = []
 
-        center_x = self.x + self.width // 2 + 10
+        center_x = self.x + self.width / 2 + 10
         bullet_y = self.y
 
         spread = self.bullet_spread_offset
         count = self.bullets_per_shot
         start_index = -(count // 2)
 
+        print(
+            "[MACHINEGUN] firing count=",
+            count,
+            "spread=",
+            spread,
+            "center_x=",
+            center_x,
+            "bullet_y=",
+            bullet_y,
+        )
+
         for i in range(count):
             offset = (start_index + i) * spread
-            bullet_x = center_x + offset - Bullet.DEFAULT_WIDTH // 2
+            bullet_x = center_x + offset - machine_gun_bullet_width // 2
 
-            bullet_world_x = bullet_x
-            bullet_world_y = bullet_y
+            bullet = Bullet(bullet_x, bullet_y)
 
-            bullets.append(Bullet(bullet_world_x, bullet_world_y))
+            # REQUIRED: vector-based motion
+            bullet.vx = 0.0
+            bullet.vy = -1.0
+            bullet.bullet_speed = 12.0
 
-        # Reset cooldown after firing
+            # REQUIRED: camera hookup
+            bullet.camera = self.camera
+
+            print(f"[MACHINEGUN] bullet {i}: x={bullet.x} y={bullet.y}")
+
+            bullets.append(bullet)
+
+        print("[MACHINEGUN] bullets list length:", len(bullets))
+        print("[MACHINEGUN] bullets list:", bullets)
+
         self.bullet_timer.reset()
-
         return bullets
 
     def fire_energy_ball(self, dx: float, dy: float):
