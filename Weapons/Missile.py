@@ -4,6 +4,7 @@ from Weapons.Weapon import Weapon
 
 
 class Missile(Weapon):
+
     def __init__(self, x, y):
         super().__init__(x, y)
         self.width = 12
