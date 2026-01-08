@@ -1,19 +1,32 @@
-from Weapons.Weapon import Weapon
+import pygame
+from Weapons.Bullet import Bullet
 
 
-class HyperLaser:
-    def __init__(self, owner):
-        self.owner = owner
+class HyperLaser(Bullet):
+    def __init__(self, x: float, y: float):
+        super().__init__(x, y)
 
-        self.width = 12
-        self.height = 60
+        # size
+        self.width: int = 12
+        self.height: int = 60
 
-        # Initial position (will be corrected every frame later)
-        self.x = owner.x + owner.width / 2 - self.width / 2
-        self.y = owner.y - self.height
+        # identity
+        self.magic_name: str = "Hyper Laser"
 
-        self.HYPER_LASER: str = "Hyper Laser"
+        # laser does not move
+        self.vx: float = 0.0
+        self.vy: float = 0.0
+        self.bullet_speed: float = 0.0
+
+        # damage / ROF
+        self.damage: int = 5
+        self.rate_of_fire: float = 0.0
+
+        self.update_rect()
 
     def update(self):
-        self.x = self.owner.x + self.owner.width / 2 - self.width / 2
-        self.y = self.owner.y - self.height
+        # stationary laser
+        self.update_rect()
+
+    def draw(self, surface: pygame.Surface) -> None:
+        pygame.draw.rect(surface, (255, 0, 255), self.rect)

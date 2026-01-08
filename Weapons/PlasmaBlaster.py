@@ -1,20 +1,35 @@
-from Weapons.Weapon import Weapon
+import pygame
+from Weapons.Bullet import Bullet
 
 
-class PlasmaBlaster(Weapon):
+class PlasmaBlaster(Bullet):
     def __init__(self, x: float, y: float):
         super().__init__(x, y)
-        self.width = 12
-        self.height = 60
-        self.damage = 10
 
-        self.speed = 5
+        # size
+        self.width: int = 12
+        self.height: int = 60
 
-        self.is_active = True
+        # identity
+        self.magic_name: str = "Plasma Blaster"
 
-        self.WIND_SLICER: str = "Plasma Blaster"
+        # stats
+        self.damage: int = 10
+        self.rate_of_fire: float = 0.0
+        self.bullet_speed: float = 5.0
 
+        # movement vector (straight up)
+        self.vx: float = 0.0
+        self.vy: float = -1.0
+
+        # state
+        self.is_active: bool = True
+
+        self.update_rect()
 
     def update(self) -> None:
+        # movement handled by Bullet using vx/vy and bullet_speed
+        super().update()
 
-        self.y -= self.speed
+    def draw(self, surface: pygame.Surface) -> None:
+        pygame.draw.rect(surface, (0, 255, 255), self.rect)

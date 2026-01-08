@@ -1,27 +1,35 @@
 import pygame
-from Weapons.Weapon import Weapon
+from Weapons.Bullet import Bullet
 
-class WindSlicer(Weapon):
-    def __init__(self, x: float, y: float, dx: float, dy: float):
+
+class WindSlicer(Bullet):
+    def __init__(self, x: float, y: float, vx: float, vy: float):
         super().__init__(x, y)
 
-        self.width = 12
-        self.height = 12
-        self.damage = 5
+        # size
+        self.width: int = 12
+        self.height: int = 12
 
-        self.speed = 3
-        self.dx = dx
-        self.dy = dy
-        self.is_active = True
+        # identity
+        self.magic_name: str = "Wind Slicer"
 
-        self.WIND_SLICER: str = "Wind Slicer"
+        # stats
+        self.damage: int = 5
+        self.rate_of_fire: float = 0.0
+        self.bullet_speed: float = 3.0
 
-        # ✅ REQUIRED: hitbox
-        self.hitbox = pygame.Rect(self.x, self.y, self.width, self.height)
+        # movement vector
+        self.vx: float = vx
+        self.vy: float = vy
+
+        # state
+        self.is_active: bool = True
+
+        self.update_rect()
 
     def update(self) -> None:
-        self.x += self.dx
-        self.y += self.dy
+        # movement handled by Bullet using vx/vy
+        super().update()
 
-        # ✅ REQUIRED: keep hitbox in sync
-        self.hitbox.topleft = (self.x, self.y)
+    def draw(self, surface: pygame.Surface) -> None:
+        pygame.draw.rect(surface, (180, 220, 255), self.rect)

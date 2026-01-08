@@ -8,6 +8,7 @@ from Levels.LevelFive import LevelFive
 from Levels.LevelSix import LevelSix
 from Levels.LevelSeven import LevelSeven
 from Levels.LevelTwo import LevelTwo
+from Levels.MapTester import MapTester
 from Levels.levelThree import LevelThree
 from ScreenClasses.MissionBriefingScreenLevelFour import MissionBriefingScreenLevelFour
 from ScreenClasses.MissionBriefingScreenLevelOne import MissionBriefingScreenLevelOne
@@ -63,7 +64,7 @@ class GameState:
         # --------------------------------------------------
         # CURRENT SCREEN
         # --------------------------------------------------
-        self.currentScreen = LevelSeven(self.textbox)
+        self.currentScreen = MapTester()
 
         # --------------------------------------------------
         # Bullet list

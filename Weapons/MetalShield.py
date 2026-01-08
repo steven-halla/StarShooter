@@ -1,44 +1,54 @@
 import math
+import pygame
+from Weapons.Bullet import Bullet
 
-from Weapons.Weapon import Weapon
 
-
-class MetalShield(Weapon):
+class MetalShield(Bullet):
     def __init__(self, x: float, y: float):
         super().__init__(x, y)
 
-        self.width = 32
-        self.height = 32
+        # size
+        self.width: int = 32
+        self.height: int = 32
 
+        # identity
+        self.METAL_SHIELD: str = "Metal Shield"
+
+        # stats
+        self.damage: int = 0            # shield does not deal damage
+        self.rate_of_fire: float = 0.0  # not applicable, but consistent
+        self.bullet_speed: float = 0.0  # does not translate
+
+        # orbit behavior
         self.orbit_radius: float = 40.0
-        self.orbit_speed: float = 0.08   # radians per frame
+        self.orbit_speed: float = 0.08  # radians per frame
         self.angle: float = 0.0
 
+        # state
         self.is_active: bool = True
         self.has_blocked: bool = False
 
-        self.METAL_SHIELD: str = "Metal Shield"
+        self.update_rect()
 
-    def update_orbit(self, player_x: float, player_y: float) -> None:
-        """
-        Keeps the shield orbiting around the player.
-        Call once per frame.
-        """
-
+    def update_orbit(self, center_x: float, center_y: float) -> None:
         if not self.is_active:
             return
 
         self.angle += self.orbit_speed
+        self.x = center_x + math.cos(self.angle) * self.orbit_radius
+        self.y = center_y + math.sin(self.angle) * self.orbit_radius
+        self.update_rect()
 
-        self.x = player_x + math.cos(self.angle) * self.orbit_radius
-        self.y = player_y + math.sin(self.angle) * self.orbit_radius
+    def update(self):
+        # orbit-only movement; external code supplies center via update_orbit
+        pass
 
     def absorb_hit(self) -> bool:
-        """
-        Returns True if the hit was absorbed.
-        """
         if self.is_active and not self.has_blocked:
             self.has_blocked = True
             self.is_active = False
             return True
         return False
+
+    def draw(self, surface: pygame.Surface) -> None:
+        pygame.draw.rect(surface, (160, 160, 160), self.rect)

@@ -1,72 +1,80 @@
 import pygame
-
-from Weapons.Weapon import Weapon
+from Weapons.Bullet import Bullet
 from Constants.Timer import Timer
 
-class NapalmSpread(Weapon):
+
+class NapalmSpread(Bullet):
     def __init__(self, x: float, y: float):
         super().__init__(x, y)
 
-        # VISUAL SIZE (projectile phase)
+        self.magic_name: str = "Napalm Spread"
+
+        # -----------------
+        # SIZE (PROJECTILE)
+        # -----------------
         self.width: int = 11
-        # DAMAGE TICK CONTROL
-        self.damage_tick_seconds: float = 1.0  # damage every 0.5s
-        self.damage_timer: Timer = Timer(self.damage_tick_seconds)
-        self.damage_timer.reset()
         self.height: int = 11
 
-        # DAMAGE / EFFECT
+        # -----------------
+        # STATS
+        # -----------------
         self.damage: int = 75
-        self.duration: int = 3
-        # self.explosion_active: bool = False
-        self.aoe_applied: bool = False
+        self.rate_of_fire: float = 0.0
+        self.bullet_speed: float = 3.5
 
-        # AOE size (used after explosion)
+        # -----------------
+        # MOVEMENT VECTOR
+        # -----------------
+        self.vx: float = 0.0
+        self.vy: float = -1.0
+
+        # -----------------
+        # AOE / DAMAGE TICKS
+        # -----------------
+        self.damage_tick_seconds: float = 1.0
+        self.damage_timer: Timer = Timer(self.damage_tick_seconds)
+        self.damage_timer.reset()
+
+        self.duration: int = 3
         self.area_of_effect_x: int = 33
         self.area_of_effect_y: int = 33
-        # EXPLOSION VISUAL TIMER
+
+        # -----------------
+        # TIMERS
+        # -----------------
+        self.travel_time_seconds: float = 0.6
+        self.travel_timer: Timer = Timer(self.travel_time_seconds)
+        self.travel_timer.reset()
+
         self.explosion_time_seconds: float = 3.4
         self.explosion_timer: Timer = Timer(self.explosion_time_seconds)
 
-        # MOVEMENT
-        self.speed: float = 3.5
-        self.dy: float = -self.speed  # forward (up)
-
+        # -----------------
         # STATE
+        # -----------------
         self.is_active: bool = True
         self.has_exploded: bool = False
-
-        # MOVE FOR 2 SECONDS
-        self.travel_time_seconds: float = .6
-        self.travel_timer: Timer = Timer(self.travel_time_seconds)
-        self.travel_timer.reset()
-        self.NAPALM_SPREAD: str = "Napalm Spread"
         self.aoe_applied: bool = False
 
+        self.update_rect()
+
     def update(self) -> None:
-        # -------------------------
-        # MOVING PHASE
-        # -------------------------
+        # TRAVEL PHASE
         if not self.has_exploded:
             if not self.travel_timer.is_ready():
-                self.y += self.dy
+                super().update()
             else:
                 self.has_exploded = True
                 self.explosion_timer.reset()
-                self.damage_timer.reset()  # 🔥 start burn ticks
+                self.damage_timer.reset()
             return
 
-        # -------------------------
         # EXPLOSION PHASE
-        # -------------------------
         if self.explosion_timer.is_ready():
             self.is_active = False
 
-    def get_aoe_hitbox(self):
-        """
-        Returns the AOE hitbox during explosion phase.
-        """
-        if not self.explosion_active:
+    def getAoeHitbox(self):
+        if not self.has_exploded:
             return None
 
         center_x = self.x + self.width // 2
@@ -78,3 +86,11 @@ class NapalmSpread(Weapon):
             self.area_of_effect_x,
             self.area_of_effect_y
         )
+
+    def draw(self, surface: pygame.Surface) -> None:
+        if not self.has_exploded:
+            pygame.draw.rect(surface, (255, 120, 0), self.rect)
+        else:
+            aoe = self.getAoeHitbox()
+            if aoe:
+                pygame.draw.rect(surface, (255, 60, 0), aoe, 2)

@@ -1,102 +1,131 @@
 import pygame
-from Weapons.Weapon import Weapon
+from Weapons.Bullet import Bullet
 
-class BusterCanon(Weapon):
-    def __init__(self, x, y):
+
+class BusterCanon(Bullet):
+    def __init__(self, x: float, y: float):
         super().__init__(x, y)
 
-        # Damage values
-        self.mp_cost: int = 10
-        self.base_damage: int = 10
-        self.charge_shot_damage: int = 40
-        self.magic_name: str = "Buster Cannon"
-        # Shot type labels
-        self.NORMAL_BUSTER_SHOT: str = "NORMAL_BUSTER_SHOT"
-        self.CHARGED_BUSTER_SHOT: str = "CHARGED_BUSTER_SHOT"
+        # -----------------
+        # SHOT MODES
+        # -----------------
+        self.SHOT_NORMAL = "NORMAL"
+        self.SHOT_CHARGED = "CHARGED"
+        self.shot_type = self.SHOT_NORMAL
 
-        # Default projectile size (small shot)
-        self.small_w: int = 12
-        self.small_h: int = 12
+        # -----------------
+        # NORMAL SHOT STATS
+        # -----------------
+        self.normal_damage = 10
+        self.normal_bullet_speed = 5.0
+        self.normal_rate_of_fire = 1.0
+        self.normal_width = 12
+        self.normal_height = 12
 
-        # Charged projectile size (4× bigger)
-        self.big_w: int = self.small_w * 4
-        self.big_h: int = self.small_h * 4
+        # -----------------
+        # CHARGED SHOT STATS
+        # -----------------
+        self.charged_damage = 40
+        self.charged_bullet_speed = 3.0
+        self.charged_rate_of_fire = 0.25
+        self.charged_width = 48
+        self.charged_height = 48
 
-        self.width: int = self.small_w
-        self.height: int = self.small_h
+        # -----------------
+        # ACTIVE STATS
+        # -----------------
+        self.damage = self.normal_damage
+        self.bullet_speed = self.normal_bullet_speed
+        self.rate_of_fire = self.normal_rate_of_fire
+        self.width = self.normal_width
+        self.height = self.normal_height
 
-        self.speed: float = -5
-        self.rateOfFire: float = 0.5
+        # -----------------
+        # DIRECTION
+        # -----------------
+        self.vx = 0.0
+        self.vy = -1.0
 
-        # Charging system
-        self.fully_charged: bool = False
-        self.is_charging: bool = False
-        self.charge_time: float = 0.0
-        self.required_charge: float = 2.0  # seconds to charge fully
+        # -----------------
+        # CHARGING
+        # -----------------
+        self.mp_cost = 10
+        self.magic_name = "Buster Cannon"
+        self.is_charging = False
+        self.fully_charged = False
+        self.charge_time = 0.0
+        self.required_charge = 2.0
 
-    # ------------------------
-    # CHARGING CONTROL METHODS
-    # ------------------------
+        self.update_rect()
+
+    # -----------------
+    # CHARGE CONTROL
+    # -----------------
     def start_charge(self):
-        """Player begins holding the fire button."""
         self.is_charging = True
         self.charge_time = 0.0
         self.fully_charged = False
-        self.width = self.small_w
-        self.height = self.small_h
+        self.set_normal_shot()
 
     def stop_charge(self):
-        """Player releases the fire button."""
         self.is_charging = False
 
-    def fire(self):
-        """
-        Returns the damage the projectile should have.
-        Screen class will spawn a projectile using the correct size.
-        """
-        if self.fully_charged:
-            dmg = self.charge_shot_damage
-            # projectile should be big when fired
-            self.width = self.big_w
-            self.height = self.big_h
-        else:
-            dmg = self.base_damage
-            # revert to small bullet size
-            self.width = self.small_w
-            self.height = self.small_h
+    # -----------------
+    # SHOT MODE SETTERS
+    # -----------------
+    def set_normal_shot(self):
+        self.shot_type = self.SHOT_NORMAL
+        self.damage = self.normal_damage
+        self.bullet_speed = self.normal_bullet_speed
+        self.rateOfFire = self.normal_rate_of_fire
+        self.width = self.normal_width
+        self.height = self.normal_height
 
-        # After firing, reset charge state
+    def set_charged_shot(self):
+        self.shot_type = self.SHOT_CHARGED
+        self.damage = self.charged_damage
+        self.bullet_speed = self.charged_bullet_speed
+        self.rateOfFire = self.charged_rate_of_fire
+        self.width = self.charged_width
+        self.height = self.charged_height
+
+    # -----------------
+    # FIRE
+    # -----------------
+    def fire(self) -> int:
+        if self.fully_charged:
+            self.set_charged_shot()
+        else:
+            self.set_normal_shot()
+
         self.fully_charged = False
         self.charge_time = 0.0
+        return self.damage
 
-        return dmg
-
-    # ------------------------
-    # UPDATE LOGIC
-    # ------------------------
+    # -----------------
+    # UPDATE
+    # -----------------
     def update(self):
-        # Apply normal movement from Weapon base class
         super().update()
 
-        # If charging, build charge
         if self.is_charging:
-
-            self.charge_time += 1 / 60.0  # assuming 60 FPS
-            print(self.charge_time)
+            self.charge_time += 1 / 60.0
             if self.charge_time >= self.required_charge:
-                # print("dfj;alsj;lfa")
-                # Only announce the fully-charged state the first time we reach it
-                if not self.fully_charged:
-                    print("Buster Cannon: not fully charged!")
                 self.charge_time = self.required_charge
                 self.fully_charged = True
-                self.width = self.big_w
-                self.height = self.big_h
         else:
-            # Reset charge and size when not charging
             self.charge_time = 0.0
             self.fully_charged = False
-            self.width = self.small_w
-            self.height = self.small_h
 
         self.update_rect()
+
+    # -----------------
+    # DRAW
+    # -----------------
+    def draw(self, surface: pygame.Surface) -> None:
+        if self.shot_type == self.SHOT_CHARGED:
+            color = (0, 255, 255)   # cyan for charged
+        else:
+            color = (0, 128, 255)   # blue for normal
+
+        pygame.draw.rect(surface, color, self.rect)

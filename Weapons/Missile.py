@@ -1,54 +1,50 @@
 import pygame
+import math
+from Weapons.Bullet import Bullet
 
-from Weapons.Weapon import Weapon
 
-
-class Missile(Weapon):
-
-    def __init__(self, x, y):
+class Missile(Bullet):
+    def __init__(self, x: float, y: float):
         super().__init__(x, y)
-        self.width = 12
-        self.height = 12
-        self.speed = -2.5 # -5 original value
-        self.rateOfFire = .5
-        self.missileNumber = 1
-        self.damage = 3  # Adding damage property that was missing
 
-        # Set Missile-specific diagonal movement
-        self.diag_speed_y = 3
+        # size
+        self.width: int = 12
+        self.height: int = 12
 
-        # Initialize target_enemy to None (used in update method)
+        # identity
+        self.magic_name: str = "Missile"
+
+        # stats
+        self.damage: int = 3
+        self.rate_of_fire: float = 0.5
+        self.bullet_speed: float = 2.5
+
+        # movement vector (default straight up)
+        self.vx: float = 0.0
+        self.vy: float = -1.0
+
+        # homing
         self.target_enemy = None
 
-    # update_rect() method is inherited from Weapon class
+        self.update_rect()
 
     def update(self) -> None:
-        # If target is gone, dead, or off-screen → clear target
-        if (self.target_enemy is None or
-                self.target_enemy.enemyHealth <= 0):
+        # clear invalid target
+        if self.target_enemy is not None and self.target_enemy.enemyHealth <= 0:
             self.target_enemy = None
 
-        # --- HOMING LOGIC ---
+        # homing logic — vx/vy ONLY
         if self.target_enemy is not None:
-            dx = self.target_enemy.x - self.x
-            dy = self.target_enemy.y - self.y
-            dist = max(1, (dx * dx + dy * dy) ** 0.5)
-            print(f"Homing → Target at ({self.target_enemy.x}, {self.target_enemy.y})")
+            vx = self.target_enemy.x - self.x
+            vy = self.target_enemy.y - self.y
+            length = math.hypot(vx, vy)
 
-            # normalized direction
-            self.direction_x = dx / dist
-            self.direction_y = dy / dist
+            if length != 0:
+                self.vx = vx / length
+                self.vy = vy / length
 
-            # apply missile speed toward target
-            speed = abs(self.speed)
-            self.x += self.direction_x * speed
-            self.y += self.direction_y * speed
+        # movement handled by Bullet via vx/vy
+        super().update()
 
-            # Keep hitbox matched to position
-            self.update_rect()
-        else:
-            # --- DEFAULT (non-homing) MOVEMENT ---
-            super().update()  # Use parent class update for non-homing movement
-
-
-    # draw() and collide_with_rect() methods are inherited from Weapon class
+    def draw(self, surface: pygame.Surface) -> None:
+        pygame.draw.rect(surface, (255, 165, 0), self.rect)
