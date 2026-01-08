@@ -56,7 +56,7 @@ class BusterCanon(Bullet):
         self.charge_time = 0.0
         self.required_charge = 2.0
 
-        self.update_rect()
+        # self.update_rect()
 
     # -----------------
     # CHARGE CONTROL

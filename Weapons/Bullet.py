@@ -61,3 +61,22 @@ class Bullet:
                 int(self.height * camera.zoom),
             ),
         )
+
+    def collide_with_rect(self, other: pygame.Rect) -> bool:
+        """
+        Returns True if this weapon hits `other`.
+        Also sets is_active = False so the owner can remove it.
+        """
+        if self.rect.colliderect(other):
+            self.is_active = False
+            return True
+        return False
+
+
+
+    def update_rect(self) -> None:
+        """Updates the hitbox rectangle to match the weapon's position and size."""
+        self.rect.x = int(self.x)
+        self.rect.y = int(self.y)
+        self.rect.width = self.width
+        self.rect.height = self.height
