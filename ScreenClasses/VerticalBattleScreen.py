@@ -391,13 +391,36 @@ class VerticalBattleScreen:
         # -------------------------
         # If Buster Cannon is in slot 0:
         # Slot 0 — Buster Cannon
+        # -------------------------
+        # BUSTER CANNON INPUT LOGIC
+        # -------------------------
+        # BUSTER CANNON INPUT LOGIC
+        # -------------------------
+        # -------------------------
+        # BUSTER CANNON INPUT LOGIC
+        # FIX: MANUAL RELEASE DETECTION
+        # -------------------------
+
+        # track previous frame state ONCE (class-level or __init__)
+        # self._magic_1_was_down = False
+
+        # =========================
+        # ACTUAL FIX (NO EVENTS, NO RELEASE FLAG, NO EXTRA STATE)
+        # =========================
+
         if state.starship.equipped_magic[0] == "Buster Cannon" and not self.playerDead:
 
-            # press → fire immediately
+            # BUTTON HELD → start / continue charging
             if self.controller.magic_1_button:
-                bullets = self.starship.buster_cannon.fire_buster_cannon()
-                self.player_bullets.extend(bullets)
+                if not state.starship.buster_cannon.is_charging:
+                    state.starship.buster_cannon.start_charge()
 
+                state.starship.buster_cannon.update()
+
+            # BUTTON NO LONGER HELD AND WAS CHARGING → FIRE
+            elif state.starship.buster_cannon.is_charging:
+                bullets = state.starship.buster_cannon.fire_buster_cannon()
+                self.player_bullets.extend(bullets)
         #     # HELD → do nothing, let update handle charged
         # if state.starship.equipped_magic[1] == "Buster Cannon" and not self.playerDead:
         #

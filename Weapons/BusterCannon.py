@@ -1,6 +1,5 @@
 import pygame
 from Weapons.Bullet import Bullet
-from Constants.Timer import Timer
 
 
 class BusterCanon(Bullet):
@@ -8,24 +7,33 @@ class BusterCanon(Bullet):
         super().__init__(x, y)
 
         # -----------------
-        # SINGLE SHOT STATS
+        # BASE SHOT STATS
         # -----------------
-        self.damage = 1044
-        self.bullet_speed = 4.0
-        self.rate_of_fire = .5
-        self.width = 12
-        self.height = 12
+        self.base_damage = 11
+        self.base_speed = 1.0
+        self.base_width = 12
+        self.base_height = 12
 
         # -----------------
-        # FIRE RATE CONTROL (THIS WAS MISSING)
+        # CHARGED SHOT STATS
         # -----------------
-        self.bullet_timer = Timer(self.rate_of_fire)
+        self.charged_damage = 40
+        self.charged_speed = 3.0
+        self.charged_width = self.base_width * 4
+        self.charged_height = self.base_height * 4
+        self.charge_time_required = 2.0  # seconds
 
         # -----------------
         # MOVEMENT VECTOR
         # -----------------
         self.vx = 0.0
         self.vy = -1.0
+
+        # -----------------
+        # CHARGE STATE
+        # -----------------
+        self.is_charging: bool = False
+        self.charge_start_time: float | None = None
 
         # -----------------
         # IDENTITY
@@ -35,37 +43,58 @@ class BusterCanon(Bullet):
         # injected
         self.camera = None
 
+        self.width = self.base_width
+        self.height = self.base_height
+        self.damage = self.base_damage
+        self.bullet_speed = self.base_speed
+
         self.update_rect()
 
     # -----------------
-    # FIRE (ROF GATED)
+    # CHARGE CONTROL
+    # -----------------
+    def start_charge(self) -> None:
+        if not self.is_charging:
+            self.is_charging = True
+            self.charge_start_time = pygame.time.get_ticks()
+
+    def stop_charge(self) -> None:
+        self.is_charging = False
+        self.charge_start_time = None
+
+    def is_fully_charged(self) -> bool:
+        if not self.is_charging or self.charge_start_time is None:
+            return False
+        elapsed = (pygame.time.get_ticks() - self.charge_start_time) / 1000.0
+        return elapsed >= self.charge_time_required
+
+    # -----------------
+    # FIRE
     # -----------------
     def fire_buster_cannon(self) -> list:
-        if not self.bullet_timer.is_ready():
-            return []
-
         bullet_x = self.x + self.width // 2
         bullet_y = self.y
 
         projectile = Bullet(bullet_x, bullet_y)
 
-        projectile.width = self.width
-        projectile.height = self.height
+        if self.is_fully_charged():
+            projectile.width = self.charged_width
+            projectile.height = self.charged_height
+            projectile.damage = self.charged_damage
+            projectile.bullet_speed = self.charged_speed
+        else:
+            projectile.width = self.base_width
+            projectile.height = self.base_height
+            projectile.damage = self.base_damage
+            projectile.bullet_speed = self.base_speed
+
         projectile.vx = 0.0
         projectile.vy = -1.0
-        projectile.bullet_speed = self.bullet_speed
-        projectile.damage = self.damage
         projectile.camera = self.camera
-
         projectile.update_rect()
 
-        print(
-            f"[BUSTER] FIRED bullet at x={projectile.x} y={projectile.y} "
-            f"size=({projectile.width}x{projectile.height}) "
-            f"damage={projectile.damage}"
-        )
+        self.stop_charge()
 
-        self.bullet_timer.reset()
         return [projectile]
 
     # -----------------
@@ -78,4 +107,5 @@ class BusterCanon(Bullet):
     # DRAW
     # -----------------
     def draw(self, surface: pygame.Surface) -> None:
-        pygame.draw.rect(surface, (0, 128, 255), self.rect)
+        color = (255, 64, 64) if self.is_fully_charged() else (0, 128, 255)
+        pygame.draw.rect(surface, color, self.rect)
