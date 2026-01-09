@@ -37,6 +37,9 @@ from SaveStates.SaveState import SaveState
 from ScreenClasses.Camera import Camera
 from ScreenClasses.TextBox import TextBox
 from Weapons.Bullet import Bullet
+from Weapons.EnergyBall import EnergyBall
+
+
 # from game_state import GameState
 
 
@@ -370,7 +373,7 @@ class VerticalBattleScreen:
 
 
         # -------------------------
-        # PLAYER SHOOTING ONLY
+        # PLAYER Missiles ONLY
         # # -------------------------
 
         if self.controller.fire_missiles and not self.playerDead:
@@ -378,35 +381,17 @@ class VerticalBattleScreen:
             if missile is not None:
                 self.player_missiles.append(missile)
 
+        # -------------------------
+        # PLAYER Machine gun ONLY
+        # # -------------------------
+
         if self.controller.main_weapon_button and not self.playerDead:
             new_bullets = self.starship.machine_gun.fire_machine_gun()
             self.player_bullets.extend(new_bullets)
 
-        # if self.controller.main_weapon_button and not self.playerDead:
-        #     new_bullets = self.starship.fire_twin_linked_machinegun()
-        #     self.player_bullets.extend(new_bullets)
 
-        # -------------------------
-        # PLAYER MAGIC FIRING
-        # -------------------------
-        # If Buster Cannon is in slot 0:
-        # Slot 0 — Buster Cannon
-        # -------------------------
-        # BUSTER CANNON INPUT LOGIC
-        # -------------------------
-        # BUSTER CANNON INPUT LOGIC
-        # -------------------------
-        # -------------------------
-        # BUSTER CANNON INPUT LOGIC
-        # FIX: MANUAL RELEASE DETECTION
-        # -------------------------
 
-        # track previous frame state ONCE (class-level or __init__)
-        # self._magic_1_was_down = False
 
-        # =========================
-        # ACTUAL FIX (NO EVENTS, NO RELEASE FLAG, NO EXTRA STATE)
-        # =========================
 
         if state.starship.equipped_magic[0] == "Buster Cannon" and not self.playerDead:
 
@@ -421,22 +406,7 @@ class VerticalBattleScreen:
             elif state.starship.buster_cannon.is_charging:
                 bullets = state.starship.buster_cannon.fire_buster_cannon()
                 self.player_bullets.extend(bullets)
-        #     # HELD → do nothing, let update handle charged
-        # if state.starship.equipped_magic[1] == "Buster Cannon" and not self.playerDead:
-        #
-        #     # Start charging ONLY when button is first pressed
-        #     if self.controller.magic_2_button and not state.starship.buster_cannon.is_charging:
-        #         state.starship.buster_cannon.start_charge()
-        #
-        #     # Continue charging while held
-        #     if self.controller.magic_2_button:
-        #         state.starship.buster_cannon.update()
-        #
-        #     # Release → fire once
-        #     if self.controller.magic_2_released:
-        #         state.starship.buster_cannon.stop_charge()
-        #         shots = state.starship.fire_buster_cannon()
-        #         self.buster_cannon_bullets.extend(shots)
+
 
         # -------------------------
         # PLASMA BLASTER MAGIC
@@ -453,44 +423,22 @@ class VerticalBattleScreen:
         # -------------------------
         # ENERGY BALL MAGIC
         # -------------------------
+        # -------------------------
+        # ENERGY BALL MAGIC (SAME PATTERN AS PLASMA BLASTER)
+        # -------------------------
+        # -------------------------
+        # ENERGY BALL MAGIC (SAME PATTERN AS PLASMA BLASTER)
+        # -------------------------
         if state.starship.equipped_magic[0] == "Energy Ball" and not self.playerDead:
 
-            # UPDATE EXISTING ENERGY BALLS (RIGHT HERE)
-            for ball in list(self.energy_balls):
-                ball.update()
-
-                screen_y = ball.y - self.camera.y
-                if screen_y + ball.height < 0:
-                    self.energy_balls.remove(ball)
-
-            # SPAWN NEW ENERGY BALL
+            # HOLD → spawn ONE energy ball (ROF handled inside EnergyBall)
             if self.controller.magic_1_button:
+                if not self.energy_balls:  # 🔒 guard: same pattern
+                    energy_ball = state.starship.energy_ball.try_fire(self.controller)
+                    if energy_ball is not None:
+                        self.energy_balls.append(energy_ball)
 
-                dx = 0
-                dy = 0
-                speed = 6
 
-                if self.controller.left_button:
-                    dx -= 1
-                if self.controller.right_button:
-                    dx += 1
-                if self.controller.up_button:
-                    dy -= 1
-                if self.controller.down_button:
-                    dy += 1
-
-                # Default direction (up)
-                if dx == 0 and dy == 0:
-                    dy = -1
-
-                # Normalize so diagonals are not faster
-                length = math.hypot(dx, dy)
-                dx = (dx / length) * speed
-                dy = (dy / length) * speed
-
-                energy_ball = state.starship.fire_energy_ball(dx, dy)
-                if energy_ball is not None:
-                    self.energy_balls.append(energy_ball)
 
         # -------------------------
 
@@ -675,6 +623,15 @@ class VerticalBattleScreen:
             if screen_x + wave.width < 0 or screen_x > (self.window_width / self.camera.zoom):
                 self.wave_crash_bullets.remove(wave)
 
+        # -------------------------
+        # ENERGY BALL UPDATE / CLEANUP
+        # -------------------------
+        for ball in list(self.energy_balls):
+            ball.update()
+
+            screen_y = ball.y - self.camera.y
+            if screen_y + ball.height < 0:
+                self.energy_balls.remove(ball)
         # -------------------------
         # BUSTER CANNON BULLET CLEANUP
         # -------------------------

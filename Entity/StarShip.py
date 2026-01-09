@@ -62,15 +62,14 @@ class StarShip:
         self.max_missiles: int = 1
         self.current_missiles: int = 1
 
-        self.equipped_magic: list = ["Buster Cannon", None]
+        self.equipped_magic: list = ["Energy Ball", None]
         self.hyper_laser_damage: int = 100
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
 
         self.hyper_laser_fire_interval_seconds: float = .1
         self.hyper_laser_timer: Timer = Timer(self.hyper_laser_fire_interval_seconds)
-        self.energy_ball_fire_interval_seconds: float = 1.2
-        self.energy_ball_timer: Timer = Timer(self.energy_ball_fire_interval_seconds)
+
 
         self.hitbox: pygame.Rect = pygame.Rect(
             int(self.x),
@@ -107,6 +106,19 @@ class StarShip:
         self.is_electrocuted: bool = False
         self.electric_start_time: int = 0
         self.electric_duration_ms: int = 180
+
+
+        #energy ball
+        self.energy_ball_fire_interval_seconds: float = 1.2
+
+        self.energy_ball_timer: Timer = Timer(self.energy_ball_fire_interval_seconds)
+
+        self.energy_ball = EnergyBall(self.x, self.y)
+        self.energy_ball.energy_ball_timer = self.energy_ball_timer
+
+
+
+
 
     def start_invincibility(self) -> None:
         # Begin a 10-second invincibility period
@@ -290,21 +302,21 @@ class StarShip:
 
 
 
-    def fire_energy_ball(self, dx: float, dy: float):
-        # Rate-of-fire gate
-        if not self.energy_ball_timer.is_ready():
-            return None
-
-        # Spawn at center of ship
-        start_x = self.x + self.width / 2
-        start_y = self.y + self.height / 2
-
-        energy_ball = EnergyBall(start_x, start_y, dx, dy)
-
-        # Reset cooldown
-        self.energy_ball_timer.reset()
-
-        return energy_ball
+    # def fire_energy_ball(self, dx: float, dy: float):
+    #     # Rate-of-fire gate
+    #     if not self.energy_ball_timer.is_ready():
+    #         return None
+    #
+    #     # Spawn at center of ship
+    #     start_x = self.x + self.width / 2
+    #     start_y = self.y + self.height / 2
+    #
+    #     energy_ball = EnergyBall(start_x, start_y, dx, dy)
+    #
+    #     # Reset cooldown
+    #     self.energy_ball_timer.reset()
+    #
+    #     return energy_ball
 
     def update(self) -> None:
         self.update_hitbox()
@@ -315,11 +327,19 @@ class StarShip:
         self.machine_gun.y = self.y
         self.machine_gun.update()
 
-        # StarShip update
+        # -------------------------
+        # buster cannon
+        # -------------------------
         self.buster_cannon.x = self.x + self.width // 2
         self.buster_cannon.y = self.y
         self.buster_cannon.update()
 
+        # -------------------------
+        # enegy ball
+        # -------------------------
+        self.energy_ball.x = self.x + self.width / 2
+        self.energy_ball.y = self.y + self.height / 2
+        self.energy_ball.update()
 
 
         # --------------------------------

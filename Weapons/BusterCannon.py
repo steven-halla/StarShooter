@@ -10,9 +10,13 @@ class BusterCanon(Bullet):
         # BASE SHOT STATS
         # -----------------
         self.base_damage = 11
-        self.base_speed = 1.0
+        self.base_speed = 3
         self.base_width = 12
         self.base_height = 12
+
+        # RATE OF FIRE (HERE)
+        self.rate_of_fire = 0.4      # seconds
+        self.last_fire_time = 0.0
 
         # -----------------
         # CHARGED SHOT STATS
@@ -43,12 +47,20 @@ class BusterCanon(Bullet):
         # injected
         self.camera = None
 
+        # active stats
         self.width = self.base_width
         self.height = self.base_height
         self.damage = self.base_damage
         self.bullet_speed = self.base_speed
 
         self.update_rect()
+
+    # -----------------
+    # RATE OF FIRE CHECK
+    # -----------------
+    def can_fire(self) -> bool:
+        now = pygame.time.get_ticks() / 1000.0
+        return (now - self.last_fire_time) >= self.rate_of_fire
 
     # -----------------
     # CHARGE CONTROL
@@ -72,6 +84,11 @@ class BusterCanon(Bullet):
     # FIRE
     # -----------------
     def fire_buster_cannon(self) -> list:
+        if not self.can_fire():
+            return []
+
+        self.last_fire_time = pygame.time.get_ticks() / 1000.0
+
         bullet_x = self.x + self.width // 2
         bullet_y = self.y
 
