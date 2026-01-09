@@ -42,6 +42,8 @@ class StarShip:
 
         # REQUIRED: weapon must follow ship position & camera
         self.machine_gun.camera = self.camera
+        # StarShip __init__
+        self.buster_cannon = BusterCanon(self.x, self.y)
 
         # firing stats for machien gun
         self.bullet_fire_interval_seconds: float = 0.10 # orginal value 0.05 # base value .24
@@ -60,7 +62,7 @@ class StarShip:
         self.max_missiles: int = 1
         self.current_missiles: int = 1
 
-        self.equipped_magic: list = ["Wind Slicer", None]
+        self.equipped_magic: list = ["Buster Cannon", None]
         self.hyper_laser_damage: int = 100
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
@@ -134,35 +136,35 @@ class StarShip:
 
         return napalm
 
-    def fire_buster_cannon(self):
-        """Use the BusterCanon’s own state to determine projectile size/damage."""
-        if not self.buster_cannon_cooldown.is_ready():
-            return []
-
-        # ask the weapon what kind of shot to fire; this resets its charge state
-        damage = self.buster_cannon.fire()
-        # the weapon’s width/height have been set by its own fire() method
-        projectile = Bullet(self.x + self.width // 2, self.y)
-
-        projectile.shot_type = (
-            self.buster_cannon.CHARGED_BUSTER_SHOT
-            if self.buster_cannon.fully_charged
-            else self.buster_cannon.NORMAL_BUSTER_SHOT
-        )
-
-        projectile.width = self.buster_cannon.width
-        projectile.height = self.buster_cannon.height
-        projectile.speed = self.buster_cannon.speed
-        projectile.damage = damage
-        projectile.update_rect()
-        # projectile = Bullet(self.x + self.width // 2, self.y)
-        # projectile.width = self.buster_cannon.width
-        # projectile.height = self.buster_cannon.height
-        # projectile.speed = self.buster_cannon.speed
-        # projectile.damage = damage
-
-        self.buster_cannon_cooldown.reset()
-        return [projectile]
+    # def fire_buster_cannon(self):
+    #     """Use the BusterCanon’s own state to determine projectile size/damage."""
+    #     if not self.buster_cannon_cooldown.is_ready():
+    #         return []
+    #
+    #     # ask the weapon what kind of shot to fire; this resets its charge state
+    #     damage = self.buster_cannon.fire()
+    #     # the weapon’s width/height have been set by its own fire() method
+    #     projectile = Bullet(self.x + self.width // 2, self.y)
+    #
+    #     projectile.shot_type = (
+    #         self.buster_cannon.CHARGED_BUSTER_SHOT
+    #         if self.buster_cannon.fully_charged
+    #         else self.buster_cannon.NORMAL_BUSTER_SHOT
+    #     )
+    #
+    #     projectile.width = self.buster_cannon.width
+    #     projectile.height = self.buster_cannon.height
+    #     projectile.speed = self.buster_cannon.speed
+    #     projectile.damage = damage
+    #     projectile.update_rect()
+    #     # projectile = Bullet(self.x + self.width // 2, self.y)
+    #     # projectile.width = self.buster_cannon.width
+    #     # projectile.height = self.buster_cannon.height
+    #     # projectile.speed = self.buster_cannon.speed
+    #     # projectile.damage = damage
+    #
+    #     self.buster_cannon_cooldown.reset()
+    #     return [projectile]
 
     def fire_plasma_blaster(self):
         """
@@ -286,60 +288,7 @@ class StarShip:
         self.wave_crash_timer.reset()
         return bullets
 
-    # def fire_twin_linked_machinegun(self) -> list:
-    #     machine_gun_bullet_width = 42
-    #
-    #     # print("[MACHINEGUN] timer ready:", self.bullet_timer.is_ready())
-    #
-    #     if not self.bullet_timer.is_ready():
-    #         # print("[MACHINEGUN] cooldown blocking fire")
-    #         return []
-    #
-    #     center_bullet_x = 18
-    #
-    #     bullets = []
-    #
-    #     center_x = self.x + self.width + center_bullet_x
-    #     bullet_y = self.y
-    #
-    #     spread = self.bullet_spread_offset
-    #     count = self.bullets_per_shot
-    #     start_index = - (count // 2)
-    #
-    #     # print(
-    #     #     "[MACHINEGUN] firing count=",
-    #     #     count,
-    #     #     "spread=",
-    #     #     spread,
-    #     #     "center_x=",
-    #     #     center_x,
-    #     #     "bullet_y=",
-    #     #     bullet_y,
-    #     # )
-    #
-    #     for i in range(count):
-    #         offset = (start_index + i) * spread
-    #         bullet_x = center_x + offset - machine_gun_bullet_width // 2
-    #
-    #         bullet = Bullet(bullet_x, bullet_y)
-    #
-    #         # REQUIRED: vector-based motion
-    #         bullet.vx = 0.0
-    #         bullet.vy = -1.0
-    #         bullet.bullet_speed = 12.0
-    #
-    #         # REQUIRED: camera hookup
-    #         bullet.camera = self.camera
-    #
-    #         # print(f"[MACHINEGUN] bullet {i}: x={bullet.x} y={bullet.y}")
-    #
-    #         bullets.append(bullet)
-    #
-    #     # print("[MACHINEGUN] bullets list length:", len(bullets))
-    #     # print("[MACHINEGUN] bullets list:", bullets)
-    #
-    #     self.bullet_timer.reset()
-    #     return bullets
+
 
     def fire_energy_ball(self, dx: float, dy: float):
         # Rate-of-fire gate
@@ -365,6 +314,13 @@ class StarShip:
         self.machine_gun.x = self.x
         self.machine_gun.y = self.y
         self.machine_gun.update()
+
+        # StarShip update
+        self.buster_cannon.x = self.x + self.width // 2
+        self.buster_cannon.y = self.y
+        self.buster_cannon.update()
+
+
 
         # --------------------------------
         # MISSILE REGENERATION

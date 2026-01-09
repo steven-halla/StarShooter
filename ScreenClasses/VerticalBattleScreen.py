@@ -393,36 +393,27 @@ class VerticalBattleScreen:
         # Slot 0 — Buster Cannon
         if state.starship.equipped_magic[0] == "Buster Cannon" and not self.playerDead:
 
-            # Start charging ONLY when button is first pressed
-            if self.controller.magic_1_button and not state.starship.buster_cannon.is_charging:
-                state.starship.buster_cannon.start_charge()
-
-            # Continue charging while held
+            # press → fire immediately
             if self.controller.magic_1_button:
-                state.starship.buster_cannon.update()
+                bullets = self.starship.buster_cannon.fire_buster_cannon()
+                self.player_bullets.extend(bullets)
 
-            # Release → fire once
-            if self.controller.magic_1_released:
-                state.starship.buster_cannon.stop_charge()
-                shots = state.starship.fire_buster_cannon()
-                self.buster_cannon_bullets.extend(shots)
-
-            # HELD → do nothing, let update handle charged
-        if state.starship.equipped_magic[1] == "Buster Cannon" and not self.playerDead:
-
-            # Start charging ONLY when button is first pressed
-            if self.controller.magic_2_button and not state.starship.buster_cannon.is_charging:
-                state.starship.buster_cannon.start_charge()
-
-            # Continue charging while held
-            if self.controller.magic_2_button:
-                state.starship.buster_cannon.update()
-
-            # Release → fire once
-            if self.controller.magic_2_released:
-                state.starship.buster_cannon.stop_charge()
-                shots = state.starship.fire_buster_cannon()
-                self.buster_cannon_bullets.extend(shots)
+        #     # HELD → do nothing, let update handle charged
+        # if state.starship.equipped_magic[1] == "Buster Cannon" and not self.playerDead:
+        #
+        #     # Start charging ONLY when button is first pressed
+        #     if self.controller.magic_2_button and not state.starship.buster_cannon.is_charging:
+        #         state.starship.buster_cannon.start_charge()
+        #
+        #     # Continue charging while held
+        #     if self.controller.magic_2_button:
+        #         state.starship.buster_cannon.update()
+        #
+        #     # Release → fire once
+        #     if self.controller.magic_2_released:
+        #         state.starship.buster_cannon.stop_charge()
+        #         shots = state.starship.fire_buster_cannon()
+        #         self.buster_cannon_bullets.extend(shots)
 
         # -------------------------
         # PLASMA BLASTER MAGIC
