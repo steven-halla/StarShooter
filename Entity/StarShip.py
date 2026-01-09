@@ -14,6 +14,7 @@ from Weapons.Bullet import Bullet
 from Weapons.BusterCannon import BusterCanon
 from Weapons.EnergyBall import EnergyBall
 from Weapons.HyperLaser import HyperLaser
+from Weapons.MachineGun import MachineGun
 from Weapons.MetalShield import MetalShield
 from Weapons.Missile import Missile
 from Weapons.NapalmSpread import NapalmSpread
@@ -37,6 +38,10 @@ class StarShip:
 
         self.shipHealthMax: int = 150
         self.camera = None
+        self.machine_gun = MachineGun(self.x, self.y)
+
+        # REQUIRED: weapon must follow ship position & camera
+        self.machine_gun.camera = self.camera
 
         # firing stats for machien gun
         self.bullet_fire_interval_seconds: float = 0.10 # orginal value 0.05 # base value .24
@@ -281,58 +286,60 @@ class StarShip:
         self.wave_crash_timer.reset()
         return bullets
 
-    def fire_twin_linked_machinegun(self) -> list:
-        machine_gun_bullet_width = 42
-
-        print("[MACHINEGUN] timer ready:", self.bullet_timer.is_ready())
-
-        if not self.bullet_timer.is_ready():
-            print("[MACHINEGUN] cooldown blocking fire")
-            return []
-
-        bullets = []
-
-        center_x = self.x + self.width / 2 + 10
-        bullet_y = self.y
-
-        spread = self.bullet_spread_offset
-        count = self.bullets_per_shot
-        start_index = -(count // 2)
-
-        print(
-            "[MACHINEGUN] firing count=",
-            count,
-            "spread=",
-            spread,
-            "center_x=",
-            center_x,
-            "bullet_y=",
-            bullet_y,
-        )
-
-        for i in range(count):
-            offset = (start_index + i) * spread
-            bullet_x = center_x + offset - machine_gun_bullet_width // 2
-
-            bullet = Bullet(bullet_x, bullet_y)
-
-            # REQUIRED: vector-based motion
-            bullet.vx = 0.0
-            bullet.vy = -1.0
-            bullet.bullet_speed = 12.0
-
-            # REQUIRED: camera hookup
-            bullet.camera = self.camera
-
-            print(f"[MACHINEGUN] bullet {i}: x={bullet.x} y={bullet.y}")
-
-            bullets.append(bullet)
-
-        print("[MACHINEGUN] bullets list length:", len(bullets))
-        print("[MACHINEGUN] bullets list:", bullets)
-
-        self.bullet_timer.reset()
-        return bullets
+    # def fire_twin_linked_machinegun(self) -> list:
+    #     machine_gun_bullet_width = 42
+    #
+    #     # print("[MACHINEGUN] timer ready:", self.bullet_timer.is_ready())
+    #
+    #     if not self.bullet_timer.is_ready():
+    #         # print("[MACHINEGUN] cooldown blocking fire")
+    #         return []
+    #
+    #     center_bullet_x = 18
+    #
+    #     bullets = []
+    #
+    #     center_x = self.x + self.width + center_bullet_x
+    #     bullet_y = self.y
+    #
+    #     spread = self.bullet_spread_offset
+    #     count = self.bullets_per_shot
+    #     start_index = - (count // 2)
+    #
+    #     # print(
+    #     #     "[MACHINEGUN] firing count=",
+    #     #     count,
+    #     #     "spread=",
+    #     #     spread,
+    #     #     "center_x=",
+    #     #     center_x,
+    #     #     "bullet_y=",
+    #     #     bullet_y,
+    #     # )
+    #
+    #     for i in range(count):
+    #         offset = (start_index + i) * spread
+    #         bullet_x = center_x + offset - machine_gun_bullet_width // 2
+    #
+    #         bullet = Bullet(bullet_x, bullet_y)
+    #
+    #         # REQUIRED: vector-based motion
+    #         bullet.vx = 0.0
+    #         bullet.vy = -1.0
+    #         bullet.bullet_speed = 12.0
+    #
+    #         # REQUIRED: camera hookup
+    #         bullet.camera = self.camera
+    #
+    #         # print(f"[MACHINEGUN] bullet {i}: x={bullet.x} y={bullet.y}")
+    #
+    #         bullets.append(bullet)
+    #
+    #     # print("[MACHINEGUN] bullets list length:", len(bullets))
+    #     # print("[MACHINEGUN] bullets list:", bullets)
+    #
+    #     self.bullet_timer.reset()
+    #     return bullets
 
     def fire_energy_ball(self, dx: float, dy: float):
         # Rate-of-fire gate
@@ -352,6 +359,12 @@ class StarShip:
 
     def update(self) -> None:
         self.update_hitbox()
+
+        # inside StarShip.update()
+
+        self.machine_gun.x = self.x
+        self.machine_gun.y = self.y
+        self.machine_gun.update()
 
         # --------------------------------
         # MISSILE REGENERATION

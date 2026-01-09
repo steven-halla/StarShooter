@@ -7,7 +7,7 @@ class NapalmSpread(Bullet):
     def __init__(self, x: float, y: float):
         super().__init__(x, y)
 
-        self.magic_name: str = "Napalm Spread"
+        self.weapon_name: str = "Napalm Spread"
 
         # -----------------
         # SIZE (PROJECTILE)

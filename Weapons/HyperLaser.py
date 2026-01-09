@@ -11,7 +11,7 @@ class HyperLaser(Bullet):
         self.height: int = 60
 
         # identity
-        self.magic_name: str = "Hyper Laser"
+        self.weapon_name: str = "Hyper Laser"
 
         # laser does not move
         self.vx: float = 0.0

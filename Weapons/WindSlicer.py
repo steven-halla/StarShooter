@@ -11,7 +11,7 @@ class WindSlicer(Bullet):
         self.height: int = 12
 
         # identity
-        self.magic_name: str = "Wind Slicer"
+        self.weapon_name: str = "Wind Slicer"
 
         # stats
         self.damage: int = 5

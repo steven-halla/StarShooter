@@ -11,7 +11,7 @@ class EnergyBall(Bullet):
         self.height: int = 60
 
         # identity
-        self.magic_name: str = "Energy Ball"
+        self.weapon_name: str = "Energy Ball"
 
         # stats
         self.damage: int = 5

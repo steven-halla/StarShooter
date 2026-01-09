@@ -12,7 +12,7 @@ class Missile(Bullet):
         self.height: int = 12
 
         # identity
-        self.magic_name: str = "Missile"
+        self.weapon_name: str = "Missile"
 
         # stats
         self.damage: int = 3

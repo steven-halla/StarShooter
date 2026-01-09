@@ -11,7 +11,7 @@ class PlasmaBlaster(Bullet):
         self.height: int = 60
 
         # identity
-        self.magic_name: str = "Plasma Blaster"
+        self.weapon_name: str = "Plasma Blaster"
 
         # stats
         self.damage: int = 10

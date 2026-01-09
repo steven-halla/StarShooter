@@ -379,7 +379,7 @@ class VerticalBattleScreen:
                 self.player_missiles.append(missile)
 
         if self.controller.main_weapon_button and not self.playerDead:
-            new_bullets = self.starship.fire_twin_linked_machinegun()
+            new_bullets = self.starship.machine_gun.fire_machine_gun()
             self.player_bullets.extend(new_bullets)
 
         # if self.controller.main_weapon_button and not self.playerDead:

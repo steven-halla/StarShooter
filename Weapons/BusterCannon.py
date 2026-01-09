@@ -50,7 +50,7 @@ class BusterCanon(Bullet):
         # CHARGING
         # -----------------
         self.mp_cost = 10
-        self.magic_name = "Buster Cannon"
+        self.weapon_name = "Buster Cannon"
         self.is_charging = False
         self.fully_charged = False
         self.charge_time = 0.0

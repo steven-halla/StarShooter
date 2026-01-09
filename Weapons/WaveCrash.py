@@ -11,7 +11,7 @@ class WaveCrash(Bullet):
         self.height: int = 22
 
         # identity
-        self.magic_name: str = "Wave Crash"
+        self.weapon_name: str = "Wave Crash"
 
         # stats
         self.damage: int = 6
