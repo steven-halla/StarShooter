@@ -10,8 +10,8 @@ class BusterCanon(Bullet):
         # -----------------
         # SINGLE SHOT STATS
         # -----------------
-        self.damage = 10
-        self.bullet_speed = 5.0
+        self.damage = 1044
+        self.bullet_speed = 4.0
         self.rate_of_fire = .5
         self.width = 12
         self.height = 12

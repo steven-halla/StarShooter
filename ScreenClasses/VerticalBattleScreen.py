@@ -1254,16 +1254,36 @@ class VerticalBattleScreen:
         # BUSTER CANNON
         # -------------------------
         for bc in list(self.buster_cannon_bullets):
-            bc_rect = pygame.Rect(bc.x, bc.y, bc.width, bc.height)
+            print("[DEBUG] checking bullet", bc.x, bc.y)
+            bc.update()
+            bc.update_rect()
+        # FIX: use the SAME list you append buster cannon bullets to
+
+        for bc in list(self.player_bullets):
+            bc.update()
+            bc.update_rect()
 
             for enemy in all_enemies:
-                if bc_rect.colliderect(enemy.hitbox):
-                    enemy.enemyHealth -= bc.damage
-                    self.buster_cannon_bullets.remove(bc)
+                if bc.rect.colliderect(enemy.hitbox):
+                    print("[HIT] collision detected")
+
+                    enemy.take_damage(bc.damage)
+                    self.player_bullets.remove(bc)
 
                     if enemy.enemyHealth <= 0:
                         self.remove_enemy_if_dead(enemy)
                     break
+        # for bc in list(self.buster_cannon_bullets):
+        #     bc_rect = pygame.Rect(bc.x, bc.y, bc.width, bc.height)
+        #
+        #     for enemy in all_enemies:
+        #         if bc_rect.colliderect(enemy.hitbox):
+        #             enemy.enemyHealth -= bc.damage
+        #             self.buster_cannon_bullets.remove(bc)
+        #
+        #             if enemy.enemyHealth <= 0:
+        #                 self.remove_enemy_if_dead(enemy)
+        #             break
 
         # -------------------------
         # WAVE CRASH
