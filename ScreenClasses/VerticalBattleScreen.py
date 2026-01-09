@@ -626,11 +626,42 @@ class VerticalBattleScreen:
         # -------------------------
         # ENERGY BALL UPDATE / CLEANUP
         # -------------------------
+        # =========================
+        # ENERGY BALL UPDATE + CLEANUP
+        # PUT THIS IN VerticalBattleScreen.update()
+        # SAME PATTERN AS BUSTER CANNON
+        # =========================
+
+        # -------------------------
+        # ENERGY BALL CLEANUP
+        # delete ALL energy balls once they leave the screen
+        # -------------------------
+        print(self.energy_balls)
+
+        # -------------------------
+        # ENERGY BALL UPDATE / CLEANUP
+        # -------------------------
+        # -------------------------
+        # ENERGY BALL UPDATE / CLEANUP
+        # -------------------------
+        # -------------------------
+        # ENERGY BALL UPDATE / CLEANUP
+        # -------------------------
         for ball in list(self.energy_balls):
             ball.update()
 
+            # Convert to screen space (X + Y)
+            screen_x = ball.x - self.camera.x if hasattr(self.camera, "x") else ball.x
             screen_y = ball.y - self.camera.y
-            if screen_y + ball.height < 0:
+
+            # If energy ball is fully off screen in ANY direction → delete
+            if (
+                    screen_y + ball.height < 0 or
+                    screen_y > (self.window_height / self.camera.zoom) or
+                    screen_x + ball.width < 0 or
+                    screen_x > (self.window_width / self.camera.zoom) or
+                    not ball.is_active
+            ):
                 self.energy_balls.remove(ball)
         # -------------------------
         # BUSTER CANNON BULLET CLEANUP
@@ -1265,6 +1296,28 @@ class VerticalBattleScreen:
         #                 self.remove_enemy_if_dead(enemy)
         #             break
 
+        # -------------------------
+        # ENERGY BALL COLLISION
+        # -------------------------
+        # -------------------------
+        # ENERGY BALL COLLISION (WORLD SPACE)
+        # -------------------------
+        for ball in list(self.energy_balls):
+            ball_rect = pygame.Rect(ball.x, ball.y, ball.width, ball.height)
+
+            for enemy in all_enemies:
+                # enemy.hitbox is already WORLD space
+                if ball_rect.colliderect(enemy.hitbox):
+                    print(
+                        f"[EnergyBall HIT] ball={ball_rect} enemy={enemy.hitbox}"
+                    )
+
+                    enemy.enemyHealth -= ball.damage
+                    self.energy_balls.remove(ball)
+
+                    if enemy.enemyHealth <= 0:
+                        self.remove_enemy_if_dead(enemy)
+                    break
         # -------------------------
         # WAVE CRASH
         # -------------------------
