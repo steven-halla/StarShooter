@@ -12,8 +12,8 @@ class HyperLaser(Bullet):
         # -----------------
         # SIZE
         # -----------------
-        self.width: int = 12
-        self.height: int = 60
+        self.width: int = 10
+        self.height: int = 30
 
         # -----------------
         # IDENTITY
@@ -63,7 +63,7 @@ class HyperLaser(Bullet):
 
         # SAME PATTERN AS BUSTER CANNON
         bullet_x = self.x + self.width // 2
-        bullet_y = self.y
+        bullet_y = self.y - 20
 
         laser = HyperLaser(bullet_x, bullet_y)
 
@@ -81,6 +81,7 @@ class HyperLaser(Bullet):
             f"x={laser.x:.2f} y={laser.y:.2f} "
             f"rect={laser.rect}"
         )
+
 
         return laser
     # -----------------

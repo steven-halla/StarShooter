@@ -301,6 +301,7 @@ class VerticalBattleScreen:
         # now handle map scroll ONLY in LevelOne
         # FIRST: update input
 
+
         self.controller.update()
 
         # THEN: react to input
@@ -582,17 +583,26 @@ class VerticalBattleScreen:
             # Convert to screen space
             screen_y = metal.y - self.camera.y
 
-
-
         for laser in list(self.hyper_laser_bullets):
             laser.update()
 
-            # Convert to screen space
-            screen_y = laser.y - self.camera.y
+            for enemy in self.enemies:
+                print(
+                    f"[LASER DEBUG] "
+                    f"laser_y={laser.y} "
+                    f"enemy_y={enemy.hitbox.y} "
+                    f"camera_y={self.camera.y}"
+                )
 
-            # If bullet is above the visible screen area → delete
+                if laser.rect.colliderect(enemy.hitbox):
+                    print(
+                        f"[HYPER LASER COLLISION] "
+                        f"laser_rect={laser.rect} "
+                        f"enemy_hitbox={enemy.hitbox}"
+                    )
+
+            screen_y = laser.y - self.camera.y
             if screen_y + laser.height < 0:
-                # print(f"[DELETE] Bullet removed at world_y={bullet.y}, screen_y={screen_y}")
                 self.hyper_laser_bullets.remove(laser)
 
 
@@ -633,7 +643,7 @@ class VerticalBattleScreen:
         # ENERGY BALL CLEANUP
         # delete ALL energy balls once they leave the screen
         # -------------------------
-        print(self.energy_balls)
+        # print(self.energy_balls)
 
         # -------------------------
         # ENERGY BALL UPDATE / CLEANUP
@@ -662,6 +672,7 @@ class VerticalBattleScreen:
                 self.energy_balls.remove(ball)
         # -------------------------
         # BUSTER CANNON BULLET CLEANUP
+
         # -------------------------
         for bc in list(self.buster_cannon_bullets):
             bc.update()
@@ -1329,6 +1340,20 @@ class VerticalBattleScreen:
                     if enemy.enemyHealth <= 0:
                         self.remove_enemy_if_dead(enemy)
                     break
+
+        # -------------------------
+        # hyper laser
+        # -------------------------
+
+        for laser in list(self.hyper_laser_bullets):
+            for enemy in all_enemies:
+                if laser.rect.colliderect(enemy.hitbox):
+                    print("[HYPER LASER HIT]", laser.rect, enemy.hitbox)
+
+                    enemy.enemyHealth -= laser.damage
+
+                    if enemy.enemyHealth <= 0:
+                        self.remove_enemy_if_dead(enemy)
 
     def remove_enemy_if_dead(self, enemy) -> None:
         if enemy.enemyHealth > 0:
