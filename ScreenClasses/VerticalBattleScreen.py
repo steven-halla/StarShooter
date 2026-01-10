@@ -317,24 +317,7 @@ class VerticalBattleScreen:
             rect = pygame.Rect(icon_index * 16, 0, 16, 16)
             icon = self.hud_sheet.subsurface(rect)
             self.sub_weapon_icons[weapon_name] = pygame.transform.scale(icon, (24, 24))
-        # --------------------------------
-        # PLAYER DEATH → LOAD SAVE
-        # --------------------------------
 
-        # if self.starship.shipHealth <= 0:
-        #     from Levels.LevelOne import LevelOne
-        #
-        #     # reload save
-        #     if self.save_state.load_from_file(""
-        #                                       "player_save.json"):
-        #         new_level = LevelOne(state.textbox)
-        #         state.currentScreen = new_level
-        #         new_level.start(state)
-        #
-        #         # restore player AFTER start() sets spawn point
-        #         self.save_state.restore_player(state.starship)
-        #
-        #     return
         self.move_map_y_axis()
 
 
@@ -421,21 +404,16 @@ class VerticalBattleScreen:
                     if plasma is not None:
                         self.plasma_blaster_bullets.append(plasma)
 
+
         # -------------------------
-        # ENERGY BALL MAGIC
-        # -------------------------
-        # -------------------------
-        # ENERGY BALL MAGIC (SAME PATTERN AS PLASMA BLASTER)
-        # -------------------------
-        # -------------------------
-        # ENERGY BALL MAGIC (SAME PATTERN AS PLASMA BLASTER)
+        # ENERGY BALL
         # -------------------------
         if state.starship.equipped_magic[0] == "Energy Ball" and not self.playerDead:
 
             # HOLD → spawn ONE energy ball (ROF handled inside EnergyBall)
             if self.controller.magic_1_button:
                 if not self.energy_balls:  # 🔒 guard: same pattern
-                    energy_ball = state.starship.energy_ball.try_fire(self.controller)
+                    energy_ball = state.starship.energy_ball.fire_energy_ball(self.controller)
                     if energy_ball is not None:
                         self.energy_balls.append(energy_ball)
 

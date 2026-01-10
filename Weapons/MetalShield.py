@@ -43,6 +43,19 @@ class MetalShield(Bullet):
         # orbit-only movement; external code supplies center via update_orbit
         pass
 
+
+    def fire_metal_shield(self):
+        """
+        Activates the Metal Shield spell and returns the shield instance.
+        """
+
+        # Center of the ship in world space
+        center_x = self.x + self.width / 2
+        center_y = self.y + self.height / 2
+
+        shield = MetalShield(center_x, center_y)
+        return shield
+
     def absorb_hit(self) -> bool:
         if self.is_active and not self.has_blocked:
             self.has_blocked = True

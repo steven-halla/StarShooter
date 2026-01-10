@@ -32,25 +32,23 @@ class StarShip:
         self.y: int = 0
         self.moveStarShip: MoveRectangle = MoveRectangle()
         self.speed: float = 3.0
-        self.buster_cannon_cooldown = Timer(0.25)
         # the weapon itself manages charge status
-        self.buster_cannon = BusterCanon(self.x, self.y)
 
         self.shipHealthMax: int = 150
         self.camera = None
+
+
+
+
+        # Machine Gun
         self.machine_gun = MachineGun(self.x, self.y)
-
-        # REQUIRED: weapon must follow ship position & camera
         self.machine_gun.camera = self.camera
-        # StarShip __init__
-        self.buster_cannon = BusterCanon(self.x, self.y)
-
-        # firing stats for machien gun
         self.bullet_fire_interval_seconds: float = 0.10 # orginal value 0.05 # base value .24
         self.bullet_timer: Timer = Timer(self.bullet_fire_interval_seconds)
         self.bullet_spread_offset: int = 18
         self.bullets_per_shot: int = 2
         self.bulletDamage: int = 1
+
         # missile stats
         self.missile_fire_interval_seconds: float = 3.0
         self.missile_timer: Timer = Timer(self.missile_fire_interval_seconds)
@@ -62,7 +60,10 @@ class StarShip:
         self.max_missiles: int = 1
         self.current_missiles: int = 1
 
-        self.equipped_magic: list = ["Beam Saber", None]
+        self.equipped_magic: list = ["Energy Ball", None]
+
+
+
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
 
@@ -105,23 +106,29 @@ class StarShip:
         self.is_electrocuted: bool = False
         self.electric_start_time: int = 0
         self.electric_duration_ms: int = 180
+        # -------------------------
+        # Buster cannon
+        # -------------------------
+        self.buster_cannon = BusterCanon(self.x, self.y)
+        self.buster_cannon_cooldown = Timer(0.25)
 
-
-        #energy ball
+        # -------------------------
+        # Energy ball
+        # -------------------------
         self.energy_ball_fire_interval_seconds: float = 1.2
-
         self.energy_ball_timer: Timer = Timer(self.energy_ball_fire_interval_seconds)
-
         self.energy_ball = EnergyBall(self.x, self.y)
         self.energy_ball.energy_ball_timer = self.energy_ball_timer
 
-
-        #Beam Saber
+        # -------------------------
+        # Beam saber
+        # -------------------------
         self.beam_saber = BeamSaber(self.x, self.y)
 
-        self.beam_saber_fire_interval_seconds: float = .3
-        self.beam_saber_timer: Timer = Timer(self.beam_saber_fire_interval_seconds)
-        self.beam_saber_damage: int = 100
+        # -------------------------
+        # Metal Shield
+        # -------------------------
+        self.metal_shield = MetalShield(self.x, self.y)
 
 
 
@@ -245,18 +252,18 @@ class StarShip:
         return missile
 
 
-
-    def fire_metal_shield(self):
-        """
-        Activates the Metal Shield spell and returns the shield instance.
-        """
-
-        # Center of the ship in world space
-        center_x = self.x + self.width / 2
-        center_y = self.y + self.height / 2
-
-        shield = MetalShield(center_x, center_y)
-        return shield
+    #
+    # def fire_metal_shield(self):
+    #     """
+    #     Activates the Metal Shield spell and returns the shield instance.
+    #     """
+    #
+    #     # Center of the ship in world space
+    #     center_x = self.x + self.width / 2
+    #     center_y = self.y + self.height / 2
+    #
+    #     shield = MetalShield(center_x, center_y)
+    #     return shield
 
     def fire_wave_crash(self) -> list:
         print("yah")

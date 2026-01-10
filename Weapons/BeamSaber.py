@@ -61,8 +61,9 @@ class BeamSaber(Bullet):
         self.last_fire_time = pygame.time.get_ticks() / 1000.0
 
         # SAME PATTERN AS BUSTER CANNON
+        beam_above_ship = 20
         bullet_x = self.x + self.width // 2
-        bullet_y = self.y - 20
+        bullet_y = self.y - beam_above_ship
 
         laser = BeamSaber(bullet_x, bullet_y)
 

@@ -34,7 +34,7 @@ class EnergyBall(Bullet):
         # print(f"[EnergyBall CAN_FIRE] can={can}")
         return can
 
-    def try_fire(self, controller):
+    def fire_energy_ball(self, controller):
         if not self.can_fire():
             # print("[EnergyBall TRY_FIRE] blocked by ROF")
             return None
