@@ -584,6 +584,9 @@ class VerticalBattleScreen:
             screen_y = metal.y - self.camera.y
 
         for laser in list(self.hyper_laser_bullets):
+            laser.x = self.starship.x + self.starship.width // 2
+            laser.y = self.starship.y - 20
+
             laser.update()
 
             for enemy in self.enemies:
@@ -630,27 +633,8 @@ class VerticalBattleScreen:
             if screen_x + wave.width < 0 or screen_x > (self.window_width / self.camera.zoom):
                 self.wave_crash_bullets.remove(wave)
 
-        # -------------------------
-        # ENERGY BALL UPDATE / CLEANUP
-        # -------------------------
-        # =========================
-        # ENERGY BALL UPDATE + CLEANUP
-        # PUT THIS IN VerticalBattleScreen.update()
-        # SAME PATTERN AS BUSTER CANNON
-        # =========================
 
-        # -------------------------
-        # ENERGY BALL CLEANUP
-        # delete ALL energy balls once they leave the screen
-        # -------------------------
-        # print(self.energy_balls)
 
-        # -------------------------
-        # ENERGY BALL UPDATE / CLEANUP
-        # -------------------------
-        # -------------------------
-        # ENERGY BALL UPDATE / CLEANUP
-        # -------------------------
         # -------------------------
         # ENERGY BALL UPDATE / CLEANUP
         # -------------------------
