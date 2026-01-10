@@ -15,7 +15,7 @@ class MetalShield(Bullet):
         self.METAL_SHIELD: str = "Metal Shield"
 
         # stats
-        self.damage: int = 0            # shield does not deal damage
+        self.damage: int = 10            # shield does not deal damage
         self.rate_of_fire: float = 0.0  # not applicable, but consistent
         self.bullet_speed: float = 0.0  # does not translate
 

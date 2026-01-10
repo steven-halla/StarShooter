@@ -60,7 +60,7 @@ class StarShip:
         self.max_missiles: int = 1
         self.current_missiles: int = 1
 
-        self.equipped_magic: list = ["Energy Ball", None]
+        self.equipped_magic: list = ["Metal Shield", None]
 
 
 
@@ -162,35 +162,7 @@ class StarShip:
 
         return napalm
 
-    # def fire_buster_cannon(self):
-    #     """Use the BusterCanon’s own state to determine projectile size/damage."""
-    #     if not self.buster_cannon_cooldown.is_ready():
-    #         return []
-    #
-    #     # ask the weapon what kind of shot to fire; this resets its charge state
-    #     damage = self.buster_cannon.fire()
-    #     # the weapon’s width/height have been set by its own fire() method
-    #     projectile = Bullet(self.x + self.width // 2, self.y)
-    #
-    #     projectile.shot_type = (
-    #         self.buster_cannon.CHARGED_BUSTER_SHOT
-    #         if self.buster_cannon.fully_charged
-    #         else self.buster_cannon.NORMAL_BUSTER_SHOT
-    #     )
-    #
-    #     projectile.width = self.buster_cannon.width
-    #     projectile.height = self.buster_cannon.height
-    #     projectile.speed = self.buster_cannon.speed
-    #     projectile.damage = damage
-    #     projectile.update_rect()
-    #     # projectile = Bullet(self.x + self.width // 2, self.y)
-    #     # projectile.width = self.buster_cannon.width
-    #     # projectile.height = self.buster_cannon.height
-    #     # projectile.speed = self.buster_cannon.speed
-    #     # projectile.damage = damage
-    #
-    #     self.buster_cannon_cooldown.reset()
-    #     return [projectile]
+
 
     def fire_plasma_blaster(self):
         """
@@ -304,23 +276,6 @@ class StarShip:
         return bullets
 
 
-
-    # def fire_energy_ball(self, dx: float, dy: float):
-    #     # Rate-of-fire gate
-    #     if not self.energy_ball_timer.is_ready():
-    #         return None
-    #
-    #     # Spawn at center of ship
-    #     start_x = self.x + self.width / 2
-    #     start_y = self.y + self.height / 2
-    #
-    #     energy_ball = EnergyBall(start_x, start_y, dx, dy)
-    #
-    #     # Reset cooldown
-    #     self.energy_ball_timer.reset()
-    #
-    #     return energy_ball
-
     def update(self) -> None:
         self.update_hitbox()
 
@@ -350,6 +305,14 @@ class StarShip:
         self.beam_saber.x = self.x + self.width // 2
         self.beam_saber.y = self.y
         self.beam_saber.update()
+
+
+        # -------------------------
+        # Metal Shield
+        # -------------------------
+        self.metal_shield.x = self.x + self.width // 2
+        self.metal_shield.y = self.y
+        self.metal_shield.update()
 
 
         # --------------------------------

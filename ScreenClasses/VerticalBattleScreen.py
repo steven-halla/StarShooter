@@ -429,7 +429,7 @@ class VerticalBattleScreen:
             if self.controller.magic_1_button:
                 # Only allow one active shield
                 if not self.metal_shield_bullets:
-                    shield = state.starship.fire_metal_shield()
+                    shield = state.starship.metal_shield.fire_metal_shield()
                     if shield is not None:
                         self.metal_shield_bullets.append(shield)
 
@@ -513,8 +513,7 @@ class VerticalBattleScreen:
             if screen_y + slicer.height < 0:
                 self.wind_slicer_bullets.remove(slicer)
 
-        # -------------------------
-        # NAPALM SPREAD UPDATE
+
         # -------------------------
         # NAPALM SPREAD UPDATE
         # -------------------------
@@ -1301,6 +1300,22 @@ class VerticalBattleScreen:
                     print("[Beam saber HIT]", saber.rect, enemy.hitbox)
 
                     enemy.enemyHealth -= saber.damage
+
+                    if enemy.enemyHealth <= 0:
+                        self.remove_enemy_if_dead(enemy)
+
+
+
+        # -------------------------
+        # metal shield
+        # -------------------------
+
+        for metal in list(self.metal_shield_bullets):
+            for enemy in all_enemies:
+                if metal.rect.colliderect(enemy.hitbox):
+                    print("[metal shield HIT]", metal.rect, enemy.hitbox)
+
+                    enemy.enemyHealth -= metal.damage
 
                     if enemy.enemyHealth <= 0:
                         self.remove_enemy_if_dead(enemy)
