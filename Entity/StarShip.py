@@ -13,7 +13,7 @@ from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 from Weapons.BusterCannon import BusterCanon
 from Weapons.EnergyBall import EnergyBall
-from Weapons.HyperLaser import HyperLaser
+from Weapons.BeamSaber import BeamSaber
 from Weapons.MachineGun import MachineGun
 from Weapons.MetalShield import MetalShield
 from Weapons.Missile import Missile
@@ -62,7 +62,7 @@ class StarShip:
         self.max_missiles: int = 1
         self.current_missiles: int = 1
 
-        self.equipped_magic: list = ["Hyper Laser", None]
+        self.equipped_magic: list = ["Beam Saber", None]
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
 
@@ -116,12 +116,12 @@ class StarShip:
         self.energy_ball.energy_ball_timer = self.energy_ball_timer
 
 
-        #hyper laser
-        self.hyper_laser = HyperLaser(self.x, self.y)
+        #Beam Saber
+        self.beam_saber = BeamSaber(self.x, self.y)
 
-        self.hyper_laser_fire_interval_seconds: float = .3
-        self.hyper_laser_timer: Timer = Timer(self.hyper_laser_fire_interval_seconds)
-        self.hyper_laser_damage: int = 100
+        self.beam_saber_fire_interval_seconds: float = .3
+        self.beam_saber_timer: Timer = Timer(self.beam_saber_fire_interval_seconds)
+        self.beam_saber_damage: int = 100
 
 
 
@@ -244,18 +244,7 @@ class StarShip:
 
         return missile
 
-    # def fire_hyper_laser(self):
-    #     # Only fire if timer is ready
-    #     if not self.hyper_laser_timer.is_ready():
-    #         return None
-    #
-    #     # Create the laser ATTACHED to the ship
-    #     hyper_laser = HyperLaser(self)
-    #
-    #     # Reset cooldown
-    #     self.hyper_laser_timer.reset()
-    #
-    #     return hyper_laser
+
 
     def fire_metal_shield(self):
         """
@@ -349,11 +338,11 @@ class StarShip:
         self.energy_ball.update()
 
         # -------------------------
-        # Hyper laser
+        # Beam Saber
         # -------------------------
-        self.hyper_laser.x = self.x + self.width // 2
-        self.hyper_laser.y = self.y
-        self.hyper_laser.update()
+        self.beam_saber.x = self.x + self.width // 2
+        self.beam_saber.y = self.y
+        self.beam_saber.update()
 
 
         # --------------------------------

@@ -98,7 +98,7 @@ class VerticalBattleScreen:
         self.was_q_pressed_last_frame: bool = False
 
         self.plasma_blaster_bullets: list = []
-        self.hyper_laser_bullets: list = []
+        self.beam_saber_bullets: list = []
         self.wind_slicer_bullets: list = []
         self.napalm_spread_bullets: list = []
         self.napalm_explosions: list = []
@@ -203,10 +203,10 @@ class VerticalBattleScreen:
             (32, 32)
         )
 
-        # hyper laser (index 8) — missile skipped on purpose
-        hyper_rect = pygame.Rect(8 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
-        self.hyper_laser_icon = pygame.transform.scale(
-            self.hud_sheet.subsurface(hyper_rect),
+        # beam_saber (index 8) — missile skipped on purpose
+        saber_rect = pygame.Rect(8 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
+        self.beam_saber_icon = pygame.transform.scale(
+            self.hud_sheet.subsurface(saber_rect),
             (UI_ICON_SIZE, UI_ICON_SIZE)
         )
 
@@ -233,7 +233,7 @@ class VerticalBattleScreen:
             "Energy Ball": 4,
             "Plasma Blaster": 5,
             "Metal Shield": 6,
-            "Hyper Laser": 8,
+            "Beam Saber": 8,
             "Wave Crash": 9,
         }
 
@@ -466,23 +466,23 @@ class VerticalBattleScreen:
 
         # -------------------------
 
-        # Hyper laser
+        # Beam Saber
         # -------------------------
-        if state.starship.equipped_magic[0] == "Hyper Laser" and not self.playerDead:
+        if state.starship.equipped_magic[0] == "Beam Saber" and not self.playerDead:
             if self.controller.magic_1_button:
-                if not self.hyper_laser_bullets:  # ← guard
-                    laser = state.starship.hyper_laser.fire_hyper_laser()
+                if not self.beam_saber_bullets:  # ← guard
+                    saber = state.starship.beam_saber.fire_beam_saber()
 
 
-                    if laser is not None:
-                        self.hyper_laser_bullets.append(laser)
+                    if saber is not None:
+                        self.beam_saber_bullets.append(saber)
 
         # -------------------------
-        # HYPER LASER RELEASE
+        # Beam Saber RELEASE
         # -------------------------
         if not self.controller.magic_1_button:
-            if self.hyper_laser_bullets:
-                self.hyper_laser_bullets.clear()
+            if self.beam_saber_bullets:
+                self.beam_saber_bullets.clear()
         # -------------------------
 
         # WAVE CRASH MAGIC
@@ -583,30 +583,18 @@ class VerticalBattleScreen:
             # Convert to screen space
             screen_y = metal.y - self.camera.y
 
-        for laser in list(self.hyper_laser_bullets):
+        # -------------------------
+        # laser
+        # -------------------------
+
+        for laser in list(self.beam_saber_bullets):
             laser.x = self.starship.x + self.starship.width // 2
             laser.y = self.starship.y - 20
 
             laser.update()
-
-            for enemy in self.enemies:
-                print(
-                    f"[LASER DEBUG] "
-                    f"laser_y={laser.y} "
-                    f"enemy_y={enemy.hitbox.y} "
-                    f"camera_y={self.camera.y}"
-                )
-
-                if laser.rect.colliderect(enemy.hitbox):
-                    print(
-                        f"[HYPER LASER COLLISION] "
-                        f"laser_rect={laser.rect} "
-                        f"enemy_hitbox={enemy.hitbox}"
-                    )
-
             screen_y = laser.y - self.camera.y
             if screen_y + laser.height < 0:
-                self.hyper_laser_bullets.remove(laser)
+                self.beam_saber_bullets.remove(laser)
 
 
         for bullet in list(self.player_bullets):
@@ -983,7 +971,7 @@ class VerticalBattleScreen:
                 1
             )
 
-        for laser in self.hyper_laser_bullets:
+        for laser in self.beam_saber_bullets:
             mx = self.camera.world_to_screen_x(laser.x)
             my = self.camera.world_to_screen_y(laser.y)
             mw = int(laser.width * zoom)
@@ -1326,15 +1314,15 @@ class VerticalBattleScreen:
                     break
 
         # -------------------------
-        # hyper laser
+        # beam saber
         # -------------------------
 
-        for laser in list(self.hyper_laser_bullets):
+        for saber in list(self.beam_saber_bullets):
             for enemy in all_enemies:
-                if laser.rect.colliderect(enemy.hitbox):
-                    print("[HYPER LASER HIT]", laser.rect, enemy.hitbox)
+                if saber.rect.colliderect(enemy.hitbox):
+                    print("[Beam saber HIT]", saber.rect, enemy.hitbox)
 
-                    enemy.enemyHealth -= laser.damage
+                    enemy.enemyHealth -= saber.damage
 
                     if enemy.enemyHealth <= 0:
                         self.remove_enemy_if_dead(enemy)

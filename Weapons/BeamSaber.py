@@ -1,11 +1,10 @@
 
-# HyperLaser.py
 
 import pygame
 from Weapons.Bullet import Bullet
 
 
-class HyperLaser(Bullet):
+class BeamSaber(Bullet):
     def __init__(self, x: float, y: float):
         super().__init__(x, y)
 
@@ -18,7 +17,7 @@ class HyperLaser(Bullet):
         # -----------------
         # IDENTITY
         # -----------------
-        self.weapon_name: str = "Hyper Laser"
+        self.weapon_name: str = "Beam Saber"
 
         # -----------------
         # DAMAGE
@@ -55,7 +54,7 @@ class HyperLaser(Bullet):
     # -----------------
     # FIRE (RETURNS OBJECT, NOT LIST)
     # -----------------
-    def fire_hyper_laser(self):
+    def fire_beam_saber(self):
         if not self.can_fire():
             return None
 
@@ -65,7 +64,7 @@ class HyperLaser(Bullet):
         bullet_x = self.x + self.width // 2
         bullet_y = self.y - 20
 
-        laser = HyperLaser(bullet_x, bullet_y)
+        laser = BeamSaber(bullet_x, bullet_y)
 
         laser.damage = self.damage
         laser.camera = self.camera
@@ -77,7 +76,7 @@ class HyperLaser(Bullet):
         laser.update_rect()
 
         print(
-            f"[HyperLaser SPAWN] "
+            f"[BeamSaber SPAWN] "
             f"x={laser.x:.2f} y={laser.y:.2f} "
             f"rect={laser.rect}"
         )
