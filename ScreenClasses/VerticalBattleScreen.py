@@ -470,7 +470,9 @@ class VerticalBattleScreen:
         if state.starship.equipped_magic[0] == "Hyper Laser" and not self.playerDead:
             if self.controller.magic_1_button:
                 if not self.hyper_laser_bullets:  # ← guard
-                    laser = state.starship.fire_hyper_laser()
+                    laser = state.starship.hyper_laser.fire_hyper_laser()
+
+
                     if laser is not None:
                         self.hyper_laser_bullets.append(laser)
 
@@ -579,11 +581,6 @@ class VerticalBattleScreen:
                 self.metal_shield_bullets.remove(metal)
             # Convert to screen space
             screen_y = metal.y - self.camera.y
-
-            # If bullet is above the visible screen area → delete
-            # if screen_y + metal.height < 0:
-            #     # print(f"[DELETE] Bullet removed at world_y={bullet.y}, screen_y={screen_y}")
-            #     self.metal_shield_bullets.remove(metal)
 
 
 

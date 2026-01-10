@@ -62,13 +62,12 @@ class StarShip:
         self.max_missiles: int = 1
         self.current_missiles: int = 1
 
-        self.equipped_magic: list = ["Energy Ball", None]
-        self.hyper_laser_damage: int = 100
+        self.equipped_magic: list = ["Hyper Laser", None]
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
 
-        self.hyper_laser_fire_interval_seconds: float = .1
-        self.hyper_laser_timer: Timer = Timer(self.hyper_laser_fire_interval_seconds)
+
+
 
 
         self.hitbox: pygame.Rect = pygame.Rect(
@@ -115,6 +114,14 @@ class StarShip:
 
         self.energy_ball = EnergyBall(self.x, self.y)
         self.energy_ball.energy_ball_timer = self.energy_ball_timer
+
+
+        #hyper laser
+        self.hyper_laser = HyperLaser(self.x, self.y)
+
+        self.hyper_laser_fire_interval_seconds: float = .3
+        self.hyper_laser_timer: Timer = Timer(self.hyper_laser_fire_interval_seconds)
+        self.hyper_laser_damage: int = 100
 
 
 
@@ -237,18 +244,18 @@ class StarShip:
 
         return missile
 
-    def fire_hyper_laser(self):
-        # Only fire if timer is ready
-        if not self.hyper_laser_timer.is_ready():
-            return None
-
-        # Create the laser ATTACHED to the ship
-        hyper_laser = HyperLaser(self)
-
-        # Reset cooldown
-        self.hyper_laser_timer.reset()
-
-        return hyper_laser
+    # def fire_hyper_laser(self):
+    #     # Only fire if timer is ready
+    #     if not self.hyper_laser_timer.is_ready():
+    #         return None
+    #
+    #     # Create the laser ATTACHED to the ship
+    #     hyper_laser = HyperLaser(self)
+    #
+    #     # Reset cooldown
+    #     self.hyper_laser_timer.reset()
+    #
+    #     return hyper_laser
 
     def fire_metal_shield(self):
         """
@@ -340,6 +347,13 @@ class StarShip:
         self.energy_ball.x = self.x + self.width / 2
         self.energy_ball.y = self.y + self.height / 2
         self.energy_ball.update()
+
+        # -------------------------
+        # Hyper laser
+        # -------------------------
+        self.hyper_laser.x = self.x + self.width // 2
+        self.hyper_laser.y = self.y
+        self.hyper_laser.update()
 
 
         # --------------------------------
