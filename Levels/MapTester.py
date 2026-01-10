@@ -65,7 +65,8 @@ class MapTester(VerticalBattleScreen):
         super().update(state)
         # Missile firing (override parent behavior)
         if self.controller.fire_missiles:
-            missile = self.starship.fire_missile()
+
+            missile = self.starship.missile.fire_missile()
             if missile is not None:
 
                 # Lock onto nearest enemy

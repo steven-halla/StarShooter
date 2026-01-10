@@ -356,14 +356,6 @@ class VerticalBattleScreen:
 
 
 
-        # -------------------------
-        # PLAYER Missiles ONLY
-        # # -------------------------
-
-        if self.controller.fire_missiles and not self.playerDead:
-            missile = self.starship.fire_missile()
-            if missile is not None:
-                self.player_missiles.append(missile)
 
         # -------------------------
         # PLAYER Machine gun ONLY
@@ -372,6 +364,39 @@ class VerticalBattleScreen:
         if self.controller.main_weapon_button and not self.playerDead:
             new_bullets = self.starship.machine_gun.fire_machine_gun()
             self.player_bullets.extend(new_bullets)
+
+
+
+        # -------------------------
+        # PLAYER Missiles ONLY
+        # # -------------------------
+
+        if self.controller.fire_missiles and not self.playerDead:
+            # 🔴 CRITICAL FIX
+            self.starship.missile.x = self.starship.x
+            self.starship.missile.y = self.starship.y
+
+            missile = self.starship.missile.fire_missile()
+            if missile is not None:
+                print(
+                    f"[MISSILE SPAWN] "
+                    f"x={missile.x:.2f} "
+                    f"y={missile.y:.2f} "
+                    f"rect={missile.rect}"
+                )
+                self.player_missiles.append(missile)
+
+        # if self.controller.fire_missiles and not self.playerDead:
+        #     missile = self.starship.missile.fire_missile()
+        #     if missile is not None:
+        #         print(
+        #             f"[MISSILE SPAWN] "
+        #             f"x={missile.x:.2f} "
+        #             f"y={missile.y:.2f} "
+        #             f"rect={missile.rect}"
+        #         )
+        #         self.player_missiles.append(missile)
+
 
 
 
@@ -1187,6 +1212,23 @@ class VerticalBattleScreen:
                         self.remove_enemy_if_dead(enemy)
                     break
 
+
+        # -------------------------
+        # MISSILES
+        # -------------------------
+        for missile in list(self.player_missiles):
+            missile_rect = pygame.Rect(missile.x, missile.y, missile.width, missile.height)
+
+            for enemy in all_enemies:
+                if missile_rect.colliderect(enemy.hitbox):
+                    enemy.enemyHealth -= self.starship.missile.damage
+                    self.player_missiles.remove(missile)
+
+                    if enemy.enemyHealth <= 0:
+                        self.remove_enemy_if_dead(enemy)
+                    break
+
+
         # -------------------------
         # WIND SLICER
         # -------------------------
@@ -1203,20 +1245,6 @@ class VerticalBattleScreen:
                         self.remove_enemy_if_dead(enemy)
                     break
 
-        # -------------------------
-        # MISSILES
-        # -------------------------
-        for missile in list(self.player_missiles):
-            missile_rect = pygame.Rect(missile.x, missile.y, missile.width, missile.height)
-
-            for enemy in all_enemies:
-                if missile_rect.colliderect(enemy.hitbox):
-                    enemy.enemyHealth -= self.starship.missileDamage
-                    self.player_missiles.remove(missile)
-
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-                    break
 
         # -------------------------
         # BUSTER CANNON
@@ -1394,7 +1422,7 @@ class VerticalBattleScreen:
     def draw_ui_panel(self, surface: pygame.Surface) -> None:
         font = pygame.font.Font(None, 24)
 
-        missile_text = f"{self.starship.current_missiles}/{self.starship.max_missiles}"
+        missile_text = f"{self.starship.missile.current_missiles}/{self.starship.missile.max_missiles}"
         missile_text_surface = font.render(missile_text, True, (255, 255, 255))
         # -----------------------------
         # PANEL RECT
@@ -1496,7 +1524,7 @@ class VerticalBattleScreen:
         # -----------------------------
 
         font = pygame.font.Font(None, 24)
-        missile_text = f"{self.starship.current_missiles}/{self.starship.max_missiles}"
+        missile_text = f"{self.starship.missile.current_missiles}/{self.starship.missile.max_missiles}"
         missile_surface = font.render(missile_text, True, (255, 255, 255))
 
         missile_text_x = icon_x + 32 + 5

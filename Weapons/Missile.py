@@ -1,5 +1,7 @@
 import pygame
 import math
+
+from Constants.Timer import Timer
 from Weapons.Bullet import Bullet
 
 
@@ -15,7 +17,7 @@ class Missile(Bullet):
         self.weapon_name: str = "Missile"
 
         # stats
-        self.damage: int = 3
+        self.damage: int = 343
         self.rate_of_fire: float = 0.5
         self.bullet_speed: float = 2.5
 
@@ -28,8 +30,19 @@ class Missile(Bullet):
 
         self.update_rect()
 
+        # self.missileSpeed: int = 10 # 10 original
+        self.missile_spread_offset: int = 20
+        self.max_missiles: int = 1
+        self.current_missiles: int = 1
+
+        # missile stats
+        self.missile_fire_interval_seconds: float = 3.0
+        self.missile_timer: Timer = Timer(self.missile_fire_interval_seconds)
+        self.missile_regen_interval_seconds: float = 3.0
+        self.missile_regen_timer: Timer = Timer(self.missile_regen_interval_seconds)
+
     def update(self) -> None:
-        # clear invalid target
+
         if self.target_enemy is not None and self.target_enemy.enemyHealth <= 0:
             self.target_enemy = None
 
@@ -46,5 +59,33 @@ class Missile(Bullet):
         # movement handled by Bullet via vx/vy
         super().update()
 
+    def fire_missile(self):
+        # Only fire if timer is ready and we have missiles
+        if not self.missile_timer.is_ready() or self.current_missiles <= 0:
+            return None
+        print("ndfas")
+
+        # Spawn position (center of ship)
+        missile_x = self.x + self.width // 2
+        missile_y = self.y
+
+        # Create the missile
+        missile = Missile(missile_x, missile_y)
+
+        # Reset cooldown and decrease missile count
+        self.missile_timer.reset()
+        self.current_missiles -= 1
+        # Reset the regeneration timer to ensure a 3-second delay before recovery
+        self.missile_regen_timer.reset()
+
+        return missile
+
     def draw(self, surface: pygame.Surface) -> None:
         pygame.draw.rect(surface, (255, 165, 0), self.rect)
+
+    # Missile class
+
+    def reload_missiles(self) -> None:
+        if self.current_missiles < self.max_missiles and self.missile_regen_timer.is_ready():
+            self.current_missiles += 1
+            self.missile_regen_timer.reset()

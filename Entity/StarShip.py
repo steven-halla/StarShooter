@@ -49,20 +49,10 @@ class StarShip:
         self.bullets_per_shot: int = 2
         self.bulletDamage: int = 1
 
-        # missile stats
-        self.missile_fire_interval_seconds: float = 3.0
-        self.missile_timer: Timer = Timer(self.missile_fire_interval_seconds)
-        self.missile_regen_interval_seconds: float = 3.0
-        self.missile_regen_timer: Timer = Timer(self.missile_regen_interval_seconds)
-        self.missileDamage: int = 100
-        # self.missileSpeed: int = 10 # 10 original
-        self.missile_spread_offset: int = 20
-        self.max_missiles: int = 1
-        self.current_missiles: int = 1
+
+
 
         self.equipped_magic: list = ["Metal Shield", None]
-
-
 
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
@@ -88,6 +78,13 @@ class StarShip:
         self.invincible: bool = False
         self.last_health: int = self.shipHealth
         self.invincibility_timer: Timer = Timer(2.0)
+
+        # -------------------------
+        # Missile
+        # -------------------------
+        self.missile = Missile(self.x, self.y)
+
+
 
         # -------------------------
         # WAVE CRASHER STATS
@@ -203,25 +200,6 @@ class StarShip:
         self.napalm_timer.reset()  # reuse cooldown for now
         return bullets
 
-    def fire_missile(self):
-        # Only fire if timer is ready and we have missiles
-        if not self.missile_timer.is_ready() or self.current_missiles <= 0:
-            return None
-
-        # Spawn position (center of ship)
-        missile_x = self.x + self.width // 2
-        missile_y = self.y
-
-        # Create the missile
-        missile = Missile(missile_x, missile_y)
-
-        # Reset cooldown and decrease missile count
-        self.missile_timer.reset()
-        self.current_missiles -= 1
-        # Reset the regeneration timer to ensure a 3-second delay before recovery
-        self.missile_regen_timer.reset()
-
-        return missile
 
 
     #
@@ -286,6 +264,11 @@ class StarShip:
         self.machine_gun.update()
 
         # -------------------------
+        # missile
+        # -------------------------
+        self.missile.reload_missiles()
+
+        # -------------------------
         # buster cannon
         # -------------------------
         self.buster_cannon.x = self.x + self.width // 2
@@ -318,9 +301,7 @@ class StarShip:
         # --------------------------------
         # MISSILE REGENERATION
         # --------------------------------
-        if self.current_missiles < self.max_missiles and self.missile_regen_timer.is_ready():
-            self.current_missiles += 1
-            self.missile_regen_timer.reset()
+
 
         # --------------------------------
         # DETECT DAMAGE (HEALTH DROP)
