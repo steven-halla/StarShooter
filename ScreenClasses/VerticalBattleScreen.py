@@ -2,7 +2,6 @@ import pygame
 from pygame import Surface, surface
 import pytmx
 import math
-
 from Assets.Images.SpriteSheetExtractor import SpriteSheetExtractor
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
@@ -30,7 +29,6 @@ from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from Entity.Monsters.Coins import Coins
 from Entity.Monsters.SpikeyBall import SpikeyBall
-
 from Entity.StarShip import StarShip
 from Movement.MoveRectangle import MoveRectangle
 from SaveStates.SaveState import SaveState
@@ -81,10 +79,6 @@ class VerticalBattleScreen:
         self.bossLevelSixGroup: list[BossLevelSix] = []
         self.bossLevelSevenGroup: list[BossLevelSeven] = []
 
-        #boss
-
-
-
         self.mover: MoveRectangle = MoveRectangle()
         self.controller: KeyBoardControls = KeyBoardControls()
 
@@ -97,17 +91,7 @@ class VerticalBattleScreen:
 
         self.was_q_pressed_last_frame: bool = False
 
-        self.plasma_blaster_bullets: list = []
-        self.beam_saber_bullets: list = []
-        self.wind_slicer_bullets: list = []
-        self.napalm_spread_bullets: list = []
-        self.napalm_explosions: list = []
-        self.energy_balls: list = []
-        self.buster_cannon_bullets: list = []
-        self.metal_shield_bullets: list = []
-        self.wave_crash_bullets: list = []
         self.player_bullets: list = []
-        self.player_missiles: list = []
         self.enemy_bullets: list = []     # LevelOne can append to this list
 
         self.WORLD_HEIGHT: int = GlobalConstants.GAMEPLAY_HEIGHT * 3
@@ -296,11 +280,6 @@ class VerticalBattleScreen:
         self.camera.y = float(self.camera_y)
 
     def update(self, state: 'GameState'):
-        # print("PLAYER UPDATE Y:", self.starship.y)
-        # print("STARSHIP INSTANCE:", id(self.starship))
-        # now handle map scroll ONLY in LevelOne
-        # FIRST: update input
-
 
         self.controller.update()
 
@@ -354,156 +333,115 @@ class VerticalBattleScreen:
         # if not self.playerDead:
         #     self.starship.update()
 
+        # =========================
+        # WEAPON FIRING — FIXED GUARDS (REPLACEMENT)
+        # =========================
 
-
-
-        # -------------------------
-        # PLAYER Machine gun ONLY
-        # # -------------------------
-
-        if self.controller.main_weapon_button and not self.playerDead:
-            new_bullets = self.starship.machine_gun.fire_machine_gun()
-            self.player_bullets.extend(new_bullets)
-
-
+        def has_active(self, weapon_name: str) -> bool:
+            return any(b.weapon_name == weapon_name for b in self.player_bullets)
 
         # -------------------------
-        # PLAYER Missiles ONLY
-        # # -------------------------
-
+        # PLAYER MISSILES
+        # -------------------------
         if self.controller.fire_missiles and not self.playerDead:
-            # 🔴 CRITICAL FIX
             self.starship.missile.x = self.starship.x
             self.starship.missile.y = self.starship.y
 
             missile = self.starship.missile.fire_missile()
             if missile is not None:
-                print(
-                    f"[MISSILE SPAWN] "
-                    f"x={missile.x:.2f} "
-                    f"y={missile.y:.2f} "
-                    f"rect={missile.rect}"
-                )
-                self.player_missiles.append(missile)
+                self.player_bullets.append(missile)
 
-        # if self.controller.fire_missiles and not self.playerDead:
-        #     missile = self.starship.missile.fire_missile()
-        #     if missile is not None:
-        #         print(
-        #             f"[MISSILE SPAWN] "
-        #             f"x={missile.x:.2f} "
-        #             f"y={missile.y:.2f} "
-        #             f"rect={missile.rect}"
-        #         )
-        #         self.player_missiles.append(missile)
-
-
-
-
-
-
+        # -------------------------
+        # BUSTER CANNON
+        # -------------------------
         if state.starship.equipped_magic[0] == "Buster Cannon" and not self.playerDead:
-
-            # BUTTON HELD → start / continue charging
             if self.controller.magic_1_button:
                 if not state.starship.buster_cannon.is_charging:
                     state.starship.buster_cannon.start_charge()
-
                 state.starship.buster_cannon.update()
-
-            # BUTTON NO LONGER HELD AND WAS CHARGING → FIRE
             elif state.starship.buster_cannon.is_charging:
-                bullets = state.starship.buster_cannon.fire_buster_cannon()
-                self.player_bullets.extend(bullets)
-
+                self.player_bullets.extend(
+                    state.starship.buster_cannon.fire_buster_cannon()
+                )
 
         # -------------------------
-        # PLASMA BLASTER MAGIC
+        # PLASMA BLASTER (single beam)
         # -------------------------
         if state.starship.equipped_magic[0] == "Plasma Blaster" and not self.playerDead:
-
-            # HOLD → spawn ONE beam
-            if self.controller.magic_1_button:
-                if not self.plasma_blaster_bullets:  # 🔒 guard: only ONE
-                    plasma = state.starship.plasma_blaster.fire_plasma_blaster()
-                    if plasma is not None:
-                        self.plasma_blaster_bullets.append(plasma)
-
+            if self.controller.magic_1_button and not has_active(self, "Plasma Blaster"):
+                plasma = state.starship.plasma_blaster.fire_plasma_blaster()
+                if plasma is not None:
+                    self.player_bullets.append(plasma)
 
         # -------------------------
-        # ENERGY BALL
+        # ENERGY BALL (ROF internal)
         # -------------------------
         if state.starship.equipped_magic[0] == "Energy Ball" and not self.playerDead:
-
-            # HOLD → spawn ONE energy ball (ROF handled inside EnergyBall)
             if self.controller.magic_1_button:
-                if not self.energy_balls:  # 🔒 guard: same pattern
-                    energy_ball = state.starship.energy_ball.fire_energy_ball(self.controller)
-                    if energy_ball is not None:
-                        self.energy_balls.append(energy_ball)
-
-
+                energy_ball = state.starship.energy_ball.fire_energy_ball(self.controller)
+                if energy_ball is not None:
+                    self.player_bullets.append(energy_ball)
 
         # -------------------------
-
-        # WAVE metal shield magic
+        # METAL SHIELD (single)
         # -------------------------
-
-        # And the same pattern for slot 1 / S
         if state.starship.equipped_magic[0] == "Metal Shield" and not self.playerDead:
-            if self.controller.magic_1_button:
-                # Only allow one active shield
-                if not self.metal_shield_bullets:
-                    shield = state.starship.metal_shield.fire_metal_shield()
-                    if shield is not None:
-                        self.metal_shield_bullets.append(shield)
+            if self.controller.magic_1_button and not has_active(self, "Metal Shield"):
+                shield = state.starship.metal_shield.fire_metal_shield()
+                if shield is not None:
+                    self.player_bullets.append(shield)
 
         # -------------------------
-        # NAPALM SPREAD MAGIC
+        # NAPALM SPREAD
         # -------------------------
         if state.starship.equipped_magic[0] == "Napalm Spread" and not self.playerDead:
             if self.controller.magic_1_button:
                 napalm = state.starship.napalm_spread.fire_napalm_spread()
                 if napalm is not None:
-                    self.napalm_spread_bullets.append(napalm)
+                    self.player_bullets.append(napalm)
 
         # -------------------------
-
-        # Beam Saber
+        # BEAM SABER (single, held)
         # -------------------------
         if state.starship.equipped_magic[0] == "Beam Saber" and not self.playerDead:
-            if self.controller.magic_1_button:
-                if not self.beam_saber_bullets:  # ← guard
-                    saber = state.starship.beam_saber.fire_beam_saber()
+            if self.controller.magic_1_button and not has_active(self, "Beam Saber"):
+                saber = state.starship.beam_saber.fire_beam_saber()
+                if saber is not None:
+                    self.player_bullets.append(saber)
 
-
-                    if saber is not None:
-                        self.beam_saber_bullets.append(saber)
-
-        # -------------------------
-        # Beam Saber RELEASE
-        # -------------------------
         if not self.controller.magic_1_button:
-            if self.beam_saber_bullets:
-                self.beam_saber_bullets.clear()
-        # -------------------------
+            self.player_bullets[:] = [
+                b for b in self.player_bullets if b.weapon_name != "Beam Saber"
+            ]
 
-        # WAVE CRASH MAGIC
+        # -------------------------
+        # WAVE CRASH
         # -------------------------
         if state.starship.equipped_magic[0] == "Wave Crash" and not self.playerDead:
             if self.controller.magic_1_button:
-                waves = state.starship.wave_crash.fire_wave_crash()
-                self.wave_crash_bullets.extend(waves)
-
-
+                self.player_bullets.extend(
+                    state.starship.wave_crash.fire_wave_crash()
+                )
 
         # -------------------------
-        # WIND SLICER MAGIC
+        # WIND SLICER
         # -------------------------
         if state.starship.equipped_magic[0] == "Wind Slicer" and not self.playerDead:
             if self.controller.magic_1_button:
-                slicers = state.starship.wind_slicer.fire_wind_slicer()
-                self.wind_slicer_bullets.extend(slicers)
+                self.player_bullets.extend(
+                    state.starship.wind_slicer.fire_wind_slicer()
+                )
+
+        # -------------------------
+        # MACHINE GUN (main weapon)
+        # -------------------------
+        if self.controller.main_weapon_button and not self.playerDead:
+            self.player_bullets.extend(
+                self.starship.machine_gun.fire_machine_gun()
+            )
+
+
+
 
 
         self.bullet_helper()
@@ -512,151 +450,58 @@ class VerticalBattleScreen:
         # machine gun
         # -------------------------
 
+        # =========================
+        # PLAYER BULLET UPDATE (SINGLE PASS — FIXED)
+        # =========================
         for bullet in list(self.player_bullets):
-            bullet.update()
 
-            # Convert to screen space
+            # -------------------------
+            # MISSILE (homing)
+            # -------------------------
+            if bullet.weapon_name == "Missile":
+                if getattr(bullet, "target_enemy", None) is None:
+                    if hasattr(self, "get_nearest_enemy"):
+                        bullet.target_enemy = self.get_nearest_enemy(bullet)
+                bullet.update()
+
+            # -------------------------
+            # METAL SHIELD (orbit)
+            # -------------------------
+            elif bullet.weapon_name == "Metal Shield":
+                bullet.update_orbit(
+                    self.starship.x + self.starship.width / 2,
+                    self.starship.y + self.starship.height / 2
+                )
+
+            # -------------------------
+            # BEAM SABER (locked to ship)
+            # -------------------------
+            elif bullet.weapon_name == "Beam Saber":
+                bullet.x = self.starship.x + self.starship.width // 2
+                bullet.y = self.starship.y - 20
+                bullet.update()
+
+            # -------------------------
+            # ALL OTHER BULLETS
+            # -------------------------
+            else:
+                bullet.update()
+
+            # -------------------------
+            # UNIVERSAL CLEANUP
+            # -------------------------
+            screen_x = bullet.x - getattr(self.camera, "x", 0)
             screen_y = bullet.y - self.camera.y
 
-            # If bullet is above the visible screen area → delete
-            if screen_y + bullet.height < 0:
-                # print(f"[DELETE] Bullet removed at world_y={bullet.y}, screen_y={screen_y}")
-                self.player_bullets.remove(bullet)
-
-        # -------------------------
-        # PLAYER MISSILES ONLY
-        # -------------------------
-        for missile in list(self.player_missiles):
-
-            # Make sure missile has a target BEFORE updating
-            if getattr(missile, "target_enemy", None) is None:
-                if hasattr(self, "get_nearest_enemy"):
-                    missile.target_enemy = self.get_nearest_enemy(missile)
-
-            missile.update()
-            # Convert to screen space for culling
-            screen_y = missile.y - self.camera.y
-
-            # If missile goes above screen → delete
-            if screen_y + missile.height < 0:
-                self.player_missiles.remove(missile)
-
-
-        # -------------------------
-        # PLASMA BLASTER UPDATE
-        # -------------------------
-        for plasma in list(self.plasma_blaster_bullets):
-            plasma.update()
-
-            # Convert to screen space
-            screen_y = plasma.y - self.camera.y
-
-            # Delete when off screen
-            if screen_y + plasma.height < 0 or not plasma.is_active:
-                self.plasma_blaster_bullets.remove(plasma)
-
-        # -------------------------
-        # WIND SLICER UPDATE
-        # -------------------------
-        for slicer in list(self.wind_slicer_bullets):
-            slicer.update()
-
-            # Convert to screen space (same pattern)
-            screen_y = slicer.y - self.camera.y
-
-            # Remove if off screen
-            if screen_y + slicer.height < 0:
-                self.wind_slicer_bullets.remove(slicer)
-
-
-        # -------------------------
-        # NAPALM SPREAD UPDATE
-        # -------------------------
-
-        for napalm in list(self.napalm_spread_bullets):
-            napalm.update()
-
-            # Remove only AFTER explosion finishes
-            if not napalm.is_active:
-                self.napalm_spread_bullets.remove(napalm)
-
-        # -------------------------
-        # PLAYER Metal Shield
-        # -------------------------
-
-        for metal in list(self.metal_shield_bullets):
-            metal.update_orbit(
-                self.starship.x + self.starship.width / 2,
-                self.starship.y + self.starship.height / 2
+            off_screen = (
+                    screen_y + bullet.height < 0 or
+                    screen_y > (self.window_height / self.camera.zoom) or
+                    screen_x + bullet.width < 0 or
+                    screen_x > (self.window_width / self.camera.zoom)
             )
 
-            # Optional cleanup if shield has already blocked a hit
-            if not metal.is_active:
-                self.metal_shield_bullets.remove(metal)
-            # Convert to screen space
-            screen_y = metal.y - self.camera.y
-
-        # -------------------------
-        # laser
-        # -------------------------
-
-        for saber in list(self.beam_saber_bullets):
-            saber.x = self.starship.x + self.starship.width // 2
-            saber.y = self.starship.y - 20
-
-            saber.update()
-            screen_y = saber.y - self.camera.y
-            if screen_y + saber.height < 0:
-                self.beam_saber_bullets.remove(saber)
-
-
-        # -------------------------
-        # WAVE CRASH BULLET CLEANUP
-        # -------------------------
-        for wave in list(self.wave_crash_bullets):
-            wave.update()
-
-            # Horizontal shots → check X instead of Y
-            screen_x = wave.x - self.camera.x if hasattr(self.camera, "x") else wave.x
-
-            # If wave goes off left or right of screen → delete
-            if screen_x + wave.width < 0 or screen_x > (self.window_width / self.camera.zoom):
-                self.wave_crash_bullets.remove(wave)
-
-
-
-        # -------------------------
-        # ENERGY BALL UPDATE / CLEANUP
-        # -------------------------
-        for ball in list(self.energy_balls):
-            ball.update()
-
-            # Convert to screen space (X + Y)
-            screen_x = ball.x - self.camera.x if hasattr(self.camera, "x") else ball.x
-            screen_y = ball.y - self.camera.y
-
-            # If energy ball is fully off screen in ANY direction → delete
-            if (
-                    screen_y + ball.height < 0 or
-                    screen_y > (self.window_height / self.camera.zoom) or
-                    screen_x + ball.width < 0 or
-                    screen_x > (self.window_width / self.camera.zoom) or
-                    not ball.is_active
-            ):
-                self.energy_balls.remove(ball)
-        # -------------------------
-        # BUSTER CANNON BULLET CLEANUP
-
-        # -------------------------
-        for bc in list(self.buster_cannon_bullets):
-            bc.update()
-
-            # Convert to screen space (same method as regular bullets)
-            screen_y = bc.y - self.camera.y
-
-            # If the buster cannon shot goes above the visible screen → delete
-            if screen_y + bc.height < 0:
-                self.buster_cannon_bullets.remove(bc)
+            if off_screen or not getattr(bullet, "is_active", True):
+                self.player_bullets.remove(bullet)
 
 
 
@@ -910,243 +755,63 @@ class VerticalBattleScreen:
         # self.draw_ui_panel(state.DISPLAY)
 
         # -------------------------
-        # DRAW PLASMA BLASTER
-        # -------------------------
-        for plasma in self.plasma_blaster_bullets:
-            px = self.camera.world_to_screen_x(plasma.x)
-            py = self.camera.world_to_screen_y(plasma.y)
-            pw = int(plasma.width * zoom)
-            ph = int(plasma.height * zoom)
-
-            # Draw plasma beam (thin vertical light)
-            rect = pygame.Rect(px, py, pw, ph)
-            pygame.draw.rect(state.DISPLAY, (0, 255, 255), rect)
-
-            # Debug hitbox outline
-            pygame.draw.rect(
-                state.DISPLAY,
-                (255, 255, 255),
-                (px, py, pw, ph),
-                1
-            )
-
-
-        # -------------------------
-        # DRAW WIND SLICER BULLETS
-        # -------------------------
-        for slicer in self.wind_slicer_bullets:
-            sx = self.camera.world_to_screen_x(slicer.x)
-            sy = self.camera.world_to_screen_y(slicer.y)
-            sw = int(slicer.width * zoom)
-            sh = int(slicer.height * zoom)
-
-            rect = pygame.Rect(sx, sy, sw, sh)
-
-            # main projectile
-            pygame.draw.rect(state.DISPLAY, (180, 220, 255), rect)
-
-            # debug hitbox outline
-            pygame.draw.rect(
-                state.DISPLAY,
-                (0, 150, 255),
-                (sx, sy, sw, sh),
-                2
-            )
-
-        # -------------------------
-        # DRAW ENERGY BALLS
-        # -------------------------
-        for ball in self.energy_balls:
-            bx = self.camera.world_to_screen_x(ball.x)
-            by = self.camera.world_to_screen_y(ball.y)
-            bw = int(ball.width * zoom)
-            bh = int(ball.height * zoom)
-
-            rect = pygame.Rect(bx, by, bw, bh)
-            pygame.draw.rect(state.DISPLAY, (0, 200, 255), rect)
-
-            # debug hitbox outline
-            pygame.draw.rect(
-                state.DISPLAY,
-                (255, 255, 255),
-                (bx, by, bw, bh),
-                1
-            )
-
-        for laser in self.beam_saber_bullets:
-            mx = self.camera.world_to_screen_x(laser.x)
-            my = self.camera.world_to_screen_y(laser.y)
-            mw = int(laser.width * zoom)
-            mh = int(laser.height * zoom)
-
-            rect = pygame.Rect(mx, my, mw, mh)
-            pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
-
-            # debug hitbox outline
-            pygame.draw.rect(
-                state.DISPLAY,
-                (77, 113, 111),
-                (mx, my, mw, mh),
-                1
-            )
-
-        # -------------------------
-        # DRAW PLAYER Metal Shield
-        # -------------------------]
-        for metal in self.metal_shield_bullets:
-            mx = self.camera.world_to_screen_x(metal.x)
-            my = self.camera.world_to_screen_y(metal.y)
-            mw = int(metal.width * zoom)
-            mh = int(metal.height * zoom)
-
-            rect = pygame.Rect(mx, my, mw, mh)
-            pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
-
-            # debug hitbox outline
-            pygame.draw.rect(
-                state.DISPLAY,
-                (55, 55, 111),
-                (mx, my, mw, mh),
-                1
-            )
-
-        # -------------------------
-        # DRAW PLAYER MISSILES
-        # -------------------------]
-        for missile in self.player_missiles:
-            mx = self.camera.world_to_screen_x(missile.x)
-            my = self.camera.world_to_screen_y(missile.y)
-            mw = int(missile.width * zoom)
-            mh = int(missile.height * zoom)
-
-            rect = pygame.Rect(mx, my, mw, mh)
-            pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
-
-            # debug hitbox outline
-            pygame.draw.rect(
-                state.DISPLAY,
-                (255, 255, 0),
-                (mx, my, mw, mh),
-                1
-            )
-
-
+        # =========================
+        # PLAYER BULLETS — SINGLE DRAW LOOP (REPLACEMENT)
+        # =========================
         for bullet in self.player_bullets:
             bx = self.camera.world_to_screen_x(bullet.x)
             by = self.camera.world_to_screen_y(bullet.y)
             bw = int(bullet.width * zoom)
             bh = int(bullet.height * zoom)
             rect = pygame.Rect(bx, by, bw, bh)
-            pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
-            # bullet hitbox debug
-            hb_x = bx
-            hb_y = by
-            hb_w = bw
-            hb_h = bh
-            pygame.draw.rect(state.DISPLAY, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 1)
 
-        for bullet in self.enemy_bullets:
-            bx = self.camera.world_to_screen_x(bullet.x)
-            by = self.camera.world_to_screen_y(bullet.y)
-            bw = int(bullet.width * zoom)
-            bh = int(bullet.height * zoom)
+            # ---- visual by capability / type ----
+            if hasattr(bullet, "area_of_effect_x"):  # Napalm
+                if getattr(bullet, "has_exploded", False):
+                    aoe_w = int(bullet.area_of_effect_x * zoom)
+                    aoe_h = int(bullet.area_of_effect_y * zoom)
+                    aoe_rect = pygame.Rect(
+                        bx - aoe_w // 2,
+                        by - aoe_h // 2,
+                        aoe_w,
+                        aoe_h
+                    )
+                    pygame.draw.rect(state.DISPLAY, (255, 80, 0), aoe_rect, 4)
+                else:
+                    pygame.draw.rect(state.DISPLAY, (255, 100, 0), rect)
 
-            # Draw bullet
-            rect = pygame.Rect(bx, by, bw, bh)
-            pygame.draw.rect(state.DISPLAY, bullet.color, rect)
+            elif hasattr(bullet, "update_orbit"):  # Metal Shield
+                pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
 
-            # 🔶 Draw hitbox (debug)
-            pygame.draw.rect(
-                state.DISPLAY,
-                (255, 255, 0),  # yellow hitbox
-                (bx, by, bw, bh),
-                3  # thin line
-            )
+            elif hasattr(bullet, "target_enemy"):  # Missile
+                pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
 
-        # -------------------------
-        # DRAW BUSTER CANNON BULLETS
-        # -------------------------
-        for bc in self.buster_cannon_bullets:
-            print("jf;dalsj;lfjdasl;fj;lsajfljsal;fj;dsljfl;jaslfdlsa")
-            bx = self.camera.world_to_screen_x(bc.x)
-            by = self.camera.world_to_screen_y(bc.y)
-            bw = int(bc.width * zoom)
-            bh = int(bc.height * zoom)
-
-            # Draw buster cannon projectile
-            rect = pygame.Rect(bx, by, bw, bh)
-            pygame.draw.rect(state.DISPLAY, (1, 1, 1), rect)
-
-            pygame.draw.rect(
-                state.DISPLAY,
-                (255, 255, 0),
-                (bx - 2, by - 2, bw + 4, bh + 4),
-                5
-            )
-
-        # -------------------------
-        # DRAW NAPALM SPREAD (PROJECTILE PHASE)
-        # -------------------------
-        for napalm in self.napalm_spread_bullets:
-            nx = self.camera.world_to_screen_x(napalm.x)
-            ny = self.camera.world_to_screen_y(napalm.y)
-            nw = int(napalm.width * zoom)
-            nh = int(napalm.height * zoom)
-
-            # Draw napalm grenade
-            rect = pygame.Rect(nx, ny, nw, nh)
-            pygame.draw.rect(state.DISPLAY, (255, 100, 0), rect)
-
-            # Debug outline
-            pygame.draw.rect(
-                state.DISPLAY,
-                (255, 200, 0),
-                (nx - 2, ny - 2, nw + 4, nh + 4),
-                3
-            )
-
-        # -------------------------
-        # DRAW NAPALM EXPLOSION AOE
-        # -------------------------
-        for napalm in self.napalm_spread_bullets:
-            if napalm.has_exploded:
-                # print("dfsaj")
-
-                # Center of explosion in screen space
-                cx = self.camera.world_to_screen_x(napalm.x)
-                cy = self.camera.world_to_screen_y(napalm.y)
-
-                aoe_w = int(napalm.area_of_effect_x * zoom)
-                aoe_h = int(napalm.area_of_effect_y * zoom)
-
-                aoe_rect = pygame.Rect(
-                    cx - aoe_w // 2,
-                    cy - aoe_h // 2,
-                    aoe_w,
-                    aoe_h
+            elif bullet.weapon_name == "Buster Cannon":
+                pygame.draw.rect(state.DISPLAY, (255, 255, 255), rect)
+                pygame.draw.rect(
+                    state.DISPLAY,
+                    (255, 255, 0),
+                    (bx - 2, by - 2, bw + 4, bh + 4),
+                    5
                 )
 
-                # Draw explosion area (orange/red)
-                pygame.draw.rect(state.DISPLAY, (255, 80, 0), aoe_rect, 4)
+            elif bullet.weapon_name == "Wind Slicer":
+                pygame.draw.rect(state.DISPLAY, (180, 220, 255), rect)
 
-        # -------------------------
-        for wave in self.wave_crash_bullets:
-            print("jf;dalsj;lfjdasl;fj;lsajfljsal;fj;dsljfl;jaslfdlsa")
-            bx = self.camera.world_to_screen_x(wave.x)
-            by = self.camera.world_to_screen_y(wave.y)
-            bw = int(wave.width * zoom)
-            bh = int(wave.height * zoom)
+            elif bullet.weapon_name == "Energy Ball":
+                pygame.draw.rect(state.DISPLAY, (0, 200, 255), rect)
 
-            # Draw buster cannon projectile
-            rect = pygame.Rect(bx, by, bw, bh)
-            pygame.draw.rect(state.DISPLAY, (1, 1, 1), rect)
+            elif bullet.weapon_name == "Wave Crash":
+                pygame.draw.rect(state.DISPLAY, (0, 255, 0), rect)
 
-            pygame.draw.rect(
-                state.DISPLAY,
-                (0, 255, 0),
-                (bx , by ,  55,  55),
-                10
-            )
+            elif bullet.weapon_name == "Plasma Blaster":
+                pygame.draw.rect(state.DISPLAY, (0, 255, 255), rect)
+
+            else:  # default (machine gun, etc.)
+                pygame.draw.rect(state.DISPLAY, (255, 255, 0), rect)
+
+            # ---- debug hitbox ----
+            pygame.draw.rect(state.DISPLAY, (255, 255, 0), rect, 1)
 
         # 🔽 UI PANEL (BOTTOM BAR) - Draw last to ensure it covers anything that comes into contact with it
         self.draw_ui_panel(state.DISPLAY)
@@ -1182,171 +847,29 @@ class VerticalBattleScreen:
                 list(self.bossLevelSevenGroup)
         )
 
-
-        # -------------------------
-        # PLAYER BULLETS
-        # -------------------------
         for bullet in list(self.player_bullets):
-            bullet_rect = pygame.Rect(bullet.x, bullet.y, bullet.width, bullet.height)
+            bullet_rect = bullet.rect
 
             for enemy in all_enemies:
-                if bullet_rect.colliderect(enemy.hitbox):
-                    enemy.enemyHealth -= self.starship.machine_gun.damage
-                    self.player_bullets.remove(bullet)
+                if not bullet_rect.colliderect(enemy.hitbox):
+                    continue
 
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-                    break
+                # damage
+                enemy.enemyHealth -= getattr(bullet, "damage", 0)
 
+                # special reactions
+                if hasattr(bullet, "trigger_explosion"):
+                    bullet.trigger_explosion()
+                elif hasattr(bullet, "is_piercing") and bullet.is_piercing:
+                    pass
+                else:
+                    if bullet in self.player_bullets:
+                        self.player_bullets.remove(bullet)
 
-        # -------------------------
-        # MISSILES
-        # -------------------------
-        for missile in list(self.player_missiles):
-            missile_rect = pygame.Rect(missile.x, missile.y, missile.width, missile.height)
+                if enemy.enemyHealth <= 0:
+                    self.remove_enemy_if_dead(enemy)
 
-            for enemy in all_enemies:
-                if missile_rect.colliderect(enemy.hitbox):
-                    enemy.enemyHealth -= self.starship.missile.damage
-                    self.player_missiles.remove(missile)
-
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-                    break
-
-        # -------------------------
-        # PLASMA BLASTER
-        # -------------------------
-        for plasma in list(self.plasma_blaster_bullets):
-            plasma_rect = pygame.Rect(plasma.x, plasma.y, plasma.width, plasma.height)
-
-            for enemy in all_enemies:
-                if plasma_rect.colliderect(enemy.hitbox):
-                    enemy.enemyHealth -= plasma.damage
-                    self.plasma_blaster_bullets.remove(plasma)
-
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-                    break
-
-        # -------------------------
-        # WIND SLICER
-        # -------------------------
-        for slicer in list(self.wind_slicer_bullets):
-
-
-            for enemy in all_enemies:
-                if slicer.rect.colliderect(enemy.hitbox):
-                    enemy.enemyHealth -= slicer.damage
-
-                    # remove slicer unless it is piercing
-                    self.wind_slicer_bullets.remove(slicer)
-
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-                    break
-
-
-        # -------------------------
-        # BUSTER CANNON
-        # -------------------------
-        for bc in list(self.buster_cannon_bullets):
-            print("[DEBUG] checking bullet", bc.x, bc.y)
-            bc.update()
-            bc.update_rect()
-        # FIX: use the SAME list you append buster cannon bullets to
-
-        for bc in list(self.player_bullets):
-            bc.update()
-            bc.update_rect()
-
-            for enemy in all_enemies:
-                if bc.rect.colliderect(enemy.hitbox):
-                    print("[HIT] collision detected")
-
-                    enemy.take_damage(bc.damage)
-                    self.player_bullets.remove(bc)
-
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-                    break
-
-
-        # -------------------------
-        # ENERGY BALL
-        # -------------------------
-        for ball in list(self.energy_balls):
-            ball_rect = pygame.Rect(ball.x, ball.y, ball.width, ball.height)
-
-            for enemy in all_enemies:
-                # enemy.hitbox is already WORLD space
-                if ball_rect.colliderect(enemy.hitbox):
-                    print(
-                        f"[EnergyBall HIT] ball={ball_rect} enemy={enemy.hitbox}"
-                    )
-
-                    enemy.enemyHealth -= ball.damage
-                    self.energy_balls.remove(ball)
-
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-                    break
-        # -------------------------
-        # WAVE CRASH
-        # -------------------------
-        for wave in list(self.wave_crash_bullets):
-            wave_rect = pygame.Rect(wave.x, wave.y, wave.width, wave.height)
-
-            for enemy in all_enemies:
-                if wave_rect.colliderect(enemy.hitbox):
-                    enemy.enemyHealth -= wave.damage
-                    self.wave_crash_bullets.remove(wave)
-
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-                    break
-
-        # -------------------------
-        # beam saber
-        # -------------------------
-
-        for saber in list(self.beam_saber_bullets):
-            for enemy in all_enemies:
-                if saber.rect.colliderect(enemy.hitbox):
-                    print("[Beam saber HIT]", saber.rect, enemy.hitbox)
-
-                    enemy.enemyHealth -= saber.damage
-
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-
-        # -------------------------
-        # metal shield
-        # -------------------------
-
-        for napalm in list(self.napalm_spread_bullets):
-            for enemy in all_enemies:
-                if napalm.rect.colliderect(enemy.hitbox):
-                    print("[metal shield HIT]", napalm.rect, enemy.hitbox)
-
-                    enemy.enemyHealth -= napalm.damage
-                    napalm.trigger_explosion()
-
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-        # -------------------------
-        # metal shield
-        # -------------------------
-
-        for metal in list(self.metal_shield_bullets):
-            for enemy in all_enemies:
-                if metal.rect.colliderect(enemy.hitbox):
-                    print("[metal shield HIT]", metal.rect, enemy.hitbox)
-
-                    enemy.enemyHealth -= metal.damage
-
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
+                break
 
     def remove_enemy_if_dead(self, enemy) -> None:
         if enemy.enemyHealth > 0:

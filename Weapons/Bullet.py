@@ -6,6 +6,7 @@ class Bullet:
     def __init__(self, x: float, y: float):
         self.x = float(x)
         self.y = float(y)
+        self.weapon_name = ""
 
         self.width = 8
         self.height = 8

@@ -352,20 +352,27 @@ class MapTester(VerticalBattleScreen):
                 self.napalm_list.remove(napalm)
         # -------------------------
         # METAL SHIELD → ENEMY BULLETS
-        # -------------------------
-        for metal in list(self.metal_shield_bullets):
+        for metal in list(self.player_bullets):
 
-            if not metal.is_active:
-                self.metal_shield_bullets.remove(metal)
+            # ONLY Metal Shield can absorb hits
+            if metal.weapon_name != "Metal Shield":
                 continue
 
-            # Build shield rect in WORLD space
-            shield_rect = pygame.Rect(
-                metal.x,
-                metal.y,
-                metal.width,
-                metal.height
-            )
+            shield_rect = metal.hitbox
+
+            for bullet in list(self.enemy_bullets):
+
+                if bullet.collide_with_rect(shield_rect):
+
+                    absorbed = metal.absorb_hit()
+
+                    if bullet in self.enemy_bullets:
+                        self.enemy_bullets.remove(bullet)
+
+                    if absorbed and metal in self.player_bullets:
+                        self.player_bullets.remove(metal)
+
+                    break
 
             for bullet in list(self.enemy_bullets):
 
@@ -380,8 +387,8 @@ class MapTester(VerticalBattleScreen):
                         self.enemy_bullets.remove(bullet)
 
                     # Remove shield if it absorbed
-                    if absorbed and metal in self.metal_shield_bullets:
-                        self.metal_shield_bullets.remove(metal)
+                    if absorbed and metal in self.player_bullets:
+                        self.player_bullets.remove(metal)
 
                     break  # one hit only
 
