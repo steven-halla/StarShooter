@@ -98,8 +98,10 @@ class BileSpitter(Enemy):
                 f"rect=({bullet.rect.x},{bullet.rect.y})"
             )
 
-            if bullet.y > GlobalConstants.GAMEPLAY_HEIGHT:
-                self.enemyBullets.remove(bullet)
+            # Don't remove bullets here, let VerticalBattleScreen handle it
+            # This was causing bullets to be removed prematurely
+            # if bullet.y > GlobalConstants.GAMEPLAY_HEIGHT:
+            #     self.enemyBullets.remove(bullet)
 
     # =========================
     # DO NOT TOUCH (AS REQUESTED)

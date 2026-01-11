@@ -219,7 +219,7 @@
   <object id="1" name="player" x="141.669" y="3370.93" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="3" name="enemies">
-  <object id="6" name="tri_spitter" x="108.041" y="2969.61" width="16" height="16"/>
+  <object id="6" name="tri_spitter" x="253.331" y="3164.23" width="16" height="16"/>
   <object id="70" name="tri_spitter" x="164.11" y="1313.25" width="16" height="16"/>
   <object id="64" name="tri_spitter" x="362.815" y="2539.51" width="16" height="16"/>
   <object id="73" name="tri_spitter" x="177.284" y="1192.49" width="16" height="16"/>
@@ -247,7 +247,7 @@
   <object id="84" name="blade_spinner" x="302.997" y="1906.91" width="16" height="16"/>
   <object id="78" name="blade_spinner" x="268.965" y="661.983" width="16" height="16"/>
   <object id="96" name="blade_spinner" x="299.704" y="333.736" width="16" height="16"/>
-  <object id="56" name="bile_spitter" x="161.21" y="3267.96" width="16" height="16"/>
+  <object id="56" name="bile_spitter" x="108.5" y="3161.19" width="16" height="16"/>
   <object id="71" name="bile_spitter" x="95.5099" y="1304.2" width="16" height="16"/>
   <object id="65" name="bile_spitter" x="82.3362" y="2654.52" width="16" height="16"/>
   <object id="74" name="bile_spitter" x="108.684" y="1183.44" width="16" height="16"/>

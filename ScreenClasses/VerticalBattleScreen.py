@@ -216,6 +216,14 @@ class VerticalBattleScreen:
         self.weapon_helper()
         self.bullet_helper()
         self.metal_shield_helper()
+
+        # Collect enemy bullets - moved from draw method to update method
+        for enemy in self.enemies:
+            if hasattr(enemy, "enemyBullets"):
+                for b in enemy.enemyBullets:
+                    self.enemy_bullets.append(b)
+                enemy.enemyBullets.clear()
+
         self.bullet_collision_helper_remover()
         self.collision_tile_helper()
         self.rect_helper()
@@ -260,15 +268,56 @@ class VerticalBattleScreen:
 
         self.draw_sub_weapon_rect_helper(state)
 
+        # 2️⃣ DRAW ENEMY BULLETS WITH CAMERA TRANSFORM - Draw before UI panel
+        print(f"[DRAW] Drawing {len(self.enemy_bullets)} enemy bullets")
+        for bullet in self.enemy_bullets:
+            bx = self.camera.world_to_screen_x(bullet.x)
+            by = self.camera.world_to_screen_y(bullet.y)
+            bw = int(bullet.width * self.camera.zoom)
+            bh = int(bullet.height * self.camera.zoom)
+
+            # Debug print to show bullet screen coordinates
+            print(f"[DRAW BULLET] screen_pos=({bx:.1f},{by:.1f}), world_pos=({bullet.x:.1f},{bullet.y:.1f})")
+
+            # Draw a larger, more visible bullet for debugging
+            pygame.draw.rect(
+                state.DISPLAY,
+                (255, 0, 0),  # RED for better visibility
+                pygame.Rect(bx-2, by-2, bw+4, bh+4),
+                0
+            )
+
+            # Draw the actual bullet
+            pygame.draw.rect(
+                state.DISPLAY,
+                (0, 255, 0),  # GREEN
+                pygame.Rect(bx, by, bw, bh),
+                0
+            )
+
         # 🔽 UI PANEL (BOTTOM BAR) - Draw last to ensure it covers anything that comes into contact with it
         self.draw_ui_panel(state.DISPLAY)
-        for enemy in self.enemies:
-            enemy.update()
 
-            if getattr(enemy, "has_barrage", False):
-                # ONLY BossLevelSix has these methods
-                enemy.draw_barrage(state.DISPLAY, self.camera)
-                enemy.apply_barrage_damage(self.starship)
+        # 3️⃣ (OPTIONAL DEBUG) CONFIRM ALIGNMENT
+        # PLAYER HITBOX DRAW — SAME SPACE
+        px = self.camera.world_to_screen_x(self.starship.hitbox.x)
+        py = self.camera.world_to_screen_y(self.starship.hitbox.y)
+        pw = int(self.starship.hitbox.width * self.camera.zoom)
+        ph = int(self.starship.hitbox.height * self.camera.zoom)
+
+        pygame.draw.rect(
+            state.DISPLAY,
+            (255, 0, 0),
+            pygame.Rect(px, py, pw, ph),
+            2
+        )
+        # for enemy in self.enemies:
+        #     enemy.update()
+        #
+        #     if getattr(enemy, "has_barrage", False):
+        #         # ONLY BossLevelSix has these methods
+        #         enemy.draw_barrage(state.DISPLAY, self.camera)
+        #         enemy.apply_barrage_damage(self.starship)
 
     def bullet_helper(self):
         for bullet in list(self.player_bullets):
@@ -853,11 +902,16 @@ class VerticalBattleScreen:
     def bullet_collision_helper_remover(self):
         for bullet in list(self.enemy_bullets):
             bullet.update()
-            world_top_delete = self.camera.y - 200
-            world_bottom_delete = self.camera.y + self.window_height + 200
+            # Increase the buffer zone to ensure bullets have more time to appear on screen
+            world_top_delete = self.camera.y - 500
+            # Adjust for camera zoom to get correct world coordinates and increase buffer
+            world_bottom_delete = self.camera.y + (self.window_height / self.camera.zoom) + 500
+
+            # Debug print to help diagnose the issue
+            print(f"[BULLET CHECK] bullet.y={bullet.y:.1f}, camera.y={self.camera.y:.1f}, world_bottom_delete={world_bottom_delete:.1f}")
 
             if bullet.y < world_top_delete or bullet.y > world_bottom_delete:
-                # print(f"[DELETE ENEMY] y={bullet.y}, cam_y={self.camera.y}")
+                print(f"[DELETE BULLET] y={bullet.y:.1f}, cam_y={self.camera.y:.1f}, reason: {'above' if bullet.y < world_top_delete else 'below'}")
                 self.enemy_bullets.remove(bullet)
                 continue
 
@@ -866,6 +920,8 @@ class VerticalBattleScreen:
                 self.starship.shipHealth -= bullet.damage
                 bullet.is_active = False
                 self.enemy_bullets.remove(bullet)
+
+
 
 
 

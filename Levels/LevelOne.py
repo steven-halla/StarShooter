@@ -21,18 +21,23 @@ class LevelOne(VerticalBattleScreen):
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
-        self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400 # y position of map
+
+        # WORLD HEIGHT (keep +400 as intended)
+        self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
+
         window_width: int = GlobalConstants.BASE_WINDOW_WIDTH
         window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
-        self.camera_y = self.WORLD_HEIGHT - window_height # look at bottom of map
+
+        # 🔧 FIX: camera start must respect ZOOMED visible height
+        visible_height = window_height / self.camera.zoom
+        self.camera_y = self.WORLD_HEIGHT - visible_height
+
+        # 🔧 FIX: sync camera limits AFTER WORLD_HEIGHT change
         self.camera.world_height = self.WORLD_HEIGHT
+        self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
         self.camera.y = float(self.camera_y)
-        self.map_scroll_speed_per_frame: float = .4 # move speed of camera
-        self.bileSpitterGroup: list[BileSpitter] = []
-        self.kamikazeDroneGroup: list[KamikazeDrone] = []
-        self.triSpitterGroup: list[TriSpitter] = []
-        # self.enemies: list[Enemy] = [] # consolidate all enemies into one list
-        # self.load_enemy_into_list()
+        self.map_scroll_speed_per_frame: float = .4  # move speed of camera
+
         self.napalm_list: list = []
         self.total_enemies = 40
         self.prev_enemy_count: int = None
