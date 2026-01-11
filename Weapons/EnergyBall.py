@@ -2,6 +2,8 @@
 
 import math
 import pygame
+
+from Constants.Timer import Timer
 from Weapons.Bullet import Bullet
 
 
@@ -25,6 +27,8 @@ class EnergyBall(Bullet):
         self.camera = None
 
         self.update_rect()
+        self.energy_ball_fire_interval_seconds: float = 1.2
+        self.energy_ball_timer: Timer = Timer(self.energy_ball_fire_interval_seconds)
 
         # print(f"[EnergyBall INIT] x={self.x} y={self.y} rect={self.rect}")
 

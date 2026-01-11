@@ -34,29 +34,21 @@ class StarShip:
         self.speed: float = 3.0
         self.shipHealthMax: int = 150
         self.camera = None
-
-        # Machine Gun
-        self.machine_gun = MachineGun(self.x, self.y)
-
-
-
-
-
-        self.equipped_magic: list = ["Napalm Spread", None]
-
+        self.equipped_magic: list = ["Energy Ball", None]
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
-
-
-
-
-
         self.hitbox: pygame.Rect = pygame.Rect(
             int(self.x),
             int(self.y),
             self.width,
             self.height
         )
+        # -------------------------
+        # DAMAGE VISUAL EFFECT
+        # -------------------------
+        self.is_electrocuted: bool = False
+        self.electric_start_time: int = 0
+        self.electric_duration_ms: int = 180
         self.was_hit: bool = False
         self.shipHealth: int = 50
 
@@ -68,37 +60,26 @@ class StarShip:
         self.invincible: bool = False
         self.last_health: int = self.shipHealth
         self.invincibility_timer: Timer = Timer(2.0)
-
+        # ------------------------
+        # machine gun
+        # -------------------------
+        self.machine_gun = MachineGun(self.x, self.y)
         # -------------------------
         # Missile
         # -------------------------
         self.missile = Missile(self.x, self.y)
-
-        # -------------------------
-        # DAMAGE VISUAL EFFECT
-        # -------------------------
-        self.is_electrocuted: bool = False
-        self.electric_start_time: int = 0
-        self.electric_duration_ms: int = 180
         # -------------------------
         # Buster cannon
         # -------------------------
         self.buster_cannon = BusterCanon(self.x, self.y)
-        self.buster_cannon_cooldown = Timer(0.25)
-
         # -------------------------
         # Energy ball
         # -------------------------
-        self.energy_ball_fire_interval_seconds: float = 1.2
-        self.energy_ball_timer: Timer = Timer(self.energy_ball_fire_interval_seconds)
         self.energy_ball = EnergyBall(self.x, self.y)
-        self.energy_ball.energy_ball_timer = self.energy_ball_timer
-
         # -------------------------
         # Beam saber
         # -------------------------
         self.beam_saber = BeamSaber(self.x, self.y)
-
         # -------------------------
         # Metal Shield
         # -------------------------
@@ -126,64 +107,48 @@ class StarShip:
         self.invincible = True
         self.invincibility_timer.reset()
 
-
-
-
-
-
-
     def update(self) -> None:
         self.update_hitbox()
-
-
         # -------------------------
         # Machine Gun
         # -------------------------
         self.machine_gun.x = self.x
         self.machine_gun.y = self.y
         self.machine_gun.update()
-
         # -------------------------
         # Missile
         # -------------------------
         self.missile.reload_missiles()
-
         # -------------------------
         # buster cannon
         # -------------------------
         self.buster_cannon.x = self.x + self.width // 2
         self.buster_cannon.y = self.y
         self.buster_cannon.update()
-
         # -------------------------
         # enegy ball
         # -------------------------
         self.energy_ball.x = self.x + self.width / 2
         self.energy_ball.y = self.y + self.height / 2
         self.energy_ball.update()
-
-        # -------------------------
+        # ------------------------
         # Beam Saber
         # -------------------------
         self.beam_saber.x = self.x + self.width // 2
         self.beam_saber.y = self.y
         self.beam_saber.update()
-
-
         # -------------------------
         # Metal Shield
         # -------------------------
         self.metal_shield.x = self.x + self.width // 2
         self.metal_shield.y = self.y
         self.metal_shield.update()
-
         # -------------------------
         # Plasma blaster
         # -------------------------
         self.plasma_blaster.x = self.x + self.width // 2
         self.plasma_blaster.y = self.y
         self.plasma_blaster.update()
-
         # -------------------------
         # Wave Crash
         # -------------------------
@@ -196,14 +161,12 @@ class StarShip:
         self.wind_slicer.x = self.x + self.width // 2
         self.wind_slicer.y = self.y
         self.wind_slicer.update()
-
         # -------------------------
         # Napalm Spread
         # -------------------------
         self.napalm_spread.x = self.x + self.width // 2
         self.napalm_spread.y = self.y
         self.napalm_spread.update()
-
         # --------------------------------
         # DETECT DAMAGE (HEALTH DROP)
         # --------------------------------
