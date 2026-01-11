@@ -492,7 +492,7 @@ class VerticalBattleScreen:
         # -------------------------
         if state.starship.equipped_magic[0] == "Wave Crash" and not self.playerDead:
             if self.controller.magic_1_button:
-                waves = state.starship.fire_wave_crash()
+                waves = state.starship.wave_crash.fire_wave_crash()
                 self.wave_crash_bullets.extend(waves)
 
         if state.starship.equipped_magic[1] == "Wave Crash" and not self.playerDead:
@@ -589,14 +589,14 @@ class VerticalBattleScreen:
         # laser
         # -------------------------
 
-        for laser in list(self.beam_saber_bullets):
-            laser.x = self.starship.x + self.starship.width // 2
-            laser.y = self.starship.y - 20
+        for saber in list(self.beam_saber_bullets):
+            saber.x = self.starship.x + self.starship.width // 2
+            saber.y = self.starship.y - 20
 
-            laser.update()
-            screen_y = laser.y - self.camera.y
-            if screen_y + laser.height < 0:
-                self.beam_saber_bullets.remove(laser)
+            saber.update()
+            screen_y = saber.y - self.camera.y
+            if screen_y + saber.height < 0:
+                self.beam_saber_bullets.remove(saber)
 
 
         for bullet in list(self.player_bullets):
@@ -1182,20 +1182,6 @@ class VerticalBattleScreen:
                 list(self.bossLevelSevenGroup)
         )
 
-        # -------------------------
-        # PLASMA BLASTER
-        # -------------------------
-        for plasma in list(self.plasma_blaster_bullets):
-            plasma_rect = pygame.Rect(plasma.x, plasma.y, plasma.width, plasma.height)
-
-            for enemy in all_enemies:
-                if plasma_rect.colliderect(enemy.hitbox):
-                    enemy.enemyHealth -= plasma.damage
-                    self.plasma_blaster_bullets.remove(plasma)
-
-                    if enemy.enemyHealth <= 0:
-                        self.remove_enemy_if_dead(enemy)
-                    break
 
         # -------------------------
         # PLAYER BULLETS
@@ -1228,6 +1214,20 @@ class VerticalBattleScreen:
                         self.remove_enemy_if_dead(enemy)
                     break
 
+        # -------------------------
+        # PLASMA BLASTER
+        # -------------------------
+        for plasma in list(self.plasma_blaster_bullets):
+            plasma_rect = pygame.Rect(plasma.x, plasma.y, plasma.width, plasma.height)
+
+            for enemy in all_enemies:
+                if plasma_rect.colliderect(enemy.hitbox):
+                    enemy.enemyHealth -= plasma.damage
+                    self.plasma_blaster_bullets.remove(plasma)
+
+                    if enemy.enemyHealth <= 0:
+                        self.remove_enemy_if_dead(enemy)
+                    break
 
         # -------------------------
         # WIND SLICER
@@ -1269,23 +1269,10 @@ class VerticalBattleScreen:
                     if enemy.enemyHealth <= 0:
                         self.remove_enemy_if_dead(enemy)
                     break
-        # for bc in list(self.buster_cannon_bullets):
-        #     bc_rect = pygame.Rect(bc.x, bc.y, bc.width, bc.height)
-        #
-        #     for enemy in all_enemies:
-        #         if bc_rect.colliderect(enemy.hitbox):
-        #             enemy.enemyHealth -= bc.damage
-        #             self.buster_cannon_bullets.remove(bc)
-        #
-        #             if enemy.enemyHealth <= 0:
-        #                 self.remove_enemy_if_dead(enemy)
-        #             break
+
 
         # -------------------------
-        # ENERGY BALL COLLISION
-        # -------------------------
-        # -------------------------
-        # ENERGY BALL COLLISION (WORLD SPACE)
+        # ENERGY BALL
         # -------------------------
         for ball in list(self.energy_balls):
             ball_rect = pygame.Rect(ball.x, ball.y, ball.width, ball.height)

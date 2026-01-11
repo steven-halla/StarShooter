@@ -19,6 +19,7 @@ from Weapons.MetalShield import MetalShield
 from Weapons.Missile import Missile
 from Weapons.NapalmSpread import NapalmSpread
 from Weapons.PlasmaBlaster import PlasmaBlaster
+from Weapons.WaveCrash import WaveCrash
 from Weapons.WindSlicer import WindSlicer
 
 
@@ -52,7 +53,7 @@ class StarShip:
 
 
 
-        self.equipped_magic: list = ["Plasma Blaster", None]
+        self.equipped_magic: list = ["Wave Crash", None]
 
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
@@ -84,18 +85,11 @@ class StarShip:
         # -------------------------
         self.missile = Missile(self.x, self.y)
 
-
-
         # -------------------------
         # WAVE CRASHER STATS
         # -------------------------
-        self.wave_crash_cooldown_seconds: float = 0.4
-        self.wave_crash_timer: Timer = Timer(self.wave_crash_cooldown_seconds)
 
-        self.wave_crash_damage: int = 6
-        self.wave_crash_speed: int = 6
-        self.wave_crash_width: int = 12
-        self.wave_crash_height: int = 12
+
 
         # -------------------------
         # DAMAGE VISUAL EFFECT
@@ -130,10 +124,10 @@ class StarShip:
         # Plasma Blaster
         # -------------------------
         self.plasma_blaster = PlasmaBlaster(self.x, self.y)
-
-
-
-
+        # -------------------------
+        # Wave Crash
+        # -------------------------
+        self.wave_crash = WaveCrash(self.x, self.y)
 
     def start_invincibility(self) -> None:
         # Begin a 10-second invincibility period
@@ -164,19 +158,6 @@ class StarShip:
         return napalm
 
 
-
-    # def fire_plasma_blaster(self):
-    #     """
-    #     Fires a Plasma Blaster beam straight upward.
-    #     """
-    #
-    #     # Spawn at center-top of ship
-    #     start_x = self.x + self.width / 2
-    #     start_y = self.y - 50
-    #
-    #     plasma = PlasmaBlaster(start_x, start_y)
-    #     return plasma
-
     def fire_wind_slicer(self) -> list:
         bullets = []
 
@@ -204,44 +185,6 @@ class StarShip:
         self.napalm_timer.reset()  # reuse cooldown for now
         return bullets
 
-
-    def fire_wave_crash(self) -> list:
-        print("yah")
-
-        """
-        Fires Wave Crash shots simultaneously to the left and right.
-        """
-        if not self.wave_crash_timer.is_ready():
-            return []
-
-        bullets = []
-
-        spawn_x = self.x + self.width // 2
-        spawn_y = self.y
-
-        # LEFT shot
-        left = Bullet(spawn_x, spawn_y)
-        left.width = self.wave_crash_width
-        left.height = self.wave_crash_height
-        left.damage = self.wave_crash_damage
-        left.speed = 0
-        left.dx = -self.wave_crash_speed
-        left.update_rect()
-
-        # RIGHT shot
-        right = Bullet(spawn_x, spawn_y)
-        right.width = self.wave_crash_width
-        right.height = self.wave_crash_height
-        right.damage = self.wave_crash_damage
-        right.speed = 0
-        right.dx = self.wave_crash_speed
-        right.update_rect()
-
-        bullets.append(left)
-        bullets.append(right)
-
-        self.wave_crash_timer.reset()
-        return bullets
 
 
     def update(self) -> None:
@@ -296,8 +239,12 @@ class StarShip:
         self.plasma_blaster.y = self.y
         self.plasma_blaster.update()
 
-
-
+        # -------------------------
+        # Wave Crash
+        # -------------------------
+        self.wave_crash.x = self.x + self.width // 2
+        self.wave_crash.y = self.y
+        self.wave_crash.update()
 
         # --------------------------------
         # DETECT DAMAGE (HEALTH DROP)
