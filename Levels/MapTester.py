@@ -34,9 +34,9 @@ class MapTester(VerticalBattleScreen):
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
         self.map_scroll_speed_per_frame: float = .4 # move speed of camera
-        self.bileSpitterGroup: list[BileSpitter] = []
-        self.kamikazeDroneGroup: list[KamikazeDrone] = []
-        self.triSpitterGroup: list[TriSpitter] = []
+        # self.bileSpitterGroup: list[BileSpitter] = []
+        # self.kamikazeDroneGroup: list[KamikazeDrone] = []
+        # self.triSpitterGroup: list[TriSpitter] = []
         # self.load_enemy_into_list()
         self.napalm_list: list = []
 
@@ -112,61 +112,15 @@ class MapTester(VerticalBattleScreen):
 
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
-        for enemy in self.fireLauncherGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-        for enemy in self.bileSpitterGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-        for enemy in self.acidLauncherGroup:
+        for enemy in self.enemies:
             enemy.draw(state.DISPLAY, self.camera)
 
-        for enemy in self.spineLauncherGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-
-        for enemy in self.sporeFlowerGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-
-        for enemy_tri_spitter in self.triSpitterGroup:
-            enemy_tri_spitter.draw(state.DISPLAY, self.camera)
-
-        for drone in self.kamikazeDroneGroup:
-            drone.draw(state.DISPLAY, self.camera)
-
-        for wasp in self.waspStingerGroup:
-            wasp.draw(state.DISPLAY, self.camera)
-        for ravager in self.ravagerGroup:
-            ravager.draw(state.DISPLAY, self.camera)
-        for blade in self.bladeSpinnerGroup:
-            blade.draw(state.DISPLAY, self.camera)
-        for boss in self.bossLevelOneGroup:
-            boss.draw(state.DISPLAY, self.camera)
-
-        for enemy_tri_spitter in self.triSpitterGroup:
-            hb = pygame.Rect(
-                self.camera.world_to_screen_x(enemy_tri_spitter.hitbox.x),
-                self.camera.world_to_screen_y(enemy_tri_spitter.hitbox.y),
-                int(enemy_tri_spitter.hitbox.width * zoom),
-                int(enemy_tri_spitter.hitbox.height * zoom)
-            )
-            pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
 
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
-        enemies = (
-                list(self.bileSpitterGroup) +
-                list(self.kamikazeDroneGroup) +
-                list(self.triSpitterGroup) +
-                list(self.waspStingerGroup) +
-                list(self.bladeSpinnerGroup) +
-                list(self.sporeFlowerGroup) +
-                list(self.spineLauncherGroup) +
-                list(self.acidLauncherGroup) +
-                list(self.ravagerGroup) +
-                list(self.fireLauncherGroup) +
-                list(self.bossLevelOneGroup)
-        )
 
-        if not enemies:
+        if not self.enemies:
             return None
 
         # Visible camera bounds (world coordinates)
@@ -177,7 +131,7 @@ class MapTester(VerticalBattleScreen):
         nearest_dist = float("inf")
         mx, my = missile.x, missile.y
 
-        for enemy in enemies:
+        for enemy in self.enemies:
 
             # ⛔ Skip enemies outside the screen
             if enemy.y + enemy.height < visible_top:
@@ -219,108 +173,10 @@ class MapTester(VerticalBattleScreen):
                 enemy.height = obj.height
                 enemy.update_hitbox()
                 enemy.camera = self.camera
-                self.bossLevelOneGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-            if obj.name == "fire_launcher":
-                enemy = FireLauncher()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.fireLauncherGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-            if obj.name == "ravager":
-                enemy = Ravager()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.ravagerGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-            if obj.name == "acid_launcher":
-                enemy = AcidLauncher()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.acidLauncherGroup.append(enemy)
+                self.enemies.append(enemy)
                 enemy.camera = self.camera
                 enemy.target_player = self.starship
 
-            if obj.name == "spine_launcher":
-                enemy = SpineLauncher()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.spineLauncherGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-            if obj.name == "spore_flower":
-                enemy = SporeFlower()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.sporeFlowerGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-            if obj.name == "wasp_stinger":
-                enemy = WaspStinger()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.waspStingerGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-            if obj.name == "bile_spitter":
-                enemy = BileSpitter()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.bileSpitterGroup.append(enemy)
-
-            if obj.name == "kamikazi_drone":
-                drone = KamikazeDrone()
-                drone.x = obj.x
-                drone.y = obj.y
-                drone.width = obj.width
-                drone.height = obj.height
-                drone.update_hitbox()
-                self.kamikazeDroneGroup.append(drone)
-                drone.camera = self.camera
-                drone.target_player = self.starship
-                continue
-            if obj.name == "blade_spinner":
-                enemy = BladeSpinner()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                self.bladeSpinnerGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-                continue
 
             if obj.name == "tri_spitter":
                 enemy_tri_spitter = TriSpitter()
@@ -329,7 +185,7 @@ class MapTester(VerticalBattleScreen):
                 enemy_tri_spitter.width = obj.width
                 enemy_tri_spitter.height = obj.height
                 enemy_tri_spitter.update_hitbox()
-                self.triSpitterGroup.append(enemy_tri_spitter)
+                self.enemies.append(enemy_tri_spitter)
                 enemy_tri_spitter.camera = self.camera
                 enemy_tri_spitter.target_player = self.starship
                 continue
@@ -392,7 +248,7 @@ class MapTester(VerticalBattleScreen):
 
                     break  # one hit only
 
-        for boss in list(self.bossLevelOneGroup):
+        for boss in list(self.enemies):
             boss.update()
 
             if boss.enemyBullets:
@@ -400,101 +256,10 @@ class MapTester(VerticalBattleScreen):
                 boss.enemyBullets.clear()
 
             if boss.enemyHealth <= 0:
-                self.bossLevelOneGroup.remove(boss)
+                self.enemies.remove(boss)
                 continue
 
-        for blade in list(self.bladeSpinnerGroup):
-            blade.update()
-
-            if blade.enemyHealth <= 0:
-                self.bladeSpinnerGroup.remove(blade)
-                continue
-
-        for wasp in list(self.waspStingerGroup):
-            wasp.update()
-
-            if wasp.enemyHealth <= 0:
-                self.waspStingerGroup.remove(wasp)
-                continue
-
-        for ravager in list(self.ravagerGroup):
-            napalm = ravager.update()
-
-            if napalm is not None:
-                self.napalm_list.append(napalm)
-                print("NAPALM ADDED TO LEVEL", len(self.napalm_list))
-
-            if ravager.enemyBullets:
-                self.enemy_bullets.extend(ravager.enemyBullets)
-                ravager.enemyBullets.clear()
-
-            if ravager.enemyHealth <= 0:
-                self.ravagerGroup.remove(ravager)
-
-        for drone in list(self.kamikazeDroneGroup):
-            drone.update()
-
-            if drone.enemyHealth <= 0:
-                self.kamikazeDroneGroup.remove(drone)
-                continue
-
-        for fire in list(self.fireLauncherGroup):
-            fire.update()
-
-            if fire.enemyBullets:
-                self.enemy_bullets.extend(fire.enemyBullets)
-                fire.enemyBullets.clear()
-
-            if fire.enemyHealth <= 0:
-                self.fireLauncherGroup.remove(fire)
-                continue
-
-        for spore in list(self.sporeFlowerGroup):
-            spore.update()
-
-            if spore.enemyBullets:
-                self.enemy_bullets.extend(spore.enemyBullets)
-                spore.enemyBullets.clear()
-
-            if spore.enemyHealth <= 0:
-                self.sporeFlowerGroup.remove(spore)
-                continue
-
-        for acid in list(self.acidLauncherGroup):
-            acid.update()
-
-            if acid.enemyBullets:
-                self.enemy_bullets.extend(acid.enemyBullets)
-                acid.enemyBullets.clear()
-
-            if acid.enemyHealth <= 0:
-                self.spineLauncherGroup.remove(acid)
-                continue
-
-        for spine in list(self.spineLauncherGroup):
-            spine.update()
-
-            if spine.enemyBullets:
-                self.enemy_bullets.extend(spine.enemyBullets)
-                spine.enemyBullets.clear()
-
-            if spine.enemyHealth <= 0:
-                self.spineLauncherGroup.remove(spine)
-                continue
-
-        for enemy in self.bileSpitterGroup:
-            enemy.update()
-            if self.starship.hitbox.colliderect(enemy.hitbox):
-                enemy.color = (135, 206, 235)  # SKYBLUE
-            else:
-                enemy.color = GlobalConstants.RED
-            enemy.update_hitbox()
-
-            if enemy.enemyBullets:
-                self.enemy_bullets.extend(enemy.enemyBullets)
-                enemy.enemyBullets.clear()
-
-        for enemy_tri_spitter in self.triSpitterGroup:
+        for enemy_tri_spitter in self.enemies:
             enemy_tri_spitter.update()
             if self.starship.hitbox.colliderect(enemy_tri_spitter.hitbox):
                 enemy_tri_spitter.color = (135, 206, 235)  # SKYBLUE

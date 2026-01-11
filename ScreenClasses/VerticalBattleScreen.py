@@ -50,34 +50,8 @@ class VerticalBattleScreen:
         self.tile_size: int = self.tiled_map.tileheight
 
 
-        # enemy groups
-        self.bileSpitterGroup: list[BileSpitter] = []
-        self.kamikazeDroneGroup: list[KamikazeDrone] = []
-        self.triSpitterGroup: list[TriSpitter] = []
-        self.waspStingerGroup: list[WaspStinger] = []
-        self.bladeSpinnerGroup: list[BladeSpinner] = []
-        self.sporeFlowerGroup: list[SporeFlower] = []
-        self.spineLauncherGroup: list[SpineLauncher] = []
-        self.acidLauncherGroup: list[AcidLauncher] = []
-        self.ravagerGroup: list[Ravager] = []
-        self.fireLauncherGroup: list[FireLauncher] = []
-        self.transportWormGroup: list[TransportWorm] = []
-        self.spinalRaptorGroup: list[SpinalRaptor] = []
-        self.slaverGroup: list[Slaver] = []
-        self.coinsGroup: list[Coins] = []
-        self.spikeyBallGroup: list[SpikeyBall] = []
-
+        #rename to : Enemeis Group
         self.enemies: list[Enemy] = []
-
-
-
-        self.bossLevelOneGroup: list[BossLevelOne] = []
-        self.bossLevelTwoGroup: list[BossLevelTwo] = []
-        self.bossLevelThreeGroup: list[BossLevelThree] = []
-        self.bossLevelFourGroup: list[BossLevelFour] = []
-        self.bossLevelFiveGroup: list[BossLevelFive] = []
-        self.bossLevelSixGroup: list[BossLevelSix] = []
-        self.bossLevelSevenGroup: list[BossLevelSeven] = []
 
         self.mover: MoveRectangle = MoveRectangle()
         self.controller: KeyBoardControls = KeyBoardControls()
@@ -554,27 +528,8 @@ class VerticalBattleScreen:
         if not self.starship.invincible:
             # TODO this MUST be reading from current_level.enemies or something, not
             # checking every f'n enemy every single time
-            enemies = (
-                    list(self.bileSpitterGroup) +
-                    list(self.spinalRaptorGroup) +
-                    list(self.triSpitterGroup) +
-                    list(self.slaverGroup) +
-                    list(self.bladeSpinnerGroup) +
-                    list(self.fireLauncherGroup) +
-                    list(self.kamikazeDroneGroup) +
-                    list(self.transportWormGroup) +
-                    list(self.spikeyBallGroup) +
 
-                    list(self.bossLevelThreeGroup) +
-                    list(self.bossLevelTwoGroup) +
-                    list(self.bossLevelOneGroup) +
-                    list(self.bossLevelFourGroup) +
-                    list(self.bossLevelFiveGroup) +
-                    list(self.bossLevelSixGroup) +
-                    list(self.bossLevelSevenGroup)
-            )
-
-            for enemy in enemies:
+            for enemy in self.enemies:
                 enemy_rect = pygame.Rect(
                     enemy.x,
                     enemy.y,
@@ -597,32 +552,9 @@ class VerticalBattleScreen:
             GlobalConstants.UI_PANEL_HEIGHT
         )
 
-        enemies = (
-                list(self.bileSpitterGroup) +
-                list(self.triSpitterGroup) +
-                list(self.slaverGroup) +
-                list(self.bladeSpinnerGroup) +
-                list(self.fireLauncherGroup) +
-                list(self.kamikazeDroneGroup) +
-                list(self.transportWormGroup) +
-                list(self.waspStingerGroup) +
-                list(self.sporeFlowerGroup) +
-                list(self.spineLauncherGroup) +
-                list(self.acidLauncherGroup) +
-                list(self.ravagerGroup) +
-                list(self.spinalRaptorGroup) +
-                list(self.spikeyBallGroup) +
 
-                list(self.bossLevelThreeGroup) +
-                list(self.bossLevelTwoGroup) +
-                list(self.bossLevelOneGroup) +
-                list(self.bossLevelFourGroup) +
-                list(self.bossLevelFiveGroup) +
-                list(self.bossLevelSixGroup) +
-                list(self.bossLevelSevenGroup)
-        )
 
-        for enemy in list(enemies):
+        for enemy in list(self.enemies):
             # Convert enemy position to screen coordinates
             enemy_screen_y = enemy.y - self.camera.y
 
@@ -649,33 +581,8 @@ class VerticalBattleScreen:
                 + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
                 - UI_KILL_PADDING
         )
-        all_enemies = (
-                list(self.kamikazeDroneGroup)
-                + list(self.bileSpitterGroup)
-                + list(self.triSpitterGroup)
-                + list(self.waspStingerGroup)
-                + list(self.bladeSpinnerGroup)
-                + list(self.sporeFlowerGroup)
-                + list(self.spineLauncherGroup)
-                + list(self.acidLauncherGroup)
-                + list(self.ravagerGroup)
-                + list(self.fireLauncherGroup)
-                + list(self.slaverGroup)
-                + list(self.transportWormGroup)
-                + list(self.spinalRaptorGroup)
-                + list(self.spikeyBallGroup)
 
-
-                + list(self.bossLevelOneGroup)
-                + list(self.bossLevelTwoGroup)
-                + list(self.bossLevelThreeGroup)
-                + list(self.bossLevelFourGroup)
-                + list(self.bossLevelFiveGroup)
-                + list(self.bossLevelSixGroup)
-                + list(self.bossLevelSevenGroup)
-        )
-
-        for enemy in list(all_enemies):
+        for enemy in list(self.enemies):
             if enemy.y > screen_bottom:
                 # Set is_active to False to ensure it's not drawn
                 enemy.is_active = False
@@ -815,42 +722,22 @@ class VerticalBattleScreen:
 
         # 🔽 UI PANEL (BOTTOM BAR) - Draw last to ensure it covers anything that comes into contact with it
         self.draw_ui_panel(state.DISPLAY)
-        for boss in list(self.bossLevelSixGroup):
-            boss.update()
-            boss.draw_barrage(state.DISPLAY, self.camera)
-            boss.apply_barrage_damage(self.starship)
+        for enemy in self.enemies:
+            enemy.update()
+
+            if getattr(enemy, "has_barrage", False):
+                # ONLY BossLevelSix has these methods
+                enemy.draw_barrage(state.DISPLAY, self.camera)
+                enemy.apply_barrage_damage(self.starship)
         # print(self.enemies)
 
     def bullet_helper(self):
-        all_enemies = (
-                list(self.kamikazeDroneGroup) +
-                list(self.bileSpitterGroup) +
-                list(self.triSpitterGroup) +
-                list(self.slaverGroup) +
-                list(self.waspStingerGroup) +
-                list(self.bladeSpinnerGroup) +
-                list(self.sporeFlowerGroup) +
-                list(self.spineLauncherGroup) +
-                list(self.acidLauncherGroup) +
-                list(self.ravagerGroup) +
-                list(self.transportWormGroup) +
-                list(self.fireLauncherGroup) +
-                list(self.spinalRaptorGroup) +
-                list(self.spikeyBallGroup) +
 
-                list(self.bossLevelOneGroup) +
-                list(self.bossLevelTwoGroup) +
-                list(self.bossLevelThreeGroup) +
-                list(self.bossLevelFourGroup) +
-                list(self.bossLevelFiveGroup) +
-                list(self.bossLevelSixGroup) +
-                list(self.bossLevelSevenGroup)
-        )
 
         for bullet in list(self.player_bullets):
             bullet_rect = bullet.rect
 
-            for enemy in all_enemies:
+            for enemy in self.enemies:
                 if not bullet_rect.colliderect(enemy.hitbox):
                     continue
 
@@ -877,35 +764,8 @@ class VerticalBattleScreen:
 
         enemy.is_active = False
 
-        enemy_groups = (
-            self.kamikazeDroneGroup,
-            self.bileSpitterGroup,
-            self.triSpitterGroup,
-            self.waspStingerGroup,
-            self.bladeSpinnerGroup,
-            self.sporeFlowerGroup,
-            self.spineLauncherGroup,
-            self.acidLauncherGroup,
-            self.ravagerGroup,
-            self.fireLauncherGroup,
-            self.slaverGroup,
-            self.transportWormGroup,
-            self.coinsGroup,
-            self.spikeyBallGroup,
-
-            self.bossLevelOneGroup,
-            self.bossLevelTwoGroup,
-            self.bossLevelThreeGroup,
-            self.bossLevelFourGroup,
-            self.bossLevelFiveGroup,
-            self.bossLevelSixGroup,
-            self.bossLevelSevenGroup,
-        )
-
-        for group in enemy_groups:
-            if enemy in group:
-                group.remove(enemy)
-                break
+        if enemy in self.enemies:
+            self.enemies.remove(enemy)
     # one place, no elif chain, no duplication
 
 

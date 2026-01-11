@@ -75,6 +75,8 @@ class Enemy:
         if self.is_flashing:
             if pygame.time.get_ticks() - self.flash_start_time >= self.flash_duration_ms:
                 self.is_flashing = False
+
+
     # --------------------------------------------------
     # DAMAGE
     # --------------------------------------------------
@@ -174,3 +176,10 @@ class Enemy:
         flash = pygame.Surface((w, h), pygame.SRCALPHA)
         flash.fill((*GlobalConstants.RED, 160))
         surface.blit(flash, (x, y))
+
+    # the below  is attacks from boss level 6, need to do this better
+    def draw_barrage(self, *args):
+        pass
+
+    def apply_barrage_damage(self, *args):
+        pass
