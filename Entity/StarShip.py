@@ -26,29 +26,18 @@ from Weapons.WindSlicer import WindSlicer
 class StarShip:
     def __init__(self):
         self.height: int = 16
-
         self.width: int = 16
         self.color: tuple[int, int, int] = GlobalConstants.BLUE
         self.x: int = 0
         self.y: int = 0
         self.moveStarShip: MoveRectangle = MoveRectangle()
         self.speed: float = 3.0
-        # the weapon itself manages charge status
-
         self.shipHealthMax: int = 150
         self.camera = None
 
-
-
-
         # Machine Gun
         self.machine_gun = MachineGun(self.x, self.y)
-        self.machine_gun.camera = self.camera
-        self.bullet_fire_interval_seconds: float = 0.10 # orginal value 0.05 # base value .24
-        self.bullet_timer: Timer = Timer(self.bullet_fire_interval_seconds)
-        self.bullet_spread_offset: int = 18
-        self.bullets_per_shot: int = 2
-        self.bulletDamage: int = 1
+
 
 
 

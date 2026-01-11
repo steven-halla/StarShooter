@@ -7,12 +7,12 @@ class MachineGun(Bullet):
     def __init__(self, x: float, y: float):
         super().__init__(x, y)
 
-        # size (THIS defines bullet size)
-        self.width: int = 4
-        self.height: int = 4
-
         # identity
         self.weapon_name: str = "Machine Gun"
+
+        # projectile size
+        self.width: int = 4
+        self.height: int = 4
 
         # stats
         self.damage: int = 1
@@ -20,18 +20,18 @@ class MachineGun(Bullet):
         self.bullet_speed: float = 12.0
 
         # firing config
-        self.bullet_spread_offset: int = 18
         self.bullets_per_shot: int = 2
+        self.bullet_spread_offset: int = 18
         self.center_bullet_x: int = 18
 
         # cooldown
         self.bullet_timer: Timer = Timer(self.rate_of_fire)
 
-        # movement vector (straight up)
+        # movement vector (unused for spawner, but safe)
         self.vx: float = 0.0
         self.vy: float = -1.0
 
-        # injected by game state
+        # injected externally
         self.camera = None
 
         self.update_rect()

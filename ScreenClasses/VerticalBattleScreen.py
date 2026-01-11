@@ -1191,7 +1191,7 @@ class VerticalBattleScreen:
 
             for enemy in all_enemies:
                 if bullet_rect.colliderect(enemy.hitbox):
-                    enemy.enemyHealth -= self.starship.bulletDamage
+                    enemy.enemyHealth -= self.starship.machine_gun.damage
                     self.player_bullets.remove(bullet)
 
                     if enemy.enemyHealth <= 0:
