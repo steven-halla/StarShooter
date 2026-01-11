@@ -211,114 +211,16 @@ class VerticalBattleScreen:
             if self.controller.down_button:
                 self.mover.player_move_down(self.starship)
         self.starship.update()
-
-        # self.was_q_pressed_last_frame = self.controller.q_button
-
         self.clamp_starship_to_screen()
-        # if not self.playerDead:
-        #     self.starship.update()
-
-        # =========================
-        # WEAPON FIRING — FIXED GUARDS (REPLACEMENT)
-        # =========================f
-
-
         self.fire_all_weapons(self)
         self.weapon_helper()
         self.bullet_helper()
         self.metal_shield_helper()
-
-        for bullet in list(self.enemy_bullets):
-            bullet.update()
-
-            # WORLD-SPACE BOUNDS (same logic as player bullets)
-            world_top_delete = self.camera.y - 200
-            world_bottom_delete = self.camera.y + self.window_height + 200
-
-            if bullet.y < world_top_delete or bullet.y > world_bottom_delete:
-                # print(f"[DELETE ENEMY] y={bullet.y}, cam_y={self.camera.y}")
-                self.enemy_bullets.remove(bullet)
-                continue
-
-            # Collision check
-            if bullet.collide_with_rect(self.starship.hitbox):
-                self.starship.shipHealth -= bullet.damage
-                bullet.is_active = False
-                self.enemy_bullets.remove(bullet)
-
-        hazard_layer = self.tiled_map.get_layer_by_name("hazard")
-        player_rect = self.starship.hitbox  # already in WORLD coordinates
-
-
-        for col, row, tile in hazard_layer.tiles():
-
-            tile_rect = pygame.Rect(
-                col * self.tile_size,
-                row * self.tile_size,
-                self.tile_size,
-                self.tile_size
-            )
-
-            if player_rect.colliderect(tile_rect):
-                self.starship.shipHealth -= 1
-                print("⚠️ Player took hazard damage! Health =", self.starship.shipHealth)
-                break
-
-        # -------------------------
-        # ENEMY BODY COLLISION DAMAGE (GLOBAL RULE)
-        # -------------------------
-        player_rect = self.starship.hitbox
-
-        if not self.starship.invincible:
-            # TODO this MUST be reading from current_level.enemies or something, not
-            # checking every f'n enemy every single time
-
-            for enemy in self.enemies:
-                enemy_rect = pygame.Rect(
-                    enemy.x,
-                    enemy.y,
-                    enemy.width,
-                    enemy.height
-                )
-
-                if player_rect.colliderect(enemy_rect):
-                    self.starship.shipHealth -= 10
-                    self.starship.on_hit()
-                    break  # ⛔ only one hit per frame
-
-        # -------------------------
-        # ENEMY COLLISION WITH UI PANEL (ERASE ENEMIES)
-        # -------------------------
-        ui_panel_rect = pygame.Rect(
-            0,
-            GlobalConstants.GAMEPLAY_HEIGHT,
-            GlobalConstants.BASE_WINDOW_WIDTH,
-            GlobalConstants.UI_PANEL_HEIGHT
-        )
-
-        for enemy in list(self.enemies):
-            # Convert enemy position to screen coordinates
-            enemy_screen_y = enemy.y - self.camera.y
-
-            # Create enemy rect in screen coordinates
-            enemy_rect = pygame.Rect(
-                enemy.x,
-                enemy_screen_y,
-                enemy.width,
-                enemy.height
-            )
-
-            # Check if enemy intersects with UI panel
-            if enemy_rect.colliderect(ui_panel_rect):
-                # Set enemy health to zero and is_active to False to ensure it's removed and not drawn
-                enemy.enemyHealth = 0
-                enemy.is_active = False
-                self.remove_enemy_if_dead(enemy)
-
+        self.bullet_collision_helper_remover()
+        self.collision_tile_helper()
+        self.rect_helper()
         UI_KILL_PADDING = 12  # pixels ABOVE the UI panel (tweak this)
 
-
-        # screen-space bottom (camera aware)
         screen_bottom = (
                 self.camera.y
                 + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
@@ -975,3 +877,90 @@ class VerticalBattleScreen:
 
             if off_screen or not getattr(bullet, "is_active", True):
                 self.player_bullets.remove(bullet)
+
+
+    def rect_helper(self):
+        ui_panel_rect = pygame.Rect(
+            0,
+            GlobalConstants.GAMEPLAY_HEIGHT,
+            GlobalConstants.BASE_WINDOW_WIDTH,
+            GlobalConstants.UI_PANEL_HEIGHT
+        )
+
+        for enemy in list(self.enemies):
+            # Convert enemy position to screen coordinates
+            enemy_screen_y = enemy.y - self.camera.y
+
+            # Create enemy rect in screen coordinates
+            enemy_rect = pygame.Rect(
+                enemy.x,
+                enemy_screen_y,
+                enemy.width,
+                enemy.height
+            )
+
+            # Check if enemy intersects with UI panel
+            if enemy_rect.colliderect(ui_panel_rect):
+                # Set enemy health to zero and is_active to False to ensure it's removed and not drawn
+                enemy.enemyHealth = 0
+                enemy.is_active = False
+                self.remove_enemy_if_dead(enemy)
+
+    def bullet_collision_helper_remover(self):
+        for bullet in list(self.enemy_bullets):
+            bullet.update()
+            world_top_delete = self.camera.y - 200
+            world_bottom_delete = self.camera.y + self.window_height + 200
+
+            if bullet.y < world_top_delete or bullet.y > world_bottom_delete:
+                # print(f"[DELETE ENEMY] y={bullet.y}, cam_y={self.camera.y}")
+                self.enemy_bullets.remove(bullet)
+                continue
+
+            # Collision check
+            if bullet.collide_with_rect(self.starship.hitbox):
+                self.starship.shipHealth -= bullet.damage
+                bullet.is_active = False
+                self.enemy_bullets.remove(bullet)
+
+
+
+    def collision_tile_helper(self):
+        hazard_layer = self.tiled_map.get_layer_by_name("hazard")
+        player_rect = self.starship.hitbox  # already in WORLD coordinates
+
+        for col, row, tile in hazard_layer.tiles():
+
+            tile_rect = pygame.Rect(
+                col * self.tile_size,
+                row * self.tile_size,
+                self.tile_size,
+                self.tile_size
+            )
+
+            if player_rect.colliderect(tile_rect):
+                self.starship.shipHealth -= 1
+                print("⚠️ Player took hazard damage! Health =", self.starship.shipHealth)
+                break
+
+        # -------------------------
+        # ENEMY BODY COLLISION DAMAGE (GLOBAL RULE)
+        # -------------------------
+        player_rect = self.starship.hitbox
+
+        if not self.starship.invincible:
+            # TODO this MUST be reading from current_level.enemies or something, not
+            # checking every f'n enemy every single time
+
+            for enemy in self.enemies:
+                enemy_rect = pygame.Rect(
+                    enemy.x,
+                    enemy.y,
+                    enemy.width,
+                    enemy.height
+                )
+
+                if player_rect.colliderect(enemy_rect):
+                    self.starship.shipHealth -= 10
+                    self.starship.on_hit()
+                    break  # ⛔ only one hit per frame
