@@ -495,17 +495,14 @@ class VerticalBattleScreen:
                 waves = state.starship.wave_crash.fire_wave_crash()
                 self.wave_crash_bullets.extend(waves)
 
-        if state.starship.equipped_magic[1] == "Wave Crash" and not self.playerDead:
-            if self.controller.magic_2_button:
-                waves = state.starship.fire_wave_crash()
-                self.wave_crash_bullets.extend(waves)
+
 
         # -------------------------
         # WIND SLICER MAGIC
         # -------------------------
         if state.starship.equipped_magic[0] == "Wind Slicer" and not self.playerDead:
             if self.controller.magic_1_button:
-                slicers = state.starship.fire_wind_slicer()
+                slicers = state.starship.wind_slicer.fire_wind_slicer()
                 self.wind_slicer_bullets.extend(slicers)
 
 
@@ -1234,8 +1231,9 @@ class VerticalBattleScreen:
         # -------------------------
         for slicer in list(self.wind_slicer_bullets):
 
+
             for enemy in all_enemies:
-                if slicer.hitbox.colliderect(enemy.hitbox):
+                if slicer.rect.colliderect(enemy.hitbox):
                     enemy.enemyHealth -= slicer.damage
 
                     # remove slicer unless it is piercing

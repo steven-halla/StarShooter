@@ -53,7 +53,7 @@ class StarShip:
 
 
 
-        self.equipped_magic: list = ["Wave Crash", None]
+        self.equipped_magic: list = ["Wind Slicer", None]
 
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
@@ -84,12 +84,6 @@ class StarShip:
         # Missile
         # -------------------------
         self.missile = Missile(self.x, self.y)
-
-        # -------------------------
-        # WAVE CRASHER STATS
-        # -------------------------
-
-
 
         # -------------------------
         # DAMAGE VISUAL EFFECT
@@ -129,6 +123,11 @@ class StarShip:
         # -------------------------
         self.wave_crash = WaveCrash(self.x, self.y)
 
+        # -------------------------
+        # Wind Slicer
+        # -------------------------
+        self.wind_slicer = WindSlicer(self.x, self.y)
+
     def start_invincibility(self) -> None:
         # Begin a 10-second invincibility period
         self.invincible = True
@@ -158,32 +157,7 @@ class StarShip:
         return napalm
 
 
-    def fire_wind_slicer(self) -> list:
-        bullets = []
 
-        # fire rate gate (reuse napalm timer or add a new one later)
-        if not self.napalm_timer.is_ready():
-            return bullets
-
-        center_x = self.x + self.width / 2
-        start_y = self.y
-
-        bullet_count = 8
-        cone_angle_deg = 60  # total cone width
-        start_angle = -90 - cone_angle_deg / 2  # straight up = -90°
-        angle_step = cone_angle_deg / (bullet_count - 1)
-        speed = 3
-
-        for i in range(bullet_count):
-            angle = math.radians(start_angle + i * angle_step)
-            dx = math.cos(angle) * speed
-            dy = math.sin(angle) * speed
-
-            bullet = WindSlicer(center_x, start_y, dx, dy)
-            bullets.append(bullet)
-
-        self.napalm_timer.reset()  # reuse cooldown for now
-        return bullets
 
 
 
@@ -245,6 +219,12 @@ class StarShip:
         self.wave_crash.x = self.x + self.width // 2
         self.wave_crash.y = self.y
         self.wave_crash.update()
+        # -------------------------
+        # Wind Slicr
+        # -------------------------
+        self.wind_slicer.x = self.x + self.width // 2
+        self.wind_slicer.y = self.y
+        self.wind_slicer.update()
 
         # --------------------------------
         # DETECT DAMAGE (HEALTH DROP)
