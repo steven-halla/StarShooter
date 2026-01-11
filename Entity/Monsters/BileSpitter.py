@@ -1,5 +1,4 @@
 import random
-
 import pygame
 
 from Constants.GlobalConstants import GlobalConstants
@@ -25,37 +24,34 @@ class BileSpitter(Enemy):
         self.bulletHeight: int = 20
 
         # firing + bullet movement
-        self.bileSpeed: int = 2          # speed of bullet moving DOWN
-        self.fire_interval_ms: int = 3000 # shoot every 3 seconds
-        self.last_shot_time: int = pygame.time.get_ticks()
+        self.bileSpeed: int = 2
+        self.fire_interval_ms: int = 3000
+        self.last_shot_time: int = 0
 
-        # gameplay stats (not used yet)
+        # gameplay stats
         self.speed: float = 0.4
-        self.enemyHealth: int = 10
+        self.enemyHealth: int = 20
         self.exp: int = 1
         self.credits: int = 5
 
-        # bullets held locally until battle screen copies them
+        # bullets (WORLD SPACE)
         self.enemyBullets: list[Bullet] = []
 
-        # --- AI movement state ---
-        self.moveSpeed: float = 1.2      # how fast BileSpitter moves horizontally
-        self.edge_padding: int = 30      # distance from screen edge before turning
-        self.move_direction: int = 1     # 1 = right, -1 = left
+        # --- AI movement state (UNCHANGED) ---
+        self.moveSpeed: float = 1.2
+        self.edge_padding: int = 30
+        self.move_direction: int = random.choice([-1, 1])
 
-        self.move_interval_ms: int = 3000        # 3 seconds
+        self.move_interval_ms: int = 3000
         self.last_move_toggle: int = pygame.time.get_ticks()
-        self.is_moving: bool = True      # move for 3 seconds, then pause 3 seconds, etc.
+        self.is_moving: bool = True
 
-        self.move_direction = random.choice([-1, 1])
-        self.enemyHealth: int = 20
         self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
-        self.enemy_image = self.bile_spitter_image  # 🔑 REQUIRED
+        self.enemy_image = self.bile_spitter_image
 
     def _shoot_bile(self) -> None:
-        """Create a Bullet object and add it to local bullet list."""
         bullet_x = self.x + self.width // 2 - self.bulletWidth // 2
         bullet_y = self.y + self.height
 
@@ -63,118 +59,94 @@ class BileSpitter(Enemy):
         bullet.color = self.bulletColor
         bullet.width = self.bulletWidth
         bullet.height = self.bulletHeight
-        bullet.speed = self.bileSpeed  # positive — travels downward
+        bullet.damage = 10
 
-        # 🔹 keep the rect in sync with the new size
-        bullet.rect.width = bullet.width
-        bullet.rect.height = bullet.height
+        bullet.vx = 0
+        bullet.vy = 1
+        bullet.bullet_speed = self.bileSpeed
 
+        bullet.update_rect()
         self.enemyBullets.append(bullet)
-        bullet.damage = 10  # 👈 THIS is your enemy damage
 
     def update(self) -> None:
         super().update()
         if not self.is_active:
             return
+
+        # WORLD-SPACE hitbox
         self.update_hitbox()
 
-        # print("BILE:", self.y, "CAM:", self.camera.y,
-        #       "SCREEN_Y:", self.camera.world_to_screen_y(self.y))
-
-        """Handle firing every 3 seconds + move bullets."""
+        # movement AI (UNCHANGED)
         self.moveAI()
 
+        # firing
         now = pygame.time.get_ticks()
-
-
-        # Time to shoot?
         if now - self.last_shot_time >= self.fire_interval_ms:
             self._shoot_bile()
             self.last_shot_time = now
 
-        # Move all bullets DOWN
-        for bullet in self.enemyBullets:
-            bullet.y += bullet.speed
+        # update bullets (WORLD SPACE ONLY)
+        for bullet in self.enemyBullets[:]:
+            bullet.x += bullet.vx * bullet.bullet_speed
+            bullet.y += bullet.vy * bullet.bullet_speed
+            bullet.update_rect()
 
+            # DEBUG PRINT (KEPT)
+            print(
+                f"[BILE BULLET] "
+                f"x={bullet.x:.1f} y={bullet.y:.1f} "
+                f"rect=({bullet.rect.x},{bullet.rect.y})"
+            )
 
+            if bullet.y > GlobalConstants.GAMEPLAY_HEIGHT:
+                self.enemyBullets.remove(bullet)
 
-
-    # def draw(self, surface: "pygame.Surface") -> None:
-    #     """Draw the enemy rectangle."""
-    #     pygame.draw.rect(
-    #         surface,
-    #         self.color,
-    #         (self.x, self.y, self.width, self.height)
-    #     )
-
+    # =========================
+    # DO NOT TOUCH (AS REQUESTED)
+    # =========================
     def moveAI(self) -> None:
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
-        gameplay_height = GlobalConstants.GAMEPLAY_HEIGHT
 
-        # store last position (once)
         if not hasattr(self, "_last_x"):
             self._last_x = self.x
 
-        # ---- MOVE ----
         if self.move_direction > 0:
             self.mover.enemy_move_right(self)
         else:
             self.mover.enemy_move_left(self)
 
-        # ---- HARD CLAMP ----
         if self.x < self.edge_padding:
             self.x = self.edge_padding
-
         elif self.x + self.width > window_width - self.edge_padding:
             self.x = window_width - self.edge_padding - self.width
 
-        # ---- STUCK DETECTION ----
         if self.x == self._last_x:
-            # X did not change → FORCE opposite direction
             self.move_direction *= -1
-
-            # immediately move again so it doesn't "rest"
             if self.move_direction > 0:
                 self.mover.enemy_move_right(self)
             else:
                 self.mover.enemy_move_left(self)
 
-        # update last position
         self._last_x = self.x
+
     def draw(self, surface: pygame.Surface, camera):
-        # Don't draw if not active (e.g., removed due to collision with UI panel)
         if not self.is_active:
             return
 
-        super().draw(surface, camera)  # 🔑 REQUIRED
+        super().draw(surface, camera)
 
         sprite_rect = pygame.Rect(0, 344, 32, 32)
         sprite = self.bile_spitter_image.subsurface(sprite_rect)
 
-        # scale ship with zoom
         scale = camera.zoom
         scaled_sprite = pygame.transform.scale(
             sprite,
             (int(self.width * scale), int(self.height * scale))
         )
 
-        # convert world → screen
         screen_x = camera.world_to_screen_x(self.x)
         screen_y = camera.world_to_screen_y(self.y)
-
-        # draw ship
         surface.blit(scaled_sprite, (screen_x, screen_y))
 
-        # ================================
-        #  DRAW PLAYER HITBOX (DEBUG)
-        # ================================
-        hb_x = camera.world_to_screen_x(self.hitbox.x)
-        hb_y = camera.world_to_screen_y(self.hitbox.y)
-        hb_w = int(self.hitbox.width * camera.zoom)
-        hb_h = int(self.hitbox.height * camera.zoom)
-
-        pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
-
-    #this si so screen eats enemy once it hits bottom
     def _clamp_vertical(self) -> None:
         pass

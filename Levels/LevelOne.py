@@ -87,9 +87,9 @@ class LevelOne(VerticalBattleScreen):
             )
 
         self._last_enemy_count = len(self.enemies)
-        print(f"[ENEMIES] count={len(self.enemies)}")
-        for i, enemy in enumerate(self.enemies):
-            print(f"{i}: {enemy.__class__.__name__} at ({enemy.x}, {enemy.y}) hp={enemy.enemyHealth}")
+        # print(f"[ENEMIES] count={len(self.enemies)}")
+        # for i, enemy in enumerate(self.enemies):
+        #     print(f"{i}: {enemy.__class__.__name__} at ({enemy.x}, {enemy.y}) hp={enemy.enemyHealth}")
 
         if len(self.missed_enemies) > 9:
             print("GAME OVER!!!")
@@ -97,7 +97,7 @@ class LevelOne(VerticalBattleScreen):
 
         if self.level_start == True:
             self.level_start = False
-            self.starship.shipHealth = 44
+            self.starship.shipHealth = 144
 
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
@@ -264,7 +264,7 @@ class LevelOne(VerticalBattleScreen):
 
     def load_enemy_into_list(self):
         self.enemies.clear()
-        print("[LOAD] clearing enemies list")
+        # print("[LOAD] clearing enemies list")
 
         for obj in self.tiled_map.objects:
             enemy = None
@@ -280,7 +280,7 @@ class LevelOne(VerticalBattleScreen):
             elif obj.name == "tri_spitter":
                 enemy = TriSpitter()
             else:
-                print("[SKIP] object not an enemy")
+                # print("[SKIP] object not an enemy")
                 continue
 
             # position / size
