@@ -766,9 +766,6 @@ class VerticalBattleScreen:
 
         if enemy in self.enemies:
             self.enemies.remove(enemy)
-    # one place, no elif chain, no duplication
-
-
 
     def get_enemy_screen_rect(self, enemy) -> pygame.Rect:
         return pygame.Rect(
@@ -1075,64 +1072,42 @@ class VerticalBattleScreen:
                 player.update_hitbox()
                 break
 
-        # ---------- ENEMIES ----------
-        enemy_groups = (
-            self.bileSpitterGroup,
-            self.spinalRaptorGroup,
-            self.coinsGroup,
-            self.triSpitterGroup,
-            self.slaverGroup,
-            self.bladeSpinnerGroup,
-            self.fireLauncherGroup,
-            self.kamikazeDroneGroup,
-            self.transportWormGroup,
-            self.acidLauncherGroup,
-            self.ravagerGroup,
-            self.waspStingerGroup,
-            self.sporeFlowerGroup,
-            self.spineLauncherGroup,
-            self.coinsGroup,
-            self.spikeyBallGroup
-        )
+        # ---------- ENEMIES (PURE VECTOR vx / vy, NO PENETRATION MATH) ----------
+        for enemy in list(self.enemies):
+            enemy_rect = enemy.hitbox
+            enemy_cx = enemy_rect.centerx
+            enemy_cy = enemy_rect.centery
 
-        for group in enemy_groups:
-            for enemy in list(group):
-                enemy_rect = enemy.hitbox
+            for col, row, image in layer.tiles():
+                if image is None:
+                    continue
 
-                for col, row, image in layer.tiles():
-                    if image is None:
-                        continue
+                tile_rect = pygame.Rect(
+                    col * tile_size,
+                    row * tile_size,
+                    tile_size,
+                    tile_size
+                )
 
-                    tile_rect = pygame.Rect(
-                        col * tile_size,
-                        row * tile_size,
-                        tile_size,
-                        tile_size
-                    )
+                if enemy_rect.colliderect(tile_rect):
+                    tile_cx = tile_rect.centerx
+                    tile_cy = tile_rect.centery
 
-                    if enemy_rect.colliderect(tile_rect):
-                        dx_left = enemy_rect.right - tile_rect.left
-                        dx_right = tile_rect.right - enemy_rect.left
-                        dy_top = enemy_rect.bottom - tile_rect.top
-                        dy_bottom = tile_rect.bottom - enemy_rect.top
+                    # direction vector from tile → enemy
+                    vx = enemy_cx - tile_cx
+                    vy = enemy_cy - tile_cy
 
-                        min_dx = min(dx_left, dx_right)
-                        min_dy = min(dy_top, dy_bottom)
+                    # normalize
+                    length = math.hypot(vx, vy)
+                    if length != 0:
+                        vx /= length
+                        vy /= length
 
-                        if min_dx < min_dy:
-                            if dx_left < dx_right:
-                                enemy.x -= dx_left + KNOCKBACK
-                            else:
-                                enemy.x += dx_right + KNOCKBACK
-                        else:
-                            if dy_top < dy_bottom:
-                                enemy.y -= dy_top + KNOCKBACK
-                            else:
-                                enemy.y += dy_bottom + KNOCKBACK
+                    # apply knockback purely via vector
+                    enemy.vx = vx * KNOCKBACK
+                    enemy.vy = vy * KNOCKBACK
 
-                        enemy.update_hitbox()
-                        break
-
+                    break
     def draw_collision_tiles(self, surface: pygame.Surface) -> None:
         tile_size = self.tile_size
         window_height = GlobalConstants.GAMEPLAY_HEIGHT
