@@ -262,10 +262,6 @@ class VerticalBattleScreen:
             if self.controller.qJustPressed:
                 self.textbox.advance()
 
-        if self.controller.qJustPressed:
-            print("Q ADVANCE FIRED")
-
-
         for weapon_name, icon_index in self.SUB_WEAPON_ICON_INDEX.items():
             rect = pygame.Rect(icon_index * 16, 0, 16, 16)
             icon = self.hud_sheet.subsurface(rect)
@@ -273,20 +269,12 @@ class VerticalBattleScreen:
 
         self.move_map_y_axis()
 
-
-
-
         if not hasattr(self, "start_has_run"):
-            self.start(state)  # This calls LevelOne.start()
+            self.start(state)
             self.start_has_run = True
         # self.starship.update()
         if self.starship.shipHealth <= 0:
             self.playerDead = True
-        #
-        # if self.isStart:
-        #     self.start(state)
-        #     self.isStart = False
-
         self.controller.update()
 
         # Player movement
@@ -313,6 +301,14 @@ class VerticalBattleScreen:
 
         def has_active(self, weapon_name: str) -> bool:
             return any(b.weapon_name == weapon_name for b in self.player_bullets)
+
+        # -------------------------
+        # MACHINE GUN
+        # -------------------------
+        if self.controller.main_weapon_button and not self.playerDead:
+            self.player_bullets.extend(
+                self.starship.machine_gun.fire_machine_gun()
+            )
 
         # -------------------------
         # PLAYER MISSILES
@@ -406,29 +402,9 @@ class VerticalBattleScreen:
                     state.starship.wind_slicer.fire_wind_slicer()
                 )
 
-        # -------------------------
-        # MACHINE GUN (main weapon)
-        # -------------------------
-        if self.controller.main_weapon_button and not self.playerDead:
-            self.player_bullets.extend(
-                self.starship.machine_gun.fire_machine_gun()
-            )
-
-
-
-
-
         self.bullet_helper()
 
-        # -------------------------
-        # machine gun
-        # -------------------------
-
-        # =========================
-        # PLAYER BULLET UPDATE (SINGLE PASS — FIXED)
-        # =========================
         for bullet in list(self.player_bullets):
-
             # -------------------------
             # MISSILE (homing)
             # -------------------------
@@ -476,8 +452,6 @@ class VerticalBattleScreen:
 
             if off_screen or not getattr(bullet, "is_active", True):
                 self.player_bullets.remove(bullet)
-
-
 
         # -------------------------
         # ENEMY BULLETS ONLY
@@ -552,8 +526,6 @@ class VerticalBattleScreen:
             GlobalConstants.UI_PANEL_HEIGHT
         )
 
-
-
         for enemy in list(self.enemies):
             # Convert enemy position to screen coordinates
             enemy_screen_y = enemy.y - self.camera.y
@@ -584,64 +556,23 @@ class VerticalBattleScreen:
 
         for enemy in list(self.enemies):
             if enemy.y > screen_bottom:
-                # Set is_active to False to ensure it's not drawn
                 enemy.is_active = False
 
-                enemy_groups = (
-                    self.kamikazeDroneGroup,
-                    self.bileSpitterGroup,
-                    self.triSpitterGroup,
-                    self.waspStingerGroup,
-                    self.bladeSpinnerGroup,
-                    self.sporeFlowerGroup,
-                    self.spineLauncherGroup,
-                    self.acidLauncherGroup,
-                    self.ravagerGroup,
-                    self.fireLauncherGroup,
-                    self.slaverGroup,
-                    self.transportWormGroup,
-                    self.spinalRaptorGroup,
-                    self.spikeyBallGroup,
-
-                    self.bossLevelOneGroup,
-                    self.bossLevelTwoGroup,
-                    self.bossLevelThreeGroup,
-                    self.bossLevelFourGroup,
-                    self.bossLevelFiveGroup,
-                    self.bossLevelSixGroup,
-                    self.bossLevelSevenGroup
-                )
-
-                for group in enemy_groups:
-                    if enemy in group:
-                        group.remove(enemy)
-                        break
+            if enemy in self.enemies:
+                self.enemies.remove(enemy)
 
     def draw(self, state) -> None:
-
-
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
         window_height = GlobalConstants.GAMEPLAY_HEIGHT
         scene_surface = pygame.Surface((window_width, window_height))
         # scene_surface.fill((0, 0, 0))  # OR sky color
         scene_surface.fill((20, 20, 40))  # sky / space color
         zoom = self.camera.zoom
-        self.starship.shipHealth
-
-
-        # Gameplay render surface (NO UI PANEL INCLUDED)
-
-        # Draw map + gameplay objects into gameplay surface
 
         self.draw_tiled_layers(scene_surface)
-        # if hasattr(self, "draw_level_collision"):
-        # self.draw_collision_tiles(scene_surface)
-        # self.draw_collision_tiles(scene_surface)
-        # after self.draw_tiled_layers(scene_surface)
+
         if hasattr(self, "draw_level_collision"):
             self.draw_collision_tiles(scene_surface)
-
-
 
         # Scale gameplay scene
         scaled_scene = pygame.transform.scale(
@@ -655,13 +586,6 @@ class VerticalBattleScreen:
         # Draw gameplay area at top
         state.DISPLAY.blit(scaled_scene, (0, 0))
 
-
-
-        # 🔽 UI CONTENT (TEXT, HP, ETC)
-        # Removed call to draw_player_hp_bar to ensure only one heart image is displayed
-        # self.draw_ui_panel(state.DISPLAY)
-
-        # -------------------------
         # =========================
         # PLAYER BULLETS — SINGLE DRAW LOOP (REPLACEMENT)
         # =========================
@@ -729,11 +653,8 @@ class VerticalBattleScreen:
                 # ONLY BossLevelSix has these methods
                 enemy.draw_barrage(state.DISPLAY, self.camera)
                 enemy.apply_barrage_damage(self.starship)
-        # print(self.enemies)
 
     def bullet_helper(self):
-
-
         for bullet in list(self.player_bullets):
             bullet_rect = bullet.rect
 
@@ -755,7 +676,6 @@ class VerticalBattleScreen:
 
                 if enemy.enemyHealth <= 0:
                     self.remove_enemy_if_dead(enemy)
-
                 break
 
     def remove_enemy_if_dead(self, enemy) -> None:
@@ -789,13 +709,10 @@ class VerticalBattleScreen:
         Format: HP: current/100
         """
         font = pygame.font.Font(None, 24)
-
         current_hp = max(0, int(self.starship.shipHealth))
         max_hp = 100
-
         hp_text = f"HP: {current_hp}/{max_hp}"
         text_surface = font.render(hp_text, True, (255, 255, 255))
-
         # Top-left padding
         surface.blit(text_surface, (10, 10))
 
@@ -1027,9 +944,12 @@ class VerticalBattleScreen:
         tile_size = self.tile_size
         KNOCKBACK = 4
 
-        # ---------- PLAYER ----------
+        # ---------- PLAYER (PURE VECTOR vx / vy) ----------
         player = self.starship
         player_rect = player.hitbox
+
+        player_center_x = player_rect.centerx
+        player_center_y = player_rect.centery
 
         for col, row, image in layer.tiles():
             if image is None:
@@ -1047,29 +967,22 @@ class VerticalBattleScreen:
                     player.shipHealth -= damage
                     player.on_hit()
 
-                # --- resolve collision by minimal overlap ---
-                dx_left = player_rect.right - tile_rect.left
-                dx_right = tile_rect.right - player_rect.left
-                dy_top = player_rect.bottom - tile_rect.top
-                dy_bottom = tile_rect.bottom - player_rect.top
+                tile_center_x = tile_rect.centerx
+                tile_center_y = tile_rect.centery
 
-                min_dx = min(dx_left, dx_right)
-                min_dy = min(dy_top, dy_bottom)
+                # vector from tile → player
+                vx = player_center_x - tile_center_x
+                vy = player_center_y - tile_center_y
 
-                if min_dx < min_dy:
-                    # resolve X
-                    if dx_left < dx_right:
-                        player.x -= dx_left + KNOCKBACK
-                    else:
-                        player.x += dx_right + KNOCKBACK
-                else:
-                    # resolve Y
-                    if dy_top < dy_bottom:
-                        player.y -= dy_top + KNOCKBACK
-                    else:
-                        player.y += dy_bottom + KNOCKBACK
+                length = math.hypot(vx, vy)
+                if length != 0:
+                    vx /= length
+                    vy /= length
 
-                player.update_hitbox()
+                # apply knockback via vector velocity only
+                player.vx = vx * KNOCKBACK
+                player.vy = vy * KNOCKBACK
+
                 break
 
         # ---------- ENEMIES (PURE VECTOR vx / vy, NO PENETRATION MATH) ----------
