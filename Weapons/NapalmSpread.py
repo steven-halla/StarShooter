@@ -19,7 +19,7 @@ class NapalmSpread(Bullet):
         # STATS
         # -----------------
         self.damage: int = 75
-        self.rate_of_fire: float = 0.0
+        self.rate_of_fire: float = 1.0
         self.bullet_speed: float = 3.5
         self.napalm_timer: Timer = Timer(self.rate_of_fire)
 
@@ -65,10 +65,12 @@ class NapalmSpread(Bullet):
             if not self.travel_timer.is_ready():
                 super().update()
             else:
-                self.has_exploded = True
-                self.explosion_timer.reset()
-                self.damage_timer.reset()
+                self.trigger_explosion()
             return
+
+            # EXPLOSION PHASE
+        if self.explosion_timer.is_ready():
+            self.is_active = False
 
         # EXPLOSION PHASE
         if self.explosion_timer.is_ready():
@@ -116,3 +118,13 @@ class NapalmSpread(Bullet):
             aoe = self.getAoeHitbox()
             if aoe:
                 pygame.draw.rect(surface, (255, 60, 0), aoe, 2)
+
+    def trigger_explosion(self) -> None:
+        if self.has_exploded:
+            return
+
+        self.has_exploded = True
+        self.vx = 0.0
+        self.vy = 0.0
+        self.explosion_timer.reset()
+        self.damage_timer.reset()

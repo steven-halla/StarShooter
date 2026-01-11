@@ -1330,6 +1330,7 @@ class VerticalBattleScreen:
                     print("[metal shield HIT]", napalm.rect, enemy.hitbox)
 
                     enemy.enemyHealth -= napalm.damage
+                    napalm.trigger_explosion()
 
                     if enemy.enemyHealth <= 0:
                         self.remove_enemy_if_dead(enemy)
