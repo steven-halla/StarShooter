@@ -100,90 +100,38 @@ class VerticalBattleScreen:
         ).convert_alpha()
 
         ICON_SIZE = 16
-        UI_ICON_SIZE = 24  # smaller than 32 since you said it was too big
+        UI_ICON_SIZE = 24
 
-        # -------------------------------------------------
-        # HUD ICONS (explicit order, no guessing)
-        # -------------------------------------------------
+        # icon index → attribute name
+        ICON_MAP = {
+            0: "heart_icon",
+            1: "buster_cannon_icon",
+            2: "wind_slicer_icon",
+            3: "napalm_spread_icon",
+            4: "energy_ball_icon",
+            5: "plasma_blaster_icon",
+            6: "metal_shield_icon",
+            8: "beam_saber_icon",
+            9: "wave_crash_icon",
+            10: "engine_icon",
+        }
 
-        # heart (index 0)
-        heart_rect = pygame.Rect(0 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
-        self.heart_icon = pygame.transform.scale(
-            self.hud_sheet.subsurface(heart_rect),
-            (UI_ICON_SIZE, UI_ICON_SIZE)
-        )
+        # shared-size icons
+        for index, attr_name in ICON_MAP.items():
+            rect = pygame.Rect(index * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
+            icon = self.hud_sheet.subsurface(rect)
+            setattr(
+                self,
+                attr_name,
+                pygame.transform.scale(icon, (UI_ICON_SIZE, UI_ICON_SIZE))
+            )
 
-        # buster cannon (index 1)
-        buster_rect = pygame.Rect(1 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
-        self.buster_cannon_icon = pygame.transform.scale(
-            self.hud_sheet.subsurface(buster_rect),
-            (UI_ICON_SIZE, UI_ICON_SIZE)
-        )
-
-        # wind slicer (index 2)
-        wind_rect = pygame.Rect(2 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
-        self.wind_slicer_icon = pygame.transform.scale(
-            self.hud_sheet.subsurface(wind_rect),
-            (UI_ICON_SIZE, UI_ICON_SIZE)
-        )
-
-        # napalm spread (index 3)
-        napalm_rect = pygame.Rect(3 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
-        self.napalm_spread_icon = pygame.transform.scale(
-            self.hud_sheet.subsurface(napalm_rect),
-            (UI_ICON_SIZE, UI_ICON_SIZE)
-        )
-
-        # energy ball (index 4)
-        energy_rect = pygame.Rect(4 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
-        self.energy_ball_icon = pygame.transform.scale(
-            self.hud_sheet.subsurface(energy_rect),
-            (UI_ICON_SIZE, UI_ICON_SIZE)
-        )
-
-        # plasma blaster (index 5)
-        plasma_rect = pygame.Rect(5 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
-        self.plasma_blaster_icon = pygame.transform.scale(
-            self.hud_sheet.subsurface(plasma_rect),
-            (UI_ICON_SIZE, UI_ICON_SIZE)
-        )
-
-        # metal shield (index 6)
-        metal_rect = pygame.Rect(6 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
-        self.metal_shield_icon = pygame.transform.scale(
-            self.hud_sheet.subsurface(metal_rect),
-            (UI_ICON_SIZE, UI_ICON_SIZE)
-        )
-
-        # MISSILE (index 7)
+        # missile is intentionally different
         self.missile_icon = pygame.transform.scale(
-            self.hud_sheet.subsurface(pygame.Rect(7 * 16, 0, 16, 16)),
+            self.hud_sheet.subsurface(pygame.Rect(7 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)),
             (32, 32)
         )
 
-        # beam_saber (index 8) — missile skipped on purpose
-        saber_rect = pygame.Rect(8 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
-        self.beam_saber_icon = pygame.transform.scale(
-            self.hud_sheet.subsurface(saber_rect),
-            (UI_ICON_SIZE, UI_ICON_SIZE)
-        )
-
-        # wave crash (index 9)
-        wave_rect = pygame.Rect(9 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
-        self.wave_crash_icon = pygame.transform.scale(
-            self.hud_sheet.subsurface(wave_rect),
-            (UI_ICON_SIZE, UI_ICON_SIZE)
-        )
-
-        # engine (index 10) — optional / future use
-        engine_rect = pygame.Rect(10 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
-        self.engine_icon = pygame.transform.scale(
-            self.hud_sheet.subsurface(engine_rect),
-            (UI_ICON_SIZE, UI_ICON_SIZE)
-        )
-        # VerticalBattleScreen __init__
-
-    # All weapon icons are loaded in update() method
         self.SUB_WEAPON_ICON_INDEX = {
             "Buster Cannon": 1,
             "Wind Slicer": 2,
