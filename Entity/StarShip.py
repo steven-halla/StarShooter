@@ -53,7 +53,7 @@ class StarShip:
 
 
 
-        self.equipped_magic: list = ["Wind Slicer", None]
+        self.equipped_magic: list = ["Napalm Spread", None]
 
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
@@ -127,34 +127,16 @@ class StarShip:
         # Wind Slicer
         # -------------------------
         self.wind_slicer = WindSlicer(self.x, self.y)
+        # -------------------------
+        # Napalm Spread
+        # -------------------------
+        self.napalm_spread = NapalmSpread(self.x, self.y)
 
     def start_invincibility(self) -> None:
         # Begin a 10-second invincibility period
         self.invincible = True
         self.invincibility_timer.reset()
 
-
-
-    def fire_napalm_spread(self):
-        """
-        Fires a Napalm Spread grenade forward.
-        Returns a NapalmSpread instance or None if on cooldown.
-        """
-
-        # Rate-of-fire gate
-        if not self.napalm_timer.is_ready():
-            return None
-
-        # Spawn slightly in front of the ship
-        start_x = self.x + self.width / 2
-        start_y = self.y
-
-        napalm = NapalmSpread(start_x, start_y)
-
-        # Reset cooldown
-        self.napalm_timer.reset()
-
-        return napalm
 
 
 
@@ -225,6 +207,13 @@ class StarShip:
         self.wind_slicer.x = self.x + self.width // 2
         self.wind_slicer.y = self.y
         self.wind_slicer.update()
+
+        # -------------------------
+        # Napalm Spread
+        # -------------------------
+        self.napalm_spread.x = self.x + self.width // 2
+        self.napalm_spread.y = self.y
+        self.napalm_spread.update()
 
         # --------------------------------
         # DETECT DAMAGE (HEALTH DROP)

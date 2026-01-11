@@ -463,7 +463,7 @@ class VerticalBattleScreen:
         # -------------------------
         if state.starship.equipped_magic[0] == "Napalm Spread" and not self.playerDead:
             if self.controller.magic_1_button:
-                napalm = state.starship.fire_napalm_spread()
+                napalm = state.starship.napalm_spread.fire_napalm_spread()
                 if napalm is not None:
                     self.napalm_spread_bullets.append(napalm)
 
@@ -508,6 +508,39 @@ class VerticalBattleScreen:
 
         self.bullet_helper()
 
+        # -------------------------
+        # machine gun
+        # -------------------------
+
+        for bullet in list(self.player_bullets):
+            bullet.update()
+
+            # Convert to screen space
+            screen_y = bullet.y - self.camera.y
+
+            # If bullet is above the visible screen area → delete
+            if screen_y + bullet.height < 0:
+                # print(f"[DELETE] Bullet removed at world_y={bullet.y}, screen_y={screen_y}")
+                self.player_bullets.remove(bullet)
+
+        # -------------------------
+        # PLAYER MISSILES ONLY
+        # -------------------------
+        for missile in list(self.player_missiles):
+
+            # Make sure missile has a target BEFORE updating
+            if getattr(missile, "target_enemy", None) is None:
+                if hasattr(self, "get_nearest_enemy"):
+                    missile.target_enemy = self.get_nearest_enemy(missile)
+
+            missile.update()
+            # Convert to screen space for culling
+            screen_y = missile.y - self.camera.y
+
+            # If missile goes above screen → delete
+            if screen_y + missile.height < 0:
+                self.player_missiles.remove(missile)
+
 
         # -------------------------
         # PLASMA BLASTER UPDATE
@@ -547,25 +580,6 @@ class VerticalBattleScreen:
             if not napalm.is_active:
                 self.napalm_spread_bullets.remove(napalm)
 
-
-        # -------------------------
-        # PLAYER MISSILES ONLY
-        # -------------------------
-        for missile in list(self.player_missiles):
-
-            # Make sure missile has a target BEFORE updating
-            if getattr(missile, "target_enemy", None) is None:
-                if hasattr(self, "get_nearest_enemy"):
-                    missile.target_enemy = self.get_nearest_enemy(missile)
-
-            missile.update()
-            # Convert to screen space for culling
-            screen_y = missile.y - self.camera.y
-
-            # If missile goes above screen → delete
-            if screen_y + missile.height < 0:
-                self.player_missiles.remove(missile)
-
         # -------------------------
         # PLAYER Metal Shield
         # -------------------------
@@ -595,17 +609,6 @@ class VerticalBattleScreen:
             if screen_y + saber.height < 0:
                 self.beam_saber_bullets.remove(saber)
 
-
-        for bullet in list(self.player_bullets):
-            bullet.update()
-
-            # Convert to screen space
-            screen_y = bullet.y - self.camera.y
-
-            # If bullet is above the visible screen area → delete
-            if screen_y + bullet.height < 0:
-                # print(f"[DELETE] Bullet removed at world_y={bullet.y}, screen_y={screen_y}")
-                self.player_bullets.remove(bullet)
 
         # -------------------------
         # WAVE CRASH BULLET CLEANUP
@@ -1317,8 +1320,19 @@ class VerticalBattleScreen:
                     if enemy.enemyHealth <= 0:
                         self.remove_enemy_if_dead(enemy)
 
+        # -------------------------
+        # metal shield
+        # -------------------------
 
+        for napalm in list(self.napalm_spread_bullets):
+            for enemy in all_enemies:
+                if napalm.rect.colliderect(enemy.hitbox):
+                    print("[metal shield HIT]", napalm.rect, enemy.hitbox)
 
+                    enemy.enemyHealth -= napalm.damage
+
+                    if enemy.enemyHealth <= 0:
+                        self.remove_enemy_if_dead(enemy)
         # -------------------------
         # metal shield
         # -------------------------

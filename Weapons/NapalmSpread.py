@@ -21,6 +21,7 @@ class NapalmSpread(Bullet):
         self.damage: int = 75
         self.rate_of_fire: float = 0.0
         self.bullet_speed: float = 3.5
+        self.napalm_timer: Timer = Timer(self.rate_of_fire)
 
         # -----------------
         # MOVEMENT VECTOR
@@ -72,6 +73,27 @@ class NapalmSpread(Bullet):
         # EXPLOSION PHASE
         if self.explosion_timer.is_ready():
             self.is_active = False
+
+    def fire_napalm_spread(self):
+        """
+        Fires a Napalm Spread grenade forward.
+        Returns a NapalmSpread instance or None if on cooldown.
+        """
+
+        # Rate-of-fire gate
+        if not self.napalm_timer.is_ready():
+            return None
+
+        # Spawn slightly in front of the ship
+        start_x = self.x + self.width / 2
+        start_y = self.y
+
+        napalm = NapalmSpread(start_x, start_y)
+
+        # Reset cooldown
+        self.napalm_timer.reset()
+
+        return napalm
 
     def getAoeHitbox(self):
         if not self.has_exploded:
