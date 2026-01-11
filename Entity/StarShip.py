@@ -126,6 +126,10 @@ class StarShip:
         # Metal Shield
         # -------------------------
         self.metal_shield = MetalShield(self.x, self.y)
+        # -------------------------
+        # Plasma Blaster
+        # -------------------------
+        self.plasma_blaster = PlasmaBlaster(self.x, self.y)
 
 
 
@@ -161,17 +165,17 @@ class StarShip:
 
 
 
-    def fire_plasma_blaster(self):
-        """
-        Fires a Plasma Blaster beam straight upward.
-        """
-
-        # Spawn at center-top of ship
-        start_x = self.x + self.width / 2
-        start_y = self.y - 50
-
-        plasma = PlasmaBlaster(start_x, start_y)
-        return plasma
+    # def fire_plasma_blaster(self):
+    #     """
+    #     Fires a Plasma Blaster beam straight upward.
+    #     """
+    #
+    #     # Spawn at center-top of ship
+    #     start_x = self.x + self.width / 2
+    #     start_y = self.y - 50
+    #
+    #     plasma = PlasmaBlaster(start_x, start_y)
+    #     return plasma
 
     def fire_wind_slicer(self) -> list:
         bullets = []
@@ -200,20 +204,6 @@ class StarShip:
         self.napalm_timer.reset()  # reuse cooldown for now
         return bullets
 
-
-
-    #
-    # def fire_metal_shield(self):
-    #     """
-    #     Activates the Metal Shield spell and returns the shield instance.
-    #     """
-    #
-    #     # Center of the ship in world space
-    #     center_x = self.x + self.width / 2
-    #     center_y = self.y + self.height / 2
-    #
-    #     shield = MetalShield(center_x, center_y)
-    #     return shield
 
     def fire_wave_crash(self) -> list:
         print("yah")
@@ -257,14 +247,16 @@ class StarShip:
     def update(self) -> None:
         self.update_hitbox()
 
-        # inside StarShip.update()
 
+        # -------------------------
+        # Machine Gun
+        # -------------------------
         self.machine_gun.x = self.x
         self.machine_gun.y = self.y
         self.machine_gun.update()
 
         # -------------------------
-        # missile
+        # Missile
         # -------------------------
         self.missile.reload_missiles()
 
@@ -297,10 +289,14 @@ class StarShip:
         self.metal_shield.y = self.y
         self.metal_shield.update()
 
+        # -------------------------
+        # Plasma blaster
+        # -------------------------
+        self.plasma_blaster.x = self.x + self.width // 2
+        self.plasma_blaster.y = self.y
+        self.plasma_blaster.update()
 
-        # --------------------------------
-        # MISSILE REGENERATION
-        # --------------------------------
+
 
 
         # --------------------------------

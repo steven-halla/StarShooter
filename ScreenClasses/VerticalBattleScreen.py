@@ -425,7 +425,7 @@ class VerticalBattleScreen:
             # HOLD → spawn ONE beam
             if self.controller.magic_1_button:
                 if not self.plasma_blaster_bullets:  # 🔒 guard: only ONE
-                    plasma = state.starship.fire_plasma_blaster()
+                    plasma = state.starship.plasma_blaster.fire_plasma_blaster()
                     if plasma is not None:
                         self.plasma_blaster_bullets.append(plasma)
 
