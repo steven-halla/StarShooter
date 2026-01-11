@@ -258,63 +258,7 @@ class VerticalBattleScreen:
         # Draw gameplay area at top
         state.DISPLAY.blit(scaled_scene, (0, 0))
 
-        # =========================
-        # PLAYER BULLETS — SINGLE DRAW LOOP (REPLACEMENT)
-        # =========================
-        for bullet in self.player_bullets:
-            bx = self.camera.world_to_screen_x(bullet.x)
-            by = self.camera.world_to_screen_y(bullet.y)
-            bw = int(bullet.width * zoom)
-            bh = int(bullet.height * zoom)
-            rect = pygame.Rect(bx, by, bw, bh)
-
-            # ---- visual by capability / type ----
-            if hasattr(bullet, "area_of_effect_x"):  # Napalm
-                if getattr(bullet, "has_exploded", False):
-                    aoe_w = int(bullet.area_of_effect_x * zoom)
-                    aoe_h = int(bullet.area_of_effect_y * zoom)
-                    aoe_rect = pygame.Rect(
-                        bx - aoe_w // 2,
-                        by - aoe_h // 2,
-                        aoe_w,
-                        aoe_h
-                    )
-                    pygame.draw.rect(state.DISPLAY, (255, 80, 0), aoe_rect, 4)
-                else:
-                    pygame.draw.rect(state.DISPLAY, (255, 100, 0), rect)
-
-            elif hasattr(bullet, "update_orbit"):  # Metal Shield
-                pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
-
-            elif hasattr(bullet, "target_enemy"):  # Missile
-                pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
-
-            elif bullet.weapon_name == "Buster Cannon":
-                pygame.draw.rect(state.DISPLAY, (255, 255, 255), rect)
-                pygame.draw.rect(
-                    state.DISPLAY,
-                    (255, 255, 0),
-                    (bx - 2, by - 2, bw + 4, bh + 4),
-                    5
-                )
-
-            elif bullet.weapon_name == "Wind Slicer":
-                pygame.draw.rect(state.DISPLAY, (180, 220, 255), rect)
-
-            elif bullet.weapon_name == "Energy Ball":
-                pygame.draw.rect(state.DISPLAY, (0, 200, 255), rect)
-
-            elif bullet.weapon_name == "Wave Crash":
-                pygame.draw.rect(state.DISPLAY, (0, 255, 0), rect)
-
-            elif bullet.weapon_name == "Plasma Blaster":
-                pygame.draw.rect(state.DISPLAY, (0, 255, 255), rect)
-
-            else:  # default (machine gun, etc.)
-                pygame.draw.rect(state.DISPLAY, (255, 255, 0), rect)
-
-            # ---- debug hitbox ----
-            pygame.draw.rect(state.DISPLAY, (255, 255, 0), rect, 1)
+        self.draw_sub_weapon_rect_helper(state)
 
         # 🔽 UI PANEL (BOTTOM BAR) - Draw last to ensure it covers anything that comes into contact with it
         self.draw_ui_panel(state.DISPLAY)
@@ -964,3 +908,61 @@ class VerticalBattleScreen:
                     self.starship.shipHealth -= 10
                     self.starship.on_hit()
                     break  # ⛔ only one hit per frame
+
+    def draw_sub_weapon_rect_helper(self,state):
+        zoom = self.camera.zoom
+
+        for bullet in self.player_bullets:
+            bx = self.camera.world_to_screen_x(bullet.x)
+            by = self.camera.world_to_screen_y(bullet.y)
+            bw = int(bullet.width * zoom)
+            bh = int(bullet.height * zoom)
+            rect = pygame.Rect(bx, by, bw, bh)
+
+            # ---- visual by capability / type ----
+            if hasattr(bullet, "area_of_effect_x"):  # Napalm
+                if getattr(bullet, "has_exploded", False):
+                    aoe_w = int(bullet.area_of_effect_x * zoom)
+                    aoe_h = int(bullet.area_of_effect_y * zoom)
+                    aoe_rect = pygame.Rect(
+                        bx - aoe_w // 2,
+                        by - aoe_h // 2,
+                        aoe_w,
+                        aoe_h
+                    )
+                    pygame.draw.rect(state.DISPLAY, (255, 80, 0), aoe_rect, 4)
+                else:
+                    pygame.draw.rect(state.DISPLAY, (255, 100, 0), rect)
+
+            elif hasattr(bullet, "update_orbit"):  # Metal Shield
+                pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
+
+            elif hasattr(bullet, "target_enemy"):  # Missile
+                pygame.draw.rect(state.DISPLAY, (128, 0, 128), rect)
+
+            elif bullet.weapon_name == "Buster Cannon":
+                pygame.draw.rect(state.DISPLAY, (255, 255, 255), rect)
+                pygame.draw.rect(
+                    state.DISPLAY,
+                    (255, 255, 0),
+                    (bx - 2, by - 2, bw + 4, bh + 4),
+                    5
+                )
+
+            elif bullet.weapon_name == "Wind Slicer":
+                pygame.draw.rect(state.DISPLAY, (180, 220, 255), rect)
+
+            elif bullet.weapon_name == "Energy Ball":
+                pygame.draw.rect(state.DISPLAY, (0, 200, 255), rect)
+
+            elif bullet.weapon_name == "Wave Crash":
+                pygame.draw.rect(state.DISPLAY, (0, 255, 0), rect)
+
+            elif bullet.weapon_name == "Plasma Blaster":
+                pygame.draw.rect(state.DISPLAY, (0, 255, 255), rect)
+
+            else:  # default (machine gun, etc.)
+                pygame.draw.rect(state.DISPLAY, (255, 255, 0), rect)
+
+            # ---- debug hitbox ----
+            pygame.draw.rect(state.DISPLAY, (255, 255, 0), rect, 1)
