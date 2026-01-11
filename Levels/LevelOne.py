@@ -2,20 +2,13 @@ import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelOne import BossLevelOne
-from Entity.Enemy import Enemy
-from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
-from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
-from Entity.Monsters.Ravager import Ravager
-from Entity.Monsters.SpineLauncher import SpineLauncher
-from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TriSpitter import TriSpitter
 from SaveStates.SaveState import SaveState
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
-
 
 class LevelOne(VerticalBattleScreen):
     def __init__(self,textbox):
@@ -64,7 +57,7 @@ class LevelOne(VerticalBattleScreen):
     def start(self, state) -> None:
         print("I only want to see this one time")
         player_x = None
-        self.textbox.show(self.intro_dialogue)
+        # self.textbox.show(self.intro_dialogue)
         player_y = None
 
         for obj in self.tiled_map.objects:
@@ -219,7 +212,7 @@ class LevelOne(VerticalBattleScreen):
         self.draw_ui_panel(state.DISPLAY)
         # self.textbox.show("I am the ultimate man on the battlefiled. You cannot hope to win aginst the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla; win  the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla")
 
-        self.textbox.draw(state.DISPLAY)
+        # self.textbox.draw(state.DISPLAY)
 
         pygame.display.flip()
 

@@ -34,7 +34,7 @@ class StarShip:
         self.speed: float = 3.0
         self.shipHealthMax: int = 150
         self.camera = None
-        self.equipped_magic: list = ["Metal Shield", None]
+        self.equipped_magic: list = ["Buster Cannon", None]
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
         self.hitbox: pygame.Rect = pygame.Rect(

@@ -220,113 +220,10 @@ class VerticalBattleScreen:
 
         # =========================
         # WEAPON FIRING — FIXED GUARDS (REPLACEMENT)
-        # =========================
+        # =========================f
 
-        def has_active(self, weapon_name: str) -> bool:
-            return any(b.weapon_name == weapon_name for b in self.player_bullets)
 
-        # -------------------------
-        # MACHINE GUN
-        # -------------------------
-        if self.controller.main_weapon_button and not self.playerDead:
-            self.player_bullets.extend(
-                self.starship.machine_gun.fire_machine_gun()
-            )
-
-        # -------------------------
-        # PLAYER MISSILES
-        # -------------------------
-        if self.controller.fire_missiles and not self.playerDead:
-            self.starship.missile.x = self.starship.x
-            self.starship.missile.y = self.starship.y
-
-            missile = self.starship.missile.fire_missile()
-            if missile is not None:
-                self.player_bullets.append(missile)
-
-        # -------------------------
-        # BUSTER CANNON
-        # -------------------------
-        if state.starship.equipped_magic[0] == "Buster Cannon" and not self.playerDead:
-            if self.controller.magic_1_button:
-                if not state.starship.buster_cannon.is_charging:
-                    state.starship.buster_cannon.start_charge()
-                state.starship.buster_cannon.update()
-            elif state.starship.buster_cannon.is_charging:
-                self.player_bullets.extend(
-                    state.starship.buster_cannon.fire_buster_cannon()
-                )
-
-        # -------------------------
-        # PLASMA BLASTER (single beam)
-        # -------------------------
-        if state.starship.equipped_magic[0] == "Plasma Blaster" and not self.playerDead:
-            if self.controller.magic_1_button and not has_active(self, "Plasma Blaster"):
-                plasma = state.starship.plasma_blaster.fire_plasma_blaster()
-                if plasma is not None:
-                    self.player_bullets.append(plasma)
-
-        # -------------------------
-        # ENERGY BALL (ROF internal)
-        # -------------------------
-        if state.starship.equipped_magic[0] == "Energy Ball" and not self.playerDead:
-            if self.controller.magic_1_button:
-                energy_ball = state.starship.energy_ball.fire_energy_ball(self.controller)
-                if energy_ball is not None:
-                    self.player_bullets.append(energy_ball)
-
-        # -------------------------
-        # METAL SHIELD (single)
-        # -------------------------
-        if state.starship.equipped_magic[0] == "Metal Shield" and not self.playerDead:
-            if self.controller.magic_1_button and not has_active(self, "Metal Shield"):
-                shield = state.starship.metal_shield.fire_metal_shield()
-                if shield is not None:
-                    self.player_bullets.append(shield)
-
-        # -------------------------
-        # NAPALM SPREAD
-        # -------------------------
-        if state.starship.equipped_magic[0] == "Napalm Spread" and not self.playerDead:
-            if self.controller.magic_1_button:
-                napalm = state.starship.napalm_spread.fire_napalm_spread()
-                if napalm is not None:
-                    self.player_bullets.append(napalm)
-
-        # -------------------------
-        # BEAM SABER (single, held)
-        # -------------------------
-        if state.starship.equipped_magic[0] == "Beam Saber" and not self.playerDead:
-            if self.controller.magic_1_button and not has_active(self, "Beam Saber"):
-                saber = state.starship.beam_saber.fire_beam_saber()
-                if saber is not None:
-                    self.player_bullets.append(saber)
-
-        if not self.controller.magic_1_button:
-            self.player_bullets[:] = [
-                b for b in self.player_bullets if b.weapon_name != "Beam Saber"
-            ]
-
-        # -------------------------
-        # WAVE CRASH
-        # -------------------------
-        if state.starship.equipped_magic[0] == "Wave Crash" and not self.playerDead:
-            if self.controller.magic_1_button:
-                self.player_bullets.extend(
-                    state.starship.wave_crash.fire_wave_crash()
-                )
-
-        # -------------------------
-        # WIND SLICER
-        # -------------------------
-        if state.starship.equipped_magic[0] == "Wind Slicer" and not self.playerDead:
-            if self.controller.magic_1_button:
-                self.player_bullets.extend(
-                    state.starship.wind_slicer.fire_wind_slicer()
-                )
-
-        # self.bullet_helper()
-
+        self.fire_all_weapons(self)
         # -------------------------
         # UPDATE PLAYER BULLETS (ONE PASS, CORRECT ORDER)
         # -------------------------
@@ -996,3 +893,108 @@ class VerticalBattleScreen:
             if screen_y + tile_size < 0 or screen_y > window_height:
                 continue
             surface.blit(image, (col * tile_size, screen_y))
+
+
+    def fire_all_weapons(self,state):
+        def has_active(self, weapon_name: str) -> bool:
+            return any(b.weapon_name == weapon_name for b in self.player_bullets)
+
+        # -------------------------
+        # MACHINE GUN
+        # -------------------------
+        if self.controller.main_weapon_button and not self.playerDead:
+            self.player_bullets.extend(
+                self.starship.machine_gun.fire_machine_gun()
+            )
+
+        # -------------------------
+        # PLAYER MISSILES
+        # -------------------------
+        if self.controller.fire_missiles and not self.playerDead:
+            self.starship.missile.x = self.starship.x
+            self.starship.missile.y = self.starship.y
+
+            missile = self.starship.missile.fire_missile()
+            if missile is not None:
+                self.player_bullets.append(missile)
+
+        # -------------------------
+        # BUSTER CANNON
+        # -------------------------
+        if state.starship.equipped_magic[0] == "Buster Cannon" and not self.playerDead:
+            if self.controller.magic_1_button:
+                if not state.starship.buster_cannon.is_charging:
+                    state.starship.buster_cannon.start_charge()
+                state.starship.buster_cannon.update()
+            elif state.starship.buster_cannon.is_charging:
+                self.player_bullets.extend(
+                    state.starship.buster_cannon.fire_buster_cannon()
+                )
+
+        # -------------------------
+        # PLASMA BLASTER (single beam)
+        # -------------------------
+        if state.starship.equipped_magic[0] == "Plasma Blaster" and not self.playerDead:
+            if self.controller.magic_1_button and not has_active(self, "Plasma Blaster"):
+                plasma = state.starship.plasma_blaster.fire_plasma_blaster()
+                if plasma is not None:
+                    self.player_bullets.append(plasma)
+
+        # -------------------------
+        # ENERGY BALL (ROF internal)
+        # -------------------------
+        if state.starship.equipped_magic[0] == "Energy Ball" and not self.playerDead:
+            if self.controller.magic_1_button:
+                energy_ball = state.starship.energy_ball.fire_energy_ball(self.controller)
+                if energy_ball is not None:
+                    self.player_bullets.append(energy_ball)
+
+        # -------------------------
+        # METAL SHIELD (single)
+        # -------------------------
+        if state.starship.equipped_magic[0] == "Metal Shield" and not self.playerDead:
+            if self.controller.magic_1_button and not has_active(self, "Metal Shield"):
+                shield = state.starship.metal_shield.fire_metal_shield()
+                if shield is not None:
+                    self.player_bullets.append(shield)
+
+        # -------------------------
+        # NAPALM SPREAD
+        # -------------------------
+        if state.starship.equipped_magic[0] == "Napalm Spread" and not self.playerDead:
+            if self.controller.magic_1_button:
+                napalm = state.starship.napalm_spread.fire_napalm_spread()
+                if napalm is not None:
+                    self.player_bullets.append(napalm)
+
+        # -------------------------
+        # BEAM SABER (single, held)
+        # -------------------------
+        if state.starship.equipped_magic[0] == "Beam Saber" and not self.playerDead:
+            if self.controller.magic_1_button and not has_active(self, "Beam Saber"):
+                saber = state.starship.beam_saber.fire_beam_saber()
+                if saber is not None:
+                    self.player_bullets.append(saber)
+
+        if not self.controller.magic_1_button:
+            self.player_bullets[:] = [
+                b for b in self.player_bullets if b.weapon_name != "Beam Saber"
+            ]
+
+        # -------------------------
+        # WAVE CRASH
+        # -------------------------
+        if state.starship.equipped_magic[0] == "Wave Crash" and not self.playerDead:
+            if self.controller.magic_1_button:
+                self.player_bullets.extend(
+                    state.starship.wave_crash.fire_wave_crash()
+                )
+
+        # -------------------------
+        # WIND SLICER
+        # -------------------------
+        if state.starship.equipped_magic[0] == "Wind Slicer" and not self.playerDead:
+            if self.controller.magic_1_button:
+                self.player_bullets.extend(
+                    state.starship.wind_slicer.fire_wind_slicer()
+                )
