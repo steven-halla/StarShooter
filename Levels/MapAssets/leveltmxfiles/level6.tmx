@@ -1192,7 +1192,10 @@
   <object id="6" name="level_6_boss" x="199.952" y="1.58692" width="32" height="32"/>
   <object id="5" name="level_6_boss" x="82.52" y="2.38039" width="32" height="32"/>
   <object id="8" name="coins" x="150.489" y="5893.93" width="16" height="16"/>
+  <object id="14" name="coins" x="81.0022" y="5341.11" width="16" height="16"/>
+  <object id="22" name="coins" x="135.116" y="5341.72" width="16" height="16"/>
   <object id="34" name="coins" x="131.958" y="4135.15" width="16" height="16"/>
+  <object id="19" name="coins" x="93.9158" y="5454.25" width="16" height="16"/>
   <object id="30" name="coins" x="73.3851" y="1382.87" width="16" height="16"/>
   <object id="23" name="coins" x="239.654" y="5352.18" width="16" height="16"/>
   <object id="33" name="coins" x="215.965" y="4131.39" width="16" height="16"/>
@@ -1201,6 +1204,7 @@
   <object id="17" name="coins" x="152.334" y="5737.12" width="16" height="16"/>
   <object id="9" name="coins" x="148.03" y="5957.88" width="16" height="16"/>
   <object id="13" name="coins" x="231.045" y="5897.62" width="16" height="16"/>
+  <object id="20" name="coins" x="151.719" y="5448.1" width="16" height="16"/>
   <object id="18" name="coins" x="256.872" y="5889.63" width="16" height="16"/>
   <object id="21" name="coins" x="241.499" y="5445.65" width="16" height="16"/>
   <object id="16" name="coins" x="151.104" y="5714.98" width="16" height="16"/>

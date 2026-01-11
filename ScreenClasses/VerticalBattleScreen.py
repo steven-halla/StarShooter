@@ -6,39 +6,14 @@ from Assets.Images.SpriteSheetExtractor import SpriteSheetExtractor
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Controller.KeyBoardControls import KeyBoardControls
-from Entity.Bosses.BossLevelFive import BossLevelFive
-from Entity.Bosses.BossLevelFour import BossLevelFour
-from Entity.Bosses.BossLevelOne import BossLevelOne
-from Entity.Bosses.BossLevelSeven import BossLevelSeven
-from Entity.Bosses.BossLevelSix import BossLevelSix
-from Entity.Bosses.BossLevelThree import BossLevelThree
-from Entity.Bosses.BossLevelTwo import BossLevelTwo
+
 from Entity.Enemy import Enemy
-from Entity.Monsters.AcidLauncher import AcidLauncher
-from Entity.Monsters.BileSpitter import BileSpitter
-from Entity.Monsters.BladeSpinners import BladeSpinner
-from Entity.Monsters.FireLauncher import FireLauncher
-from Entity.Monsters.KamikazeDrone import KamikazeDrone
-from Entity.Monsters.Ravager import Ravager
-from Entity.Monsters.Slaver import Slaver
-from Entity.Monsters.SpinalRaptor import SpinalRaptor
-from Entity.Monsters.SpineLauncher import SpineLauncher
-from Entity.Monsters.SporeFlower import SporeFlower
-from Entity.Monsters.TransportWorm import TransportWorm
-from Entity.Monsters.TriSpitter import TriSpitter
-from Entity.Monsters.WaspStinger import WaspStinger
-from Entity.Monsters.Coins import Coins
-from Entity.Monsters.SpikeyBall import SpikeyBall
-from Entity.StarShip import StarShip
+
 from Movement.MoveRectangle import MoveRectangle
 from SaveStates.SaveState import SaveState
 from ScreenClasses.Camera import Camera
 from ScreenClasses.TextBox import TextBox
-from Weapons.Bullet import Bullet
-from Weapons.EnergyBall import EnergyBall
 
-
-# from game_state import GameState
 
 
 class VerticalBattleScreen:
@@ -350,44 +325,49 @@ class VerticalBattleScreen:
                     state.starship.wind_slicer.fire_wind_slicer()
                 )
 
-        self.bullet_helper()
+        # self.bullet_helper()
 
+        # -------------------------
+        # UPDATE PLAYER BULLETS (ONE PASS, CORRECT ORDER)
+        # -------------------------
         for bullet in list(self.player_bullets):
-            # -------------------------
-            # MISSILE (homing)
-            # -------------------------
+
+            # --- movement / positioning ---
             if bullet.weapon_name == "Missile":
-                if getattr(bullet, "target_enemy", None) is None:
-                    if hasattr(self, "get_nearest_enemy"):
-                        bullet.target_enemy = self.get_nearest_enemy(bullet)
+                if getattr(bullet, "target_enemy", None) is None and hasattr(self, "get_nearest_enemy"):
+                    bullet.target_enemy = self.get_nearest_enemy(bullet)
                 bullet.update()
 
-            # -------------------------
-            # METAL SHIELD (orbit)
-            # -------------------------
             elif bullet.weapon_name == "Metal Shield":
                 bullet.update_orbit(
                     self.starship.x + self.starship.width / 2,
                     self.starship.y + self.starship.height / 2
                 )
 
-            # -------------------------
-            # BEAM SABER (locked to ship)
-            # -------------------------
             elif bullet.weapon_name == "Beam Saber":
                 bullet.x = self.starship.x + self.starship.width // 2
                 bullet.y = self.starship.y - 20
                 bullet.update()
 
-            # -------------------------
-            # ALL OTHER BULLETS
-            # -------------------------
             else:
                 bullet.update()
 
-            # -------------------------
-            # UNIVERSAL CLEANUP
-            # -------------------------
+            # 🔴 CRITICAL: rect must always be updated AFTER movement
+            bullet.update_rect()
+
+        # -------------------------
+        # COLLISIONS (USES UPDATED rect)
+        # -------------------------
+        self.bullet_helper()
+
+        # -------------------------
+        # OFF-SCREEN / INACTIVE CLEANUP
+        # -------------------------
+        for bullet in list(self.player_bullets):
+
+            if bullet.weapon_name == "Metal Shield":
+                continue  # never auto-remove shield
+
             screen_x = bullet.x - getattr(self.camera, "x", 0)
             screen_y = bullet.y - self.camera.y
 
@@ -400,6 +380,21 @@ class VerticalBattleScreen:
 
             if off_screen or not getattr(bullet, "is_active", True):
                 self.player_bullets.remove(bullet)
+            # -------------------------
+            # # UNIVERSAL CLEANUP
+            # # -------------------------
+            # screen_x = bullet.x - getattr(self.camera, "x", 0)
+            # screen_y = bullet.y - self.camera.y
+            #
+            # off_screen = (
+            #         screen_y + bullet.height < 0 or
+            #         screen_y > (self.window_height / self.camera.zoom) or
+            #         screen_x + bullet.width < 0 or
+            #         screen_x > (self.window_width / self.camera.zoom)
+            # )
+            #
+            # if off_screen or not getattr(bullet, "is_active", True):
+            #     self.player_bullets.remove(bullet)
 
         # -------------------------
         # ENEMY BULLETS ONLY
@@ -493,9 +488,10 @@ class VerticalBattleScreen:
                 enemy.is_active = False
                 self.remove_enemy_if_dead(enemy)
 
-        screen_bottom = self.camera.y + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
         UI_KILL_PADDING = 12  # pixels ABOVE the UI panel (tweak this)
 
+
+        # screen-space bottom (camera aware)
         screen_bottom = (
                 self.camera.y
                 + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
@@ -503,10 +499,9 @@ class VerticalBattleScreen:
         )
 
         for enemy in list(self.enemies):
+            # enemy is BELOW visible gameplay area
             if enemy.y > screen_bottom:
                 enemy.is_active = False
-
-            if enemy in self.enemies:
                 self.enemies.remove(enemy)
 
     def draw(self, state) -> None:
@@ -604,19 +599,37 @@ class VerticalBattleScreen:
 
     def bullet_helper(self):
         for bullet in list(self.player_bullets):
+
+            # -------------------------
+            # METAL SHIELD (uses rect, not hitbox)
+            # -------------------------
+            if bullet.weapon_name == "Metal Shield":
+                shield_rect = bullet.rect
+
+                for enemy in list(self.enemies):
+                    if shield_rect.colliderect(enemy.hitbox):
+                        enemy.enemyHealth -= bullet.damage
+                        if enemy.enemyHealth <= 0:
+                            self.remove_enemy_if_dead(enemy)
+                continue
+
+            # -------------------------
+            # ALL OTHER BULLETS
+            # -------------------------
+            if not hasattr(bullet, "rect"):
+                continue
+
             bullet_rect = bullet.rect
 
-            for enemy in self.enemies:
+            for enemy in list(self.enemies):
                 if not bullet_rect.colliderect(enemy.hitbox):
                     continue
 
-                # damage
                 enemy.enemyHealth -= getattr(bullet, "damage", 0)
 
-                # special reactions
                 if hasattr(bullet, "trigger_explosion"):
                     bullet.trigger_explosion()
-                elif hasattr(bullet, "is_piercing") and bullet.is_piercing:
+                elif getattr(bullet, "is_piercing", False):
                     pass
                 else:
                     if bullet in self.player_bullets:
@@ -978,12 +991,8 @@ class VerticalBattleScreen:
         for col, row, image in layer.tiles():
             if image is None:
                 continue
-
             world_y = row * tile_size
             screen_y = world_y - self.camera_y
-
-            # Cull off-screen tiles (same as background)
             if screen_y + tile_size < 0 or screen_y > window_height:
                 continue
-
             surface.blit(image, (col * tile_size, screen_y))

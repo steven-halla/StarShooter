@@ -49,11 +49,10 @@ class MetalShield(Bullet):
         Activates the Metal Shield spell and returns the shield instance.
         """
 
-        # Center of the ship in world space
-        center_x = self.x + self.width / 2
-        center_y = self.y + self.height / 2
-
-        shield = MetalShield(center_x, center_y)
+        # Use the current position as the center for the new shield
+        # The shield will orbit around this position
+        shield = MetalShield(self.x, self.y)
+        shield.weapon_name = "Metal Shield"
         return shield
 
     def absorb_hit(self) -> bool:

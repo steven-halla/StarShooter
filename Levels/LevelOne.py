@@ -62,6 +62,7 @@ class LevelOne(VerticalBattleScreen):
         )
 
     def start(self, state) -> None:
+        print("I only want to see this one time")
         player_x = None
         self.textbox.show(self.intro_dialogue)
         player_y = None
@@ -81,19 +82,22 @@ class LevelOne(VerticalBattleScreen):
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
         self.load_enemy_into_list()
 
-
     def update(self, state) -> None:
         super().update(state)
-        # print("=== ENEMY LIST ===")
-        # print(f"BileSpitter: {len(self.bileSpitterGroup)}")
-        # print(f"TriSpitter: {len(self.triSpitterGroup)}")
-        # print(f"BladeSpinner: {len(self.bladeSpinnerGroup)}")
-        # print(f"BossLevelOne: {len(self.bossLevelOneGroup)}")
-        # print(
-        #     f"TOTAL: "
-        #     f"{len(self.bileSpitterGroup) + len(self.triSpitterGroup) + len(self.bladeSpinnerGroup) + len(self.bossLevelOneGroup)}"
-        # )
-        # print("==================")
+        if not hasattr(self, "_last_enemy_count"):
+            self._last_enemy_count = len(self.enemies)
+
+        if len(self.enemies) < self._last_enemy_count:
+            print(
+                f"[WARNING] enemies SHRANK "
+                f"{self._last_enemy_count} → {len(self.enemies)}"
+            )
+
+        self._last_enemy_count = len(self.enemies)
+        print(f"[ENEMIES] count={len(self.enemies)}")
+        for i, enemy in enumerate(self.enemies):
+            print(f"{i}: {enemy.__class__.__name__} at ({enemy.x}, {enemy.y}) hp={enemy.enemyHealth}")
+
         if len(self.missed_enemies) > 9:
             print("GAME OVER!!!")
             self.game_over = True
@@ -101,6 +105,7 @@ class LevelOne(VerticalBattleScreen):
         if self.level_start == True:
             self.level_start = False
             self.starship.shipHealth = 44
+
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
 
@@ -111,7 +116,7 @@ class LevelOne(VerticalBattleScreen):
 
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
-        for enemy in list(self.bileSpitterGroup):
+        for enemy in list(self.enemies):
 
             # -------- MISS DETECTION --------
             if enemy.y > screen_bottom:
@@ -126,27 +131,27 @@ class LevelOne(VerticalBattleScreen):
         #     self.time_up = True
         #     print("time's up")
         # Missile firing (override parent behavior)
-        if self.controller.fire_missiles:
-            missile = self.starship.fire_missile()
-            if missile is not None:
-
-                # Lock onto nearest enemy
-                missile.target_enemy = self.get_nearest_enemy(missile)
-
-                # Compute initial direction toward target
-                if missile.target_enemy is not None:
-                    dx = missile.target_enemy.x - missile.x
-                    dy = missile.target_enemy.y - missile.y
-                    dist = max(1, (dx * dx + dy * dy) ** 0.5)
-                    missile.direction_x = dx / dist
-                    missile.direction_y = dy / dist
-                else:
-                    # No enemy → missile goes straight upward
-                    missile.direction_x = 0
-                    missile.direction_y = -1
-
-                # Add to missile list
-                self.player_missiles.append(missile)
+        # if self.controller.fire_missiles:
+        #     missile = self.starship.missile.fire_missile()
+        #     if missile is not None:
+        #
+        #         # Lock onto nearest enemy
+        #         missile.target_enemy = self.get_nearest_enemy(missile)
+        #
+        #         # Compute initial direction toward target
+        #         if missile.target_enemy is not None:
+        #             dx = missile.target_enemy.x - missile.x
+        #             dy = missile.target_enemy.y - missile.y
+        #             dist = max(1, (dx * dx + dy * dy) ** 0.5)
+        #             missile.direction_x = dx / dist
+        #             missile.direction_y = dy / dist
+        #         else:
+        #             # No enemy → missile goes straight upward
+        #             missile.direction_x = 0
+        #             missile.direction_y = -1
+        #
+        #         # Add to missile list
+        #         self.player_missiles.append(missile)
 
                 # if missile.target_enemy is not None:
                 #     print(f"Missile locked onto: {type(missile.target_enemy).__name__} "
@@ -154,13 +159,12 @@ class LevelOne(VerticalBattleScreen):
                 # else:
                 #     print("Missile locked onto: NONE (no enemies found)")
         self.enemy_helper()
-        if not self.bossLevelOneGroup and not self.level_complete:
-            self.level_complete = True
+        # if not any(enemy.__class__.__name__ == "level_1_boss" for enemy in self.enemies) and not self.level_complete:
+        #     self.level_complete = True
 
 
         self.extract_object_names()
         if self.level_complete:
-
             next_level = MissionBriefingScreenLevelTwo()
             # next_level.set_player(state.starship)
             state.currentScreen = next_level
@@ -175,14 +179,8 @@ class LevelOne(VerticalBattleScreen):
         # ENEMY COUNTER (TOP OF SCREEN)
         # ================================
         font = pygame.font.Font(None, 28)
+        current_enemies = len(self.enemies)
 
-        current_enemies = (
-                len(self.bileSpitterGroup)
-                + len(self.triSpitterGroup)
-                + len(self.bladeSpinnerGroup)
-                + len(self.bossLevelOneGroup)
-        )
-        # print(current_enemies)
         # initialize on first frame
         if self.prev_enemy_count is None:
             self.prev_enemy_count = current_enemies
@@ -212,29 +210,11 @@ class LevelOne(VerticalBattleScreen):
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
 
-        for enemy in self.bileSpitterGroup:
+        for enemy in self.enemies:
             enemy.draw(state.DISPLAY, self.camera)
             enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
-        for enemy_tri_spitter in self.triSpitterGroup:
-            enemy_tri_spitter.draw(state.DISPLAY, self.camera)
-            enemy_tri_spitter.draw_damage_flash(state.DISPLAY, self.camera)
 
-        for blade in self.bladeSpinnerGroup:
-            blade.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
-        for boss in self.bossLevelOneGroup:
-            boss.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
-
-        for enemy_tri_spitter in self.triSpitterGroup:
-            hb = pygame.Rect(
-                self.camera.world_to_screen_x(enemy_tri_spitter.hitbox.x),
-                self.camera.world_to_screen_y(enemy_tri_spitter.hitbox.y),
-                int(enemy_tri_spitter.hitbox.width * zoom),
-                int(enemy_tri_spitter.hitbox.height * zoom)
-            )
-            pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
 
         self.draw_ui_panel(state.DISPLAY)
         # self.textbox.show("I am the ultimate man on the battlefiled. You cannot hope to win aginst the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla; win  the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla")
@@ -244,14 +224,7 @@ class LevelOne(VerticalBattleScreen):
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
-        enemies = (
-                list(self.bileSpitterGroup) +
-                list(self.triSpitterGroup) +
-                list(self.bladeSpinnerGroup) +
-                list(self.bossLevelOneGroup)
-        )
-
-        if not enemies:
+        if not self.enemies:
             return None
 
         # Visible camera bounds (world coordinates)
@@ -259,24 +232,27 @@ class LevelOne(VerticalBattleScreen):
         visible_bottom = self.camera.y + (self.window_height / self.camera.zoom)
 
         nearest_enemy = None
-        nearest_dist = float("inf")
-        mx, my = missile.x, missile.y
+        nearest_dist_sq = float("inf")
 
-        for enemy in enemies:
+        missile_x = missile.x
+        missile_y = missile.y
 
-            # ⛔ Skip enemies outside the screen
+        for enemy in self.enemies:
+
+            # skip enemies outside screen
             if enemy.y + enemy.height < visible_top:
-                continue  # enemy is above screen
+                continue
             if enemy.y > visible_bottom:
-                continue  # enemy is below screen
+                continue
 
-            # distance calculation
-            dx = enemy.x - mx
-            dy = enemy.y - my
-            dist_sq = dx * dx + dy * dy
+            # VECTOR distance (vx / vy)
+            vx = enemy.x - missile_x
+            vy = enemy.y - missile_y
 
-            if dist_sq < nearest_dist:
-                nearest_dist = dist_sq
+            dist_sq = vx * vx + vy * vy
+
+            if dist_sq < nearest_dist_sq:
+                nearest_dist_sq = dist_sq
                 nearest_enemy = enemy
 
         return nearest_enemy
@@ -294,61 +270,52 @@ class LevelOne(VerticalBattleScreen):
         return names
 
     def load_enemy_into_list(self):
-        self.bileSpitterGroup.clear()
-        self.triSpitterGroup.clear()
-        self.bladeSpinnerGroup.clear()
-        self.bossLevelOneGroup.clear()
+        self.enemies.clear()
+        print("[LOAD] clearing enemies list")
+
         for obj in self.tiled_map.objects:
-            # ⭐ LOAD ENEMIES (existing code)
+            enemy = None
+
+            print(f"[TMX] found object name={obj.name} at ({obj.x}, {obj.y})")
+
             if obj.name == "level_1_boss":
                 enemy = BossLevelOne()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.bossLevelOneGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-
-            if obj.name == "bile_spitter":
+            elif obj.name == "bile_spitter":
                 enemy = BileSpitter()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-                self.bileSpitterGroup.append(enemy)
-
-
-            if obj.name == "blade_spinner":
+            elif obj.name == "blade_spinner":
                 enemy = BladeSpinner()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                self.bladeSpinnerGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
+            elif obj.name == "tri_spitter":
+                enemy = TriSpitter()
+            else:
+                print("[SKIP] object not an enemy")
                 continue
 
-            if obj.name == "tri_spitter":
-                enemy_tri_spitter = TriSpitter()
-                enemy_tri_spitter.x = obj.x
-                enemy_tri_spitter.y = obj.y
-                enemy_tri_spitter.width = obj.width
-                enemy_tri_spitter.height = obj.height
-                enemy_tri_spitter.update_hitbox()
-                self.triSpitterGroup.append(enemy_tri_spitter)
-                enemy_tri_spitter.camera = self.camera
-                enemy_tri_spitter.target_player = self.starship
+            # position / size
+            enemy.x = obj.x
+            enemy.y = obj.y
+            enemy.width = obj.width
+            enemy.height = obj.height
 
-                continue
+            # REQUIRED state
+            enemy.camera = self.camera
+            enemy.target_player = self.starship
 
+            # 🔑 CRITICAL FIX: ensure health is initialized
+            if hasattr(enemy, "maxHealth"):
+                enemy.enemyHealth = enemy.maxHealth
+            else:
+                enemy.enemyHealth = 1  # safe fallback
+
+            enemy.update_hitbox()
+
+            self.enemies.append(enemy)
+            print(
+                f"[ADD] {enemy.__class__.__name__} "
+                f"hp={enemy.enemyHealth} "
+                f"→ enemies size = {len(self.enemies)}"
+            )
+
+        print(f"[DONE] total enemies loaded = {len(self.enemies)}")
 
 
     def enemy_helper(self):
@@ -371,85 +338,49 @@ class LevelOne(VerticalBattleScreen):
                 self.napalm_list.remove(napalm)
 
         # -------------------------
-        # METAL SHIELD → ENEMY BULLETS
+        # METAL SHIELD → ENEMY BULLETS (UNIFIED player_bullets)
         # -------------------------
-        for metal in list(self.metal_shield_bullets):
+        for shield in list(self.player_bullets):
 
-            if not metal.is_active:
-                self.metal_shield_bullets.remove(metal)
+            if shield.weapon_name != "Metal Shield":
+                continue
+
+            if not shield.is_active:
+                self.player_bullets.remove(shield)
                 continue
 
             shield_rect = pygame.Rect(
-                metal.x,
-                metal.y,
-                metal.width,
-                metal.height
+                shield.x,
+                shield.y,
+                shield.width,
+                shield.height
             )
 
             for bullet in list(self.enemy_bullets):
                 if bullet.collide_with_rect(shield_rect):
 
-                    absorbed = metal.absorb_hit()
+                    absorbed = shield.absorb_hit()
 
                     if bullet in self.enemy_bullets:
                         self.enemy_bullets.remove(bullet)
 
-                    if absorbed and metal in self.metal_shield_bullets:
-                        self.metal_shield_bullets.remove(metal)
+                    if absorbed and shield in self.player_bullets:
+                        self.player_bullets.remove(shield)
 
                     break
+        for enemy in list(self.enemies):
 
-        # -------------------------
-        # BOSS
-        # -------------------------
-        for boss in list(self.bossLevelOneGroup):
-
-            if boss.y > screen_bottom:
-                if boss not in self.missed_enemies:
-                    self.missed_enemies.append(boss)
-                    print("enemy missed")
-                continue
-
-            boss.update()
-
-            if boss.enemyBullets:
-                self.enemy_bullets.extend(boss.enemyBullets)
-                boss.enemyBullets.clear()
-
-            if boss.enemyHealth <= 0:
-                self.bossLevelOneGroup.remove(boss)
-                print("level complete")
-
-
-        # -------------------------
-        # BLADES
-        # -------------------------
-        for blade in list(self.bladeSpinnerGroup):
-
-            if blade.y > screen_bottom:
-                if blade not in self.missed_enemies:
-                    self.missed_enemies.append(blade)
-                    print("enemy missed")
-                continue
-
-            blade.update()
-
-            if blade.enemyHealth <= 0:
-                self.bladeSpinnerGroup.remove(blade)
-
-        # -------------------------
-        # BILE SPITTERS
-        # -------------------------
-        for enemy in list(self.bileSpitterGroup):
-
+            # off-screen → missed
             if enemy.y > screen_bottom:
                 if enemy not in self.missed_enemies:
                     self.missed_enemies.append(enemy)
                     print("enemy missed")
                 continue
 
+            # update enemy
             enemy.update()
 
+            # color change on player collision (same logic as before)
             if self.starship.hitbox.colliderect(enemy.hitbox):
                 enemy.color = (135, 206, 235)
             else:
@@ -457,30 +388,11 @@ class LevelOne(VerticalBattleScreen):
 
             enemy.update_hitbox()
 
+            # emit enemy bullets (same behavior as before)
             if enemy.enemyBullets:
                 self.enemy_bullets.extend(enemy.enemyBullets)
                 enemy.enemyBullets.clear()
 
-        # -------------------------
-        # TRI SPITTERS
-        # -------------------------
-        for enemy_tri_spitter in list(self.triSpitterGroup):
-
-            if enemy_tri_spitter.y > screen_bottom:
-                if enemy_tri_spitter not in self.missed_enemies:
-                    self.missed_enemies.append(enemy_tri_spitter)
-                    print("enemy missed")
-                continue
-
-            enemy_tri_spitter.update()
-
-            if self.starship.hitbox.colliderect(enemy_tri_spitter.hitbox):
-                enemy_tri_spitter.color = (135, 206, 235)
-            else:
-                enemy_tri_spitter.color = GlobalConstants.RED
-
-            enemy_tri_spitter.update_hitbox()
-
-            if enemy_tri_spitter.enemyBullets:
-                self.enemy_bullets.extend(enemy_tri_spitter.enemyBullets)
-                enemy_tri_spitter.enemyBullets.clear()
+            # death removal
+            if enemy.enemyHealth <= 0:
+                self.enemies.remove(enemy)

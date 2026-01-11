@@ -208,12 +208,18 @@ class MapTester(VerticalBattleScreen):
                 self.napalm_list.remove(napalm)
         # -------------------------
         # METAL SHIELD → ENEMY BULLETS
-        for metal in list(self.player_bullets):
+        for metal in self.player_bullets:
 
-            # ONLY Metal Shield can absorb hits
-            if metal.weapon_name != "Metal Shield":
+            # ⛔ Metal Shield does NOT participate in enemy_helper
+            if metal.weapon_name == "Metal Shield":
                 continue
 
+            # safe for normal bullets only
+            # only bullets with hitbox participate in enemy_helper
+            if not hasattr(metal, "hitbox"):
+                continue
+
+            bullet_rect = metal.hitbox
             shield_rect = metal.hitbox
 
             for bullet in list(self.enemy_bullets):
