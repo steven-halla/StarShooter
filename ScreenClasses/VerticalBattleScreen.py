@@ -224,80 +224,10 @@ class VerticalBattleScreen:
 
 
         self.fire_all_weapons(self)
-        # -------------------------
-        # UPDATE PLAYER BULLETS (ONE PASS, CORRECT ORDER)
-        # -------------------------
-        for bullet in list(self.player_bullets):
-
-            # --- movement / positioning ---
-            if bullet.weapon_name == "Missile":
-                if getattr(bullet, "target_enemy", None) is None and hasattr(self, "get_nearest_enemy"):
-                    bullet.target_enemy = self.get_nearest_enemy(bullet)
-                bullet.update()
-
-            elif bullet.weapon_name == "Metal Shield":
-                bullet.update_orbit(
-                    self.starship.x + self.starship.width / 2,
-                    self.starship.y + self.starship.height / 2
-                )
-
-            elif bullet.weapon_name == "Beam Saber":
-                bullet.x = self.starship.x + self.starship.width // 2
-                bullet.y = self.starship.y - 20
-                bullet.update()
-
-            else:
-                bullet.update()
-
-            # 🔴 CRITICAL: rect must always be updated AFTER movement
-            bullet.update_rect()
-
-        # -------------------------
-        # COLLISIONS (USES UPDATED rect)
-        # -------------------------
+        self.weapon_helper()
         self.bullet_helper()
+        self.metal_shield_helper()
 
-        # -------------------------
-        # OFF-SCREEN / INACTIVE CLEANUP
-        # -------------------------
-        for bullet in list(self.player_bullets):
-
-            if bullet.weapon_name == "Metal Shield":
-                continue  # never auto-remove shield
-
-            screen_x = bullet.x - getattr(self.camera, "x", 0)
-            screen_y = bullet.y - self.camera.y
-
-            off_screen = (
-                    screen_y + bullet.height < 0 or
-                    screen_y > (self.window_height / self.camera.zoom) or
-                    screen_x + bullet.width < 0 or
-                    screen_x > (self.window_width / self.camera.zoom)
-            )
-
-            if off_screen or not getattr(bullet, "is_active", True):
-                self.player_bullets.remove(bullet)
-            # -------------------------
-            # # UNIVERSAL CLEANUP
-            # # -------------------------
-            # screen_x = bullet.x - getattr(self.camera, "x", 0)
-            # screen_y = bullet.y - self.camera.y
-            #
-            # off_screen = (
-            #         screen_y + bullet.height < 0 or
-            #         screen_y > (self.window_height / self.camera.zoom) or
-            #         screen_x + bullet.width < 0 or
-            #         screen_x > (self.window_width / self.camera.zoom)
-            # )
-            #
-            # if off_screen or not getattr(bullet, "is_active", True):
-            #     self.player_bullets.remove(bullet)
-
-        # -------------------------
-        # ENEMY BULLETS ONLY
-        # -------------------------
-        screen_top = self.camera.y
-        screen_bottom = self.camera.y + (self.window_height / self.camera.zoom)
         for bullet in list(self.enemy_bullets):
             bullet.update()
 
@@ -998,3 +928,50 @@ class VerticalBattleScreen:
                 self.player_bullets.extend(
                     state.starship.wind_slicer.fire_wind_slicer()
                 )
+
+
+    def weapon_helper(self):
+        for bullet in list(self.player_bullets):
+
+            # --- movement / positioning ---
+            if bullet.weapon_name == "Missile":
+                if getattr(bullet, "target_enemy", None) is None and hasattr(self, "get_nearest_enemy"):
+                    bullet.target_enemy = self.get_nearest_enemy(bullet)
+                bullet.update()
+
+            elif bullet.weapon_name == "Metal Shield":
+                bullet.update_orbit(
+                    self.starship.x + self.starship.width / 2,
+                    self.starship.y + self.starship.height / 2
+                )
+
+            elif bullet.weapon_name == "Beam Saber":
+                bullet.x = self.starship.x + self.starship.width // 2
+                bullet.y = self.starship.y - 20
+                bullet.update()
+
+            else:
+                bullet.update()
+
+            # 🔴 CRITICAL: rect must always be updated AFTER movement
+            bullet.update_rect()
+
+
+    def metal_shield_helper(self):
+        for bullet in list(self.player_bullets):
+
+            if bullet.weapon_name == "Metal Shield":
+                continue  # never auto-remove shield
+
+            screen_x = bullet.x - getattr(self.camera, "x", 0)
+            screen_y = bullet.y - self.camera.y
+
+            off_screen = (
+                    screen_y + bullet.height < 0 or
+                    screen_y > (self.window_height / self.camera.zoom) or
+                    screen_x + bullet.width < 0 or
+                    screen_x > (self.window_width / self.camera.zoom)
+            )
+
+            if off_screen or not getattr(bullet, "is_active", True):
+                self.player_bullets.remove(bullet)
