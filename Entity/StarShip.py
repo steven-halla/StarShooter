@@ -52,7 +52,7 @@ class StarShip:
 
 
 
-        self.equipped_magic: list = ["Metal Shield", None]
+        self.equipped_magic: list = ["Plasma Blaster", None]
 
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)

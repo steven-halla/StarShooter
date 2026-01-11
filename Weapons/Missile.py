@@ -19,7 +19,7 @@ class Missile(Bullet):
         # stats
         self.damage: int = 343
         self.rate_of_fire: float = 0.5
-        self.bullet_speed: float = 2.5
+        self.bullet_speed: float = 1.5
 
         # movement vector (default straight up)
         self.vx: float = 0.0
