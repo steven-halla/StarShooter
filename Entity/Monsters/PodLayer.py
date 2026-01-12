@@ -8,7 +8,7 @@ from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 
 
-class TriSpitter(Enemy):
+class PodLayer(Enemy):
     def __init__(self) -> None:
         super().__init__()
         self.mover: MoveRectangle = MoveRectangle()
@@ -57,76 +57,66 @@ class TriSpitter(Enemy):
         base_x = self.x + self.width // 2 - self.bulletWidth // 2
         bullet_y = self.y + self.height
 
-        offsets = [-1, 0, 1]  # left, center, right
+        offsets = [-15, 0, 15]
 
         for offset in offsets:
-            bullet = Bullet(base_x, bullet_y)
+            bullet_x = base_x + offset
+            bullet = Bullet(bullet_x, bullet_y)
 
             bullet.color = self.bulletColor
             bullet.width = self.bulletWidth
             bullet.height = self.bulletHeight
             bullet.damage = 10
 
-            # KEEP YOUR BASELINE BEHAVIOR
-            bullet.vy = 1
-            bullet.vx = offset
-            bullet.bullet_speed = self.bileSpeed
+            # VECTOR-BASED MOTION
+            bullet.vy = self.bileSpeed
+
+            if offset < 0:
+                bullet.vx = -3
+            elif offset > 0:
+                bullet.vx = 3
+            else:
+                bullet.vx = 0
 
             bullet.update_rect()
             self.enemyBullets.append(bullet)
 
-
     def update(self) -> None:
-            super().update()
-            if not self.is_active:
-                return
+        super().update()
+        if not self.is_active:
+            return
 
-            now = pygame.time.get_ticks()
+        now = pygame.time.get_ticks()
 
-            # -------------------------------
-            # FREEZE LOGIC
-            # -------------------------------
-            if self.freeze_start_time is not None:
-                if now - self.freeze_start_time >= self.freeze_duration_ms:
-                    self.freeze_start_time = None
-            else:
-                # -------------------------------
-                # PLAYER X TRACKING
-                # -------------------------------
-                if hasattr(self, "target_player") and self.target_player is not None:
-                    if self.target_player.x > self.x:
-                        self.mover.enemy_move_right(self)
-                    elif self.target_player.x < self.x:
-                        self.mover.enemy_move_left(self)
-
-                    aligned = abs(self.x - self.target_player.x) <= 5
-                    if aligned:
-                        self.freeze_start_time = now
-
-                # -------------------------------
-                # HORIZONTAL AI MOVEMENT
-                # -------------------------------
-                self.moveAI()
-
-            # -------------------------------
-            # SHOOTING
-            # -------------------------------
+        if self.freeze_start_time is not None:
+            if now - self.freeze_start_time >= self.freeze_duration_ms:
+                self.freeze_start_time = None
+        else:
             if hasattr(self, "target_player") and self.target_player is not None:
+                if self.target_player.x > self.x:
+                    self.mover.enemy_move_right(self)
+                elif self.target_player.x < self.x:
+                    self.mover.enemy_move_left(self)
+
                 aligned = abs(self.x - self.target_player.x) <= 5
-                if aligned and self.freeze_start_time is not None:
-                    if now - self.last_shot_time >= self.fire_interval_ms:
-                        self.shoot_triple_bullets()
-                        self.last_shot_time = now
+                if aligned:
+                    self.freeze_start_time = now
 
-            # -------------------------------
-            # BULLET VECTOR MOVEMENT
-            # -------------------------------
-            for bullet in self.enemyBullets:
-                bullet.x += bullet.vx
-                bullet.y += bullet.vy
-                bullet.update_rect()
+            self.moveAI()
 
-            self.update_hitbox()
+        aligned = abs(self.x - self.target_player.x) <= 5
+        if aligned and self.freeze_start_time is not None:
+            if now - self.last_shot_time >= self.fire_interval_ms:
+                self.shoot_triple_bullets()
+                self.last_shot_time = now
+
+        # VECTOR UPDATE
+        for bullet in self.enemyBullets:
+            bullet.x += bullet.vx
+            bullet.y += bullet.vy
+            bullet.update_rect()
+
+        self.update_hitbox()
 
     def moveAI(self) -> None:
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
