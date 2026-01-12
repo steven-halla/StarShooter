@@ -50,7 +50,7 @@ class StarShip:
         self.electric_start_time: int = 0
         self.electric_duration_ms: int = 180
         self.was_hit: bool = False
-        self.shipHealth: int = 50
+        self.shipHealth: int = 150
 
         self.player_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"

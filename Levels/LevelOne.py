@@ -130,8 +130,6 @@ class LevelOne(VerticalBattleScreen):
                 - UI_KILL_PADDING
         )
 
-
-
         for enemy in list(self.enemies):
             # enemy is BELOW visible gameplay area
             if enemy.y > screen_bottom:
@@ -141,12 +139,7 @@ class LevelOne(VerticalBattleScreen):
                     if self.missed_enemies.__len__() > 3:
                         print("GAME OVER!!!")
 
-
-
         self.enemy_helper()
-        # if not any(enemy.__class__.__name__ == "level_1_boss" for enemy in self.enemies) and not self.level_complete:
-        #     self.level_complete = True
-
 
         self.extract_object_names()
         if self.level_complete:

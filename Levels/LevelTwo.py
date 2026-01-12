@@ -1,23 +1,12 @@
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
-from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Bosses.BossLevelTwo import BossLevelTwo
-from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
-from Entity.Monsters.BladeSpinners import BladeSpinner
-from Entity.Monsters.FireLauncher import FireLauncher
-from Entity.Monsters.KamikazeDrone import KamikazeDrone
-from Entity.Monsters.Ravager import Ravager
-from Entity.Monsters.SpineLauncher import SpineLauncher
-from Entity.Monsters.SporeFlower import SporeFlower
-from Entity.Monsters.TriSpitter import TriSpitter
-from Entity.Monsters.WaspStinger import WaspStinger
-from Entity.StarShip import StarShip
-from Levels.levelThree import LevelThree
-from ScreenClasses.MissionBriefingScreenLevelThree import MissionBriefingScreenLevelThree
-from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
+from Entity.Monsters.KamikazeDrone import KamikazeDrone
+from Entity.Monsters.TriSpitter import TriSpitter
+from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 class LevelTwo(VerticalBattleScreen):
     def __init__(self, textbox):
@@ -71,7 +60,7 @@ class LevelTwo(VerticalBattleScreen):
     def start(self, state) -> None:
         player_x = None
         player_y = None
-        self.starship.shipHealth = 1500
+        self.starship.shipHealth = 333
 
         for obj in self.tiled_map.objects:
             if obj.name == "player":  # this string comes from Tiled
@@ -91,15 +80,6 @@ class LevelTwo(VerticalBattleScreen):
             self.starship.shipHealth = 22
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
-
-        # print(self.side_rect_hp)
-        print(
-            "BileSpitters:", len(self.bileSpitterGroup),
-            "TriSpitters:", len(self.triSpitterGroup),
-            "BladeSpinners:", len(self.bladeSpinnerGroup),
-            "FireLaunchers:", len(self.fireLauncherGroup),
-            "Bosses:", len(self.bossLevelTwoGroup) if hasattr(self, "bossLevelTwoGroup") else 0
-        )
 
         # UPDATE INVINCIBILITY TIMER FIRST
         self.update_side_rect_invincibility()
@@ -147,12 +127,12 @@ class LevelTwo(VerticalBattleScreen):
         if not self.bossLevelTwoGroup and not self.level_complete:
             self.level_complete = True
 
-        if self.level_complete:
-            next_level = MissionBriefingScreenLevelThree()
-            # next_level.set_player(state.starship)
-            state.currentScreen = next_level
-            next_level.start(state)
-            print(type(state.currentScreen).__name__)
+        # if self.level_complete:
+        #     # next_level = MissionBriefingScreenLevelThree()
+        #     # next_level.set_player(state.starship)
+        #     state.currentScreen = next_level
+        #     next_level.start(state)
+        #     print(type(state.currentScreen).__name__)
 
             return
 
@@ -173,21 +153,9 @@ class LevelTwo(VerticalBattleScreen):
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
 
-        for enemy in self.bileSpitterGroup:
+        for enemy in self.enemies:
             enemy.draw(state.DISPLAY, self.camera)
-        for enemy in self.fireLauncherGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-        for boss in self.bossLevelTwoGroup:
-            boss.draw(state.DISPLAY, self.camera)
-
-        for enemy_tri_spitter in self.triSpitterGroup:
-            enemy_tri_spitter.draw(state.DISPLAY, self.camera)
-
-        for blade in self.bladeSpinnerGroup:
-            blade.draw(state.DISPLAY, self.camera)
-
-        for boss in self.bossLevelTwoGroup:
-            boss.draw(state.DISPLAY, self.camera)
+            enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
         # -------------------------
         # SIDE RECT HP BAR (ONLY HP BAR)
@@ -226,16 +194,9 @@ class LevelTwo(VerticalBattleScreen):
         self.draw_ui_panel(state.DISPLAY)
 
         pygame.display.flip()
-    def get_nearest_enemy(self, missile):
-        enemies = (
-                list(self.bileSpitterGroup) +
-                list(self.triSpitterGroup) +
-                list(self.bladeSpinnerGroup) +
-                list(self.fireLauncherGroup) +
-                list(self.bossLevelTwoGroup)
-        )
 
-        if not enemies:
+    def get_nearest_enemy(self, missile):
+        if not self.enemies:
             return None
 
         # Visible camera bounds (world coordinates)
@@ -243,24 +204,27 @@ class LevelTwo(VerticalBattleScreen):
         visible_bottom = self.camera.y + (self.window_height / self.camera.zoom)
 
         nearest_enemy = None
-        nearest_dist = float("inf")
-        mx, my = missile.x, missile.y
+        nearest_dist_sq = float("inf")
 
-        for enemy in enemies:
+        missile_x = missile.x
+        missile_y = missile.y
 
-            # ⛔ Skip enemies outside the screen
+        for enemy in self.enemies:
+
+            # skip enemies outside screen
             if enemy.y + enemy.height < visible_top:
-                continue  # enemy is above screen
+                continue
             if enemy.y > visible_bottom:
-                continue  # enemy is below screen
+                continue
 
-            # distance calculation
-            dx = enemy.x - mx
-            dy = enemy.y - my
-            dist_sq = dx * dx + dy * dy
+            # VECTOR distance (vx / vy)
+            vx = enemy.x - missile_x
+            vy = enemy.y - missile_y
 
-            if dist_sq < nearest_dist:
-                nearest_dist = dist_sq
+            dist_sq = vx * vx + vy * vy
+
+            if dist_sq < nearest_dist_sq:
+                nearest_dist_sq = dist_sq
                 nearest_enemy = enemy
 
         return nearest_enemy
@@ -278,98 +242,56 @@ class LevelTwo(VerticalBattleScreen):
         return names
 
     def load_enemy_into_list(self):
-        self.bileSpitterGroup.clear()
-        self.triSpitterGroup.clear()
-        self.bladeSpinnerGroup.clear()
-        self.fireLauncherGroup.clear()
-        self.kamikazeDroneGroup.clear()
-        self.ravagerGroup.clear()
-        self.spineLauncherGroup.clear()
-        self.sporeFlowerGroup.clear()
-        self.bossLevelTwoGroup.clear()
+        self.enemies.clear()
+        # print("[LOAD] clearing enemies list")
 
         for obj in self.tiled_map.objects:
-            # ⭐ LOAD ENEMIES (existing code)
+            enemy = None
+
+            print(f"[TMX] found object name={obj.name} at ({obj.x}, {obj.y})")
+
             if obj.name == "level_2_boss":
                 enemy = BossLevelTwo()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.bossLevelTwoGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-
-            if obj.name == "bile_spitter":
+            elif obj.name == "fire_launcher":
                 enemy = BileSpitter()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-                self.bileSpitterGroup.append(enemy)
-
-
-            if obj.name == "blade_spinner":
-                enemy = BladeSpinner()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                self.bladeSpinnerGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
+            else:
                 continue
 
-            if obj.name == "fire_launcher":
-                enemy = FireLauncher()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.fireLauncherGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
+            # position / size
+            enemy.x = obj.x
+            enemy.y = obj.y
+            enemy.width = obj.width
+            enemy.height = obj.height
 
-            if obj.name == "tri_spitter":
-                enemy_tri_spitter = TriSpitter()
-                enemy_tri_spitter.x = obj.x
-                enemy_tri_spitter.y = obj.y
-                enemy_tri_spitter.width = obj.width
-                enemy_tri_spitter.height = obj.height
-                enemy_tri_spitter.update_hitbox()
-                self.triSpitterGroup.append(enemy_tri_spitter)
-                enemy_tri_spitter.camera = self.camera
-                enemy_tri_spitter.target_player = self.starship
-                continue
+            # REQUIRED state
+            enemy.camera = self.camera
+            enemy.target_player = self.starship
+
+            # 🔑 CRITICAL FIX: ensure health is initialized
+            if hasattr(enemy, "maxHealth"):
+                enemy.enemyHealth = enemy.maxHealth
+            else:
+                enemy.enemyHealth = 1  # safe fallback
+
+            enemy.update_hitbox()
+
+            self.enemies.append(enemy)
+            print(
+                f"[ADD] {enemy.__class__.__name__} "
+                f"hp={enemy.enemyHealth} "
+                f"→ enemies size = {len(self.enemies)}"
+            )
+
+        print(f"[DONE] total enemies loaded = {len(self.enemies)}")
 
     def enemy_helper(self):
         now = pygame.time.get_ticks()
 
-        # --------------------------------
-        # INIT SIDE RECT INVULNERABILITY
-        # --------------------------------
-        if not hasattr(self, "side_rect_invincible"):
-            self.side_rect_invincible = False
-            self.side_rect_invincible_start_time = 0
+        screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
-        # --------------------------------
-        # SIDE RECT INVULNERABILITY TIMER
-        # --------------------------------
-        if self.side_rect_invincible:
-            if now - self.side_rect_invincible_start_time >= 1000:
-                self.side_rect_invincible = False
-
-        # --------------------------------
-        # NAPALM UPDATE (PLAYER ONLY)
-        # --------------------------------
+        # -------------------------
+        # NAPALM UPDATE + DAMAGE
+        # -------------------------
         for napalm in list(self.napalm_list):
             napalm.update()
 
@@ -381,6 +303,53 @@ class LevelTwo(VerticalBattleScreen):
             if not napalm.is_active:
                 self.napalm_list.remove(napalm)
 
+        # -------------------------
+        # METAL SHIELD → ENEMY BULLETS (UNIFIED player_bullets)
+        # -------------------------
+        for shield in list(self.player_bullets):
+
+            if shield.weapon_name != "Metal Shield":
+                continue
+
+            if not shield.is_active:
+                self.player_bullets.remove(shield)
+                continue
+
+            shield_rect = pygame.Rect(
+                shield.x,
+                shield.y,
+                shield.width,
+                shield.height
+            )
+
+            for bullet in list(self.enemy_bullets):
+                if bullet.collide_with_rect(shield_rect):
+
+                    absorbed = shield.absorb_hit()
+
+                    if bullet in self.enemy_bullets:
+                        self.enemy_bullets.remove(bullet)
+
+                    if absorbed and shield in self.player_bullets:
+                        self.player_bullets.remove(shield)
+
+                    break
+
+        # --------------------------------
+        # ENEMY BODY → SIDE RECT (CONTACT DAMAGE)
+        # --------------------------------
+        for enemy in list(self.enemies):
+
+            if enemy.hitbox.colliderect(self.side_rect_hitbox):
+
+                if not self.side_rect_invincible:
+                    self.side_rect_hp -= 10
+                    self.side_rect_invincible = True
+                    self.side_rect_invincible_start_time = pygame.time.get_ticks()
+                    print("⚠️ SIDE RECT TOOK CONTACT DAMAGE:", self.side_rect_hp)
+        # --------------------------------
+        # ENEMY UPDATES + BULLET SPAWNING
+        # --------------------------------
         # --------------------------------
         # ENEMY BULLETS → SIDE RECT (NEW)
         # --------------------------------
@@ -406,80 +375,28 @@ class LevelTwo(VerticalBattleScreen):
                 # bullet is ALWAYS destroyed
                 self.enemy_bullets.remove(bullet)
                 continue
+        for enemy in list(self.enemies):
 
-        # --------------------------------
-        # METAL SHIELD → ENEMY BULLETS
-        # --------------------------------
-        for metal in list(self.metal_shield_bullets):
-
-            if not metal.is_active:
-                self.metal_shield_bullets.remove(metal)
-                continue
-
-            shield_rect = pygame.Rect(
-                metal.x,
-                metal.y,
-                metal.width,
-                metal.height
-            )
-
-            for bullet in list(self.enemy_bullets):
-                if bullet.collide_with_rect(shield_rect):
-
-                    absorbed = metal.absorb_hit()
-
-                    if bullet in self.enemy_bullets:
-                        self.enemy_bullets.remove(bullet)
-
-                    if absorbed and metal in self.metal_shield_bullets:
-                        self.metal_shield_bullets.remove(metal)
-
-                    break
-
-        # --------------------------------
-        # ENEMY UPDATES + BULLET SPAWNING
-        # --------------------------------
-        for boss in list(self.bossLevelTwoGroup):
-            boss.update()
-
-            if boss.enemyBullets:
-                self.enemy_bullets.extend(boss.enemyBullets)
-                boss.enemyBullets.clear()
-
-            if boss.enemyHealth <= 0:
-                self.bossLevelTwoGroup.remove(boss)
-
-        for blade in list(self.bladeSpinnerGroup):
-            blade.update()
-
-            if blade.enemyHealth <= 0:
-                self.bladeSpinnerGroup.remove(blade)
-
-        for fire in list(self.fireLauncherGroup):
-            fire.update()
-
-            if fire.enemyBullets:
-                self.enemy_bullets.extend(fire.enemyBullets)
-                fire.enemyBullets.clear()
-
-            if fire.enemyHealth <= 0:
-                self.fireLauncherGroup.remove(fire)
-
-        for enemy in self.bileSpitterGroup:
+            # update enemy
             enemy.update()
+            # enemy.update_hitbox()
+
+            # color change on player collision (same logic as before)
+            if self.starship.hitbox.colliderect(enemy.hitbox):
+                enemy.color = (135, 206, 235)
+            else:
+                enemy.color = GlobalConstants.RED
+
             enemy.update_hitbox()
 
+            # emit enemy bullets (same behavior as before)
             if enemy.enemyBullets:
                 self.enemy_bullets.extend(enemy.enemyBullets)
                 enemy.enemyBullets.clear()
 
-        for enemy_tri_spitter in self.triSpitterGroup:
-            enemy_tri_spitter.update()
-            enemy_tri_spitter.update_hitbox()
-
-            if enemy_tri_spitter.enemyBullets:
-                self.enemy_bullets.extend(enemy_tri_spitter.enemyBullets)
-                enemy_tri_spitter.enemyBullets.clear()
+            # death removal
+            if enemy.enemyHealth <= 0:
+                self.enemies.remove(enemy)
 
     # SIDE RECT INVINCIBILITY TIMER (NO DAMAGE LOGIC HERE)
     # =========================
