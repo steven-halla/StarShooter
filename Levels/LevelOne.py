@@ -10,10 +10,13 @@ from SaveStates.SaveState import SaveState
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
+# as an option have different dialog options based on how many you miss on waht part of stage
+
 class LevelOne(VerticalBattleScreen):
     def __init__(self,textbox):
         super().__init__(textbox)
         # self.starship: StarShip = StarShip()
+        self.has_entered_screen = False
 
         self.level_start:bool = True
         self.current_page_lines: list[list[str]] = []
@@ -82,16 +85,17 @@ class LevelOne(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
-        if not hasattr(self, "_last_enemy_count"):
-            self._last_enemy_count = len(self.enemies)
+        # print(self.missed_enemies)
+        if not hasattr(self, "last_enemy_count"):
+            self.last_enemy_count = len(self.enemies)
 
-        if len(self.enemies) < self._last_enemy_count:
-            print(
-                f"[WARNING] enemies SHRANK "
-                f"{self._last_enemy_count} → {len(self.enemies)}"
-            )
+        # if len(self.enemies) < self.last_enemy_count:
+        #     print(
+        #         f"[WARNING] enemies SHRANK "
+        #         f"{self.last_enemy_count} → {len(self.enemies)}"
+        #     )
 
-        self._last_enemy_count = len(self.enemies)
+        self.last_enemy_count = len(self.enemies)
         # print(f"[ENEMIES] count={len(self.enemies)}")
         # for i, enemy in enumerate(self.enemies):
         #     print(f"{i}: {enemy.__class__.__name__} at ({enemy.x}, {enemy.y}) hp={enemy.enemyHealth}")
@@ -114,48 +118,31 @@ class LevelOne(VerticalBattleScreen):
 
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
-        for enemy in list(self.enemies):
+        SCREEN_TOP = 0
+        SCREEN_BOTTOM = GlobalConstants.BASE_WINDOW_HEIGHT
 
-            # -------- MISS DETECTION --------
+        screen_height = self.camera.window_height
+        UI_KILL_PADDING = 13.5 # pixels ABOVE the UI panel (tweak this)
+
+        screen_bottom = (
+                self.camera.y
+                + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
+                - UI_KILL_PADDING
+        )
+
+
+
+        for enemy in list(self.enemies):
+            # enemy is BELOW visible gameplay area
             if enemy.y > screen_bottom:
                 if enemy not in self.missed_enemies:
                     self.missed_enemies.append(enemy)
-                    print("enemy missed")
-                continue  # stop processing this enemy
+                    print(self.missed_enemies)
+                    if self.missed_enemies.__len__() > 3:
+                        print("GAME OVER!!!")
 
-            enemy.update()
 
-        # if elapsed >= self.time_limit_ms and not self.time_up:
-        #     self.time_up = True
-        #     print("time's up")
-        # Missile firing (override parent behavior)
-        # if self.controller.fire_missiles:
-        #     missile = self.starship.missile.fire_missile()
-        #     if missile is not None:
-        #
-        #         # Lock onto nearest enemy
-        #         missile.target_enemy = self.get_nearest_enemy(missile)
-        #
-        #         # Compute initial direction toward target
-        #         if missile.target_enemy is not None:
-        #             dx = missile.target_enemy.x - missile.x
-        #             dy = missile.target_enemy.y - missile.y
-        #             dist = max(1, (dx * dx + dy * dy) ** 0.5)
-        #             missile.direction_x = dx / dist
-        #             missile.direction_y = dy / dist
-        #         else:
-        #             # No enemy → missile goes straight upward
-        #             missile.direction_x = 0
-        #             missile.direction_y = -1
-        #
-        #         # Add to missile list
-        #         self.player_missiles.append(missile)
 
-                # if missile.target_enemy is not None:
-                #     print(f"Missile locked onto: {type(missile.target_enemy).__name__} "
-                #           f"at ({missile.target_enemy.x}, {missile.target_enemy.y})")
-                # else:
-                #     print("Missile locked onto: NONE (no enemies found)")
         self.enemy_helper()
         # if not any(enemy.__class__.__name__ == "level_1_boss" for enemy in self.enemies) and not self.level_complete:
         #     self.level_complete = True

@@ -219,7 +219,7 @@
   <object id="1" name="player" x="141.669" y="3370.93" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="3" name="enemies">
-  <object id="6" name="tri_spitter" x="164.806" y="3215.59" width="16" height="16"/>
+  <object id="6" name="tri_spitter" x="170.212" y="3263.57" width="16" height="16"/>
   <object id="70" name="tri_spitter" x="164.11" y="1313.25" width="16" height="16"/>
   <object id="64" name="tri_spitter" x="362.815" y="2539.51" width="16" height="16"/>
   <object id="73" name="tri_spitter" x="177.284" y="1192.49" width="16" height="16"/>

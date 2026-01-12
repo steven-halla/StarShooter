@@ -1,20 +1,13 @@
 import pygame
-from pygame import Surface, surface
 import pytmx
 import math
-from Assets.Images.SpriteSheetExtractor import SpriteSheetExtractor
 from Constants.GlobalConstants import GlobalConstants
-from Constants.Timer import Timer
 from Controller.KeyBoardControls import KeyBoardControls
-
 from Entity.Enemy import Enemy
-
 from Movement.MoveRectangle import MoveRectangle
 from SaveStates.SaveState import SaveState
 from ScreenClasses.Camera import Camera
 from ScreenClasses.TextBox import TextBox
-
-
 
 class VerticalBattleScreen:
     def __init__(self, textbox):
@@ -23,36 +16,25 @@ class VerticalBattleScreen:
         self.textbox = textbox
         self.tiled_map = pytmx.load_pygame("")
         self.tile_size: int = self.tiled_map.tileheight
-
-
-        #rename to : Enemeis Group
         self.enemies: list[Enemy] = []
-
         self.mover: MoveRectangle = MoveRectangle()
         self.controller: KeyBoardControls = KeyBoardControls()
-
         self.STARSHIP_HORIZONTAL_CENTER_DIVISOR: int = 2
         self.STARSHIP_BOTTOM_OFFSET: int = 100
         self.MIN_X: int = 0
         self.MIN_Y: int = 0
         self.map_scroll_speed_per_frame: float = 4334.33
-
-
         self.was_q_pressed_last_frame: bool = False
-
         self.player_bullets: list = []
         self.enemy_bullets: list = []     # LevelOne can append to this list
-
         self.WORLD_HEIGHT: int = GlobalConstants.GAMEPLAY_HEIGHT * 3
         self.SCROLL_SPEED_PER_SECOND: float = 55.0
         self.camera_y: float = 0.0
         self.SCROLL_SPEED_PER_FRAME: float = 55.0
         window_width: int = GlobalConstants.BASE_WINDOW_WIDTH
         window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
-
         self.window_width = window_width
         self.window_height = window_height
-
         self.camera = Camera(
             window_width=window_width,
             window_height=window_height,
@@ -66,10 +48,6 @@ class VerticalBattleScreen:
             "./Assets/Images/hud_icons.png"
         ).convert_alpha()
 
-        # extract the 8th icon (index 7)
-        # VerticalBattleScreen __init__
-
-        # load HUD sprite sheet once
         self.hud_sheet = pygame.image.load(
             "./Assets/Images/hud_icons.png"
         ).convert_alpha()
@@ -77,7 +55,6 @@ class VerticalBattleScreen:
         ICON_SIZE = 16
         UI_ICON_SIZE = 24
 
-        # icon index → attribute name
         ICON_MAP = {
             0: "heart_icon",
             1: "buster_cannon_icon",
@@ -91,7 +68,6 @@ class VerticalBattleScreen:
             10: "engine_icon",
         }
 
-        # shared-size icons
         for index, attr_name in ICON_MAP.items():
             rect = pygame.Rect(index * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)
             icon = self.hud_sheet.subsurface(rect)
@@ -101,7 +77,6 @@ class VerticalBattleScreen:
                 pygame.transform.scale(icon, (UI_ICON_SIZE, UI_ICON_SIZE))
             )
 
-        # missile is intentionally different
         self.missile_icon = pygame.transform.scale(
             self.hud_sheet.subsurface(pygame.Rect(7 * ICON_SIZE, 0, ICON_SIZE, ICON_SIZE)),
             (32, 32)
@@ -269,7 +244,7 @@ class VerticalBattleScreen:
         self.draw_sub_weapon_rect_helper(state)
 
         # 2️⃣ DRAW ENEMY BULLETS WITH CAMERA TRANSFORM - Draw before UI panel
-        print(f"[DRAW] Drawing {len(self.enemy_bullets)} enemy bullets")
+        # print(f"[DRAW] Drawing {len(self.enemy_bullets)} enemy bullets")
         for bullet in self.enemy_bullets:
             bx = self.camera.world_to_screen_x(bullet.x)
             by = self.camera.world_to_screen_y(bullet.y)
@@ -277,7 +252,7 @@ class VerticalBattleScreen:
             bh = int(bullet.height * self.camera.zoom)
 
             # Debug print to show bullet screen coordinates
-            print(f"[DRAW BULLET] screen_pos=({bx:.1f},{by:.1f}), world_pos=({bullet.x:.1f},{bullet.y:.1f})")
+            # print(f"[DRAW BULLET] screen_pos=({bx:.1f},{by:.1f}), world_pos=({bullet.x:.1f},{bullet.y:.1f})")
 
             # Draw a larger, more visible bullet for debugging
             pygame.draw.rect(
@@ -908,10 +883,10 @@ class VerticalBattleScreen:
             world_bottom_delete = self.camera.y + (self.window_height / self.camera.zoom) + 500
 
             # Debug print to help diagnose the issue
-            print(f"[BULLET CHECK] bullet.y={bullet.y:.1f}, camera.y={self.camera.y:.1f}, world_bottom_delete={world_bottom_delete:.1f}")
+            # print(f"[BULLET CHECK] bullet.y={bullet.y:.1f}, camera.y={self.camera.y:.1f}, world_bottom_delete={world_bottom_delete:.1f}")
 
             if bullet.y < world_top_delete or bullet.y > world_bottom_delete:
-                print(f"[DELETE BULLET] y={bullet.y:.1f}, cam_y={self.camera.y:.1f}, reason: {'above' if bullet.y < world_top_delete else 'below'}")
+                # print(f"[DELETE BULLET] y={bullet.y:.1f}, cam_y={self.camera.y:.1f}, reason: {'above' if bullet.y < world_top_delete else 'below'}")
                 self.enemy_bullets.remove(bullet)
                 continue
 
@@ -1020,5 +995,4 @@ class VerticalBattleScreen:
             else:  # default (machine gun, etc.)
                 pygame.draw.rect(state.DISPLAY, (255, 255, 0), rect)
 
-            # ---- debug hitbox ----
             pygame.draw.rect(state.DISPLAY, (255, 255, 0), rect, 1)

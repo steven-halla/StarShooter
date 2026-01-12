@@ -92,11 +92,11 @@ class BileSpitter(Enemy):
             bullet.update_rect()
 
             # DEBUG PRINT (KEPT)
-            print(
-                f"[BILE BULLET] "
-                f"x={bullet.x:.1f} y={bullet.y:.1f} "
-                f"rect=({bullet.rect.x},{bullet.rect.y})"
-            )
+            # print(
+            #     f"[BILE BULLET] "
+            #     f"x={bullet.x:.1f} y={bullet.y:.1f} "
+            #     f"rect=({bullet.rect.x},{bullet.rect.y})"
+            # )
 
             # Don't remove bullets here, let VerticalBattleScreen handle it
             # This was causing bullets to be removed prematurely

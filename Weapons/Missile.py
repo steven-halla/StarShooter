@@ -63,7 +63,6 @@ class Missile(Bullet):
         # Only fire if timer is ready and we have missiles
         if not self.missile_timer.is_ready() or self.current_missiles <= 0:
             return None
-        print("ndfas")
 
         # Spawn position (center of ship)
         missile_x = self.x + self.width // 2
