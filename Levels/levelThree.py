@@ -78,6 +78,7 @@ class LevelThree(VerticalBattleScreen):
 
     def start(self, state) -> None:
         print(self.enemies)
+        self.load_space_station_object(state)
         player_x = None
         player_y = None
         self.starship.shipHealth = 100
@@ -107,15 +108,17 @@ class LevelThree(VerticalBattleScreen):
         #     f"KamikazeDrone: {len(self.kamikazeDroneGroup)} | "
         #     f"BossLevelThree: {len(self.bossLevelThreeGroup)}"
         # )
-        print(len(self.enemies))
         if self.level_start == True:
             self.level_start = False
             self.starship.shipHealth = 150
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
 
-
-        self.starship.hitbox = pygame.Rect(0, 0, 0, 0)
+        self.starship.update()  # updates x/y + hitbox
+        self.space_station.update_hitbox(state)  # blocks ship if overlapping
+        # Update the space station's hitbox and handle collision
+        if self.space_station is not None:
+            self.space_station.update_hitbox(state)
 
         super().update(state)
 
@@ -230,7 +233,6 @@ class LevelThree(VerticalBattleScreen):
 
     def enemy_helper(self):
         now = pygame.time.get_ticks()
-        print(self.starship.shipHealth)
         # print(
         #     f"BileSpitter: {len(self.bileSpitterGroup)} | "
         #     f"TriSpitter: {len(self.triSpitterGroup)} | "
@@ -565,3 +567,29 @@ class LevelThree(VerticalBattleScreen):
 
         self.enemies.append(boss)
         self.boss_spawned = True
+
+    def load_space_station_object(self,state):
+        self.space_station = None
+
+        # World Y where the UI panel starts
+        ui_top_world_y = (
+                self.camera.y
+                + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
+        )
+
+        for obj in self.tiled_map.objects:
+            if getattr(obj, "name", None) != "space_station":
+                continue
+
+            # Place station so its BOTTOM sits just above the UI panel
+            station_y = ui_top_world_y - obj.height
+
+            self.space_station = SpaceStation(
+                x=obj.x,
+                y=station_y,
+                width=obj.width,
+                height=obj.height,
+            )
+
+            self.space_station.update_hitbox(state)
+            break
