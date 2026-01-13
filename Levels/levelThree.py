@@ -99,38 +99,88 @@ class LevelThree(VerticalBattleScreen):
         pass
 
     def update(self, state) -> None:
-        # Disable bullet damage
-        # print(
-        #     f"BileSpitter: {len(self.bileSpitterGroup)} | "
-        #     f"TriSpitter: {len(self.triSpitterGroup)} | "
-        #     f"BladeSpinner: {len(self.bladeSpinnerGroup)} | "
-        #     f"FireLauncher: {len(self.fireLauncherGroup)} | "
-        #     f"KamikazeDrone: {len(self.kamikazeDroneGroup)} | "
-        #     f"BossLevelThree: {len(self.bossLevelThreeGroup)}"
-        # )
-        if self.level_start == True:
+
+        if self.level_start:
             self.level_start = False
             self.starship.shipHealth = 150
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
 
-        self.starship.update()  # updates x/y + hitbox
-        self.space_station.update_hitbox(state)  # blocks ship if overlapping
-        # Update the space station's hitbox and handle collision
-        if self.space_station is not None:
-            self.space_station.update_hitbox(state)
+        # 1️⃣ STARSHIP UPDATE (movement happens here)
+        self.starship.update()
 
+        # 2️⃣ RUN BASE SCREEN UPDATE (camera / movement resolution)
         super().update(state)
 
+        # 3️⃣ SPACE STATION COLLISION — AFTER movement is final
+        if self.space_station is not None:
+            # Update the space station's hitbox
+            self.space_station.update_hitbox(state)
 
-        # 🔑 ALWAYS update melee hitbox AFTER movement
+            # Custom collision detection that accounts for visual overlap
+            # Get the ship's screen position
+            ship_screen_x = self.camera.world_to_screen_x(self.starship.x)
+            ship_screen_y = self.camera.world_to_screen_y(self.starship.y)
+            ship_screen_width = self.starship.width * self.camera.zoom
+            ship_screen_height = self.starship.height * self.camera.zoom
+
+            # Get the station's screen position
+            station_screen_x = self.camera.world_to_screen_x(self.space_station.x)
+            station_screen_y = self.camera.world_to_screen_y(self.space_station.y)
+            station_screen_width = self.space_station.width * self.camera.zoom
+            station_screen_height = self.space_station.height * self.camera.zoom
+
+            # Create screen-space rectangles
+            ship_screen_rect = pygame.Rect(
+                int(ship_screen_x),
+                int(ship_screen_y),
+                int(ship_screen_width),
+                int(ship_screen_height)
+            )
+
+            station_screen_rect = pygame.Rect(
+                int(station_screen_x),
+                int(station_screen_y),
+                int(station_screen_width),
+                int(station_screen_height)
+            )
+
+            # Check for collision in screen space
+            if ship_screen_rect.colliderect(station_screen_rect):
+                # If they collide in screen space, adjust the ship's position in world space
+                # to prevent overlap
+
+                # Calculate overlap in screen space
+                overlap_left = ship_screen_rect.right - station_screen_rect.left
+                overlap_right = station_screen_rect.right - ship_screen_rect.left
+                overlap_top = ship_screen_rect.bottom - station_screen_rect.top
+                overlap_bottom = station_screen_rect.bottom - ship_screen_rect.top
+
+                min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
+
+                # Convert screen space overlap to world space
+                world_overlap = min_overlap / self.camera.zoom
+
+                # Adjust ship position based on minimum overlap
+                if min_overlap == overlap_top:
+                    self.starship.y -= world_overlap
+                elif min_overlap == overlap_bottom:
+                    self.starship.y += world_overlap
+                elif min_overlap == overlap_left:
+                    self.starship.x -= world_overlap
+                elif min_overlap == overlap_right:
+                    self.starship.x += world_overlap
+
+                # Update the ship's hitbox after position adjustment
+                self.starship.update_hitbox()
+
+        # 4️⃣ MELEE HITBOX (post-movement, post-collision)
         self.starship.melee_hitbox = pygame.Rect(
             int(self.starship.x),
             int(self.starship.y),
             self.starship.width,
             self.starship.height
         )
-
         # Guard hitbox (bullets only)
         self.deflect_hitbox = pygame.Rect(
             int(self.starship.x - 0.5),

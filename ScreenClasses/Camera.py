@@ -1,3 +1,5 @@
+
+# this class is important for positions
 class Camera:
     def __init__(
         self,

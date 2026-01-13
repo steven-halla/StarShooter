@@ -44,7 +44,7 @@ class SpaceStation:
     # UPDATE HITBOX
     # ==========================
     def update_hitbox(self, state) -> None:
-        # update station hitbox first
+        # Update station rect
         self.hitbox.update(
             int(self.x),
             int(self.y),
@@ -52,14 +52,22 @@ class SpaceStation:
             int(self.height)
         )
 
-        # ONLY block player if rects overlap
-        ship_rect = state.starship.hitbox
-        if self.hitbox.colliderect(ship_rect):
-            print(f"Space Station hitbox: {self.hitbox}, Starship hitbox: {ship_rect}")
-            print("Collision detected in update_hitbox")
-            self.block_player(state)
+        ship = state.starship
+        ship_rect = ship.hitbox  # ✅ CORRECT RECT
 
-    # =========================
+        # Create a rect with the actual ship coordinates for printing
+        actual_ship_rect = pygame.Rect(
+            int(ship.x),
+            int(ship.y),
+            ship.width,
+            ship.height
+        )
+
+        print(f"[CHECK] Station={self.hitbox} Ship={actual_ship_rect}")
+
+        if self.hitbox.colliderect(ship_rect):
+            print("🔥 SPACE STATION COLLISION DETECTED 🔥")
+            self.block_player(state)
     # PLAYER COLLISION + BLOCK
     # =========================
     def block_player(self, state) -> None:
