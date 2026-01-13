@@ -1,12 +1,12 @@
 {
   "version": 1,
   "player": {
-    "shipHealth": 22,
+    "shipHealth": 150,
     "shipHealthMax": 150,
     "equipped_magic": [
       "Buster Cannon",
       null
     ],
-    "level": "LevelTwo"
+    "level": "LevelThree"
   }
 }

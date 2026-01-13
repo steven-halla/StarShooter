@@ -4,27 +4,19 @@ from typing import Optional
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
-from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Bosses.BossLevelThree import BossLevelThree
-from Entity.Bosses.BossLevelTwo import BossLevelTwo
-from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
-from Entity.Monsters.Ravager import Ravager
-from Entity.Monsters.SpineLauncher import SpineLauncher
-from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TriSpitter import TriSpitter
-from Entity.Monsters.WaspStinger import WaspStinger
 from Entity.SpaceStation import SpaceStation
-from Entity.StarShip import StarShip
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
 class LevelThree(VerticalBattleScreen):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, textbox):
+        super().__init__(textbox)
         # self.starship: StarShip = StarShip()
 
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level3.tmx")
@@ -32,20 +24,21 @@ class LevelThree(VerticalBattleScreen):
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400  # y position of map
+        # FIX: GAMEPLAY_HEIGHT is an int, not a (width, height) tuple
 
-        window_width, window_height = GlobalConstants.GAMEPLAY_HEIGHT
-        self.camera_y = self.WORLD_HEIGHT - window_height  # look at bottom of map
+        window_height = GlobalConstants.GAMEPLAY_HEIGHT
+
+        self.camera_y = self.WORLD_HEIGHT - window_height
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
 
-        self.map_scroll_speed_per_frame: float = .4  # move speed of camera
+        # window_width, window_height = GlobalConstants.GAMEPLAY_HEIGHT
+        #
+        # self.camera_y = self.WORLD_HEIGHT - window_height  # look at bottom of map
+        # self.camera.world_height = self.WORLD_HEIGHT
+        # self.camera.y = float(self.camera_y)
 
-        self.bileSpitterGroup: list[BileSpitter] = []
-        self.kamikazeDroneGroup: list[KamikazeDrone] = []
-        self.triSpitterGroup: list[TriSpitter] = []
-        self.fireLauncherGroup: list[FireLauncher] = []
-        self.bladeSpinnerGroup: list[BladeSpinner] = []
-        self.bossLevelThreeGroup: list[BossLevelThree] = []
+        self.map_scroll_speed_per_frame: float = .4  # move speed of camera
 
         self.napalm_list: list = []
         self.space_station: Optional[SpaceStation] = None
@@ -84,6 +77,7 @@ class LevelThree(VerticalBattleScreen):
 
 
     def start(self, state) -> None:
+        print(self.enemies)
         player_x = None
         player_y = None
         self.starship.shipHealth = 100
@@ -113,30 +107,14 @@ class LevelThree(VerticalBattleScreen):
         #     f"KamikazeDrone: {len(self.kamikazeDroneGroup)} | "
         #     f"BossLevelThree: {len(self.bossLevelThreeGroup)}"
         # )
+        print(len(self.enemies))
         if self.level_start == True:
             self.level_start = False
             self.starship.shipHealth = 150
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
 
-        total = (
-                len(self.bileSpitterGroup)
-                + len(self.triSpitterGroup)
-                + len(self.bladeSpinnerGroup)
-                + len(self.fireLauncherGroup)
-                + len(self.kamikazeDroneGroup)
-                + len(self.bossLevelThreeGroup)
-        )
 
-        print(
-            f"BileSpitter: {len(self.bileSpitterGroup)} | "
-            f"TriSpitter: {len(self.triSpitterGroup)} | "
-            f"BladeSpinner: {len(self.bladeSpinnerGroup)} | "
-            f"FireLauncher: {len(self.fireLauncherGroup)} | "
-            f"KamikazeDrone: {len(self.kamikazeDroneGroup)} | "
-            f"BossLevelThree: {len(self.bossLevelThreeGroup)} | "
-            f"TOTAL: {total}"
-        )
         self.starship.hitbox = pygame.Rect(0, 0, 0, 0)
 
         super().update(state)
@@ -158,9 +136,9 @@ class LevelThree(VerticalBattleScreen):
         )
 
         # 🔥 MELEE DAMAGE CHECK (THIS WAS MISSING)
-        for boss in self.bossLevelThreeGroup:
-            boss.check_arm_damage(self.starship)
-
+        for enemy in self.enemies:
+            if getattr(enemy, "name", None) == "level_3_boss":
+                enemy.check_arm_damage(self.starship)
         # --------------------------------
         # BOSS SPAWN CHECK (SAFE GUARDED)
         # --------------------------------
@@ -190,23 +168,8 @@ class LevelThree(VerticalBattleScreen):
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
 
-        for enemy in self.bileSpitterGroup:
+        for enemy in self.enemies:
             enemy.draw(state.DISPLAY, self.camera)
-        for enemy in self.fireLauncherGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-        for boss in self.bossLevelThreeGroup:
-            boss.draw(state.DISPLAY, self.camera)
-
-        for enemy_tri_spitter in self.triSpitterGroup:
-            enemy_tri_spitter.draw(state.DISPLAY, self.camera)
-
-        for blade in self.bladeSpinnerGroup:
-            blade.draw(state.DISPLAY, self.camera)
-        for drone in self.kamikazeDroneGroup:
-            drone.draw(state.DISPLAY, self.camera)
-
-        for boss in self.bossLevelTwoGroup:
-            boss.draw(state.DISPLAY, self.camera)
 
         if self.space_station is not None:
             self.space_station.draw(state.DISPLAY, self.camera)
@@ -217,14 +180,7 @@ class LevelThree(VerticalBattleScreen):
         pygame.display.flip()
     def get_nearest_enemy(self, missile):
 
-        enemies = (
-                list(self.bileSpitterGroup) +
-                list(self.triSpitterGroup) +
-                list(self.bladeSpinnerGroup) +
-                list(self.fireLauncherGroup) +
-                list(self.kamikazeDroneGroup) +
-                list(self.bossLevelThreeGroup)
-        )
+        enemies = self.enemies
 
         if not enemies:
             return None
@@ -269,100 +225,8 @@ class LevelThree(VerticalBattleScreen):
         # print(names)
         return names
 
-    def load_enemy_into_list(self):
-        self.bileSpitterGroup.clear()
-        self.triSpitterGroup.clear()
-        self.bladeSpinnerGroup.clear()
-        self.fireLauncherGroup.clear()
-        self.kamikazeDroneGroup.clear()
-        self.ravagerGroup.clear()
-        self.spineLauncherGroup.clear()
-        self.sporeFlowerGroup.clear()
-        self.bossLevelThreeGroup.clear()
-
-        for obj in self.tiled_map.objects:
-            if obj.name == "space_station":
-                self.space_station = SpaceStation(
-                    x=obj.x,
-                    y=obj.y,
-                    width=obj.width,
-                    height=obj.height,
-                    max_hp=300
-                )
-            # ⭐ LOAD ENEMIES (existing code)
-            if obj.name == "level_3_boss":
-                enemy = BossLevelThree()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.bossLevelThreeGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-
-            if obj.name == "kamikazi_drone":
-                drone = KamikazeDrone()
-                drone.x = obj.x
-                drone.y = obj.y
-                drone.width = obj.width
-                drone.height = obj.height
-                drone.update_hitbox()
-                self.kamikazeDroneGroup.append(drone)
-                drone.camera = self.camera
-
-                # 🔑 TARGET SPACE STATION INSTEAD OF PLAYER
-                drone.target_player = self.space_station
-
-                continue
-            if obj.name == "bile_spitter":
-                enemy = BileSpitter()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-                self.bileSpitterGroup.append(enemy)
 
 
-            if obj.name == "blade_spinner":
-                enemy = BladeSpinner()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                self.bladeSpinnerGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-                continue
-
-            if obj.name == "fire_launcher":
-                enemy = FireLauncher()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.fireLauncherGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-
-            if obj.name == "tri_spitter":
-                enemy_tri_spitter = TriSpitter()
-                enemy_tri_spitter.x = obj.x
-                enemy_tri_spitter.y = obj.y
-                enemy_tri_spitter.width = obj.width
-                enemy_tri_spitter.height = obj.height
-                enemy_tri_spitter.update_hitbox()
-                self.triSpitterGroup.append(enemy_tri_spitter)
-                enemy_tri_spitter.camera = self.camera
-                enemy_tri_spitter.target_player = self.starship
-                continue
 
     def enemy_helper(self):
         now = pygame.time.get_ticks()
@@ -439,14 +303,7 @@ class LevelThree(VerticalBattleScreen):
             # --------------------------------
             if hasattr(bullet, "is_reflected"):
 
-                enemies = (
-                        list(self.bileSpitterGroup) +
-                        list(self.triSpitterGroup) +
-                        list(self.bladeSpinnerGroup) +
-                        list(self.fireLauncherGroup) +
-                        list(self.kamikazeDroneGroup) +
-                        list(self.bossLevelThreeGroup)
-                )
+                enemies = list(self.enemies)
 
                 for enemy in enemies:
                     enemy_rect = pygame.Rect(
@@ -462,21 +319,9 @@ class LevelThree(VerticalBattleScreen):
                         if bullet in self.enemy_bullets:
                             self.enemy_bullets.remove(bullet)
 
-                        if enemy.enemyHealth <= 0:
-                            if enemy in self.bileSpitterGroup:
-                                self.bileSpitterGroup.remove(enemy)
-                            elif enemy in self.triSpitterGroup:
-                                self.triSpitterGroup.remove(enemy)
-                            elif enemy in self.bladeSpinnerGroup:
-                                self.bladeSpinnerGroup.remove(enemy)
-                            elif enemy in self.fireLauncherGroup:
-                                self.fireLauncherGroup.remove(enemy)
-                            elif enemy in self.kamikazeDroneGroup:
-                                self.kamikazeDroneGroup.remove(enemy)
-                            elif enemy in self.bossLevelThreeGroup:
-                                self.bossLevelThreeGroup.remove(enemy)
-
-                        break
+                            # death removal
+                            if enemy.enemyHealth <= 0:
+                                self.enemies.remove(enemy)
 
             # --------------------------------
             # SPACE STATION DAMAGE
@@ -488,83 +333,58 @@ class LevelThree(VerticalBattleScreen):
                         self.enemy_bullets.remove(bullet)
                     continue
 
-        # --------------------------------
-        # METAL SHIELD → ENEMY BULLETS
-        # --------------------------------
-        for metal in list(self.metal_shield_bullets):
+            # -------------------------
+            # METAL SHIELD → ENEMY BULLETS (UNIFIED player_bullets)
+            # -------------------------
+            for shield in list(self.player_bullets):
 
-            if not metal.is_active:
-                self.metal_shield_bullets.remove(metal)
-                continue
+                if shield.weapon_name != "Metal Shield":
+                    continue
 
-            shield_rect = pygame.Rect(
-                metal.x,
-                metal.y,
-                metal.width,
-                metal.height
-            )
+                if not shield.is_active:
+                    self.player_bullets.remove(shield)
+                    continue
 
-            for bullet in list(self.enemy_bullets):
-                if bullet.collide_with_rect(shield_rect):
+                shield_rect = pygame.Rect(
+                    shield.x,
+                    shield.y,
+                    shield.width,
+                    shield.height
+                )
 
-                    absorbed = metal.absorb_hit()
+                for bullet in list(self.enemy_bullets):
+                    if bullet.collide_with_rect(shield_rect):
 
-                    if bullet in self.enemy_bullets:
-                        self.enemy_bullets.remove(bullet)
+                        absorbed = shield.absorb_hit()
 
-                    if absorbed and metal in self.metal_shield_bullets:
-                        self.metal_shield_bullets.remove(metal)
+                        if bullet in self.enemy_bullets:
+                            self.enemy_bullets.remove(bullet)
 
-                    break
+                        if absorbed and shield in self.player_bullets:
+                            self.player_bullets.remove(shield)
+
+                        break
 
         # --------------------------------
         # ENEMY UPDATES + BULLET SPAWNING
+        # (single unified self.enemies list)
         # --------------------------------
-        for boss in list(self.bossLevelThreeGroup):
-            boss.update()
-
-            if boss.enemyBullets:
-                self.enemy_bullets.extend(boss.enemyBullets)
-                boss.enemyBullets.clear()
-
-            if boss.enemyHealth <= 0:
-                self.bossLevelThreeGroup.remove(boss)
-
-        for blade in list(self.bladeSpinnerGroup):
-            blade.update()
-            if blade.enemyHealth <= 0:
-                self.bladeSpinnerGroup.remove(blade)
-
-        for fire in list(self.fireLauncherGroup):
-            fire.update()
-
-            if fire.enemyBullets:
-                self.enemy_bullets.extend(fire.enemyBullets)
-                fire.enemyBullets.clear()
-
-            if fire.enemyHealth <= 0:
-                self.fireLauncherGroup.remove(fire)
-
-        for enemy in self.bileSpitterGroup:
+        for enemy in list(self.enemies):
+            # common update
             enemy.update()
-            enemy.update_hitbox()
 
-            if enemy.enemyBullets:
+            # optional hitbox update (only if present)
+            if hasattr(enemy, "update_hitbox"):
+                enemy.update_hitbox()
+
+            # collect enemy bullets (only if present)
+            if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
                 self.enemy_bullets.extend(enemy.enemyBullets)
                 enemy.enemyBullets.clear()
 
-        for drone in list(self.kamikazeDroneGroup):
-            drone.update()
-            if drone.enemyHealth <= 0:
-                self.kamikazeDroneGroup.remove(drone)
-
-        for enemy_tri_spitter in self.triSpitterGroup:
-            enemy_tri_spitter.update()
-            enemy_tri_spitter.update_hitbox()
-
-            if enemy_tri_spitter.enemyBullets:
-                self.enemy_bullets.extend(enemy_tri_spitter.enemyBullets)
-                enemy_tri_spitter.enemyBullets.clear()
+            # remove dead enemies (only if health exists)
+            if hasattr(enemy, "enemyHealth") and enemy.enemyHealth <= 0:
+                self.enemies.remove(enemy)
 
         # --------------------------------
         # ENEMY BODY COLLISION DAMAGE (LEVEL 3)
@@ -573,12 +393,8 @@ class LevelThree(VerticalBattleScreen):
             player_rect = self.starship.melee_hitbox  # ← USE MELEE HITBOX
 
             enemies = (
-                    list(self.bileSpitterGroup) +
-                    list(self.triSpitterGroup) +
-                    list(self.bladeSpinnerGroup) +
-                    list(self.fireLauncherGroup) +
-                    list(self.kamikazeDroneGroup) +
-                    list(self.bossLevelThreeGroup)
+                    list(self.enemies)
+
             )
 
             for enemy in enemies:
@@ -592,10 +408,10 @@ class LevelThree(VerticalBattleScreen):
                 if player_rect.colliderect(enemy_rect):
 
                     # 🔥 KAMIKAZE DRONE SPECIAL CASE
-                    if enemy in self.kamikazeDroneGroup:
+                    if getattr(enemy, "name", None) == "kamikaze_drone":
                         self.starship.shipHealth -= 20
                         self.starship.on_hit()
-                        self.kamikazeDroneGroup.remove(enemy)
+                        self.enemies.remove(enemy)
                     else:
                         self.starship.shipHealth -= 10
                         self.starship.on_hit()
@@ -605,14 +421,17 @@ class LevelThree(VerticalBattleScreen):
     def reflect_bullet(self, bullet):
         target = self.get_nearest_enemy(bullet)
 
+        # use existing speed system
+        speed = abs(getattr(bullet, "bullet_speed", 4)) * 6
+
         # --------------------------------
-        # 🔑 FALLBACK: NO ENEMIES ON SCREEN
+        # NO ENEMY → FORCE STRAIGHT UP
         # --------------------------------
         if target is None:
-            bullet.dx = 0
-            bullet.speed = abs(bullet.speed) * 6  # force DOWN
+            bullet.vx = 0
+            bullet.vy = -speed
             bullet.is_reflected = True
-            bullet.damage = 0  # reflected but harmless
+            bullet.damage = 0
             return
 
         # Bullet center
@@ -623,6 +442,7 @@ class LevelThree(VerticalBattleScreen):
         ex = target.x + target.width / 2
         ey = target.y + target.height / 2
 
+        # Direction vector
         dx = ex - bx
         dy = ey - by
         dist = (dx * dx + dy * dy) ** 0.5
@@ -632,22 +452,19 @@ class LevelThree(VerticalBattleScreen):
         dx /= dist
         dy /= dist
 
-        reflect_speed = abs(bullet.speed) if bullet.speed != 0 else 4
-
-        bullet.dx = dx * reflect_speed * 6
-        bullet.speed = dy * reflect_speed * 6
+        # ✅ VECTOR VELOCITY
+        bullet.vx = dx * speed
+        bullet.vy = dy * speed
         bullet.is_reflected = True
         bullet.damage = 100
+
 
     def build_enemy_pool(self):
         pool = []
 
         for group in (
-                self.bileSpitterGroup,
-                self.triSpitterGroup,
-                self.bladeSpinnerGroup,
-                self.fireLauncherGroup,
-                self.kamikazeDroneGroup,
+                self.enemies,
+
         ):
             for enemy in group:
                 if not isinstance(enemy, tuple):
@@ -658,12 +475,8 @@ class LevelThree(VerticalBattleScreen):
     def spawn_enemy_wave(self):
         # clean bad data
         for group in (
-                self.bileSpitterGroup,
-                self.triSpitterGroup,
-                self.bladeSpinnerGroup,
-                self.fireLauncherGroup,
-                self.kamikazeDroneGroup,
-                self.bossLevelThreeGroup,
+                self.enemies,
+
         ):
             group[:] = [e for e in group if not isinstance(e, tuple)]
 
@@ -692,16 +505,55 @@ class LevelThree(VerticalBattleScreen):
 
             print(f"[RESPAWN] {enemy.__class__.__name__}")
 
-    def has_no_enemies(self) -> bool:
-        return (
-                len(self.bileSpitterGroup) == 0
-                and len(self.triSpitterGroup) == 0
-                and len(self.bladeSpinnerGroup) == 0
-                and len(self.fireLauncherGroup) == 0
-                and len(self.kamikazeDroneGroup) == 0
-        )
+    # -------------------------------
+    # FIX 1: DO NOT LOAD BOSS FROM TMX
+    # -------------------------------
+    def load_enemy_into_list(self):
+        self.enemies.clear()
 
+        for obj in self.tiled_map.objects:
+            enemy = None
+
+            # ❌ REMOVE boss loading entirely
+            # if obj.name == "level_3_boss":
+            #     enemy = BossLevelThree()
+
+            if obj.name == "kamikazi_drone":
+                enemy = KamikazeDrone()
+            if obj.name == "bile_spitter":
+                enemy = BileSpitter()
+            else:
+                continue
+
+            enemy.x = obj.x
+            enemy.y = obj.y
+            enemy.width = obj.width
+            enemy.height = obj.height
+
+            enemy.camera = self.camera
+            enemy.target_player = self.starship
+
+            if hasattr(enemy, "maxHealth"):
+                enemy.enemyHealth = enemy.maxHealth
+            else:
+                enemy.enemyHealth = 1
+
+            enemy.update_hitbox()
+            self.enemies.append(enemy)
+
+    # -------------------------------
+    # FIX 2: BOSS SPAWN CONDITION
+    # -------------------------------
+    def has_no_enemies(self) -> bool:
+        return len(self.enemies) == 0
+
+    # -------------------------------
+    # FIX 3: SPAWN BOSS ONLY VIA CODE
+    # -------------------------------
     def spawn_level_3_boss(self):
+        if self.boss_spawned:
+            return
+
         boss = BossLevelThree()
 
         boss.x = (self.window_width / self.camera.zoom) // 2 - boss.width // 2
@@ -711,7 +563,5 @@ class LevelThree(VerticalBattleScreen):
         boss.camera = self.camera
         boss.target_player = self.starship
 
-        self.bossLevelThreeGroup.append(boss)
+        self.enemies.append(boss)
         self.boss_spawned = True
-
-        print("🔥 LEVEL 3 BOSS SPAWNED 🔥")
