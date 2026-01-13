@@ -122,6 +122,7 @@ class LevelThree(VerticalBattleScreen):
 
         super().update(state)
 
+
         # 🔑 ALWAYS update melee hitbox AFTER movement
         self.starship.melee_hitbox = pygame.Rect(
             int(self.starship.x),
