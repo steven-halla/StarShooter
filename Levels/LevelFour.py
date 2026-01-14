@@ -19,8 +19,8 @@ from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
 class LevelFour(VerticalBattleScreen):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,textbox):
+        super().__init__(textbox)
         # self.starship: StarShip = StarShip()
 
         self.level_start = True
@@ -29,26 +29,17 @@ class LevelFour(VerticalBattleScreen):
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400 # y position of map
-        window_width, window_height = GlobalConstants.GAMEPLAY_HEIGHT
+        window_width, window_height = GlobalConstants.WINDOWS_SIZE
         self.camera_y = self.WORLD_HEIGHT - window_height # look at bottom of map
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
         self.map_scroll_speed_per_frame: float = .4 # move speed of camera
-
-        self.bileSpitterGroup: list[BileSpitter] = []
-        self.kamikazeDroneGroup: list[KamikazeDrone] = []
-        self.triSpitterGroup: list[TriSpitter] = []
-        self.fireLauncherGroup: list[FireLauncher] = []
-        self.bladeSpinnerGroup: list[BladeSpinner] = []
-        self.transportWormGroup: list[TransportWorm] = []
-        self.bossLevelFourGroup: list[BossLevelFour] = []
         # self.load_enemy_into_list()
         self.napalm_list: list = []
         self.total_enemies = 40
         self.creep_last_spawn_time = 0
         self.prev_enemy_count: int = None
         self.enemies_killed: int = 0
-        self.touched_worms: list[TransportWorm] = []
 
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
@@ -93,8 +84,14 @@ class LevelFour(VerticalBattleScreen):
         screen_top = self.camera.y - BUFFER
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom) + BUFFER
 
-        for worm in self.transportWormGroup:
-            if worm.y + worm.height >= screen_top and worm.y <= screen_bottom:
+        worm_on_screen = False
+        worm = "transport_worm"
+
+        for enemy in self.enemies:
+            if getattr(enemy, "enemy_name", None) != worm:
+                continue
+
+            if enemy.y + enemy.height >= screen_top and enemy.y <= screen_bottom:
                 worm_on_screen = True
                 break
 
@@ -153,79 +150,119 @@ class LevelFour(VerticalBattleScreen):
             # =====================================
             # CREEP SPAWN (TOP OF SCREEN)
             # =====================================
-            if creep_found_on_screen:
-                # print("creep detected")
+            if creep_found_on_screen and now - self.creep_last_spawn_time >= 5500:
+                slaver = Slaver()
 
-                if now - self.creep_last_spawn_time >= 5500:
-                    slaver = Slaver()
+                slaver.x = self.camera.x
+                slaver.y = self.camera.y
 
-                    slaver.x = self.camera.x
-                    slaver.y = self.camera.y
+                slaver.width = 16
+                slaver.height = 16
+                slaver.update_hitbox()
 
-                    slaver.camera = self.camera
-                    slaver.target_player = self.starship
+                slaver.camera = self.camera
+                slaver.target_player = self.starship
 
-                    slaver.width = 16
-                    slaver.height = 16
-                    slaver.update_hitbox()
+                # unified enemies pattern
+                slaver.transport_worms = [
+                    e for e in self.enemies
+                    if getattr(e, "enemy_name", None) == "transport_worm"
+                ]
+                for enemy in self.enemies:
+                    if getattr(enemy, "enemy_name", None) != "transport_worm":
+                        continue
 
-                    slaver.transport_worms = self.transportWormGroup
-                    slaver.target_worm = worm
+                    # worm must be on screen
+                    if not (enemy.y + enemy.height >= screen_top and enemy.y <= screen_bottom):
+                        continue
 
-                    # 🔑 ADD THIS LINE
-                    slaver.touched_worms = self.touched_worms
+                    # ⬇️ USE THE WORM *RIGHT HERE*
+                    if creep_found_on_screen and now - self.creep_last_spawn_time >= 5500:
+                        slaver = Slaver()
 
-                    self.slaverGroup.append(slaver)
-                    self.creep_last_spawn_time = now
+                        slaver.x = self.camera.x
+                        slaver.y = self.camera.y
+                        slaver.width = 16
+                        slaver.height = 16
+                        slaver.update_hitbox()
+
+                        slaver.camera = self.camera
+                        slaver.target_player = self.starship
+
+                        slaver.transport_worms = [
+                            e for e in self.enemies
+                            if getattr(e, "enemy_name", None) == "transport_worm"
+                        ]
+
+                        slaver.target_worm = enemy  # ✅ DIRECT USE
+                        slaver.touched_worms = self.touched_worms
+
+                        self.enemies.append(slaver)
+                        self.creep_last_spawn_time = now
+
+                    break  # only one active on-screen worm
+                slaver.touched_worms = self.touched_worms
+
+                self.enemies.append(slaver)
+                self.creep_last_spawn_time = now
 
             # =====================================
             # WORM SUMMONING (UNCHANGED)
             # =====================================
-            for worm in self.transportWormGroup:
+            # WORM SUMMONING — UPDATED FOR self.enemies ONLY
 
-                # worm must be on screen
-                if not (
-                        worm.y + worm.height >= screen_top and
-                        worm.y <= screen_bottom
-                ):
-                    continue
+        for enemy in self.enemies:
 
-                # player must be on screen
-                player = self.starship
-                if not (
-                        player.y + player.height >= screen_top and
-                        player.y <= screen_bottom
-                ):
-                    continue
+            # only transport worms can summon
+            if getattr(enemy, "enemy_name", None) != "transport_worm":
+                continue
 
-                if now - worm.last_summon_time >= worm.summon_interval_ms:
-                    worm.summon_enemy(
+            worm = enemy  # clarity
+
+            # worm must be on screen
+            if not (
+                    worm.y + worm.height >= screen_top
+                    and worm.y <= screen_bottom
+            ):
+                continue
+
+            # player must be on screen
+            player = self.starship
+            if not (
+                    player.y + player.height >= screen_top
+                    and player.y <= screen_bottom
+            ):
+                continue
+
+            now = pygame.time.get_ticks()
+            worm.summon_interval_ms = 3000  # milliseconds
+
+            if now - worm.last_summon_time >= worm.summon_interval_ms:
+
+                # call summon_enemy ONLY on TransportWorm, not generic Enemy
+
+                # call summon_enemy ONLY on TransportWorm, not generic Enemy
+
+                if getattr(worm, "enemy_name", None) == "transport_worm":
+                    spawned = worm.summon_enemy(
                         enemy_classes=[
                             BileSpitter,
                             KamikazeDrone,
                             TriSpitter,
                             FireLauncher,
                         ],
-                        enemy_groups={
-                            BileSpitter: self.bileSpitterGroup,
-                            KamikazeDrone: self.kamikazeDroneGroup,
-                            TriSpitter: self.triSpitterGroup,
-                            FireLauncher: self.fireLauncherGroup,
-                        },
                         spawn_y_offset=20
                     )
+                # normalize spawned enemies and add to unified list
+                for new_enemy in spawned:
+                    new_enemy.width = 16
+                    new_enemy.height = 16
+                    new_enemy.update_hitbox()
+                    new_enemy.camera = self.camera
+                    new_enemy.target_player = self.starship
+                    self.enemies.append(new_enemy)
 
-                    for enemy in (
-                            self.bileSpitterGroup +
-                            self.kamikazeDroneGroup +
-                            self.triSpitterGroup +
-                            self.fireLauncherGroup
-                    ):
-                        enemy.width = 16
-                        enemy.height = 16
-                        enemy.update_hitbox()
-
-                    worm.last_summon_time = now
+                worm.last_summon_time = now
         else:
             self.map_scroll_speed_per_frame = 0.4
 
@@ -238,246 +275,16 @@ class LevelFour(VerticalBattleScreen):
             if len(self.touched_worms) > 0:
                 print("you lost")
 
-        # try:
-        #     creep_layer = self.tiled_map.get_layer_by_name("creep")
-        # except ValueError:
-        #     creep_layer = None
-        #
-        # PADDING = 100
-        # screen_top = self.camera.y - PADDING
-        # screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom) + PADDING
-        #
-        # if worm_on_screen:
-        #     self.map_scroll_speed_per_frame = 0
-        #     now = pygame.time.get_ticks()
-        #
-        #     for worm in self.transportWormGroup:
-        #
-        #         # worm must be on screen
-        #         if not (
-        #                 worm.y + worm.height >= screen_top and
-        #                 worm.y <= screen_bottom
-        #         ):
-        #             continue
-        #
-        #         # creep layer must exist
-        #         if creep_layer is None:
-        #             continue
-        #
-        #         # --- CREEP TILE CHECK ---
-        #         tile_x = int(worm.x // self.tiled_map.tilewidth)
-        #         tile_y = int(worm.y // self.tiled_map.tileheight)
-        #
-        #         # bounds safety
-        #         if tile_y < 0 or tile_y >= len(creep_layer.data):
-        #             continue
-        #         if tile_x < 0 or tile_x >= len(creep_layer.data[tile_y]):
-        #             continue
-        #
-        #         tile = creep_layer.data[tile_y][tile_x]
-        #         if tile is None:
-        #             continue
-        #
-        #         # --- SUMMON ---
-        #         if now - worm.last_summon_time >= worm.summon_interval_ms:
-        #             worm.summon_enemy(
-        #                 enemy_classes=[
-        #                     BileSpitter,
-        #                     KamikazeDrone,
-        #                     TriSpitter,
-        #                     FireLauncher,
-        #                 ],
-        #                 enemy_groups={
-        #                     BileSpitter: self.bileSpitterGroup,
-        #                     KamikazeDrone: self.kamikazeDroneGroup,
-        #                     TriSpitter: self.triSpitterGroup,
-        #                     FireLauncher: self.fireLauncherGroup,
-        #                 },
-        #                 spawn_y_offset=20
-        #             )
-        #
-        #             # HARD SIZE ENFORCEMENT
-        #             for enemy in (
-        #                     self.bileSpitterGroup +
-        #                     self.kamikazeDroneGroup +
-        #                     self.triSpitterGroup +
-        #                     self.fireLauncherGroup
-        #             ):
-        #                 enemy.width = 16
-        #                 enemy.height = 16
-        #                 enemy.update_hitbox()
-        #
-        #             worm.last_summon_time = now
-        # else:
-        #     self.map_scroll_speed_per_frame = 0.4
-        # # PADDING = 100
-        # screen_top = self.camera.y - PADDING
-        # screen_bottom = self.camera.y + (self.window_height / self.camera.zoom) + PADDING
-        #
-        # if worm_on_screen:
-        #     self.map_scroll_speed_per_frame = 0
-        #     now = pygame.time.get_ticks()
-        #
-        #     for worm in self.transportWormGroup:
-        #
-        #         # ✅ ONLY WORMS ACTUALLY ON SCREEN CAN SUMMON
-        #         if not (
-        #                 worm.y + worm.height >= screen_top and
-        #                 worm.y <= screen_bottom
-        #         ):
-        #             continue
-        #
-        #         if now - worm.last_summon_time >= worm.summon_interval_ms:
-        #             worm.summon_enemy(
-        #                 enemy_classes=[
-        #                     BileSpitter,
-        #                     KamikazeDrone,
-        #                     TriSpitter,
-        #                     FireLauncher,
-        #                 ],
-        #                 enemy_groups={
-        #                     BileSpitter: self.bileSpitterGroup,
-        #                     KamikazeDrone: self.kamikazeDroneGroup,
-        #                     TriSpitter: self.triSpitterGroup,
-        #                     FireLauncher: self.fireLauncherGroup,
-        #                 },
-        #                 spawn_y_offset=20
-        #             )
-        #
-        #             # 🔒 HARD SIZE ENFORCEMENT (LEVEL 4 FIX)
-        #             for enemy in (
-        #                     self.bileSpitterGroup +
-        #                     self.kamikazeDroneGroup +
-        #                     self.triSpitterGroup +
-        #                     self.fireLauncherGroup
-        #             ):
-        #                 enemy.width = 16
-        #                 enemy.height = 16
-        #                 enemy.update_hitbox()
-        #
-        #             worm.last_summon_time = now
-        # else:
-        #     self.map_scroll_speed_per_frame = 0.4
-        super().update(state)
-        # print("=== ENEMY LIST ===")
-        # print(f"BileSpitter: {len(self.bileSpitterGroup)}")
-        # print(f"TriSpitter: {len(self.triSpitterGroup)}")
-        # print(f"BladeSpinner: {len(self.bladeSpinnerGroup)}")
-        # print(f"firelauncher: {len(self.fireLauncherGroup)}")
-        # print(f"transportworm: {len(self.transportWormGroup)}")
-        # print(f"kamikazedrone: {len(self.kamikazeDroneGroup)}")
-        # print(f"BossLevelFour: {len(self.bossLevelFourGroup)}")
-        # print(
-        #     f"TOTAL: "
-        #     f"{len(self.bileSpitterGroup) + len(self.triSpitterGroup) + len(self.bladeSpinnerGroup) + len(self.bossLevelFourGroup)}"
-        # )
-        # print("==================")
-        # for worm in list(self.transportWormGroup):
-        #         #     worm.update()
-        #         #     print(f"[TransportWorm HP] {worm.enemyHealth}")
-        #         #
-        #         #     if worm.enemyHealth <= 0:
-        #         #         self.transportWormGroup.remove(worm)
-
-
-        now = pygame.time.get_ticks()
-        elapsed = now - self.level_start_time
-
-        screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
-
-        # for enemy in list(self.bileSpitterGroup):
-        #
-        #     # -------- MISS DETECTION --------
-        #     if enemy.y > screen_bottom:
-        #         if enemy not in self.missed_enemies:
-        #             self.missed_enemies.append(enemy)
-        #             print("enemy missed")
-        #         continue  # stop processing this enemy
-        #
-        #     enemy.update()
-
-        # if elapsed >= self.time_limit_ms and not self.time_up:
-        #     self.time_up = True
-        #     print("time's up")
-        # Missile firing (override parent behavior)
-        if self.controller.fire_missiles:
-            missile = self.starship.fire_missile()
-            if missile is not None:
-
-                # Lock onto nearest enemy
-                missile.target_enemy = self.get_nearest_enemy(missile)
-
-                # Compute initial direction toward target
-                if missile.target_enemy is not None:
-                    dx = missile.target_enemy.x - missile.x
-                    dy = missile.target_enemy.y - missile.y
-                    dist = max(1, (dx * dx + dy * dy) ** 0.5)
-                    missile.direction_x = dx / dist
-                    missile.direction_y = dy / dist
-                else:
-                    # No enemy → missile goes straight upward
-                    missile.direction_x = 0
-                    missile.direction_y = -1
-
-                # Add to missile list
-                self.player_missiles.append(missile)
-
-                # if missile.target_enemy is not None:
-                #     print(f"Missile locked onto: {type(missile.target_enemy).__name__} "
-                #           f"at ({missile.target_enemy.x}, {missile.target_enemy.y})")
-                # else:
-                #     print("Missile locked onto: NONE (no enemies found)")
         self.enemy_helper()
-        # if not self.bossLevelFourGroup and not self.level_complete:
-        #     self.level_complete = True
+
 
 
         self.extract_object_names()
-        # if self.level_complete:
-        #
-        #     next_level = MissionBriefingScreenLevelTwo()
-        #     # next_level.set_player(state.starship)
-        #     state.currentScreen = next_level
-        #     next_level.start(state)
-        #     print(type(state.currentScreen).__name__)
-        #
-        #     return
+
 
     def draw(self, state):
         super().draw(state)
-        # ================================
-        # ENEMY COUNTER (TOP OF SCREEN)
-        # ================================
-        font = pygame.font.Font(None, 28)
 
-        current_enemies = (
-                len(self.bileSpitterGroup)
-                + len(self.triSpitterGroup)
-                +len(self.slaverGroup)
-                + len(self.bladeSpinnerGroup)
-                + len(self.bossLevelFourGroup)
-                + len(self.kamikazeDroneGroup)
-                + len(self.fireLauncherGroup)
-                + len(self.transportWormGroup)
-
-        )
-        # print(current_enemies)
-        # initialize on first frame
-        if self.prev_enemy_count is None:
-            self.prev_enemy_count = current_enemies
-        else:
-            # if enemies decreased, count the difference
-            if current_enemies < self.prev_enemy_count:
-                self.enemies_killed += (self.prev_enemy_count - current_enemies)
-
-            self.prev_enemy_count = current_enemies
-
-        # enemy_text = font.render(
-        #     f"Enemies {self.enemies_killed}/40",
-        #     True,
-        #     (255, 255, 255)
-        # )
-        # state.DISPLAY.blit(enemy_text, (10, 50))
         for napalm in self.napalm_list:
             napalm.draw(state.DISPLAY, self.camera)
         zoom = self.camera.zoom
@@ -491,56 +298,25 @@ class LevelFour(VerticalBattleScreen):
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
 
-        for enemy in self.bileSpitterGroup:
+        for enemy in self.enemies:
             enemy.draw(state.DISPLAY, self.camera)
 
-
-        for enemy in self.kamikazeDroneGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-
-
-        for enemy in self.slaverGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-
-
-        for enemy in self.fireLauncherGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-
-        for enemy in self.transportWormGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-
-        for enemy_tri_spitter in self.triSpitterGroup:
-            enemy_tri_spitter.draw(state.DISPLAY, self.camera)
-
-        for blade in self.bladeSpinnerGroup:
-            blade.draw(state.DISPLAY, self.camera)
-        for boss in self.bossLevelFourGroup:
-            boss.draw(state.DISPLAY, self.camera)
-
-        for enemy_tri_spitter in self.triSpitterGroup:
-            hb = pygame.Rect(
-                self.camera.world_to_screen_x(enemy_tri_spitter.hitbox.x),
-                self.camera.world_to_screen_y(enemy_tri_spitter.hitbox.y),
-                int(enemy_tri_spitter.hitbox.width * zoom),
-                int(enemy_tri_spitter.hitbox.height * zoom)
-            )
-            pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
+            # optional hitbox debug for tri_spitter only
+            if getattr(enemy, "enemy_name", None) == "tri_spitter":
+                hb = pygame.Rect(
+                    self.camera.world_to_screen_x(enemy.hitbox.x),
+                    self.camera.world_to_screen_y(enemy.hitbox.y),
+                    int(enemy.hitbox.width * zoom),
+                    int(enemy.hitbox.height * zoom)
+                )
+                pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
 
         self.draw_ui_panel(state.DISPLAY)
 
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
-        enemies = (
-                list(self.bileSpitterGroup) +
-                list(self.triSpitterGroup) +
-                list(self.bladeSpinnerGroup) +
-                list(self.bossLevelFourGroup) +
-                list(self.slaverGroup) +
-                list(self.kamikazeDroneGroup) +
-                list(self.fireLauncherGroup) +
-                list(self.transportWormGroup)
-        )
+        enemies = self.enemies
 
         if not enemies:
             return None
@@ -585,202 +361,144 @@ class LevelFour(VerticalBattleScreen):
         return names
 
     def load_enemy_into_list(self):
-        self.bileSpitterGroup.clear()
-        self.triSpitterGroup.clear()
-        self.bladeSpinnerGroup.clear()
-        self.fireLauncherGroup.clear()
-        self.kamikazeDroneGroup.clear()
-        self.transportWormGroup.clear()
-        self.bossLevelFourGroup.clear()
+        self.enemies.clear()
+
         for obj in self.tiled_map.objects:
-            # ⭐ LOAD ENEMIES (existing code)
+
             if obj.name == "level_4_boss":
                 enemy = BossLevelFour()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.bossLevelFourGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-                continue
-            if obj.name == "transport_worm":
-                drone = TransportWorm()
-                drone.x = obj.x
-                drone.y = obj.y
-                drone.width = obj.width
-                drone.height = obj.height
-                drone.update_hitbox()
-                self.transportWormGroup.append(drone)
-                drone.camera = self.camera
-                drone.target_player = self.starship
 
-                continue
+            elif obj.name == "transport_worm":
+                enemy = TransportWorm()
 
-            if obj.name == "kamikazi_drone":
-                drone = KamikazeDrone()
-                drone.x = obj.x
-                drone.y = obj.y
-                drone.width = obj.width
-                drone.height = obj.height
-                drone.update_hitbox()
-                self.kamikazeDroneGroup.append(drone)
-                drone.camera = self.camera
-                drone.target_player = self.starship
+            elif obj.name == "kamikazi_drone":
+                enemy = KamikazeDrone()
 
-                continue
-            if obj.name == "bile_spitter":
+            elif obj.name == "bile_spitter":
                 enemy = BileSpitter()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-                self.bileSpitterGroup.append(enemy)
 
-            if obj.name == "blade_spinner":
+            elif obj.name == "blade_spinner":
                 enemy = BladeSpinner()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                self.bladeSpinnerGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-                continue
 
-            if obj.name == "fire_launcher":
+            elif obj.name == "fire_launcher":
                 enemy = FireLauncher()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.fireLauncherGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
 
-            if obj.name == "tri_spitter":
-                enemy_tri_spitter = TriSpitter()
-                enemy_tri_spitter.x = obj.x
-                enemy_tri_spitter.y = obj.y
-                enemy_tri_spitter.width = obj.width
-                enemy_tri_spitter.height = obj.height
-                enemy_tri_spitter.update_hitbox()
-                self.triSpitterGroup.append(enemy_tri_spitter)
-                enemy_tri_spitter.camera = self.camera
-                enemy_tri_spitter.target_player = self.starship
+            elif obj.name == "tri_spitter":
+                enemy = TriSpitter()
+
+            elif obj.name == "slaver":
+                enemy = Slaver()
+
+            else:
                 continue
-            if obj.name == "slaver":
-                slaver = Slaver()
-                slaver.x = obj.x
-                slaver.y = obj.y
-                slaver.width = obj.width
-                slaver.height = obj.height
-                slaver.update_hitbox()
-                self.slaverGroup.append(slaver)
-                slaver.camera = self.camera
-                slaver.target_player = self.starship
-                continue
+
+            enemy.x = obj.x
+            enemy.y = obj.y
+            enemy.width = obj.width
+            enemy.height = obj.height
+            enemy.update_hitbox()
+
+            enemy.camera = self.camera
+            enemy.target_player = self.starship
+
+            self.enemies.append(enemy)
+            # print(self.enemies)
+
 
     def enemy_helper(self):
         # screen bottom in WORLD coordinates
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
-
+        boss = "level_4_boss"
 
         # -------------------------
         # METAL SHIELD → ENEMY BULLETS
         # -------------------------
-        for metal in list(self.metal_shield_bullets):
+        for shield in list(self.player_bullets):
 
-            if not metal.is_active:
-                self.metal_shield_bullets.remove(metal)
+            if shield.weapon_name != "Metal Shield":
+                continue
+
+            if not shield.is_active:
+                self.player_bullets.remove(shield)
                 continue
 
             shield_rect = pygame.Rect(
-                metal.x,
-                metal.y,
-                metal.width,
-                metal.height
+                shield.x,
+                shield.y,
+                shield.width,
+                shield.height
             )
 
             for bullet in list(self.enemy_bullets):
                 if bullet.collide_with_rect(shield_rect):
 
-                    absorbed = metal.absorb_hit()
+                    absorbed = shield.absorb_hit()
 
                     if bullet in self.enemy_bullets:
                         self.enemy_bullets.remove(bullet)
 
-                    if absorbed and metal in self.metal_shield_bullets:
-                        self.metal_shield_bullets.remove(metal)
+                    if absorbed and shield in self.player_bullets:
+                        self.player_bullets.remove(shield)
 
                     break
 
+                for enemy in list(self.enemies):
+                    if getattr(enemy, "enemy_name", None) != boss:
+                        continue
 
-        # -------------------------
-        # BOSS
+                    # ✅ REQUIRED — DO NOT REMOVE
+                    enemy.update()
 
-        # -------------------------
-        # -------------------------
-        # BOSS
-        # -------------------------
-        for boss in list(self.bossLevelFourGroup):
+                    # -------------------------
+                    # PLAYER BULLETS → BOSS ONLY
+                    # -------------------------
+                    for bullet in list(self.player_bullets):
+                        bullet_rect = pygame.Rect(
+                            bullet.x,
+                            bullet.y,
+                            bullet.width,
+                            bullet.height
+                        )
 
-            # ✅ REQUIRED — DO NOT REMOVE
-            boss.update()
+                        if bullet_rect.colliderect(enemy.hitbox):
 
-            # -------------------------
-            # PLAYER BULLETS → BOSS ONLY
-            # -------------------------
-            for bullet in list(self.player_bullets):
-                bullet_rect = pygame.Rect(
-                    bullet.x,
-                    bullet.y,
-                    bullet.width,
-                    bullet.height
-                )
+                            # ROUTE DAMAGE THROUGH BOSS LOGIC
+                            if hasattr(enemy, "take_damage"):
+                                enemy.take_damage(bullet.damage)
+                            else:
+                                enemy.enemyHealth -= bullet.damage
 
-                if bullet_rect.colliderect(boss.hitbox):
+                            print(
+                                f"[BOSS HIT] "
+                                f"ShieldActive={enemy.shield_active} "
+                                f"ShieldHP={getattr(enemy, 'shield_hp', 'N/A')} "
+                                f"BossHP={enemy.enemyHealth}"
+                            )
 
-                    # ROUTE DAMAGE THROUGH BOSS LOGIC
-                    if hasattr(boss, "take_damage"):
-                        boss.take_damage(bullet.damage)
-                    else:
-                        boss.enemyHealth -= bullet.damage
+                            if bullet in self.player_bullets:
+                                self.player_bullets.remove(bullet)
 
-                    print(
-                        f"[BOSS HIT] "
-                        f"ShieldActive={boss.shield_active} "
-                        f"ShieldHP={getattr(boss, 'shield_hp', 'N/A')} "
-                        f"BossHP={boss.enemyHealth}"
-                    )
-
-                    if bullet in self.player_bullets:
-                        self.player_bullets.remove(bullet)
-
-                    break  # one bullet per frame per boss
+                            break
 
             # -------------------------
             # BOSS BULLETS
             # -------------------------
-            if boss.enemyBullets:
-                self.enemy_bullets.extend(boss.enemyBullets)
-                boss.enemyBullets.clear()
 
-            # -------------------------
-            # BOSS DEATH
-            # -------------------------
-            if boss.enemyHealth <= 0:
-                self.bossLevelFourGroup.remove(boss)
-                print("level complete")
+            for enemy in list(self.enemies):
+                if getattr(enemy, "enemy_name", None) != boss:
+                    continue
+
+                if enemy.enemyBullets:
+                    self.enemy_bullets.extend(enemy.enemyBullets)
+                    enemy.enemyBullets.clear()
+
+                # -------------------------
+                # BOSS DEATH
+                # -------------------------
+                if enemy.enemyHealth <= 0:
+                    self.enemies.remove(enemy)
+                    print("level complete")
         # for boss in list(self.bossLevelFourGroup):
         #
         #     boss.update()
@@ -793,63 +511,39 @@ class LevelFour(VerticalBattleScreen):
         #         self.bossLevelFourGroup.remove(boss)
         #         print("level complete")
 
-        for blade in list(self.bladeSpinnerGroup):
-            blade.update()
-            if blade.enemyHealth <= 0:
-                self.bladeSpinnerGroup.remove(blade)
+        for enemy in list(self.enemies):
 
-        for fire in list(self.fireLauncherGroup):
-            fire.update()
+            enemy_type = getattr(enemy, "enemy_name", None)
 
-            if fire.enemyBullets:
-                self.enemy_bullets.extend(fire.enemyBullets)
-                fire.enemyBullets.clear()
-
-            if fire.enemyHealth <= 0:
-                self.fireLauncherGroup.remove(fire)
-
-        for enemy in self.bileSpitterGroup:
+            # -------------------------
+            # UPDATE
+            # -------------------------
             enemy.update()
-            enemy.update_hitbox()
 
-            if enemy.enemyBullets:
+            if hasattr(enemy, "update_hitbox"):
+                enemy.update_hitbox()
+
+            # -------------------------
+            # ENEMY BULLETS
+            # -------------------------
+            if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
                 self.enemy_bullets.extend(enemy.enemyBullets)
                 enemy.enemyBullets.clear()
 
-        for enemy in list(self.slaverGroup):
-            enemy.update()
+            # -------------------------
+            # TYPE-SPECIFIC DEBUG / LOGIC
+            # -------------------------
+            if enemy_type == "transport_worm":
+                print(
+                    "[LEVEL 4] Touched worms:",
+                    [(w.enemyHealth, w.x, w.y) for w in self.touched_worms]
+                )
 
-            if enemy.enemyHealth <= 0:
-                self.slaverGroup.remove(enemy)
+            if enemy_type == "slaver" and enemy.enemyHealth <= 0:
                 print("[LEVEL 4] Slaver removed after touching worm")
-                continue
 
-            enemy.update_hitbox()
-
-            if enemy.enemyBullets:
-                self.enemy_bullets.extend(enemy.enemyBullets)
-                enemy.enemyBullets.clear()
-
-        for drone in list(self.kamikazeDroneGroup):
-            drone.update()
-
-            if drone.enemyHealth <= 0:
-                self.kamikazeDroneGroup.remove(drone)
-
-        for worm in list(self.transportWormGroup):
-            worm.update()
-            print(
-                "[LEVEL 4] Touched worms:",
-                [(worm.enemyHealth, worm.x, worm.y) for worm in self.touched_worms]
-            )
-
-            if worm.enemyHealth <= 0:
-                self.transportWormGroup.remove(worm)
-
-        for enemy_tri_spitter in self.triSpitterGroup:
-            enemy_tri_spitter.update()
-            enemy_tri_spitter.update_hitbox()
-
-            if enemy_tri_spitter.enemyBullets:
-                self.enemy_bullets.extend(enemy_tri_spitter.enemyBullets)
-                enemy_tri_spitter.enemyBullets.clear()
+            # -------------------------
+            # DEATH
+            # -------------------------
+            if enemy.enemyHealth <= 0:
+                self.enemies.remove(enemy)

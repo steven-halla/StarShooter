@@ -106,6 +106,8 @@ class LevelThree(VerticalBattleScreen):
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
 
+        self.starship.hitbox = pygame.Rect(0, 0, 0, 0)
+
         # 1️⃣ STARSHIP UPDATE (movement happens here)
         self.starship.update()
 
@@ -342,10 +344,14 @@ class LevelThree(VerticalBattleScreen):
 
                     # 🔑 NO ENEMY → FORCE DOWN
                     if target is None:
-                        bullet.dx = 0
-                        bullet.speed = -abs(bullet.speed) * 6  # 🔺 FORCE UP
+                        # Use the same properties as in reflect_bullet
+                        speed = abs(getattr(bullet, "bullet_speed", 4)) * 6
+                        bullet.vx = 0
+                        bullet.vy = -speed  # 🔺 FORCE UP
                         bullet.is_reflected = True
                         bullet.damage = 0
+                        # Update the bullet's rect to ensure proper collision detection
+                        bullet.update_rect()
                     else:
                         self.reflect_bullet(bullet)
 
@@ -510,6 +516,8 @@ class LevelThree(VerticalBattleScreen):
         bullet.vy = dy * speed
         bullet.is_reflected = True
         bullet.damage = 100
+        # Update the bullet's rect to ensure proper collision detection
+        bullet.update_rect()
 
 
     def build_enemy_pool(self):
@@ -573,7 +581,7 @@ class LevelThree(VerticalBattleScreen):
 
             if obj.name == "kamikazi_drone":
                 enemy = KamikazeDrone()
-            if obj.name == "bile_spitter":
+            elif obj.name == "bile_spitter":
                 enemy = BileSpitter()
             else:
                 continue

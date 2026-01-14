@@ -56,7 +56,7 @@
 </data>
  </layer>
  <objectgroup id="6" name="space_station">
-  <object id="5" name="space_station" x="4.11917" y="758.896" width="274.626" height="36.2903"/>
+  <object id="5" name="space_station" x="3.39364" y="758.896" width="314" height="36.2903"/>
  </objectgroup>
  <layer id="2" name="hazard" width="25" height="50">
   <data encoding="csv">

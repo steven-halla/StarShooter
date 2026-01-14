@@ -5,6 +5,7 @@ from Constants.GlobalConstants import GlobalConstants
 from Entity.Enemy import Enemy
 from Entity.StarShip import StarShip
 from Levels.LevelFive import LevelFive
+from Levels.LevelFour import LevelFour
 from Levels.LevelSix import LevelSix
 from Levels.LevelSeven import LevelSeven
 from Levels.LevelTwo import LevelTwo
