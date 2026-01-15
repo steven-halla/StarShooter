@@ -40,6 +40,7 @@ class LevelFour(VerticalBattleScreen):
         self.creep_last_spawn_time = 0
         self.prev_enemy_count: int = None
         self.enemies_killed: int = 0
+        self.worm_visible: bool = False
 
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
@@ -68,6 +69,7 @@ class LevelFour(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
+        PADDING = 100
 
         if self.level_start:
             self.level_start = False
@@ -86,12 +88,14 @@ class LevelFour(VerticalBattleScreen):
         # --------------------------------
         # CAMERA SCREEN-SPACE CHECKS
         # --------------------------------
+        # USE PADDING ONLY HERE — IN SCREEN-SPACE VISIBILITY CHECKS
+
         player_screen_y = self.camera.world_to_screen_y(self.starship.y)
         player_screen_bottom = player_screen_y + self.starship.height
 
         player_visible = (
-                player_screen_bottom >= 0
-                and player_screen_y <= self.camera.window_height
+                player_screen_bottom >= + PADDING
+                and player_screen_y <= self.camera.window_height + PADDING
         )
 
         print(
@@ -112,19 +116,19 @@ class LevelFour(VerticalBattleScreen):
             worm_screen_y = self.camera.world_to_screen_y(enemy.y)
             worm_screen_bottom = worm_screen_y + enemy.height
 
-            worm_visible = (
-                    worm_screen_bottom >= 0
-                    and worm_screen_y <= self.camera.window_height
+            self.worm_visible = (
+                    worm_screen_bottom >= + PADDING
+                    and worm_screen_y <= self.camera.window_height + PADDING
             )
 
             print(
                 f"[WORM SCREEN] id={id(enemy)} "
                 f"y={worm_screen_y:.1f} "
                 f"bottom={worm_screen_bottom:.1f} "
-                f"visible={worm_visible}"
+                f"visible={self.worm_visible}"
             )
 
-            if worm_visible:
+            if self.worm_visible:
                 active_worms.append(enemy)
 
         # --------------------------------
@@ -261,15 +265,6 @@ class LevelFour(VerticalBattleScreen):
         for enemy in self.enemies:
             enemy.draw(state.DISPLAY, self.camera)
 
-            # optional hitbox debug for tri_spitter only
-            if getattr(enemy, "enemy_name", None) == "tri_spitter":
-                hb = pygame.Rect(
-                    self.camera.world_to_screen_x(enemy.hitbox.x),
-                    self.camera.world_to_screen_y(enemy.hitbox.y),
-                    int(enemy.hitbox.width * zoom),
-                    int(enemy.hitbox.height * zoom)
-                )
-                pygame.draw.rect(state.DISPLAY, (255, 255, 0), hb, 2)
 
         self.draw_ui_panel(state.DISPLAY)
 
