@@ -412,6 +412,23 @@ class LevelFive(VerticalBattleScreen):
                     break
 
         # -------------------------
+        # ENEMY COLLISION WITH RESCUE PODS
+        # -------------------------
+        for enemy in list(self.enemies):
+            for pod in list(self.rescue_pods):
+                # Make sure we're not checking a rescue pod against itself
+                if isinstance(enemy, RescuePod) and enemy == pod:
+                    continue
+
+                # Check for collision between enemy and rescue pod
+                if enemy.hitbox.colliderect(pod.hitbox):
+                    # Remove the rescue pod and increment the counter
+                    if pod in self.rescue_pods:
+                        self.rescue_pods.remove(pod)
+                        self.rescue_pod_destroyed += 1
+                    break
+
+        # -------------------------
         # ENEMIES (LEVEL 5 PATTERN)
         # -------------------------
         for enemy in list(self.enemies):
