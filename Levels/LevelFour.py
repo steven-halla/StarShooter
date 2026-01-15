@@ -64,7 +64,7 @@ class LevelFour(VerticalBattleScreen):
         self.starship.x = player_x
         self.starship.y = player_y
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
-        # self.load_enemy_into_list()
+        self.load_enemy_into_list()
 
 
     def update(self, state) -> None:
@@ -153,14 +153,11 @@ class LevelFour(VerticalBattleScreen):
             # CREEP SPAWN (TOP OF SCREEN)
             # =====================================
             if creep_found_on_screen:
-                # print("creep detected")
-
                 if now - self.creep_last_spawn_time >= 5500:
                     slaver = Slaver()
 
                     slaver.x = self.camera.x
                     slaver.y = self.camera.y
-
                     slaver.camera = self.camera
                     slaver.target_player = self.starship
 
@@ -170,59 +167,39 @@ class LevelFour(VerticalBattleScreen):
 
                     slaver.transport_worms = self.transportWormGroup
                     slaver.target_worm = worm
-
-                    # 🔑 ADD THIS LINE
                     slaver.touched_worms = self.touched_worms
 
-                    self.slaverGroup.append(slaver)
+                    self.enemies.append(slaver)
                     self.creep_last_spawn_time = now
 
             # =====================================
-            # WORM SUMMONING (UNCHANGED)
+            # WORM SUMMONING (UNIFIED ENEMY LIST)
             # =====================================
             for worm in self.transportWormGroup:
 
-                # worm must be on screen
-                if not (
-                        worm.y + worm.height >= screen_top and
-                        worm.y <= screen_bottom
-                ):
+                if not (worm.y + worm.height >= screen_top and worm.y <= screen_bottom):
                     continue
 
-                # player must be on screen
                 player = self.starship
-                if not (
-                        player.y + player.height >= screen_top and
-                        player.y <= screen_bottom
-                ):
+                if not (player.y + player.height >= screen_top and player.y <= screen_bottom):
                     continue
 
                 if now - worm.last_summon_time >= worm.summon_interval_ms:
-                    worm.summon_enemy(
+                    spawned = worm.summon_enemy(
                         enemy_classes=[
                             BileSpitter,
                             KamikazeDrone,
                             TriSpitter,
                             FireLauncher,
                         ],
-                        enemy_groups={
-                            BileSpitter: self.bileSpitterGroup,
-                            KamikazeDrone: self.kamikazeDroneGroup,
-                            TriSpitter: self.triSpitterGroup,
-                            FireLauncher: self.fireLauncherGroup,
-                        },
                         spawn_y_offset=20
                     )
 
-                    for enemy in (
-                            self.bileSpitterGroup +
-                            self.kamikazeDroneGroup +
-                            self.triSpitterGroup +
-                            self.fireLauncherGroup
-                    ):
+                    for enemy in spawned:
                         enemy.width = 16
                         enemy.height = 16
                         enemy.update_hitbox()
+                        self.enemies.append(enemy)
 
                     worm.last_summon_time = now
         else:
@@ -238,7 +215,6 @@ class LevelFour(VerticalBattleScreen):
                 print("you lost")
 
 
-
         now = pygame.time.get_ticks()
         elapsed = now - self.level_start_time
 
@@ -247,24 +223,24 @@ class LevelFour(VerticalBattleScreen):
         # for enemy in list(self.bileSpitterGroup):
         #
 
-        if self.controller.fire_missiles:
-            missile = self.starship.fire_missile()
-            if missile is not None:
-
-                # Lock onto nearest enemy
-                missile.target_enemy = self.get_nearest_enemy(missile)
-
-                # Compute initial direction toward target
-                if missile.target_enemy is not None:
-                    dx = missile.target_enemy.x - missile.x
-                    dy = missile.target_enemy.y - missile.y
-                    dist = max(1, (dx * dx + dy * dy) ** 0.5)
-                    missile.direction_x = dx / dist
-                    missile.direction_y = dy / dist
-                else:
-                    # No enemy → missile goes straight upward
-                    missile.direction_x = 0
-                    missile.direction_y = -1
+        # if self.controller.fire_missiles:
+        #     missile = self.starship.fire_missile()
+        #     if missile is not None:
+        #
+        #         # Lock onto nearest enemy
+        #         missile.target_enemy = self.get_nearest_enemy(missile)
+        #
+        #         # Compute initial direction toward target
+        #         if missile.target_enemy is not None:
+        #             dx = missile.target_enemy.x - missile.x
+        #             dy = missile.target_enemy.y - missile.y
+        #             dist = max(1, (dx * dx + dy * dy) ** 0.5)
+        #             missile.direction_x = dx / dist
+        #             missile.direction_y = dy / dist
+        #         else:
+        #             # No enemy → missile goes straight upward
+        #             missile.direction_x = 0
+        #             missile.direction_y = -1
 
                 # Add to missile list
                 # self.player_missiles.append(missile)
@@ -274,12 +250,12 @@ class LevelFour(VerticalBattleScreen):
                 #           f"at ({missile.target_enemy.x}, {missile.target_enemy.y})")
                 # else:
                 #     print("Missile locked onto: NONE (no enemies found)")
-        # self.enemy_helper()
+        self.enemy_helper()
         # if not self.bossLevelFourGroup and not self.level_complete:
         #     self.level_complete = True
 
 
-        # self.extract_object_names()
+        self.extract_object_names()
         # if self.level_complete:
         #
         #     next_level = MissionBriefingScreenLevelTwo()
