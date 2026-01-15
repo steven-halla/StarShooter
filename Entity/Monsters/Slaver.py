@@ -92,11 +92,17 @@ class Slaver(Enemy):
 
         # ✅ ACQUIRE TARGET IF NEEDED
         if self.target_worm is None or self.target_worm.enemyHealth <= 0:
-            if self.transport_worms:  # <-- this must be injected by the Level
+            if hasattr(self, 'transport_worms') and self.transport_worms:  # <-- this must be injected by the Level
+                print(f"[SLAVER] Looking for target worm among {len(self.transport_worms)} worms")
                 self.find_nearest_transport_worm(self.transport_worms)
+                if self.target_worm:
+                    print(f"[SLAVER] Found target worm at ({self.target_worm.x:.1f}, {self.target_worm.y:.1f})")
+                else:
+                    print("[SLAVER] No target worm found")
 
         # ✅ MOVE TOWARD TARGET
-        self.move_toward_target_worm()
+        if self.target_worm:
+            self.move_toward_target_worm()
 
         now = pygame.time.get_ticks()
 
@@ -135,6 +141,16 @@ class Slaver(Enemy):
         dist = math.hypot(dx, dy)
         if dist == 0:
             return
+
+        # Print slaver and worm locations
+        if hasattr(self, 'camera'):
+            slaver_screen_x = self.camera.world_to_screen_x(self.x)
+            slaver_screen_y = self.camera.world_to_screen_y(self.y)
+            worm_screen_x = self.camera.world_to_screen_x(self.target_worm.x)
+            worm_screen_y = self.camera.world_to_screen_y(self.target_worm.y)
+            print(f"[SLAVER] World: ({self.x:.1f}, {self.y:.1f}) Screen: ({slaver_screen_x:.1f}, {slaver_screen_y:.1f})")
+            print(f"[WORM] World: ({self.target_worm.x:.1f}, {self.target_worm.y:.1f}) Screen: ({worm_screen_x:.1f}, {worm_screen_y:.1f})")
+            print(f"[DISTANCE] {dist:.1f} pixels")
 
         # normalize
         dx /= dist

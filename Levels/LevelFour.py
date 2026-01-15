@@ -194,6 +194,7 @@ class LevelFour(VerticalBattleScreen):
             slaver.camera = self.camera
             slaver.target_player = self.starship
             slaver.touched_worms = self.touched_worms
+            slaver.transport_worms = active_worms  # Set the transport_worms list
             slaver.update_hitbox()
 
             self.enemies.append(slaver)
