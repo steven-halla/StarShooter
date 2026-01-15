@@ -1,27 +1,10 @@
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
-from Entity.Bosses.BossLevelFive import BossLevelFive
-from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Bosses.BossLevelSix import BossLevelSix
-from Entity.Enemy import Enemy
-from Entity.Monsters.AcidLauncher import AcidLauncher
-from Entity.Monsters.BileSpitter import BileSpitter
-from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.Coins import Coins
-from Entity.Monsters.FireLauncher import FireLauncher
-from Entity.Monsters.KamikazeDrone import KamikazeDrone
-from Entity.Monsters.Ravager import Ravager
-from Entity.Monsters.RescuePod import RescuePod
-from Entity.Monsters.Slaver import Slaver
 from Entity.Monsters.SpikeyBall import SpikeyBall
-from Entity.Monsters.SpinalRaptor import SpinalRaptor
-from Entity.Monsters.SpineLauncher import SpineLauncher
-from Entity.Monsters.SporeFlower import SporeFlower
-from Entity.Monsters.TriSpitter import TriSpitter
-from Entity.Monsters.WaspStinger import WaspStinger
 from SaveStates.SaveState import SaveState
-from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
@@ -182,53 +165,16 @@ class LevelSix(VerticalBattleScreen):
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
 
-
-
-        now = pygame.time.get_ticks()
-
-        if self.controller.fire_missiles:
-            missile = self.starship.fire_missile()
-            if missile is not None:
-
-                # Lock onto nearest enemy
-                missile.target_enemy = self.get_nearest_enemy(missile)
-
-                # Compute initial direction toward target
-                if missile.target_enemy is not None:
-                    dx = missile.target_enemy.x - missile.x
-                    dy = missile.target_enemy.y - missile.y
-                    dist = max(1, (dx * dx + dy * dy) ** 0.5)
-                    missile.direction_x = dx / dist
-                    missile.direction_y = dy / dist
-                else:
-                    # No enemy → missile goes straight upward
-                    missile.direction_x = 0
-                    missile.direction_y = -1
-
-                # Add to missile list
-                self.player_missiles.append(missile)
-
-
         self.enemy_helper()
-
-        now = pygame.time.get_ticks()
-
         self.extract_object_names()
         self.update_collision_tiles(damage=5)
 
-
-
     def draw(self, state):
-        # 1️⃣ Let BattleScreen draw map, bullets, UI, etc.
         state.DISPLAY.fill((0, 0, 0))  # ← CLEAR SCREEN FIRST
         super().draw(state)
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
         window_height = GlobalConstants.GAMEPLAY_HEIGHT
         scene_surface = pygame.Surface((window_width, window_height))
-
-        # self.draw_collision_tiles(scene_surface)
-        # after self.draw_tiled_layers(scene_surface)
-
 
 
         # 2️⃣ Draw TILE OBJECTS (pipes, decorations, etc.)
@@ -241,12 +187,6 @@ class LevelSix(VerticalBattleScreen):
         # 3️⃣ Draw PLAYER
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
-
-        # 4️⃣ DRAW ALL ENEMIES — EXPLICIT AND ORDERED
-
-            # KILL COINS ON TOUCH (LevelSix.enemy_helper)
-
-        # DRAW COINS (same level as other enemies)
         for coin in self.coinsGroup:
             coin.draw(state.DISPLAY, self.camera)
 
@@ -255,18 +195,11 @@ class LevelSix(VerticalBattleScreen):
             enemy.draw(state.DISPLAY, self.camera)
             enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
-
-
         for boss in self.bossLevelSixGroup:
             boss.draw(state.DISPLAY, self.camera)
             boss.draw_damage_flash(state.DISPLAY, self.camera)
 
 
-        # 5️⃣ Flip ONCE, LAST
-
-        # self.draw_collision_tiles(state.DISPLAY)
-
-        # this is so no enmies are drawn above it
         self.draw_ui_panel(state.DISPLAY)
 
         pygame.display.flip()

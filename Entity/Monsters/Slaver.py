@@ -7,7 +7,7 @@ from Entity.Enemy import Enemy
 from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 
-
+# need to update so it tarets player if worm not on scrreen
 class Slaver(Enemy):
     def __init__(self) -> None:
         super().__init__()

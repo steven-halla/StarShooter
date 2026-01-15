@@ -7,7 +7,7 @@ from Entity.Enemy import Enemy
 from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 
-
+# this classs lays AOE abilites ont he field as a support unit
 class PodLayer(Enemy):
     def __init__(self) -> None:
         super().__init__()
