@@ -406,40 +406,6 @@ class LevelFour(VerticalBattleScreen):
                     # ✅ REQUIRED — DO NOT REMOVE
                     enemy.update()
 
-                    # -------------------------
-                    # PLAYER BULLETS → BOSS ONLY
-                    # -------------------------
-                    # for bullet in list(self.player_bullets):
-                    #     bullet_rect = pygame.Rect(
-                    #         bullet.x,
-                    #         bullet.y,
-                    #         bullet.width,
-                    #         bullet.height
-                    #     )
-                    #
-                    #     if bullet_rect.colliderect(enemy.hitbox):
-                    #
-                    #         # ROUTE DAMAGE THROUGH BOSS LOGIC
-                    #         if hasattr(enemy, "take_damage"):
-                    #             enemy.take_damage(bullet.damage)
-                    #         else:
-                    #             enemy.enemyHealth -= bullet.damage
-                    #
-                    #         print(
-                    #             f"[BOSS HIT] "
-                    #             f"ShieldActive={enemy.shield_active} "
-                    #             f"ShieldHP={getattr(enemy, 'shield_hp', 'N/A')} "
-                    #             f"BossHP={enemy.enemyHealth}"
-                    #         )
-                    #
-                    #         if bullet in self.player_bullets:
-                    #             self.player_bullets.remove(bullet)
-                    #
-                    #         break
-
-            # -------------------------
-            # BOSS BULLETS
-            # -------------------------
 
             for enemy in list(self.enemies):
                 if getattr(enemy, "enemy_name", None) != boss:

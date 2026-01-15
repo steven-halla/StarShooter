@@ -2,25 +2,15 @@ import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelFive import BossLevelFive
-from Entity.Bosses.BossLevelOne import BossLevelOne
-from Entity.Enemy import Enemy
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
-from Entity.Monsters.BladeSpinners import BladeSpinner
-from Entity.Monsters.FireLauncher import FireLauncher
-from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.Ravager import Ravager
 from Entity.Monsters.RescuePod import RescuePod
-from Entity.Monsters.Slaver import Slaver
 from Entity.Monsters.SpinalRaptor import SpinalRaptor
 from Entity.Monsters.SpineLauncher import SpineLauncher
-from Entity.Monsters.SporeFlower import SporeFlower
-from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from SaveStates.SaveState import SaveState
-from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
-
 
 class LevelFive(VerticalBattleScreen):
     def __init__(self,textbox):
@@ -41,26 +31,14 @@ class LevelFive(VerticalBattleScreen):
         self.camera.y = float(self.camera_y)
         self.map_scroll_speed_per_frame: float = .4 # move speed of camera
 
+        self.rescue_pods = []  # Separate list for rescue pods
         self.rescue_pod_destroyed = 0  # Counter for destroyed rescue pods
-        self.rescuePodGroup: list[RescuePod] = []
-        self.spinalRaptorGroup: list[SpinalRaptor] = []
-        self.waspStingerGroup: list[WaspStinger] = []
-        self.ravagerGroup: list[Ravager] = []
-        self.bileSpitterGroup: list[BileSpitter] = []
-        self.acidLauncherGroup: list[AcidLauncher] = []
-        self.spineLauncherGroup: list[SpineLauncher] = []
-        self.bossLevelFiveGroup: list[BossLevelFive] = []
 
         self.flame_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
 
 
-
-        # self.enemies: list[Enemy] = [] # consolidate all enemies into one list
-        # self.load_enemy_into_list()
-        self.napalm_list: list = []
-        self.wind_slicer_list: list = []
         self.total_enemies = 40
         self.prev_enemy_count: int = None
 
@@ -72,11 +50,6 @@ class LevelFive(VerticalBattleScreen):
         self.level_complete = False
 
         self.save_state = SaveState()
-
-
-
-
-
 
         self._hazard_active = False
         self._hazard_start_time = None
@@ -97,15 +70,19 @@ class LevelFive(VerticalBattleScreen):
         self.MAX_FIRE_ROW_LENGTH = 27
         self.MAX_FIRE_ROWS = 20
 
+
+
     def is_boss_on_screen(self) -> bool:
         cam_top = self.camera.y
         cam_bottom = cam_top + GlobalConstants.GAMEPLAY_HEIGHT
 
-        for boss in self.bossLevelFiveGroup:
+        for boss in self.enemies:
+            if not isinstance(boss, BossLevelFive):
+                continue
+
             boss_top = boss.y
             boss_bottom = boss.y + boss.height
 
-            # World-space overlap check (NO zoom math)
             if boss_bottom >= cam_top and boss_top <= cam_bottom:
                 return True
 
@@ -158,26 +135,6 @@ class LevelFive(VerticalBattleScreen):
                 x = col * tile_size
                 surface.blit(sprite, (x, y))
 
-    # def draw_hazard_square(self, display) -> None:
-    #     if not getattr(self, "_hazard_active", False):
-    #         return
-    #
-    #     size = 16
-    #     offset = 50
-    #     h = display.get_height()
-    #     color = (255, 0, 0)
-    #
-    #     left_x = 0
-    #     right_x = size
-    #
-    #     # bottom row
-    #     pygame.draw.rect(display, color, (left_x, h - size - offset, size, size))
-    #     pygame.draw.rect(display, color, (right_x, h - size - offset, size, size))
-    #
-    #     # top row (touching bottom row)
-    #     pygame.draw.rect(display, color, (left_x, h - (2 * size) - offset, size, size))
-    #     pygame.draw.rect(display, color, (right_x, h - (2 * size) - offset, size, size))
-
     def update_hazard_square(self, current_time_ms: int) -> None:
         # Fire only exists when boss is visible
         if not self.is_boss_on_screen():
@@ -209,13 +166,6 @@ class LevelFive(VerticalBattleScreen):
                 self.fire_rows_completed += 1
     def update(self, state) -> None:
         super().update(state)
-        for ravager in list(self.ravagerGroup):
-            ravager.update()
-
-            for blade in list(self.wind_slicer_list):
-                if blade.hitbox.colliderect(ravager.hitbox):
-                    ravager.enemyHealth -= blade.damage
-                    blade.on_hit()  # or destroy if single-use
 
         # Check if 3 or more rescue pods are destroyed
         if self.rescue_pod_destroyed >= 3:
@@ -228,39 +178,32 @@ class LevelFive(VerticalBattleScreen):
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
 
-
-
-        now = pygame.time.get_ticks()
-
-        if self.controller.fire_missiles:
-            missile = self.starship.fire_missile()
-            if missile is not None:
-
-                # Lock onto nearest enemy
-                missile.target_enemy = self.get_nearest_enemy(missile)
-
-                # Compute initial direction toward target
-                if missile.target_enemy is not None:
-                    dx = missile.target_enemy.x - missile.x
-                    dy = missile.target_enemy.y - missile.y
-                    dist = max(1, (dx * dx + dy * dy) ** 0.5)
-                    missile.direction_x = dx / dist
-                    missile.direction_y = dy / dist
-                else:
-                    # No enemy → missile goes straight upward
-                    missile.direction_x = 0
-                    missile.direction_y = -1
-
-                # Add to missile list
-                self.player_missiles.append(missile)
-
-
         self.enemy_helper()
+        self.rescue_pod_helper()
 
         now = pygame.time.get_ticks()
         self.update_hazard_square(now)
         self.update_hazard_damage(state.DISPLAY.get_height())
         self.extract_object_names()
+
+    def rescue_pod_helper(self):
+        # Update rescue pods
+        for pod in list(self.rescue_pods):
+            pod.update()
+
+            # Check if player touches rescue pod
+            if self.starship.hitbox.colliderect(pod.hitbox):
+                self.rescue_pods.remove(pod)
+                # You could add score or other benefits here
+
+        # Check if level 5 boss is dead and clear rescue pods
+        # This is commented out for further work as requested
+        """
+        for enemy in self.enemies:
+            if isinstance(enemy, BossLevelFive) and enemy.enemyHealth <= 0:
+                self.rescue_pods.clear()
+                break
+        """
 
     def update_hazard_damage(self, surface_height: int) -> None:
         if not self._hazard_active:
@@ -319,38 +262,14 @@ class LevelFive(VerticalBattleScreen):
             self.starship.draw(state.DISPLAY, self.camera)
 
         # 4️⃣ DRAW ALL ENEMIES — EXPLICIT AND ORDERED
-
-        for enemy in self.rescuePodGroup:
+        for enemy in self.enemies:
             enemy.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
+            if hasattr(enemy, "draw_damage_flash"):
+                enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
-        for enemy in self.spinalRaptorGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
-
-        for enemy in self.waspStingerGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
-
-        for enemy in self.ravagerGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
-
-        for enemy in self.bileSpitterGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
-
-        for enemy in self.acidLauncherGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
-
-        for enemy in self.spineLauncherGroup:
-            enemy.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
-
-        for boss in self.bossLevelFiveGroup:
-            boss.draw(state.DISPLAY, self.camera)
-            boss.draw_damage_flash(state.DISPLAY, self.camera)
+        # 4.5️⃣ DRAW ALL RESCUE PODS
+        for pod in self.rescue_pods:
+            pod.draw(state.DISPLAY, self.camera)
 
         # 5️⃣ Flip ONCE, LAST
         self.draw_hazard_square(state.DISPLAY, self.camera)
@@ -358,16 +277,7 @@ class LevelFive(VerticalBattleScreen):
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
-        enemies = (
-                # Excluding rescue pods from missile targeting
-                list(self.spinalRaptorGroup) +
-                list(self.waspStingerGroup) +
-                list(self.ravagerGroup) +
-                list(self.bileSpitterGroup) +
-                list(self.acidLauncherGroup) +
-                list(self.spineLauncherGroup) +
-                list(self.bossLevelFiveGroup)
-        )
+        enemies = self.enemies
 
         if not enemies:
             return None
@@ -412,359 +322,131 @@ class LevelFive(VerticalBattleScreen):
         return names
 
     def load_enemy_into_list(self):
-        self.rescuePodGroup.clear()
-        self.waspStingerGroup.clear()
-        self.ravagerGroup.clear()
-        self.bileSpitterGroup.clear()
-        self.acidLauncherGroup.clear()
-        self.spineLauncherGroup.clear()
-        self.bossLevelFiveGroup.clear()
+        self.enemies.clear()
+        self.rescue_pods.clear()
+
         for obj in self.tiled_map.objects:
-            # ⭐ LOAD ENEMIES (existing code)
+            enemy = None
+
             if obj.name == "level_5_boss":
                 enemy = BossLevelFive()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.bossLevelFiveGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
 
-            if obj.name == "rescue_pod":
-                enemy = RescuePod()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-                self.rescuePodGroup.append(enemy)
-
+            elif obj.name == "rescue_pod":
+                rescue_pod = RescuePod()
+                rescue_pod.x = obj.x
+                rescue_pod.y = obj.y
+                rescue_pod.width = obj.width
+                rescue_pod.height = obj.height
+                rescue_pod.update_hitbox()
+                rescue_pod.camera = self.camera
+                rescue_pod.target_player = self.starship
+                self.rescue_pods.append(rescue_pod)
                 continue
 
-            if obj.name == "spinal_raptor":
+            elif obj.name == "spinal_raptor":
                 enemy = SpinalRaptor()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.spinalRaptorGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-                enemy.rescue_pod_group = self.rescuePodGroup
+                # Update to use the new rescue_pods list
+                enemy.rescue_pod_group = self.rescue_pods
 
-            if obj.name == "wasp_stinger":
+            elif obj.name == "wasp_stinger":
                 enemy = WaspStinger()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.waspStingerGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
 
-            if obj.name == "ravager":
+            elif obj.name == "ravager":
                 enemy = Ravager()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.ravagerGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
 
-            if obj.name == "bile_spitter":
+            elif obj.name == "bile_spitter":
                 enemy = BileSpitter()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.bileSpitterGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
 
-            if obj.name == "acid_launcher":
+            elif obj.name == "acid_launcher":
                 enemy = AcidLauncher()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.acidLauncherGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
 
-            if obj.name == "spine_launcher":
+            elif obj.name == "spine_launcher":
                 enemy = SpineLauncher()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.spineLauncherGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
 
+            if enemy is None:
+                continue
 
+            enemy.x = obj.x
+            enemy.y = obj.y
+            enemy.width = obj.width
+            enemy.height = obj.height
+            enemy.update_hitbox()
 
+            enemy.camera = self.camera
+            enemy.target_player = self.starship
 
+            self.enemies.append(enemy)
 
 
 
     def enemy_helper(self):
-
-
-
-        # -------------------------
-        # NAPALM UPDATE + DAMAGE
-        # -------------------------
-        for napalm in list(self.napalm_list):
-            napalm.update()
-
-            if napalm.is_active and napalm.hits(self.starship.hitbox):
-                if not self.starship.invincible:
-                    self.starship.shipHealth -= napalm.damage
-                    self.starship.on_hit()
-
-            if not napalm.is_active:
-                self.napalm_list.remove(napalm)
-
         # -------------------------
         # METAL SHIELD → ENEMY BULLETS
         # -------------------------
-        for metal in list(self.metal_shield_bullets):
+        for shield in list(self.player_bullets):
+            if getattr(shield, "weapon_name", None) != "Metal Shield":
+                continue
 
-            if not metal.is_active:
-                self.metal_shield_bullets.remove(metal)
+            if not shield.is_active:
+                self.player_bullets.remove(shield)
                 continue
 
             shield_rect = pygame.Rect(
-                metal.x,
-                metal.y,
-                metal.width,
-                metal.height
+                shield.x,
+                shield.y,
+                shield.width,
+                shield.height
             )
 
             for bullet in list(self.enemy_bullets):
                 if bullet.collide_with_rect(shield_rect):
-
-                    absorbed = metal.absorb_hit()
+                    absorbed = shield.absorb_hit()
 
                     if bullet in self.enemy_bullets:
                         self.enemy_bullets.remove(bullet)
 
-                    if absorbed and metal in self.metal_shield_bullets:
-                        self.metal_shield_bullets.remove(metal)
+                    if absorbed and shield in self.player_bullets:
+                        self.player_bullets.remove(shield)
 
                     break
 
         # -------------------------
-        # BOSS
+        # ENEMIES (LEVEL 5 PATTERN)
         # -------------------------
-        for boss in list(self.bossLevelFiveGroup):
+        for enemy in list(self.enemies):
 
-            boss.update()
+            result = enemy.update()
 
-            if boss.enemyBullets:
-                self.enemy_bullets.extend(boss.enemyBullets)
-                boss.enemyBullets.clear()
+            if hasattr(enemy, "update_hitbox"):
+                enemy.update_hitbox()
 
-            if boss.enemyHealth <= 0:
-                self.bossLevelFiveGroup.remove(boss)
-                print("level complete")
+            # -------------------------
+            # ENEMY BULLETS
+            # -------------------------
+            if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
+                self.enemy_bullets.extend(enemy.enemyBullets)
+                enemy.enemyBullets.clear()
 
+            # -------------------------
+            # SPECIAL RETURN (e.g. Ravager napalm)
+            # -------------------------
+            if result is not None:
+                self.enemy_bullets.append(result)
 
-        # -------------------------
-        # rescue pods
-        # -------------------------
-        for pod in list(self.rescuePodGroup):
+            # -------------------------
+            # COLLISION WITH PLAYER
+            # -------------------------
+            if self.starship.hitbox.colliderect(enemy.hitbox):
+                enemy.color = (135, 206, 235)
 
-            pod.update()
-
-            if pod.enemyHealth <= 0:
-                self.rescuePodGroup.remove(pod)
-
-            if self.starship.hitbox.colliderect(pod.hitbox):
-                # When player touches a rescue pod, set pod's health to 0
-                pod.enemyHealth = 0
-                pod.color = (135, 206, 235)
-            else:
-                pod.color = GlobalConstants.RED
-
-
-        # -------------------------
-        # spinal raptors
-        # -------------------------
-        for raptor in list(self.spinalRaptorGroup):
-
-            raptor.update()
-
-            if raptor.enemyHealth <= 0:
-                self.spinalRaptorGroup.remove(raptor)
-                continue
-
-            # Check collision with player
-            if self.starship.hitbox.colliderect(raptor.hitbox):
-                # We don't want the raptor to explode when it touches the starship
-                # Just change color to indicate collision
-                raptor.color = (135, 206, 235)
-                # print("Raptor collided with player!")
-            else:
-                raptor.color = GlobalConstants.RED
-
-            # Check collision with rescue pods
-            for pod in list(self.rescuePodGroup):
-                if raptor.hitbox.colliderect(pod.hitbox):
-                    # When spinal raptor touches a rescue pod, set pod's health to 0
-                    # Only increment counter if pod was not already destroyed
-                    if pod.enemyHealth > 0:
-                        self.rescue_pod_destroyed += 1
-                        print(f"Raptor collided with rescue pod! Total destroyed: {self.rescue_pod_destroyed}")
-                    pod.enemyHealth = 0
-                    pod.color = (135, 206, 235)
-
-        # -------------------------
-        # wasp stingers
-        # -------------------------
-        for wasp in list(self.waspStingerGroup):
-
-            wasp.update()
-
-            if wasp.enemyHealth <= 0:
-                self.waspStingerGroup.remove(wasp)
-                continue
-
-            # Check collision with player
-            if self.starship.hitbox.colliderect(wasp.hitbox):
-                # Change color to indicate collision
-                wasp.color = (135, 206, 235)
-                # Apply damage to player if not invincible
                 if not self.starship.invincible:
-                    self.starship.shipHealth -= 5  # Damage amount
+                    self.starship.shipHealth -= getattr(enemy, "contact_damage", 10)
                     self.starship.on_hit()
             else:
-                wasp.color = GlobalConstants.RED
+                enemy.color = GlobalConstants.RED
 
-        # -------------------------
-        # ravagers
-        # -------------------------
-        for ravager in list(self.ravagerGroup):
-
-            napalm = ravager.update()
-
-            # Handle bullets from ravager
-            if ravager.enemyBullets:
-                self.enemy_bullets.extend(ravager.enemyBullets)
-                ravager.enemyBullets.clear()
-
-            # Handle napalm from ravager
-            if napalm is not None:
-                self.napalm_list.append(napalm)
-
-            if ravager.enemyHealth <= 0:
-                self.ravagerGroup.remove(ravager)
-                continue
-
-            # Check collision with player
-            if self.starship.hitbox.colliderect(ravager.hitbox):
-                # Change color to indicate collision
-                ravager.color = (135, 206, 235)
-                # Apply damage to player if not invincible
-                if not self.starship.invincible:
-                    self.starship.shipHealth -= 10  # Damage amount
-                    self.starship.on_hit()
-            else:
-                ravager.color = GlobalConstants.RED
-
-        # -------------------------
-        # bile spitters
-        # -------------------------
-        for spitter in list(self.bileSpitterGroup):
-
-            spitter.update()
-
-            # Handle bullets from bile spitter
-            if spitter.enemyBullets:
-                self.enemy_bullets.extend(spitter.enemyBullets)
-                spitter.enemyBullets.clear()
-
-            if spitter.enemyHealth <= 0:
-                self.bileSpitterGroup.remove(spitter)
-                continue
-
-            # Check collision with player
-            if self.starship.hitbox.colliderect(spitter.hitbox):
-                # Change color to indicate collision
-                spitter.color = (135, 206, 235)
-                # Apply damage to player if not invincible
-                if not self.starship.invincible:
-                    self.starship.shipHealth -= 10  # Damage amount
-                    self.starship.on_hit()
-            else:
-                spitter.color = GlobalConstants.RED
-
-        # -------------------------
-        # spine launchers
-        # -------------------------
-        for launcher in list(self.spineLauncherGroup):
-
-            launcher.update()
-
-            # Handle bullets from acid launcher
-            if launcher.enemyBullets:
-                self.enemy_bullets.extend(launcher.enemyBullets)
-                launcher.enemyBullets.clear()
-
-            if launcher.enemyHealth <= 0:
-                self.spineLauncherGroup.remove(launcher)
-                continue
-
-            # Check collision with player
-            if self.starship.hitbox.colliderect(launcher.hitbox):
-                # Change color to indicate collision
-                launcher.color = (135, 206, 235)
-                # Apply damage to player if not invincible
-                if not self.starship.invincible:
-                    self.starship.shipHealth -= 10  # Damage amount
-                    self.starship.on_hit()
-            else:
-                launcher.color = GlobalConstants.RED
-
-        # -------------------------
-        # acid launchers
-        # -------------------------
-        for launcher in list(self.acidLauncherGroup):
-
-            launcher.update()
-
-            # Handle bullets fired by acid launcher
-            if launcher.enemyBullets:
-                self.enemy_bullets.extend(launcher.enemyBullets)
-                launcher.enemyBullets.clear()
-
-            if launcher.enemyHealth <= 0:
-                self.acidLauncherGroup.remove(launcher)
-                continue
-
-            # Check collision with player
-            if self.starship.hitbox.colliderect(launcher.hitbox):
-                launcher.color = (135, 206, 235)
-                if not self.starship.invincible:
-                    self.starship.shipHealth -= 10
-                    self.starship.on_hit()
-            else:
-                launcher.color = GlobalConstants.RED
+            # -------------------------
+            # DEATH
+            # -------------------------
+            if enemy.enemyHealth <= 0:
+                self.enemies.remove(enemy)
