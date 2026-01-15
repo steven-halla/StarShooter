@@ -66,68 +66,97 @@ class LevelFour(VerticalBattleScreen):
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
         self.load_enemy_into_list()
 
-
     def update(self, state) -> None:
         super().update(state)
 
-        if self.level_start == True:
+        if self.level_start:
             self.level_start = False
             self.starship.shipHealth = 222
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
 
-        # for boss in self.bossLevelFourGroup:
-        #     print(f"[LEVEL 4 BOSS HP] {boss.enemyHealth}")
-        BUFFER = -100  # pixels of grace
+        now = pygame.time.get_ticks()
 
+        # --------------------------------
+        # CAMERA SCROLL (DEFAULT = MOVE)
+        # --------------------------------
+        self.map_scroll_speed_per_frame = 0.4
+        self.camera.scroll_speed_per_frame = 0.4
 
-        worm_on_screen = False
+        # --------------------------------
+        # CAMERA SCREEN-SPACE CHECKS
+        # --------------------------------
+        player_screen_y = self.camera.world_to_screen_y(self.starship.y)
+        player_screen_bottom = player_screen_y + self.starship.height
 
-        screen_top = self.camera.y - BUFFER
-        screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom) + BUFFER
+        player_visible = (
+                player_screen_bottom >= 0
+                and player_screen_y <= self.camera.window_height
+        )
 
-        worm_on_screen = False
-        worm = "transport_worm"
+        print(
+            f"[PLAYER SCREEN] y={player_screen_y:.1f} "
+            f"bottom={player_screen_bottom:.1f} "
+            f"visible={player_visible}"
+        )
+
+        # --------------------------------
+        # TRANSPORT WORMS ONLY (SCREEN SPACE)
+        # --------------------------------
+        active_worms = []
 
         for enemy in self.enemies:
-            if getattr(enemy, "enemy_name", None) != worm:
+            if not isinstance(enemy, TransportWorm):
                 continue
 
-            if enemy.y + enemy.height >= screen_top and enemy.y <= screen_bottom:
-                worm_on_screen = True
+            worm_screen_y = self.camera.world_to_screen_y(enemy.y)
+            worm_screen_bottom = worm_screen_y + enemy.height
+
+            worm_visible = (
+                    worm_screen_bottom >= 0
+                    and worm_screen_y <= self.camera.window_height
+            )
+
+            print(
+                f"[WORM SCREEN] id={id(enemy)} "
+                f"y={worm_screen_y:.1f} "
+                f"bottom={worm_screen_bottom:.1f} "
+                f"visible={worm_visible}"
+            )
+
+            if worm_visible:
+                active_worms.append(enemy)
+
+        # --------------------------------
+        # FREEZE ONLY IF BOTH ON SCREEN
+        # --------------------------------
+        if player_visible:
+            for worm in active_worms:
+                print(">>> PLAYER AND WORM ON SCREEN <<<")
+                self.map_scroll_speed_per_frame = 0.0
+                self.camera.scroll_speed_per_frame = 0.0
                 break
 
-        # 🔒 FREEZE OR RESTORE SCROLL
+        # --------------------------------
+        # CREEP LAYER SCAN (ONLY WHEN FROZEN)
+        # --------------------------------
+        creep_found_on_screen = False
 
-        # screen bounds with padding (WORLD SPACE)
-        # screen bounds with padding (WORLD SPACE)
-        # --- FIXED VERSION USING THE CREEP LAYER (ONLY THIS BLOCK) ---
-
-        # get creep layer safely (ONCE, before loop)
-        try:
-            creep_layer = self.tiled_map.get_layer_by_name("creep")
-        except ValueError:
-            creep_layer = None
-
-        PADDING = 100
-        screen_top = self.camera.y - PADDING
-        screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom) + PADDING
-
-        screen_left = self.camera.x
-        screen_right = self.camera.x + (self.camera.window_width / self.camera.zoom)
-
-        if worm_on_screen:
-            self.map_scroll_speed_per_frame = 0
-            now = pygame.time.get_ticks()
-
-            # =====================================
-            # CREEP DETECTION (GLOBAL, ONCE)
-            # =====================================
-            creep_found_on_screen = False
+        if self.map_scroll_speed_per_frame == 0.0:
+            try:
+                creep_layer = self.tiled_map.get_layer_by_name("creep")
+            except ValueError:
+                creep_layer = None
 
             if creep_layer is not None:
                 tile_w = self.tiled_map.tilewidth
                 tile_h = self.tiled_map.tileheight
+
+                screen_left = self.camera.get_world_x_left()
+                screen_right = screen_left + (self.camera.window_width / self.camera.zoom)
+
+                screen_top = self.camera.y
+                screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
                 start_x = int(screen_left // tile_w)
                 end_x = int(screen_right // tile_w)
@@ -149,122 +178,69 @@ class LevelFour(VerticalBattleScreen):
                     if creep_found_on_screen:
                         break
 
-            # =====================================
-            # CREEP SPAWN (TOP OF SCREEN)
-            # =====================================
-            if creep_found_on_screen:
-                if now - self.creep_last_spawn_time >= 5500:
-                    slaver = Slaver()
+        # --------------------------------
+        # CREEP SPAWN (SLAVER)
+        # --------------------------------
+        if creep_found_on_screen and now - self.creep_last_spawn_time >= 5500:
+            slaver = Slaver()
+            slaver.x = screen_left
+            slaver.y = screen_top
+            slaver.width = 16
+            slaver.height = 16
+            slaver.camera = self.camera
+            slaver.target_player = self.starship
+            slaver.touched_worms = self.touched_worms
+            slaver.update_hitbox()
 
-                    slaver.x = self.camera.x
-                    slaver.y = self.camera.y
-                    slaver.camera = self.camera
-                    slaver.target_player = self.starship
+            self.enemies.append(slaver)
+            self.creep_last_spawn_time = now
 
-                    slaver.width = 16
-                    slaver.height = 16
-                    slaver.update_hitbox()
+        # --------------------------------
+        # WORM SUMMONING
+        # --------------------------------
+        for worm in active_worms:
+            if now - worm.last_summon_time >= worm.summon_interval_ms:
+                worm.summon_enemy(
+                    enemy_classes=[
+                        BileSpitter,
+                        KamikazeDrone,
+                        TriSpitter,
+                        FireLauncher,
+                    ],
+                    enemy_groups={
+                        BileSpitter: self.enemies,
+                        KamikazeDrone: self.enemies,
+                        TriSpitter: self.enemies,
+                        FireLauncher: self.enemies,
+                    },
+                    spawn_y_offset=20
+                )
+                worm.last_summon_time = now
 
-                    slaver.transport_worms = self.transportWormGroup
-                    slaver.target_worm = worm
-                    slaver.touched_worms = self.touched_worms
+        # --------------------------------
+        # UPDATE ENEMIES (ONCE)
+        # --------------------------------
+        for enemy in list(self.enemies):
+            enemy.update()
 
-                    self.enemies.append(slaver)
-                    self.creep_last_spawn_time = now
+            if hasattr(enemy, "update_hitbox"):
+                enemy.update_hitbox()
 
-            # =====================================
-            # WORM SUMMONING (UNIFIED ENEMY LIST)
-            # =====================================
-            for worm in self.transportWormGroup:
+            if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
+                self.enemy_bullets.extend(enemy.enemyBullets)
+                enemy.enemyBullets.clear()
 
-                if not (worm.y + worm.height >= screen_top and worm.y <= screen_bottom):
-                    continue
+            if enemy.enemyHealth <= 0:
+                self.enemies.remove(enemy)
 
-                player = self.starship
-                if not (player.y + player.height >= screen_top and player.y <= screen_bottom):
-                    continue
-
-                if now - worm.last_summon_time >= worm.summon_interval_ms:
-                    spawned = worm.summon_enemy(
-                        enemy_classes=[
-                            BileSpitter,
-                            KamikazeDrone,
-                            TriSpitter,
-                            FireLauncher,
-                        ],
-                        spawn_y_offset=20
-                    )
-
-                    for enemy in spawned:
-                        enemy.width = 16
-                        enemy.height = 16
-                        enemy.update_hitbox()
-                        self.enemies.append(enemy)
-
-                    worm.last_summon_time = now
-        else:
-            self.map_scroll_speed_per_frame = 0.4
-
+        # --------------------------------
+        # LOSE CONDITION
+        # --------------------------------
         if self.touched_worms:
-            print(
-                "[LEVEL 4 READ] touched_worms =",
-                [(w.enemyHealth, w.x, w.y) for w in self.touched_worms]
-            )
+            print("you lost")
 
-            if len(self.touched_worms) > 0:
-                print("you lost")
-
-
-        now = pygame.time.get_ticks()
-        elapsed = now - self.level_start_time
-
-        screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
-
-        # for enemy in list(self.bileSpitterGroup):
-        #
-
-        # if self.controller.fire_missiles:
-        #     missile = self.starship.fire_missile()
-        #     if missile is not None:
-        #
-        #         # Lock onto nearest enemy
-        #         missile.target_enemy = self.get_nearest_enemy(missile)
-        #
-        #         # Compute initial direction toward target
-        #         if missile.target_enemy is not None:
-        #             dx = missile.target_enemy.x - missile.x
-        #             dy = missile.target_enemy.y - missile.y
-        #             dist = max(1, (dx * dx + dy * dy) ** 0.5)
-        #             missile.direction_x = dx / dist
-        #             missile.direction_y = dy / dist
-        #         else:
-        #             # No enemy → missile goes straight upward
-        #             missile.direction_x = 0
-        #             missile.direction_y = -1
-
-                # Add to missile list
-                # self.player_missiles.append(missile)
-
-                # if missile.target_enemy is not None:
-                #     print(f"Missile locked onto: {type(missile.target_enemy).__name__} "
-                #           f"at ({missile.target_enemy.x}, {missile.target_enemy.y})")
-                # else:
-                #     print("Missile locked onto: NONE (no enemies found)")
         self.enemy_helper()
-        # if not self.bossLevelFourGroup and not self.level_complete:
-        #     self.level_complete = True
-
-
         self.extract_object_names()
-        # if self.level_complete:
-        #
-        #     next_level = MissionBriefingScreenLevelTwo()
-        #     # next_level.set_player(state.starship)
-        #     state.currentScreen = next_level
-        #     next_level.start(state)
-        #     print(type(state.currentScreen).__name__)
-        #
-        #     return
 
     def draw(self, state):
         super().draw(state)
