@@ -166,6 +166,7 @@ class LevelFive(VerticalBattleScreen):
                 self.fire_rows_completed += 1
     def update(self, state) -> None:
         super().update(state)
+        print(self.rescue_pod_destroyed)
 
         # Check if 3 or more rescue pods are destroyed
         if self.rescue_pod_destroyed >= 3:
