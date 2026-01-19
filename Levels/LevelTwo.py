@@ -252,7 +252,7 @@ class LevelTwo(VerticalBattleScreen):
 
             if obj.name == "level_2_boss":
                 enemy = BossLevelTwo()
-            elif obj.name == "fire_launcher":
+            elif obj.name == "bile_spitter":
                 enemy = BileSpitter()
             else:
                 continue

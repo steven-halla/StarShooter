@@ -1,6 +1,7 @@
 import pygame
 from Constants.GlobalConstants import GlobalConstants
 from Movement.MoveRectangle import MoveRectangle
+from Weapons.Bullet import Bullet
 
 
 class Enemy:
@@ -8,6 +9,14 @@ class Enemy:
         # size
         self.width: int = 0
         self.height: int = 0
+        self.bulletColor: tuple[int, int, int] = GlobalConstants.SKYBLUE
+        self.bulletWidth: int = 20
+        self.bulletHeight: int = 20
+        # generic bullet config (base enemy default)
+        self.bullet_speed: float = 0.0
+        self.bullet_damage: int = 10
+
+
 
         # position (WORLD space)
         self.x: float = 0
@@ -54,13 +63,13 @@ class Enemy:
             self.is_active = False
             return
 
-        self._clamp_horizontal()
+        self.clamp_horizontal()
         self.is_on_screen = self.mover.enemy_on_screen(self, self.camera)
 
         if self.is_on_screen and self.player_in_vicinity():
             self.is_active = True
             self.has_entered_screen = True
-            self._clamp_vertical()
+            self.clamp_vertical()
         else:
             self.is_active = False
 
@@ -117,11 +126,11 @@ class Enemy:
     # --------------------------------------------------
     # CLAMPING
     # --------------------------------------------------
-    def _clamp_horizontal(self) -> None:
+    def clamp_horizontal(self) -> None:
         max_x = (self.camera.window_width / self.camera.zoom) - self.width
         self.x = max(0, min(self.x, max_x))
 
-    def _clamp_vertical(self) -> None:
+    def clamp_vertical(self) -> None:
         cam_top = self.camera.y
         cam_bottom = (
             self.camera.y
@@ -183,3 +192,27 @@ class Enemy:
 
     def apply_barrage_damage(self, *args):
         pass
+
+    def shoot_single_down_vertical_y(
+            self,
+            bullet_speed: float,
+            bullet_width: int,
+            bullet_height: int,
+            bullet_color: tuple[int, int, int],
+            bullet_damage: int
+    ) -> None:
+        bullet_x = self.x + self.width // 2 - bullet_width // 2
+        bullet_y = self.y + self.height
+
+        bullet = Bullet(bullet_x, bullet_y)
+        bullet.color = bullet_color
+        bullet.width = bullet_width
+        bullet.height = bullet_height
+        bullet.damage = bullet_damage
+
+        bullet.vx = 0
+        bullet.vy = 1
+        bullet.bullet_speed = bullet_speed
+
+        bullet.update_rect()
+        self.enemyBullets.append(bullet)

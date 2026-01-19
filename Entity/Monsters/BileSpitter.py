@@ -12,36 +12,23 @@ class BileSpitter(Enemy):
         super().__init__()
         self.mover: MoveRectangle = MoveRectangle()
         self.id = 0
-
-        # enemy appearance
         self.width: int = 40
         self.height: int = 40
         self.color: tuple[int, int, int] = GlobalConstants.RED
-
-        # bullet appearance
         self.bulletColor: tuple[int, int, int] = GlobalConstants.SKYBLUE
         self.bulletWidth: int = 20
         self.bulletHeight: int = 20
-
-        # firing + bullet movement
         self.bileSpeed: int = 2
         self.fire_interval_ms: int = 3000
         self.last_shot_time: int = 0
-
-        # gameplay stats
         self.speed: float = 0.4
         self.enemyHealth: int = 20
         self.exp: int = 1
         self.credits: int = 5
-
-        # bullets (WORLD SPACE)
         self.enemyBullets: list[Bullet] = []
-
-        # --- AI movement state (UNCHANGED) ---
         self.moveSpeed: float = 1.2
         self.edge_padding: int = 30
         self.move_direction: int = random.choice([-1, 1])
-
         self.move_interval_ms: int = 3000
         self.last_move_toggle: int = pygame.time.get_ticks()
         self.is_moving: bool = True
@@ -51,22 +38,7 @@ class BileSpitter(Enemy):
         ).convert_alpha()
         self.enemy_image = self.bile_spitter_image
 
-    def _shoot_bile(self) -> None:
-        bullet_x = self.x + self.width // 2 - self.bulletWidth // 2
-        bullet_y = self.y + self.height
 
-        bullet = Bullet(bullet_x, bullet_y)
-        bullet.color = self.bulletColor
-        bullet.width = self.bulletWidth
-        bullet.height = self.bulletHeight
-        bullet.damage = 10
-
-        bullet.vx = 0
-        bullet.vy = 1
-        bullet.bullet_speed = self.bileSpeed
-
-        bullet.update_rect()
-        self.enemyBullets.append(bullet)
 
     def update(self) -> None:
         super().update()
@@ -82,7 +54,13 @@ class BileSpitter(Enemy):
         # firing
         now = pygame.time.get_ticks()
         if now - self.last_shot_time >= self.fire_interval_ms:
-            self._shoot_bile()
+            self.shoot_single_down_vertical_y(
+                bullet_speed=4.0,
+                bullet_width=20,
+                bullet_height=20,
+                bullet_color=self.bulletColor,
+                bullet_damage=10
+            )
             self.last_shot_time = now
 
         # update bullets (WORLD SPACE ONLY)
@@ -91,21 +69,7 @@ class BileSpitter(Enemy):
             bullet.y += bullet.vy * bullet.bullet_speed
             bullet.update_rect()
 
-            # DEBUG PRINT (KEPT)
-            # print(
-            #     f"[BILE BULLET] "
-            #     f"x={bullet.x:.1f} y={bullet.y:.1f} "
-            #     f"rect=({bullet.rect.x},{bullet.rect.y})"
-            # )
 
-            # Don't remove bullets here, let VerticalBattleScreen handle it
-            # This was causing bullets to be removed prematurely
-            # if bullet.y > GlobalConstants.GAMEPLAY_HEIGHT:
-            #     self.enemyBullets.remove(bullet)
-
-    # =========================
-    # DO NOT TOUCH (AS REQUESTED)
-    # =========================
     def moveAI(self) -> None:
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
 

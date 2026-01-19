@@ -71,6 +71,7 @@ class LevelSeven(VerticalBattleScreen):
         self.boss_shift_start_time = None  # ⛔ stop timer
         self.start_loop: bool = False
         self.end_loop: bool = False
+        self.boss_placement:bool = False
     # -------------------------------------------------
     # FLAMES
     # -------------------------------------------------
@@ -181,10 +182,15 @@ class LevelSeven(VerticalBattleScreen):
             self.end_loop = False
             print("NEW LOOP")
 
+            # Call the function to set boss position once when start_loop becomes true
+            if not self.boss_placement:
+                self.set_boss_position_once()
+
         # END LOOP (edge-triggered)
         elif self.camera.y > 200 and not self.end_loop:
             self.end_loop = True
             self.start_loop = False
+            self.boss_placement = False  # Reset the boss placement flag when the loop ends
             print("END LOOP")
 
         # print(f"[PLAYER] world=({self.starship.x:.2f}, {self.starship.y:.2f})")
@@ -720,5 +726,26 @@ class LevelSeven(VerticalBattleScreen):
         boss.y = ty * self.tile_size + (self.tile_size - boss.height) // 2
         boss.update_hitbox()
 
-    # REPLACE ONLY THIS PART INSIDE debug_print_player_and_boss_visible
+    # Function to set boss position once per map run
+    def set_boss_position_once(self) -> None:
+        print("Setting boss position once for this map run")
 
+        # Find the boss instance
+        boss = next(
+            (e for e in self.enemies if isinstance(e, BossLevelSeven)),
+            None
+        )
+
+        if boss:
+            # Set the boss position using the existing method
+            self.respawn_boss_at_random_tile(boss)
+
+            # Print the boss coordinates
+            print(f"Boss positioned at coordinates: ({boss.x}, {boss.y})")
+
+            # Set the flag to ensure this function only runs once per map run
+            self.boss_placement = True
+        else:
+            print("No BossLevelSeven found in enemies list")
+
+    # REPLACE ONLY THIS PART INSIDE debug_print_player_and_boss_visible

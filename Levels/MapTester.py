@@ -23,7 +23,7 @@ class MapTester(VerticalBattleScreen):
 
 
 
-        self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level1.tmx")
+        self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/test_map.tmx")
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
@@ -34,10 +34,7 @@ class MapTester(VerticalBattleScreen):
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
         self.map_scroll_speed_per_frame: float = .4 # move speed of camera
-        # self.bileSpitterGroup: list[BileSpitter] = []
-        # self.kamikazeDroneGroup: list[KamikazeDrone] = []
-        # self.triSpitterGroup: list[TriSpitter] = []
-        # self.load_enemy_into_list()
+
         self.napalm_list: list = []
 
     def start(self, state) -> None:
@@ -163,32 +160,55 @@ class MapTester(VerticalBattleScreen):
         return names
 
     def load_enemy_into_list(self):
+        self.enemies.clear()
+        # print("[LOAD] clearing enemies list")
+
         for obj in self.tiled_map.objects:
-            # ⭐ LOAD ENEMIES (existing code)
-            if obj.name == "level_1_boss":
-                enemy = BossLevelOne()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.enemies.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
+            enemy = None
+
+            print(f"[TMX] found object name={obj.name} at ({obj.x}, {obj.y})")
 
 
-            if obj.name == "tri_spitter":
-                enemy_tri_spitter = TriSpitter()
-                enemy_tri_spitter.x = obj.x
-                enemy_tri_spitter.y = obj.y
-                enemy_tri_spitter.width = obj.width
-                enemy_tri_spitter.height = obj.height
-                enemy_tri_spitter.update_hitbox()
-                self.enemies.append(enemy_tri_spitter)
-                enemy_tri_spitter.camera = self.camera
-                enemy_tri_spitter.target_player = self.starship
+
+            if obj.name == "bile_spitter":
+                enemy = BileSpitter()
+
+            else:
                 continue
+
+            # -------------------------
+            # POSITION / SIZE
+            # -------------------------
+            enemy.x = obj.x
+            enemy.y = obj.y
+            enemy.width = obj.width
+            enemy.height = obj.height
+
+            # -------------------------
+            # REQUIRED STATE
+            # -------------------------
+            enemy.camera = self.camera
+            enemy.target_player = self.starship
+
+            # -------------------------
+            # HEALTH INIT (CRITICAL)
+            # -------------------------
+            if hasattr(enemy, "maxHealth"):
+                enemy.enemyHealth = enemy.maxHealth
+            else:
+                enemy.enemyHealth = 1  # safe fallback
+
+            enemy.update_hitbox()
+
+            self.enemies.append(enemy)
+
+            print(
+                f"[ADD] {enemy.__class__.__name__} "
+                f"hp={enemy.enemyHealth} "
+                f"→ enemies size = {len(self.enemies)}"
+            )
+
+        print(f"[DONE] total enemies loaded = {len(self.enemies)}")
 
     def enemy_helper(self):
         # -------------------------
