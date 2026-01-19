@@ -216,3 +216,55 @@ class Enemy:
 
         bullet.update_rect()
         self.enemyBullets.append(bullet)
+
+        #how to call for single shot
+        # self.shoot_single_down_vertical_y(
+        #     bullet_speed=4.0,
+        #     bullet_width=20,
+        #     bullet_height=20,
+        #     bullet_color=self.bulletColor,
+        #     bullet_damage=10
+        # )
+
+    def shoot_multiple_down_vertical_y(
+            self,
+            bullet_speed: float,
+            bullet_width: int,
+            bullet_height: int,
+            bullet_color: tuple[int, int, int],
+            bullet_damage: int,
+            bullet_count: int,
+            bullet_spread: int
+    ) -> None:
+        start_x = self.x + self.width // 2 - bullet_width // 2
+        bullet_y = self.y + self.height
+
+        if bullet_count <= 1:
+            offsets = [0]
+        else:
+            half = (bullet_count - 1) / 2
+            offsets = [int((i - half) * bullet_spread) for i in range(bullet_count)]
+
+        for offset in offsets:
+            bullet = Bullet(start_x + offset, bullet_y)
+            bullet.color = bullet_color
+            bullet.width = bullet_width
+            bullet.height = bullet_height
+            bullet.damage = bullet_damage
+
+            bullet.vx = 0
+            bullet.vy = 1
+            bullet.bullet_speed = bullet_speed
+
+            bullet.update_rect()
+            self.enemyBullets.append(bullet)
+            # below is how to call this fun with 3 bullet spread
+            # self.shoot_multiple_down_vertical_y(
+            #     bullet_speed=4.0,
+            #     bullet_width=20,
+            #     bullet_height=20,
+            #     bullet_color=self.bulletColor,
+            #     bullet_damage=10,
+            #     bullet_count=3,
+            #     bullet_spread=44
+            # )

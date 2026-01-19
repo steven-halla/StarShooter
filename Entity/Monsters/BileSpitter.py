@@ -54,13 +54,16 @@ class BileSpitter(Enemy):
         # firing
         now = pygame.time.get_ticks()
         if now - self.last_shot_time >= self.fire_interval_ms:
-            self.shoot_single_down_vertical_y(
+            self.shoot_multiple_down_vertical_y(
                 bullet_speed=4.0,
                 bullet_width=20,
                 bullet_height=20,
                 bullet_color=self.bulletColor,
-                bullet_damage=10
+                bullet_damage=10,
+                bullet_count=3,
+                bullet_spread=44
             )
+
             self.last_shot_time = now
 
         # update bullets (WORLD SPACE ONLY)
