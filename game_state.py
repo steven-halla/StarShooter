@@ -58,6 +58,8 @@ class GameState:
         # --------------------------------------------------
         self.starship: StarShip = StarShip()
 
+        self.enemy_bullets: list[Bullet] = []
+
 
         # --------------------------------------------------
         # enemies global

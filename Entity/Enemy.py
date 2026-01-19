@@ -1,3 +1,4 @@
+import math
 import pygame
 from Constants.GlobalConstants import GlobalConstants
 from Movement.MoveRectangle import MoveRectangle
@@ -56,7 +57,7 @@ class Enemy:
     # --------------------------------------------------
     # UPDATE
     # --------------------------------------------------
-    def update(self):
+    def update(self, state):
         self.update_hitbox()
 
         if self.camera is None:
@@ -268,3 +269,127 @@ class Enemy:
             #     bullet_count=3,
             #     bullet_spread=44
             # )
+
+    def shoot_spores(
+            self,
+            bullet_speed: float,
+            bullet_width: int,
+            bullet_height: int,
+            bullet_color: tuple[int, int, int],
+            bullet_damage: int
+    ) -> None:
+        cx = self.x + self.width // 2
+        cy = self.y + self.height // 2
+
+        directions = [
+            (-1, 0),  # LEFT
+            (0, 1),  # DOWN
+            (1, 0),  # RIGHT
+            (0, -1),  # UP
+            (-1, -1),  # UP-LEFT
+            (1, -1),  # UP-RIGHT
+            (-1, 1),  # DOWN-LEFT
+            (1, 1),  # DOWN-RIGHT
+        ]
+
+        for dx, dy in directions:
+            b = Bullet(cx, cy)
+            b.width = bullet_width
+            b.height = bullet_height
+            b.color = bullet_color
+            b.damage = bullet_damage
+
+            b.vx = dx
+            b.vy = dy
+            b.bullet_speed = bullet_speed
+
+            b.update_rect()
+            self.enemyBullets.append(b)
+            # how to call
+            # self.shoot_spores(
+            #     bullet_speed=4.0,
+            #     bullet_width=20,
+            #     bullet_height=20,
+            #     bullet_color=self.bulletColor,
+            #     bullet_damage=10
+            # )
+
+    def shoot_single_bullet_aimed_at_player(
+            self,
+            bullet_speed: float,
+            bullet_width: int,
+            bullet_height: int,
+            bullet_color: tuple[int, int, int],
+            bullet_damage: int
+    ) -> None:
+        if self.target_player is None:
+            return
+
+        cam_top = self.camera.y
+        cam_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
+
+        if self.y + self.height < cam_top or self.y > cam_bottom:
+            return
+
+        cx = self.x + self.width / 2
+        cy = self.y + self.height / 2
+
+        px = self.target_player.hitbox.centerx
+        py = self.target_player.hitbox.centery
+
+        dx = px - cx
+        dy = py - cy
+        dist = math.hypot(dx, dy)
+        if dist == 0:
+            return
+
+        dx /= dist
+        dy /= dist
+
+        bullet = Bullet(cx, cy)
+        bullet.width = bullet_width
+        bullet.height = bullet_height
+        bullet.color = bullet_color
+        bullet.damage = bullet_damage
+
+        bullet.vx = dx
+        bullet.vy = dy
+        bullet.bullet_speed = bullet_speed
+
+        bullet.update_rect()
+        self.enemyBullets.append(bullet)
+        # how to call
+        # self.shoot_single_bullet_aimed_at_player(
+        #     bullet_speed=4.0,
+        #     bullet_width=20,
+        #     bullet_height=20,
+        #     bullet_color=self.bulletColor,
+        #     bullet_damage=10
+        # )
+
+    def touch_mellee(
+            self,
+            bullet_width: int,
+            bullet_height: int,
+            bullet_color: tuple[int, int, int],
+            bullet_damage: int
+    ) -> None:
+        # create melee bullet ONCE
+        if not self.enemy_bullets:
+            bullet = Bullet(0, 0)
+            bullet.width = bullet_width
+            bullet.height = bullet_height
+            bullet.color = bullet_color
+            bullet.damage = bullet_damage
+
+            bullet.vx = 0
+            bullet.vy = 0
+            bullet.bullet_speed = 0
+
+            self.enemy_bullets.append(bullet)
+
+        # always re-lock bullet to enemy position
+        bullet = self.enemy_bullets[0]
+        bullet.x = self.x + self.width // 2 - bullet.width // 2
+        bullet.y = self.y + self.height // 2 - bullet.height // 2
+        bullet.update_rect()

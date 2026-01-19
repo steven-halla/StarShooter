@@ -5,11 +5,18 @@ from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
+from Entity.Monsters.Coins import Coins
 from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
+from Entity.Monsters.PodLayer import PodLayer
 from Entity.Monsters.Ravager import Ravager
+from Entity.Monsters.RescuePod import RescuePod
+from Entity.Monsters.Slaver import Slaver
+from Entity.Monsters.SpikeyBall import SpikeyBall
+from Entity.Monsters.SpinalRaptor import SpinalRaptor
 from Entity.Monsters.SpineLauncher import SpineLauncher
 from Entity.Monsters.SporeFlower import SporeFlower
+from Entity.Monsters.TransportWorm import TransportWorm
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from Entity.StarShip import StarShip
@@ -168,13 +175,63 @@ class MapTester(VerticalBattleScreen):
 
             print(f"[TMX] found object name={obj.name} at ({obj.x}, {obj.y})")
 
+            if obj.name == "acid_launcher":
+                enemy = AcidLauncher()
 
-
-            if obj.name == "bile_spitter":
+            elif obj.name == "bile_spitter":
                 enemy = BileSpitter()
 
-            else:
+            elif obj.name == "blade_spinner":
+                enemy = BladeSpinner()
+
+            elif obj.name == "coin":
+                enemy = Coins()
+
+            elif obj.name == "fire_launcher":
+                enemy = FireLauncher()
+
+            elif obj.name == "kamikaze_drone":
+                enemy = KamikazeDrone()
+
+            elif obj.name == "pod_layer":
+                enemy = PodLayer()
+
+            elif obj.name == "ravager":
+                enemy = Ravager()
+
+            elif obj.name == "rescue_pod":
+                enemy = RescuePod()
+
+            elif obj.name == "slaver":
+                enemy = Slaver()
+
+            elif obj.name == "spikey_ball":
+                enemy = SpikeyBall()
+
+            elif obj.name == "spinal_raptor":
+                enemy = SpinalRaptor()
+
+            elif obj.name == "spine_launcher":
+                enemy = SpineLauncher()
+
+            elif obj.name == "spore_flower":
+                enemy = SporeFlower()
+
+            elif obj.name == "transport_worm":
+                enemy = TransportWorm()
+
+            elif obj.name == "tri_spitter":
+                enemy = TriSpitter()
+
+            elif obj.name == "wasp_stinger":
+                enemy = WaspStinger()
+
+            if enemy is None:
                 continue
+
+            enemy.x = obj.x
+            enemy.y = obj.y
+            self.enemies.append(enemy)
 
             # -------------------------
             # POSITION / SIZE

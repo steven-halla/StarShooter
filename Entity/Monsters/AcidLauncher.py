@@ -43,33 +43,33 @@ class AcidLauncher(Enemy):
         ).convert_alpha()
         self.enemy_image = self.acid_launcher_image  # 🔑 REQUIRED
 
-    def shoot_spines(self) -> None:
-        if self.last_player_x is None or self.last_player_y is None:
-            return
-
-        cx = self.x + self.width // 2
-        cy = self.y + self.height // 2
-
-        dx = self.last_player_x - cx
-        dy = self.last_player_y - cy
-
-        length = math.hypot(dx, dy)
-        if length == 0:
-            return
-
-        dx /= length
-        dy /= length
-
-        bullet = Bullet(cx, cy)
-        bullet.dx = dx * self.weapon_speed
-        bullet.speed = dy * self.weapon_speed
-
-        bullet.width = self.bulletWidth
-        bullet.height = self.bulletHeight
-        bullet.color = self.bulletColor
-        bullet.damage = 10
-
-        self.enemyBullets.append(bullet)
+    # def shoot_spines(self) -> None:
+    #     if self.last_player_x is None or self.last_player_y is None:
+    #         return
+    #
+    #     cx = self.x + self.width // 2
+    #     cy = self.y + self.height // 2
+    #
+    #     dx = self.last_player_x - cx
+    #     dy = self.last_player_y - cy
+    #
+    #     length = math.hypot(dx, dy)
+    #     if length == 0:
+    #         return
+    #
+    #     dx /= length
+    #     dy /= length
+    #
+    #     bullet = Bullet(cx, cy)
+    #     bullet.dx = dx * self.weapon_speed
+    #     bullet.speed = dy * self.weapon_speed
+    #
+    #     bullet.width = self.bulletWidth
+    #     bullet.height = self.bulletHeight
+    #     bullet.color = self.bulletColor
+    #     bullet.damage = 10
+    #
+    #     self.enemyBullets.append(bullet)
 
     def update(self) -> None:
         super().update()
@@ -83,7 +83,14 @@ class AcidLauncher(Enemy):
         now = pygame.time.get_ticks()
 
         if now - self.last_shot_time >= self.fire_interval_ms:
-            self.shoot_spines()
+            self.shoot_single_bullet_aimed_at_player(
+                bullet_speed=4.0,
+                bullet_width=20,
+                bullet_height=20,
+                bullet_color=self.bulletColor,
+                bullet_damage=10
+            )
+
             self.last_shot_time = now
 
         for bullet in self.enemyBullets:

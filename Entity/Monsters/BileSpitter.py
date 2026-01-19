@@ -25,7 +25,7 @@ class BileSpitter(Enemy):
         self.enemyHealth: int = 20
         self.exp: int = 1
         self.credits: int = 5
-        self.enemyBullets: list[Bullet] = []
+        # self.enemyBullets: list[Bullet] = []
         self.moveSpeed: float = 1.2
         self.edge_padding: int = 30
         self.move_direction: int = random.choice([-1, 1])
@@ -45,6 +45,8 @@ class BileSpitter(Enemy):
         if not self.is_active:
             return
 
+        print(self.enemyBullets)
+
         # WORLD-SPACE hitbox
         self.update_hitbox()
 
@@ -54,14 +56,12 @@ class BileSpitter(Enemy):
         # firing
         now = pygame.time.get_ticks()
         if now - self.last_shot_time >= self.fire_interval_ms:
-            self.shoot_multiple_down_vertical_y(
+            self.shoot_single_bullet_aimed_at_player(
                 bullet_speed=4.0,
                 bullet_width=20,
                 bullet_height=20,
                 bullet_color=self.bulletColor,
-                bullet_damage=10,
-                bullet_count=3,
-                bullet_spread=44
+                bullet_damage=10
             )
 
             self.last_shot_time = now
