@@ -25,7 +25,6 @@ class LevelSeven(VerticalBattleScreen):
     def __init__(self, textbox):
         super().__init__(textbox)
 
-        self.bossLevelSevenGroup: list[BossLevelSeven] = []
         self.level_start: bool = True
         self.move_boss:bool = False
 
@@ -117,22 +116,9 @@ class LevelSeven(VerticalBattleScreen):
     #
     #     return bullets
 
-    def clear_all_enemy_groups(self) -> None:
-        self.bileSpitterGroup.clear()
-        self.kamikazeDroneGroup.clear()
-        self.triSpitterGroup.clear()
-        self.waspStingerGroup.clear()
-        self.bladeSpinnerGroup.clear()
-        self.sporeFlowerGroup.clear()
-        self.spineLauncherGroup.clear()
-        self.acidLauncherGroup.clear()
-        self.ravagerGroup.clear()
-        self.fireLauncherGroup.clear()
-        self.transportWormGroup.clear()
-        self.spinalRaptorGroup.clear()
-        self.slaverGroup.clear()
-        self.coinsGroup.clear()
-        self.spikeyBallGroup.clear()
+    # def clear_all_enemy_groups(self) -> None:
+    #     self.enemies.clear()
+    #     print("Once")
 
 
 
@@ -186,13 +172,17 @@ class LevelSeven(VerticalBattleScreen):
     def update(self, state) -> None:
         super().update(state)
 
-        if self.bossLevelSevenGroup:
-            boss = self.bossLevelSevenGroup[0]
+        boss = next(
+            (e for e in self.enemies if isinstance(e, BossLevelSeven)),
+            None
+        )
+
+        if boss:
+            pass
             # print(f"Boss world position: ({boss.x}, {boss.y})")
         else:
-            print("No boss in bossLevelSevenGroup")
+            print("No BossLevelSeven in self.enemies")
         # self.update_static_bullets(self.static_bullets, self.starship.hitbox)
-        now = pygame.time.get_ticks()
 
         now = pygame.time.get_ticks()
 
@@ -222,7 +212,6 @@ class LevelSeven(VerticalBattleScreen):
         if self.level_start == True:
             self.level_start = False
             self.starship.shipHealth = 244
-            self.clear_all_enemy_groups()
             self.build_flame_grid()
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
@@ -236,53 +225,13 @@ class LevelSeven(VerticalBattleScreen):
 
 
 
-        # if elapsed >= self.time_limit_ms and not self.time_up:
-        #     self.time_up = True
-        #     print("time's up")
-        # Missile firing (override parent behavior)
-        if self.controller.fire_missiles:
-            missile = self.starship.fire_missile()
-            if missile is not None:
-
-                # Lock onto nearest enemy
-                missile.target_enemy = self.get_nearest_enemy(missile)
-
-                # Compute initial direction toward target
-                if missile.target_enemy is not None:
-                    dx = missile.target_enemy.x - missile.x
-                    dy = missile.target_enemy.y - missile.y
-                    dist = max(1, (dx * dx + dy * dy) ** 0.5)
-                    missile.direction_x = dx / dist
-                    missile.direction_y = dy / dist
-                else:
-                    # No enemy → missile goes straight upward
-                    missile.direction_x = 0
-                    missile.direction_y = -1
-
-                # Add to missile list
-                self.player_missiles.append(missile)
-
-                # if missile.target_enemy is not None:
-                #     print(f"Missile locked onto: {type(missile.target_enemy).__name__} "
-                #           f"at ({missile.target_enemy.x}, {missile.target_enemy.y})")
-                # else:
-                #     print("Missile locked onto: NONE (no enemies found)")
 
         self.enemy_helper()
-        # if not self.bossLevelSevenGroup and not self.level_complete:
-        #     self.level_complete = True
+
 
 
         self.extract_object_names()
-        # if self.level_complete:
-        #
-        #     next_level = MissionBriefingScreenLevelTwo()
-        #     # next_level.set_player(state.starship)
-        #     state.currentScreen = next_level
-        #     next_level.start(state)
-        #     print(type(state.currentScreen).__name__)
-        #
-        #     return
+
 
         self.repeat_map()
 
@@ -291,7 +240,6 @@ class LevelSeven(VerticalBattleScreen):
 
         self.move_map_y_axis()
 
-        # self.update_collision_tiles(damage=5)
 
 
         self.repeat_map()
@@ -302,39 +250,16 @@ class LevelSeven(VerticalBattleScreen):
 
     def draw(self, state):
         super().draw(state)
-        # ================================
-        # ENEMY COUNTER (TOP OF SCREEN)
-        # ================================
-        font = pygame.font.Font(None, 28)
-
-        current_enemies = (
-
-                + len(self.bossLevelSevenGroup)
-        )
-        # print(current_enemies)
-        # initialize on first frame
-
-
-
-        for napalm in self.napalm_list:
-            napalm.draw(state.DISPLAY, self.camera)
-        zoom = self.camera.zoom
-
-        # for obj in self.tiled_map.objects:
-        #     if hasattr(obj, "image") and obj.image is not None:
-        #         screen_x = self.camera.world_to_screen_x(obj.x)
-        #         screen_y = self.camera.world_to_screen_y(obj.y)
-        #         state.DISPLAY.blit(obj.image, (screen_x, screen_y))
-
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
 
+        for boss in self.enemies:
+            if not isinstance(boss, BossLevelSeven):
+                continue
 
-        for boss in self.bossLevelSevenGroup:
             boss.draw(state.DISPLAY, self.camera)
             boss.draw_damage_flash(state.DISPLAY, self.camera)
 
-        # self.draw_static_bullets(self.static_bullets, state.DISPLAY)
 
 
         for row in self.flame_rows:
@@ -350,24 +275,14 @@ class LevelSeven(VerticalBattleScreen):
                     )
                 )
 
-        # inside LevelSeven.draw(self, state)
-
-        # AFTER map / background draw
-        # BEFORE UI draw
-
-        # self.draw_flames(state.DISPLAY, self.camera)
         self.draw_ui_panel(state.DISPLAY)
-        # self.textbox.show("I am the ultimate man on the battlefiled. You cannot hope to win aginst the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla; win  the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla")
 
-        # self.textbox.draw(state.DISPLAY)
 
 
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
-        enemies = (
-                list(self.bossLevelSevenGroup)
-        )
+        enemies = self.enemies
 
         if not enemies:
             return None
@@ -412,7 +327,7 @@ class LevelSeven(VerticalBattleScreen):
         return names
 
     def load_enemy_into_list(self) -> None:
-        self.bossLevelSevenGroup.clear()
+        self.enemies.clear()
 
         # --- get the tile layer named "boss_appear_point" ---
         try:
@@ -422,10 +337,9 @@ class LevelSeven(VerticalBattleScreen):
             return
 
         # collect ALL boss_appear_point tiles
-        spawn_tiles: list[tuple[int, int]] = []
-        for tx, ty, gid in layer:
-            if gid != 0:
-                spawn_tiles.append((tx, ty))
+        spawn_tiles: list[tuple[int, int]] = [
+            (tx, ty) for tx, ty, gid in layer if gid != 0
+        ]
 
         if not spawn_tiles:
             print("[LEVEL 7] 'boss_appear_point' layer has no tiles set")
@@ -438,17 +352,17 @@ class LevelSeven(VerticalBattleScreen):
         tile_world_y = ty * self.tile_size
 
         boss = BossLevelSeven()
-        boss_width = boss.width
-        boss_height = boss.height
 
         # center boss on that tile
-        boss.x = tile_world_x + (self.tile_size - boss_width) // 2
-        boss.y = tile_world_y + (self.tile_size - boss_height) // 2
+        boss.x = tile_world_x + (self.tile_size - boss.width) // 2
+        boss.y = tile_world_y + (self.tile_size - boss.height) // 2
 
-        boss.update_hitbox()
         boss.camera = self.camera
         boss.target_player = self.starship
-        self.bossLevelSevenGroup.append(boss)
+        boss.update_hitbox()
+
+        # ✅ NEW PATTERN: boss goes into self.enemies
+        self.enemies.append(boss)
 
         # debug prints
         print("[LEVEL 7] boss_appear_point tiles (world):")
@@ -456,85 +370,87 @@ class LevelSeven(VerticalBattleScreen):
             print(f"  tile -> ({sx * self.tile_size}, {sy * self.tile_size})")
 
         print(f"[LEVEL 7] Boss spawned world: ({boss.x}, {boss.y})")
-
-        # also show where that is on SCREEN to verify visibility
-        sx = self.camera.world_to_screen_x(boss.x)
-        sy = self.camera.world_to_screen_y(boss.y)
-        print(f"[LEVEL 7] Boss spawned SCREEN: ({sx}, {sy})")
-
+        print(
+            f"[LEVEL 7] Boss spawned SCREEN: "
+            f"({self.camera.world_to_screen_x(boss.x)}, "
+            f"{self.camera.world_to_screen_y(boss.y)})"
+        )
 
 
     def enemy_helper(self):
-
-
-
-        # screen bottom in WORLD coordinates
-        screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
-
-        # -------------------------
-        # NAPALM UPDATE + DAMAGE
-        # -------------------------
-        for napalm in list(self.napalm_list):
-            napalm.update()
-
-            if napalm.is_active and napalm.hits(self.starship.hitbox):
-                if not self.starship.invincible:
-                    self.starship.shipHealth -= napalm.damage
-                    self.starship.on_hit()
-
-            if not napalm.is_active:
-                self.napalm_list.remove(napalm)
-
         # -------------------------
         # METAL SHIELD → ENEMY BULLETS
         # -------------------------
-        for metal in list(self.metal_shield_bullets):
+        for shield in list(self.player_bullets):
+            if getattr(shield, "weapon_name", None) != "Metal Shield":
+                continue
 
-            if not metal.is_active:
-                self.metal_shield_bullets.remove(metal)
+            if not shield.is_active:
+                self.player_bullets.remove(shield)
                 continue
 
             shield_rect = pygame.Rect(
-                metal.x,
-                metal.y,
-                metal.width,
-                metal.height
+                shield.x,
+                shield.y,
+                shield.width,
+                shield.height
             )
 
             for bullet in list(self.enemy_bullets):
                 if bullet.collide_with_rect(shield_rect):
-
-                    absorbed = metal.absorb_hit()
+                    absorbed = shield.absorb_hit()
 
                     if bullet in self.enemy_bullets:
                         self.enemy_bullets.remove(bullet)
 
-                    if absorbed and metal in self.metal_shield_bullets:
-                        self.metal_shield_bullets.remove(metal)
+                    if absorbed and shield in self.player_bullets:
+                        self.player_bullets.remove(shield)
 
                     break
 
+
+
         # -------------------------
-        # BOSS
+        # ENEMIES (LEVEL 5 PATTERN)
         # -------------------------
-        for boss in list(self.bossLevelSevenGroup):
+        for enemy in list(self.enemies):
 
+            result = enemy.update()
 
+            if hasattr(enemy, "update_hitbox"):
+                enemy.update_hitbox()
 
-            boss.update()
-            # ❌ DO NOT REMOVE BOSS FROM GROUP
-            # keep boss alive until HP <= 0
-            if boss.enemyHealth <= 0:
-                print("[BOSS DEAD] level complete")
-                self.level_complete = True
+            # -------------------------
+            # ENEMY BULLETS
+            # -------------------------
+            if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
+                self.enemy_bullets.extend(enemy.enemyBullets)
+                enemy.enemyBullets.clear()
 
-            if boss.enemyBullets:
-                self.enemy_bullets.extend(boss.enemyBullets)
-                boss.enemyBullets.clear()
+            # -------------------------
+            # SPECIAL RETURN (e.g. Ravager napalm)
+            # -------------------------
+            if result is not None:
+                self.enemy_bullets.append(result)
 
-            if boss.enemyHealth <= 0:
-                self.bossLevelSevenGroup.remove(boss)
-                print("level complete")
+            # -------------------------
+            # COLLISION WITH PLAYER
+            # -------------------------
+            if self.starship.hitbox.colliderect(enemy.hitbox):
+                enemy.color = (135, 206, 235)
+
+                if not self.starship.invincible:
+                    self.starship.shipHealth -= getattr(enemy, "contact_damage", 10)
+                    self.starship.on_hit()
+            else:
+                enemy.color = GlobalConstants.RED
+
+            # -------------------------
+            # DEATH
+            # -------------------------
+            if enemy.enemyHealth <= 0:
+                self.enemies.remove(enemy)
+
 
     def repeat_map(self) -> None:
         """
@@ -559,36 +475,29 @@ class LevelSeven(VerticalBattleScreen):
             self.starship.update_hitbox()
 
             # NEW LINE 1: only act if boss exists
-            if self.bossLevelSevenGroup:  # NEW
+            boss = next(
+                (e for e in self.enemies if isinstance(e, BossLevelSeven)),
+                None
+            )
+
+            if boss:
+                self.respawn_boss_at_random_tile(boss)
+                self.boss_shift_start_time = None
+
+            # NEW LINE 1: only act if boss exists (unified pattern)
+            boss = next(
+                (e for e in self.enemies if isinstance(e, BossLevelSeven)),
+                None
+            )
+
+            if boss:
                 # NEW LINE 2: reposition existing boss using boss_appear_point layer
-                self.respawn_boss_at_random_tile(self.bossLevelSevenGroup[0])  # NEW
+                self.respawn_boss_at_random_tile(boss)
+
                 # NEW LINE 3: hard stop any active boss timer on wrap
-                self.boss_shift_start_time = None  # NEW
+                self.boss_shift_start_time = None
 
-            # shift all world entities down
-            # for group in (
-            #
-            #         self.bossLevelSevenGroup,
-            # ):
-            #     for enemy in group:
-            #         enemy.y += wrap_offset
-            #         enemy.update_hitbox()
 
-                    # Static bottom bullets using Weapon
-
-    # def update_static_bullets(self, bullets: list[Weapon], player_hitbox: pygame.Rect) -> None:
-    #
-    #     player_screen_rect = pygame.Rect(
-    #         self.camera.world_to_screen_x(player_hitbox.x),
-    #         self.camera.world_to_screen_y(player_hitbox.y),
-    #         player_hitbox.width,
-    #         player_hitbox.height
-    #     )
-    #
-    #     for bullet in bullets:
-    #         if bullet.rect.colliderect(player_screen_rect):
-    #             self.starship.shipHealth -= BULLET_DAMAGE
-    #             print("Player bullet collision")
 
     def draw_static_bullets(
             self,
@@ -598,15 +507,6 @@ class LevelSeven(VerticalBattleScreen):
         for bullet in bullets:
             bullet.draw(surface)
 
-    # BUILD — WORLD SPACE ONLY (NO CAMERA)
-    # BUILD — WORLD Y LOCKED TO SCREEN BOTTOM (LEVEL 6 PATTERN)
-    # PROBLEM:
-    # You are overwriting rect.y every frame in draw_flames,
-    # so ALL rows collapse into ONE row.
-
-    # FIX:
-    # Encode row offset into the RECT ITSELF.
-    # draw_flames must NOT change rect.y per-rect.
 
     def build_flame_grid(self) -> None:
         SIZE = 82
@@ -707,11 +607,17 @@ class LevelSeven(VerticalBattleScreen):
         # -------------------------
         # NO BOSS → TIMER MUST NOT RUN
         # -------------------------
-        if not self.bossLevelSevenGroup:
+        # -------------------------
+        # NO BOSS → TIMER MUST NOT RUN
+        # -------------------------
+        boss = next(
+            (e for e in self.enemies if isinstance(e, BossLevelSeven)),
+            None
+        )
+
+        if boss is None:
             self.boss_shift_start_time = None
             return
-
-        boss = self.bossLevelSevenGroup[0]
 
         player_on_screen = self._is_rect_on_screen(
             self.starship.x,

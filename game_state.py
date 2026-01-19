@@ -67,7 +67,7 @@ class GameState:
         # --------------------------------------------------
         # CURRENT SCREEN
         # --------------------------------------------------
-        self.currentScreen = LevelSix(self.textbox)
+        self.currentScreen = LevelSeven(self.textbox)
 
         # --------------------------------------------------
         # Bullet list
