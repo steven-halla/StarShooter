@@ -168,6 +168,35 @@ class LevelFive(VerticalBattleScreen):
         super().update(state)
         print(self.rescue_pod_destroyed)
 
+        ##################################
+        # use the below pattern if weapons and missiles targeting pods
+        # for enemy in enemies:
+        #
+        #     if isinstance(enemy, Coins):
+        #         continue
+        #
+        #     # ⛔ Skip enemies outside the screen
+        #     if enemy.y + enemy.height < visible_top:
+        #         continue
+        #     if enemy.y > visible_bottom:
+        #         continue
+        #
+        #     dx = enemy.x - mx
+        #     dy = enemy.y - my
+        #     dist_sq = dx * dx + dy * dy
+        #
+        #     if dist_sq < nearest_dist:
+        #         nearest_dist = dist_sq
+        #         nearest_enemy = enemy
+        #
+        # return nearest_enemy
+
+
+
+
+
+        ###################################
+
         # Check if 3 or more rescue pods are destroyed
         if self.rescue_pod_destroyed >= 3:
             print("game over")
