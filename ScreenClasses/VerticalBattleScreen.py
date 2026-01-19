@@ -679,8 +679,8 @@ class VerticalBattleScreen:
                     # apply knockback purely via vector
                     enemy.vx = vx * KNOCKBACK
                     enemy.vy = vy * KNOCKBACK
-
                     break
+
     def draw_collision_tiles(self, surface: pygame.Surface) -> None:
         tile_size = self.tile_size
         window_height = GlobalConstants.GAMEPLAY_HEIGHT

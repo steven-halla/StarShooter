@@ -27,10 +27,6 @@ class LevelSix(VerticalBattleScreen):
         self.camera.y = float(self.camera_y)
         self.map_scroll_speed_per_frame: float = .4 # move speed of camera
 
-        self.coinsGroup: list[Coins] = []
-        self.spikeyBallGroup: list[SpikeyBall] = []
-        self.bossLevelSixGroup: list[BossLevelSix] = []
-
         self.coins_missed = []
 
         self.flame_image = pygame.image.load(
@@ -41,8 +37,6 @@ class LevelSix(VerticalBattleScreen):
 
         # self.enemies: list[Enemy] = [] # consolidate all enemies into one list
         # self.load_enemy_into_list()
-        self.napalm_list: list = []
-        self.wind_slicer_list: list = []
         self.prev_enemy_count: int = None
 
         self.level_start_time = pygame.time.get_ticks()
@@ -56,15 +50,16 @@ class LevelSix(VerticalBattleScreen):
         self.crush_start_time = None
         self.CRUSH_TIME_MS = 500
 
-
-
     def is_boss_on_screen(self) -> bool:
         cam_top = self.camera.y
         cam_bottom = cam_top + GlobalConstants.GAMEPLAY_HEIGHT
 
-        for boss in self.bossLevelSixGroup:
-            boss_top = boss.y
-            boss_bottom = boss.y + boss.height
+        for enemy in self.enemies:
+            if not isinstance(enemy, BossLevelSix):
+                continue
+
+            boss_top = enemy.y
+            boss_bottom = enemy.y + enemy.height
 
             # World-space overlap check (NO zoom math)
             if boss_bottom >= cam_top and boss_top <= cam_bottom:
@@ -113,47 +108,41 @@ class LevelSix(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
-        print("=== ENEMIES ===")
 
-        print(f"Gold Coins ({len(self.coinsGroup)}):")
-        for i, coin in enumerate(self.coinsGroup):
-            print(f"  [{i}] Coins @ (x={coin.x}, y={coin.y})")
-
-        print(f"\nBoss 6 ({len(self.bossLevelSixGroup)}):")
-        for i, boss in enumerate(self.bossLevelSixGroup):
-            print(f"  [{i}] BossLevelSix @ (x={boss.x}, y={boss.y})")
-
-        print(f"\nSpikey Balls ({len(self.spikeyBallGroup)}):")
-        for i, ball in enumerate(self.spikeyBallGroup):
-            print(f"  [{i}] SpikeyBall @ (x={ball.x}, y={ball.y})")
-
-        print("================\n")
         self.check_player_touching_collision_bottom()
 
 
         self.assign_single_barrage_owner()
-        if len(self.coinsGroup) > 9:
+        if len(self.coins_missed) > 9:
             print("game over")
 
 
         # print(len(self.coinsGroup))
-        for coin in list(self.coinsGroup):
-            coin.update()
+            # -------------------------
+            # COINS (NEW self.enemies PATTERN)
+            # -------------------------
+            for enemy in list(self.enemies):
 
-            # SCREEN-space bottom (this bypasses Enemy._clamp_vertical)
-            screen_y = self.camera.world_to_screen_y(coin.y)
+                if not isinstance(enemy, Coins):
+                    continue
 
-            if screen_y > GlobalConstants.GAMEPLAY_HEIGHT:
-                if coin not in self.coins_missed:
-                    self.coins_missed.append(coin)
-                coin.is_active = False
-                self.coinsGroup.remove(coin)
-                continue
+                enemy.update()
 
-            if self.starship.hitbox.colliderect(coin.hitbox):
-                coin.enemyHealth = 0
-                coin.is_active = False
-                self.remove_enemy_if_dead(coin)
+                # SCREEN-space bottom (bypass Enemy._clamp_vertical)
+                screen_y = self.camera.world_to_screen_y(enemy.y)
+
+                if screen_y > GlobalConstants.GAMEPLAY_HEIGHT:
+                    if enemy not in self.coins_missed:
+                        self.coins_missed.append(enemy)
+
+                    enemy.is_active = False
+                    self.enemies.remove(enemy)
+                    continue
+
+            if self.starship.hitbox.colliderect(enemy.hitbox):
+                enemy.enemyHealth = 0
+                enemy.is_active = False
+                self.enemies.remove(enemy)
 
 
 
@@ -187,32 +176,21 @@ class LevelSix(VerticalBattleScreen):
         # 3️⃣ Draw PLAYER
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
-        for coin in self.coinsGroup:
-            coin.draw(state.DISPLAY, self.camera)
-
-
-        for enemy in self.spikeyBallGroup:
+        # -------------------------
+        # DRAW ENEMIES (UNIFIED)
+        # -------------------------
+        for enemy in self.enemies:
             enemy.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
-        for boss in self.bossLevelSixGroup:
-            boss.draw(state.DISPLAY, self.camera)
-            boss.draw_damage_flash(state.DISPLAY, self.camera)
-
+            if hasattr(enemy, "draw_damage_flash"):
+                enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
         self.draw_ui_panel(state.DISPLAY)
 
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
-        enemies = (
-                # Excluding rescue pods from missile targeting
-
-
-                list(self.spikeyBallGroup) +
-
-                list(self.bossLevelSixGroup)
-        )
+        enemies = self.enemies
 
         if not enemies:
             return None
@@ -259,63 +237,43 @@ class LevelSix(VerticalBattleScreen):
     def load_enemy_into_list(self):
         print("🔥 load_enemy_into_list CALLED")
 
-        self.coinsGroup.clear()
-        self.spikeyBallGroup.clear()
-        self.bossLevelSixGroup.clear()
-        print(f"BossLevelSixGroup count = {len(self.bossLevelSixGroup)}")
+        self.enemies.clear()
 
         for obj in self.tiled_map.objects:
-            # ⭐ LOAD ENEMIES (existing code)
+
+            # -------------------------
+            # BOSS
+            # -------------------------
             if obj.name == "level_6_boss":
                 enemy = BossLevelSix()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.bossLevelSixGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
-            # LOAD COINS (LevelSix.load_enemy_into_list)
 
-            if obj.name == "spikey_ball":
+            # -------------------------
+            # SPIKEY BALL
+            # -------------------------
+            elif obj.name == "spikey_ball":
                 enemy = SpikeyBall()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.spikeyBallGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
 
-            if obj.name == "coins":
+            # -------------------------
+            # COINS
+            # -------------------------
+            elif obj.name == "coins":
                 enemy = Coins()
-                enemy.x = obj.x
-                enemy.y = obj.y
-                enemy.width = obj.width
-                enemy.height = obj.height
-                enemy.update_hitbox()
-                enemy.camera = self.camera
-                self.coinsGroup.append(enemy)
-                enemy.camera = self.camera
-                enemy.target_player = self.starship
 
+            else:
+                continue
 
+            # -------------------------
+            # COMMON SETUP (ALL ENEMIES)
+            # -------------------------
+            enemy.x = obj.x
+            enemy.y = obj.y
+            enemy.width = obj.width
+            enemy.height = obj.height
+            enemy.camera = self.camera
+            enemy.target_player = self.starship
+            enemy.update_hitbox()
 
-
-
-
-
-
-
-
-
-
-
-
+            self.enemies.append(enemy)
 
     def enemy_helper(self):
 
@@ -324,60 +282,97 @@ class LevelSix(VerticalBattleScreen):
         # -------------------------
         # NAPALM UPDATE + DAMAGE
         # -------------------------
-        for napalm in list(self.napalm_list):
-            napalm.update()
+        # -------------------------
+        # NAPALM UPDATE + DAMAGE
+        # -------------------------
+        for bullet in list(self.player_bullets):
 
-            if napalm.is_active and napalm.hits(self.starship.hitbox):
+            if getattr(bullet, "weapon_name", None) != "Napalm Spread":
+                continue
+
+            bullet.update()
+
+            if bullet.is_active and bullet.hits(self.starship.hitbox):
                 if not self.starship.invincible:
-                    self.starship.shipHealth -= napalm.damage
+                    self.starship.shipHealth -= bullet.damage
                     self.starship.on_hit()
 
-            if not napalm.is_active:
-                self.napalm_list.remove(napalm)
+                bullet.is_active = False
 
-        # -------------------------
-        # METAL SHIELD → ENEMY BULLETS
-        # -------------------------
-        for metal in list(self.metal_shield_bullets):
+            if not bullet.is_active:
+                self.player_bullets.remove(bullet)
 
-            if not metal.is_active:
-                self.metal_shield_bullets.remove(metal)
+        for shield in list(self.player_bullets):
+
+            if shield.weapon_name != "Metal Shield":
+                continue
+
+            if not shield.is_active:
+                self.player_bullets.remove(shield)
                 continue
 
             shield_rect = pygame.Rect(
-                metal.x,
-                metal.y,
-                metal.width,
-                metal.height
+                shield.x,
+                shield.y,
+                shield.width,
+                shield.height
             )
 
             for bullet in list(self.enemy_bullets):
                 if bullet.collide_with_rect(shield_rect):
 
-                    absorbed = metal.absorb_hit()
+                    absorbed = shield.absorb_hit()
 
                     if bullet in self.enemy_bullets:
                         self.enemy_bullets.remove(bullet)
 
-                    if absorbed and metal in self.metal_shield_bullets:
-                        self.metal_shield_bullets.remove(metal)
+                    if absorbed and shield in self.player_bullets:
+                        self.player_bullets.remove(shield)
 
                     break
 
+                    # -------------------------
+                    # REQUIRED ENEMY UPDATE
+                    # -------------------------
+                    for enemy in list(self.enemies):
+
+                        if not isinstance(enemy, BossLevelSix):
+                            continue
+
+                        enemy.update()
+
+        for enemy in list(self.enemies):
+
+            if not isinstance(enemy, BossLevelSix):
+                continue
+
+            if enemy.enemyBullets:
+                self.enemy_bullets.extend(enemy.enemyBullets)
+                enemy.enemyBullets.clear()
+
+            # -------------------------
+            # BOSS DEATH
+            # -------------------------
+            if enemy.enemyHealth <= 0:
+                self.enemies.remove(enemy)
+                print("level complete")
         # -------------------------
-        # BOSS
+        # BOSS (NEW self.enemies PATTERN)
         # -------------------------
-        for boss in list(self.bossLevelSixGroup):
+        for enemy in list(self.enemies):
 
-            boss.update()
-            boss.apply_barrage_damage(self.starship)
+            if not isinstance(enemy, BossLevelSix):
+                continue
 
-            if boss.enemyBullets:
-                self.enemy_bullets.extend(boss.enemyBullets)
-                boss.enemyBullets.clear()
+            enemy.update()
+            enemy.apply_barrage_damage(self.starship)
 
-            if boss.enemyHealth <= 0:
-                self.bossLevelSixGroup.remove(boss)
+            if enemy.enemyBullets:
+                self.enemy_bullets.extend(enemy.enemyBullets)
+                enemy.enemyBullets.clear()
+
+            if enemy.enemyHealth <= 0:
+                self.enemies.remove(enemy)
                 print("level complete")
 
 
@@ -386,27 +381,30 @@ class LevelSix(VerticalBattleScreen):
 
 
 
-        # -------------------------
-        # wasp stingers
-        # -------------------------
-        for ball in list(self.spikeyBallGroup):
 
-            ball.update()
+        # -------------------------
+        # SPIKEY BALLS (NEW self.enemies PATTERN)
+        # -------------------------
+        for enemy in list(self.enemies):
 
-            if ball.enemyHealth <= 0:
-                self.spikeyBallGroup.remove(ball)
+            if not isinstance(enemy, SpikeyBall):
                 continue
 
-            # Check collision with player
-            if self.starship.hitbox.colliderect(ball.hitbox):
-                # Change color to indicate collision
-                ball.color = (135, 206, 235)
-                # Apply damage to player if not invincible
+            enemy.update()
+
+            if enemy.enemyHealth <= 0:
+                self.enemies.remove(enemy)
+                continue
+
+            # Collision with player
+            if self.starship.hitbox.colliderect(enemy.hitbox):
+                enemy.color = (135, 206, 235)
+
                 if not self.starship.invincible:
-                    self.starship.shipHealth -= 5  # Damage amount
+                    self.starship.shipHealth -= 5
                     self.starship.on_hit()
             else:
-                ball.color = GlobalConstants.RED
+                enemy.color = GlobalConstants.RED
 
 
 
@@ -416,12 +414,14 @@ class LevelSix(VerticalBattleScreen):
         self.draw_collision_tiles(surface)
 
     def assign_single_barrage_owner(self) -> None:
-        if not self.bossLevelSixGroup:
+        bosses = [e for e in self.enemies if isinstance(e, BossLevelSix)]
+
+        if not bosses:
             return
 
         # reset all
-        for boss in self.bossLevelSixGroup:
+        for boss in bosses:
             boss.may_fire_barrage = False
 
         # choose exactly one
-        self.bossLevelSixGroup[0].may_fire_barrage = True
+        bosses[0].may_fire_barrage = True
