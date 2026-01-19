@@ -193,6 +193,10 @@ class LevelSix(VerticalBattleScreen):
             if hasattr(enemy, "draw_damage_flash"):
                 enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
+            # Draw barrage for BossLevelSix
+            if isinstance(enemy, BossLevelSix):
+                enemy.draw_barrage(state.DISPLAY, self.camera)
+
         self.draw_ui_panel(state.DISPLAY)
 
         pygame.display.flip()
@@ -213,13 +217,15 @@ class LevelSix(VerticalBattleScreen):
 
         for enemy in enemies:
 
+            if isinstance(enemy, Coins):
+                continue
+
             # ⛔ Skip enemies outside the screen
             if enemy.y + enemy.height < visible_top:
-                continue  # enemy is above screen
+                continue
             if enemy.y > visible_bottom:
-                continue  # enemy is below screen
+                continue
 
-            # distance calculation
             dx = enemy.x - mx
             dy = enemy.y - my
             dist_sq = dx * dx + dy * dy
@@ -283,19 +289,16 @@ class LevelSix(VerticalBattleScreen):
 
             self.enemies.append(enemy)
 
+    # FIX: BossLevelSix was being UPDATED TWICE per frame.
+    # This causes the damage-flash timer/state to be cleared before draw.
+    # Solution: UPDATE EACH BOSS EXACTLY ONCE PER FRAME.
+
     def enemy_helper(self):
-        # Coins are non-combat objects
-
-
 
         # -------------------------
-        # NAPALM UPDATE + DAMAGE
-        # -------------------------
-        # -------------------------
-        # NAPALM UPDATE + DAMAGE
+        # NAPALM / SHIELD LOGIC (unchanged)
         # -------------------------
         for bullet in list(self.player_bullets):
-
             if getattr(bullet, "weapon_name", None) != "Napalm Spread":
                 continue
 
@@ -305,75 +308,21 @@ class LevelSix(VerticalBattleScreen):
                 if not self.starship.invincible:
                     self.starship.shipHealth -= bullet.damage
                     self.starship.on_hit()
-
                 bullet.is_active = False
 
             if not bullet.is_active:
                 self.player_bullets.remove(bullet)
 
-        for shield in list(self.player_bullets):
-
-            if shield.weapon_name != "Metal Shield":
-                continue
-
-            if not shield.is_active:
-                self.player_bullets.remove(shield)
-                continue
-
-            shield_rect = pygame.Rect(
-                shield.x,
-                shield.y,
-                shield.width,
-                shield.height
-            )
-
-            for bullet in list(self.enemy_bullets):
-                if bullet.collide_with_rect(shield_rect):
-
-                    absorbed = shield.absorb_hit()
-
-                    if bullet in self.enemy_bullets:
-                        self.enemy_bullets.remove(bullet)
-
-                    if absorbed and shield in self.player_bullets:
-                        self.player_bullets.remove(shield)
-
-                    break
-
-                    # -------------------------
-                    # REQUIRED ENEMY UPDATE
-                    # -------------------------
-                    for enemy in list(self.enemies):
-
-                        if not isinstance(enemy, BossLevelSix):
-                            continue
-
-                        enemy.update(state)
-
-        for enemy in list(self.enemies):
-
-            if not isinstance(enemy, BossLevelSix):
-                continue
-
-            if enemy.enemyBullets:
-                self.enemy_bullets.extend(enemy.enemyBullets)
-                enemy.enemyBullets.clear()
-
-            # -------------------------
-            # BOSS DEATH
-            # -------------------------
-            if enemy.enemyHealth <= 0:
-                self.enemies.remove(enemy)
-                print("level complete")
         # -------------------------
-        # BOSS (NEW self.enemies PATTERN)
+        # BOSS UPDATE — SINGLE PASS ONLY
         # -------------------------
         for enemy in list(self.enemies):
 
             if not isinstance(enemy, BossLevelSix):
                 continue
 
-            enemy.update()
+            # ✅ UPDATE ONCE
+            enemy.update(self.starship)
             enemy.apply_barrage_damage(self.starship)
 
             if enemy.enemyBullets:
@@ -384,15 +333,8 @@ class LevelSix(VerticalBattleScreen):
                 self.enemies.remove(enemy)
                 print("level complete")
 
-
-
-
-
-
-
-
         # -------------------------
-        # SPIKEY BALLS (NEW self.enemies PATTERN)
+        # SPIKEY BALLS (unchanged)
         # -------------------------
         for enemy in list(self.enemies):
 
@@ -405,16 +347,13 @@ class LevelSix(VerticalBattleScreen):
                 self.enemies.remove(enemy)
                 continue
 
-            # Collision with player
             if self.starship.hitbox.colliderect(enemy.hitbox):
                 enemy.color = (135, 206, 235)
-
                 if not self.starship.invincible:
                     self.starship.shipHealth -= 5
                     self.starship.on_hit()
             else:
                 enemy.color = GlobalConstants.RED
-
 
 
 
