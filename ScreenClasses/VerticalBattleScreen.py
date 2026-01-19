@@ -321,6 +321,10 @@ class VerticalBattleScreen:
             bullet_rect = bullet.rect
 
             for enemy in list(self.enemies):
+                # Skip coins - they should only be collected by starship collision
+                if hasattr(enemy, "__class__") and enemy.__class__.__name__ == "Coins":
+                    continue
+
                 if not bullet_rect.colliderect(enemy.hitbox):
                     continue
 
@@ -972,6 +976,10 @@ class VerticalBattleScreen:
             # checking every f'n enemy every single time
 
             for enemy in self.enemies:
+                # Skip coins - they should not hurt the player when touched
+                if hasattr(enemy, "__class__") and enemy.__class__.__name__ == "Coins":
+                    continue
+
                 enemy_rect = pygame.Rect(
                     enemy.x,
                     enemy.y,

@@ -29,6 +29,7 @@ class LevelSix(VerticalBattleScreen):
 
         self.coins_missed = []
 
+
         self.flame_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
@@ -139,10 +140,11 @@ class LevelSix(VerticalBattleScreen):
                     self.enemies.remove(enemy)
                     continue
 
-            if self.starship.hitbox.colliderect(enemy.hitbox):
-                enemy.enemyHealth = 0
-                enemy.is_active = False
-                self.enemies.remove(enemy)
+                # Check if starship collides with coin
+                if self.starship.hitbox.colliderect(enemy.hitbox):
+                    enemy.enemyHealth = 0
+                    enemy.is_active = False
+                    self.enemies.remove(enemy)
 
 
 
@@ -276,6 +278,7 @@ class LevelSix(VerticalBattleScreen):
             self.enemies.append(enemy)
 
     def enemy_helper(self):
+        # Coins are non-combat objects
 
 
 
