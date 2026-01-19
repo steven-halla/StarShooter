@@ -643,9 +643,29 @@ class VerticalBattleScreen:
                 player.vx = vx * KNOCKBACK
                 player.vy = vy * KNOCKBACK
 
+                # prevent player from entering collision tiles by adjusting position
+                # calculate the minimum distance needed to move the player out of the tile
+                overlap_x = (player_rect.width + tile_rect.width) / 2 - abs(player_center_x - tile_center_x)
+                overlap_y = (player_rect.height + tile_rect.height) / 2 - abs(player_center_y - tile_center_y)
+
+                # move the player in the direction of least resistance
+                if overlap_x < overlap_y:
+                    if player_center_x < tile_center_x:
+                        player.x -= overlap_x
+                    else:
+                        player.x += overlap_x
+                else:
+                    if player_center_y < tile_center_y:
+                        player.y -= overlap_y
+                    else:
+                        player.y += overlap_y
+
+                # update the hitbox to reflect the new position
+                player.update_hitbox()
+
                 break
 
-        # ---------- ENEMIES (PURE VECTOR vx / vy, NO PENETRATION MATH) ----------
+        # ---------- ENEMIES (PURE VECTOR vx / vy, WITH PENETRATION PREVENTION) ----------
         for enemy in list(self.enemies):
             enemy_rect = enemy.hitbox
             enemy_cx = enemy_rect.centerx
@@ -679,6 +699,28 @@ class VerticalBattleScreen:
                     # apply knockback purely via vector
                     enemy.vx = vx * KNOCKBACK
                     enemy.vy = vy * KNOCKBACK
+
+                    # prevent enemy from entering collision tiles by adjusting position
+                    # calculate the minimum distance needed to move the enemy out of the tile
+                    overlap_x = (enemy_rect.width + tile_rect.width) / 2 - abs(enemy_cx - tile_cx)
+                    overlap_y = (enemy_rect.height + tile_rect.height) / 2 - abs(enemy_cy - tile_cy)
+
+                    # move the enemy in the direction of least resistance
+                    if overlap_x < overlap_y:
+                        if enemy_cx < tile_cx:
+                            enemy.x -= overlap_x
+                        else:
+                            enemy.x += overlap_x
+                    else:
+                        if enemy_cy < tile_cy:
+                            enemy.y -= overlap_y
+                        else:
+                            enemy.y += overlap_y
+
+                    # update the enemy's hitbox if it has an update_hitbox method
+                    if hasattr(enemy, 'update_hitbox'):
+                        enemy.update_hitbox()
+
                     break
 
     def draw_collision_tiles(self, surface: pygame.Surface) -> None:
