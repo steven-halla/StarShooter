@@ -95,6 +95,7 @@ class LevelSix(VerticalBattleScreen):
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
         self.load_enemy_into_list()
 
+    # this is for later for collision blocks and bottom screen squishing player
     def check_player_touching_collision_bottom(self) -> None:
         player = self.starship
 
@@ -109,6 +110,7 @@ class LevelSix(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
+        print(self.coins_missed)
 
         self.check_player_touching_collision_bottom()
 
@@ -122,29 +124,7 @@ class LevelSix(VerticalBattleScreen):
             # -------------------------
             # COINS (NEW self.enemies PATTERN)
             # -------------------------
-            for enemy in list(self.enemies):
-
-                if not isinstance(enemy, Coins):
-                    continue
-
-                enemy.update()
-
-                # SCREEN-space bottom (bypass Enemy._clamp_vertical)
-                screen_y = self.camera.world_to_screen_y(enemy.y)
-
-                if screen_y > GlobalConstants.GAMEPLAY_HEIGHT:
-                    if enemy not in self.coins_missed:
-                        self.coins_missed.append(enemy)
-
-                    enemy.is_active = False
-                    self.enemies.remove(enemy)
-                    continue
-
-                # Check if starship collides with coin
-                if self.starship.hitbox.colliderect(enemy.hitbox):
-                    enemy.enemyHealth = 0
-                    enemy.is_active = False
-                    self.enemies.remove(enemy)
+        self.player_touches_coin(state)
 
 
 
@@ -159,6 +139,32 @@ class LevelSix(VerticalBattleScreen):
         self.enemy_helper()
         self.extract_object_names()
         self.update_collision_tiles(damage=5)
+
+    def player_touches_coin(self, state):
+        for enemy in list(self.enemies):
+
+            if not isinstance(enemy, Coins):
+                continue
+
+            # ✅ DO NOT UPDATE COINS HERE
+            # Coins are already updated elsewhere in the frame
+
+            # ✅ COIN ↔ PLAYER COLLISION
+            if enemy.hitbox.colliderect(self.starship.hitbox):
+                print(f"[LAST COIN] x={enemy.x:.2f}, y={enemy.y:.2f}")
+                enemy.is_active = False
+                self.enemies.remove(enemy)
+                continue
+
+            # ✅ SCREEN-SPACE TOP OF UI CHECK (MISS)
+            screen_y = self.camera.world_to_screen_y(enemy.y)
+
+            if screen_y > (GlobalConstants.GAMEPLAY_HEIGHT - 1):  # Added 1 point of top padding
+                if enemy not in self.coins_missed:
+                    self.coins_missed.append(enemy)
+
+                enemy.is_active = False
+                self.enemies.remove(enemy)
 
     def draw(self, state):
         state.DISPLAY.fill((0, 0, 0))  # ← CLEAR SCREEN FIRST
@@ -342,7 +348,7 @@ class LevelSix(VerticalBattleScreen):
                         if not isinstance(enemy, BossLevelSix):
                             continue
 
-                        enemy.update()
+                        enemy.update(state)
 
         for enemy in list(self.enemies):
 

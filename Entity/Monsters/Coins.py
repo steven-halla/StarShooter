@@ -36,19 +36,17 @@ class Coins(Enemy):
         ).convert_alpha()
         self.enemy_image = self.coins_image  # 🔑 REQUIRED
 
-
     def update(self) -> None:
         super().update()
         if not self.is_active:
             return
+
         self.update_hitbox()
 
-        # print("BILE:", self.y, "CAM:", self.camera.y,
-        #       "SCREEN_Y:", self.camera.world_to_screen_y(self.y))
-
-        """Handle firing every 3 seconds + move bullets."""
-
-        now = pygame.time.get_ticks()
+        if self.target_player is not None:
+            if self.hitbox.colliderect(self.target_player.hitbox):
+                self.is_active = False
+                self.enemyHealth = 0
 
 
 
@@ -101,4 +99,8 @@ class Coins(Enemy):
             self.is_active = False
             self.enemyHealth = 0
 
-
+    def check_player_collision(self, state) -> None:
+        player = state.starship
+        if player and self.hitbox.colliderect(player.hitbox):
+            self.is_active = False
+            self.enemyHealth = 0

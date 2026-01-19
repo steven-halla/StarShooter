@@ -4,6 +4,7 @@ import math
 from Constants.GlobalConstants import GlobalConstants
 from Controller.KeyBoardControls import KeyBoardControls
 from Entity.Enemy import Enemy
+from Entity.Monsters.Coins import Coins
 from Entity.StarShip import StarShip
 from Movement.MoveRectangle import MoveRectangle
 from SaveStates.SaveState import SaveState
@@ -12,7 +13,6 @@ from ScreenClasses.TextBox import TextBox
 
 class VerticalBattleScreen:
     def __init__(self, textbox):
-        # self.isStart: bool = True
         self.starship = StarShip()
         self.playerDead: bool = False
         self.textbox = textbox
@@ -213,6 +213,10 @@ class VerticalBattleScreen:
         )
 
         for enemy in list(self.enemies):
+            # ❌ skip coins
+            if isinstance(enemy, Coins):
+                continue
+
             # enemy is BELOW visible gameplay area
             if enemy.y > screen_bottom:
                 enemy.is_active = False
