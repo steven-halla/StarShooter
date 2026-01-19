@@ -69,6 +69,8 @@ class LevelSeven(VerticalBattleScreen):
         self.boss_teleport_y = 500  # whatever absolute world Y you want
         self.boss_shift_done = True
         self.boss_shift_start_time = None  # ⛔ stop timer
+        self.start_loop: bool = False
+        self.end_loop: bool = False
     # -------------------------------------------------
     # FLAMES
     # -------------------------------------------------
@@ -171,17 +173,37 @@ class LevelSeven(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
+        # inside update(self, state)
+        # inside update(self, state)
+        # NEW LOOP (edge-triggered)
+        if self.camera.y <= 0 and not self.start_loop:
+            self.start_loop = True
+            self.end_loop = False
+            print("NEW LOOP")
+
+        # END LOOP (edge-triggered)
+        elif self.camera.y > 200 and not self.end_loop:
+            self.end_loop = True
+            self.start_loop = False
+            print("END LOOP")
+
+        # print(f"[PLAYER] world=({self.starship.x:.2f}, {self.starship.y:.2f})")
+        # print(
+        #     f"[PLAYER] screen=("
+        #     f"{self.camera.world_to_screen_x(self.starship.x):.2f}, "
+        #     f"{self.camera.world_to_screen_y(self.starship.y):.2f})"
+        # )
 
         boss = next(
             (e for e in self.enemies if isinstance(e, BossLevelSeven)),
             None
         )
 
-        if boss:
-            pass
-            # print(f"Boss world position: ({boss.x}, {boss.y})")
-        else:
-            print("No BossLevelSeven in self.enemies")
+        # if boss:
+        #     pass
+        #     # print(f"Boss world position: ({boss.x}, {boss.y})")
+        # else:
+        #     print("No BossLevelSeven in self.enemies")
         # self.update_static_bullets(self.static_bullets, self.starship.hitbox)
 
         now = pygame.time.get_ticks()
@@ -195,19 +217,7 @@ class LevelSeven(VerticalBattleScreen):
             self.build_flame_grid()
 
 
-        # print("=== ENEMY LIST ===")
-        # print(f"BileSpitter: {len(self.bileSpitterGroup)}")
-        # print(f"TriSpitter: {len(self.triSpitterGroup)}")
-        # print(f"BladeSpinner: {len(self.bladeSpinnerGroup)}")
-        # print(f"BossLevelOne: {len(self.bossLevelOneGroup)}")
-        # print(
-        #     f"TOTAL: "
-        #     f"{len(self.bileSpitterGroup) + len(self.triSpitterGroup) + len(self.bladeSpinnerGroup) + len(self.bossLevelOneGroup)}"
-        # )
-        # print("==================")
-        # if len(self.missed_enemies) > 9:
-        #     print("GAME OVER!!!")
-        #     self.game_over = True
+
 
         if self.level_start == True:
             self.level_start = False
@@ -595,14 +605,14 @@ class LevelSeven(VerticalBattleScreen):
 
         # -------------------------
         # ALWAYS PRINT TIMER STATE
-        # -------------------------
-        if self.boss_shift_start_time is None:
-            print(f"[BOSS TIMER] state=IDLE boss_shift_done={self.boss_shift_done} elapsed=0")
-        else:
-            print(
-                f"[BOSS TIMER] state=RUNNING boss_shift_done={self.boss_shift_done} "
-                f"elapsed={now - self.boss_shift_start_time}"
-            )
+        # # -------------------------
+        # if self.boss_shift_start_time is None:
+        #     print(f"[BOSS TIMER] state=IDLE boss_shift_done={self.boss_shift_done} elapsed=0")
+        # else:
+        #     print(
+        #         f"[BOSS TIMER] state=RUNNING boss_shift_done={self.boss_shift_done} "
+        #         f"elapsed={now - self.boss_shift_start_time}"
+        #     )
 
         # -------------------------
         # NO BOSS → TIMER MUST NOT RUN
