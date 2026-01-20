@@ -44,12 +44,25 @@ class BileSpitter(Enemy):
         super().update(state)
         if not self.is_active:
             return
-        # self.moveAI()
+        self.moveAI()
 
         # WORLD-SPACE hitbox
         self.update_hitbox()
 
-        self.pounce()
+        # example call (inside enemy update)
+        # =========================
+        # CALL (inside enemy update)
+        # =========================
+        self.melee_strike(
+            dash_speed=1.0,
+            dash_duration_ms=400,
+            melee_width=22,
+            melee_height=22,
+            melee_color=(255, 0, 0),
+            damage=15,
+            cooldown_ms=5000,
+            state=state
+        )
 
 
         # firing
