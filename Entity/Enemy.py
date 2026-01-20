@@ -679,4 +679,52 @@ class Enemy:
         bullet_right.update_rect()
         state.enemy_bullets.append(bullet_right)
 
+    def shoot_bullets_up_down(
+            self,
+            bullet_speed: float,
+            bullet_width: int,
+            bullet_height: int,
+            bullet_color: tuple[int, int, int],
+            bullet_damage: int,
+            cooldown_ms: int,
+            state
+    ) -> None:
+        if self.camera is None:
+            return
 
+        now = pygame.time.get_ticks()
+
+        # lazy cooldown tracking
+        if not hasattr(self, "_shoot_ud_last_time"):
+            self._shoot_ud_last_time = 0
+
+        if now - self._shoot_ud_last_time < cooldown_ms:
+            return
+
+        self._shoot_ud_last_time = now
+
+        center_x = self.x + self.width // 2 - bullet_width // 2
+
+        # UP bullet
+        bullet_up = Bullet(center_x, self.y)
+        bullet_up.width = bullet_width
+        bullet_up.height = bullet_height
+        bullet_up.color = bullet_color
+        bullet_up.damage = bullet_damage
+        bullet_up.vx = 0
+        bullet_up.vy = -1
+        bullet_up.bullet_speed = bullet_speed
+        bullet_up.update_rect()
+        state.enemy_bullets.append(bullet_up)
+
+        # DOWN bullet
+        bullet_down = Bullet(center_x, self.y + self.height)
+        bullet_down.width = bullet_width
+        bullet_down.height = bullet_height
+        bullet_down.color = bullet_color
+        bullet_down.damage = bullet_damage
+        bullet_down.vx = 0
+        bullet_down.vy = 1
+        bullet_down.bullet_speed = bullet_speed
+        bullet_down.update_rect()
+        state.enemy_bullets.append(bullet_down)
