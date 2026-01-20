@@ -53,15 +53,7 @@ class BileSpitter(Enemy):
         # =========================
         # CALL (inside enemy update)
         # =========================
-        self.shoot_bullets_up_down(
-            bullet_speed=4.0,
-            bullet_width=12,
-            bullet_height=20,
-            bullet_color=GlobalConstants.RED,
-            bullet_damage=10,
-            cooldown_ms=1200,
-            state=state
-        )
+
 
 
         # firing

@@ -728,3 +728,123 @@ class Enemy:
         bullet_down.bullet_speed = bullet_speed
         bullet_down.update_rect()
         state.enemy_bullets.append(bullet_down)
+
+    def shoot_bullets_diag_ul_lr(
+            self,
+            bullet_speed: float,
+            bullet_width: int,
+            bullet_height: int,
+            bullet_color: tuple[int, int, int],
+            bullet_damage: int,
+            cooldown_ms: int,
+            state
+    ) -> None:
+        if self.camera is None:
+            return
+
+        now = pygame.time.get_ticks()
+
+        if not hasattr(self, "_shoot_ul_lr_last_time"):
+            self._shoot_ul_lr_last_time = 0
+
+        if now - self._shoot_ul_lr_last_time < cooldown_ms:
+            return
+
+        self._shoot_ul_lr_last_time = now
+
+        cx = self.x + self.width // 2 - bullet_width // 2
+        cy = self.y + self.height // 2 - bullet_height // 2
+
+        # UP-LEFT
+        b1 = Bullet(cx, cy)
+        b1.width = bullet_width
+        b1.height = bullet_height
+        b1.color = bullet_color
+        b1.damage = bullet_damage
+        b1.vx = -1
+        b1.vy = -1
+        b1.bullet_speed = bullet_speed
+        b1.update_rect()
+        state.enemy_bullets.append(b1)
+
+        # DOWN-RIGHT
+        b2 = Bullet(cx, cy)
+        b2.width = bullet_width
+        b2.height = bullet_height
+        b2.color = bullet_color
+        b2.damage = bullet_damage
+        b2.vx = 1
+        b2.vy = 1
+        b2.bullet_speed = bullet_speed
+        b2.update_rect()
+        state.enemy_bullets.append(b2)
+        # fun call
+        # self.shoot_bullets_diag_ul_lr(
+        #     bullet_speed=4.0,
+        #     bullet_width=14,
+        #     bullet_height=14,
+        #     bullet_color=GlobalConstants.RED,
+        #     bullet_damage=12,
+        #     cooldown_ms=1500,
+        #     state=state
+        # )
+
+    def shoot_bullets_diag_ur_ll(
+            self,
+            bullet_speed: float,
+            bullet_width: int,
+            bullet_height: int,
+            bullet_color: tuple[int, int, int],
+            bullet_damage: int,
+            cooldown_ms: int,
+            state
+    ) -> None:
+        if self.camera is None:
+            return
+
+        now = pygame.time.get_ticks()
+
+        if not hasattr(self, "_shoot_ur_ll_last_time"):
+            self._shoot_ur_ll_last_time = 0
+
+        if now - self._shoot_ur_ll_last_time < cooldown_ms:
+            return
+
+        self._shoot_ur_ll_last_time = now
+
+        cx = self.x + self.width // 2 - bullet_width // 2
+        cy = self.y + self.height // 2 - bullet_height // 2
+
+        # UP-RIGHT
+        b1 = Bullet(cx, cy)
+        b1.width = bullet_width
+        b1.height = bullet_height
+        b1.color = bullet_color
+        b1.damage = bullet_damage
+        b1.vx = 1
+        b1.vy = -1
+        b1.bullet_speed = bullet_speed
+        b1.update_rect()
+        state.enemy_bullets.append(b1)
+
+        # DOWN-LEFT
+        b2 = Bullet(cx, cy)
+        b2.width = bullet_width
+        b2.height = bullet_height
+        b2.color = bullet_color
+        b2.damage = bullet_damage
+        b2.vx = -1
+        b2.vy = 1
+        b2.bullet_speed = bullet_speed
+        b2.update_rect()
+        state.enemy_bullets.append(b2)
+        # fun call
+        # self.shoot_bullets_diag_ur_ll(
+        #     bullet_speed=4.0,
+        #     bullet_width=14,
+        #     bullet_height=14,
+        #     bullet_color=GlobalConstants.RED,
+        #     bullet_damage=12,
+        #     cooldown_ms=1500,
+        #     state=state
+        # )
