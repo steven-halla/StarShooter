@@ -53,14 +53,13 @@ class BileSpitter(Enemy):
         # =========================
         # CALL (inside enemy update)
         # =========================
-        self.melee_strike(
-            dash_speed=1.0,
-            dash_duration_ms=400,
-            melee_width=22,
-            melee_height=22,
-            melee_color=(255, 0, 0),
-            damage=15,
-            cooldown_ms=5000,
+        self.shoot_bullets_left_right(
+            bullet_speed=4.0,
+            bullet_width=20,
+            bullet_height=12,
+            bullet_color=GlobalConstants.RED,
+            bullet_damage=10,
+            cooldown_ms=1200,
             state=state
         )
 

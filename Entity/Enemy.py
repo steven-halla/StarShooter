@@ -617,3 +617,66 @@ class Enemy:
         bullet.update_rect()
 
         bullet.update_rect()
+        # how to call
+        # self.melee_strike(
+        #     dash_speed=1.0,
+        #     dash_duration_ms=400,
+        #     melee_width=22,
+        #     melee_height=22,
+        #     melee_color=(255, 0, 0),
+        #     damage=15,
+        #     cooldown_ms=5000,
+        #     state=state
+        # )
+
+    def shoot_bullets_left_right(
+            self,
+            bullet_speed: float,
+            bullet_width: int,
+            bullet_height: int,
+            bullet_color: tuple[int, int, int],
+            bullet_damage: int,
+            cooldown_ms: int,
+            state
+    ) -> None:
+        if self.camera is None:
+            return
+
+        now = pygame.time.get_ticks()
+
+        # lazy cooldown tracking (no __init__ changes)
+        if not hasattr(self, "_shoot_lr_last_time"):
+            self._shoot_lr_last_time = 0
+
+        if now - self._shoot_lr_last_time < cooldown_ms:
+            return
+
+        self._shoot_lr_last_time = now
+
+        center_y = self.y + self.height // 2 - bullet_height // 2
+
+        # LEFT bullet
+        bullet_left = Bullet(self.x, center_y)
+        bullet_left.width = bullet_width
+        bullet_left.height = bullet_height
+        bullet_left.color = bullet_color
+        bullet_left.damage = bullet_damage
+        bullet_left.vx = -1
+        bullet_left.vy = 0
+        bullet_left.bullet_speed = bullet_speed
+        bullet_left.update_rect()
+        state.enemy_bullets.append(bullet_left)
+
+        # RIGHT bullet
+        bullet_right = Bullet(self.x + self.width, center_y)
+        bullet_right.width = bullet_width
+        bullet_right.height = bullet_height
+        bullet_right.color = bullet_color
+        bullet_right.damage = bullet_damage
+        bullet_right.vx = 1
+        bullet_right.vy = 0
+        bullet_right.bullet_speed = bullet_speed
+        bullet_right.update_rect()
+        state.enemy_bullets.append(bullet_right)
+
+
