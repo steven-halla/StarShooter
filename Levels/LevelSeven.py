@@ -120,7 +120,7 @@ class LevelSeven(VerticalBattleScreen):
     #     return bullets
 
     # def clear_all_enemy_groups(self) -> None:
-    #     self.enemies.clear()
+    #     state.enemies.clear()
     #     print("Once")
 
 
@@ -201,7 +201,7 @@ class LevelSeven(VerticalBattleScreen):
         # )
 
         boss = next(
-            (e for e in self.enemies if isinstance(e, BossLevelSeven)),
+            (e for e in state.enemies if isinstance(e, BossLevelSeven)),
             None
         )
 
@@ -209,7 +209,7 @@ class LevelSeven(VerticalBattleScreen):
         #     pass
         #     # print(f"Boss world position: ({boss.x}, {boss.y})")
         # else:
-        #     print("No BossLevelSeven in self.enemies")
+        #     print("No BossLevelSeven in state.enemies")
         # self.update_static_bullets(self.static_bullets, self.starship.hitbox)
 
         now = pygame.time.get_ticks()
@@ -269,7 +269,7 @@ class LevelSeven(VerticalBattleScreen):
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
 
-        for boss in self.enemies:
+        for boss in state.enemies:
             if not isinstance(boss, BossLevelSeven):
                 continue
 
@@ -298,7 +298,7 @@ class LevelSeven(VerticalBattleScreen):
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
-        enemies = self.enemies
+        enemies = state.enemies
 
         if not enemies:
             return None
@@ -343,7 +343,7 @@ class LevelSeven(VerticalBattleScreen):
         return names
 
     def load_enemy_into_list(self) -> None:
-        self.enemies.clear()
+        state.enemies.clear()
 
         # --- get the tile layer named "boss_appear_point" ---
         try:
@@ -377,8 +377,8 @@ class LevelSeven(VerticalBattleScreen):
         boss.target_player = self.starship
         boss.update_hitbox()
 
-        # ✅ NEW PATTERN: boss goes into self.enemies
-        self.enemies.append(boss)
+        # ✅ NEW PATTERN: boss goes into state.enemies
+        state.enemies.append(boss)
 
         # debug prints
         print("[LEVEL 7] boss_appear_point tiles (world):")
@@ -429,7 +429,7 @@ class LevelSeven(VerticalBattleScreen):
         # -------------------------
         # ENEMIES (LEVEL 5 PATTERN)
         # -------------------------
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
 
             result = enemy.update()
 
@@ -465,7 +465,7 @@ class LevelSeven(VerticalBattleScreen):
             # DEATH
             # -------------------------
             if enemy.enemyHealth <= 0:
-                self.enemies.remove(enemy)
+                state.enemies.remove(enemy)
 
 
     def repeat_map(self) -> None:
@@ -492,7 +492,7 @@ class LevelSeven(VerticalBattleScreen):
 
             # NEW LINE 1: only act if boss exists
             boss = next(
-                (e for e in self.enemies if isinstance(e, BossLevelSeven)),
+                (e for e in state.enemies if isinstance(e, BossLevelSeven)),
                 None
             )
 
@@ -502,7 +502,7 @@ class LevelSeven(VerticalBattleScreen):
 
             # NEW LINE 1: only act if boss exists (unified pattern)
             boss = next(
-                (e for e in self.enemies if isinstance(e, BossLevelSeven)),
+                (e for e in state.enemies if isinstance(e, BossLevelSeven)),
                 None
             )
 
@@ -627,7 +627,7 @@ class LevelSeven(VerticalBattleScreen):
         # NO BOSS → TIMER MUST NOT RUN
         # -------------------------
         boss = next(
-            (e for e in self.enemies if isinstance(e, BossLevelSeven)),
+            (e for e in state.enemies if isinstance(e, BossLevelSeven)),
             None
         )
 
@@ -732,7 +732,7 @@ class LevelSeven(VerticalBattleScreen):
 
         # Find the boss instance
         boss = next(
-            (e for e in self.enemies if isinstance(e, BossLevelSeven)),
+            (e for e in state.enemies if isinstance(e, BossLevelSeven)),
             None
         )
 

@@ -36,7 +36,7 @@ class LevelSix(VerticalBattleScreen):
 
 
 
-        # self.enemies: list[Enemy] = [] # consolidate all enemies into one list
+        # state.enemies: list[Enemy] = [] # consolidate all enemies into one list
         # self.load_enemy_into_list()
         self.prev_enemy_count: int = None
 
@@ -55,7 +55,7 @@ class LevelSix(VerticalBattleScreen):
         cam_top = self.camera.y
         cam_bottom = cam_top + GlobalConstants.GAMEPLAY_HEIGHT
 
-        for enemy in self.enemies:
+        for enemy in state.enemies:
             if not isinstance(enemy, BossLevelSix):
                 continue
 
@@ -122,7 +122,7 @@ class LevelSix(VerticalBattleScreen):
 
         # print(len(self.coinsGroup))
             # -------------------------
-            # COINS (NEW self.enemies PATTERN)
+            # COINS (NEW state.enemies PATTERN)
             # -------------------------
         self.player_touches_coin(state)
 
@@ -141,7 +141,7 @@ class LevelSix(VerticalBattleScreen):
         self.update_collision_tiles(damage=5)
 
     def player_touches_coin(self, state):
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
 
             if not isinstance(enemy, Coins):
                 continue
@@ -153,7 +153,7 @@ class LevelSix(VerticalBattleScreen):
             if enemy.hitbox.colliderect(self.starship.hitbox):
                 print(f"[LAST COIN] x={enemy.x:.2f}, y={enemy.y:.2f}")
                 enemy.is_active = False
-                self.enemies.remove(enemy)
+                state.enemies.remove(enemy)
                 continue
 
             # ✅ SCREEN-SPACE TOP OF UI CHECK (MISS)
@@ -164,7 +164,7 @@ class LevelSix(VerticalBattleScreen):
                     self.coins_missed.append(enemy)
 
                 enemy.is_active = False
-                self.enemies.remove(enemy)
+                state.enemies.remove(enemy)
 
     def draw(self, state):
         state.DISPLAY.fill((0, 0, 0))  # ← CLEAR SCREEN FIRST
@@ -187,7 +187,7 @@ class LevelSix(VerticalBattleScreen):
         # -------------------------
         # DRAW ENEMIES (UNIFIED)
         # -------------------------
-        for enemy in self.enemies:
+        for enemy in state.enemies:
             enemy.draw(state.DISPLAY, self.camera)
 
             if hasattr(enemy, "draw_damage_flash"):
@@ -202,7 +202,7 @@ class LevelSix(VerticalBattleScreen):
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
-        enemies = self.enemies
+        enemies = state.enemies
 
         if not enemies:
             return None
@@ -251,7 +251,7 @@ class LevelSix(VerticalBattleScreen):
     def load_enemy_into_list(self):
         print("🔥 load_enemy_into_list CALLED")
 
-        self.enemies.clear()
+        state.enemies.clear()
 
         for obj in self.tiled_map.objects:
 
@@ -287,7 +287,7 @@ class LevelSix(VerticalBattleScreen):
             enemy.target_player = self.starship
             enemy.update_hitbox()
 
-            self.enemies.append(enemy)
+            state.enemies.append(enemy)
 
     # FIX: BossLevelSix was being UPDATED TWICE per frame.
     # This causes the damage-flash timer/state to be cleared before draw.
@@ -316,7 +316,7 @@ class LevelSix(VerticalBattleScreen):
         # -------------------------
         # BOSS UPDATE — SINGLE PASS ONLY
         # -------------------------
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
 
             if not isinstance(enemy, BossLevelSix):
                 continue
@@ -330,13 +330,13 @@ class LevelSix(VerticalBattleScreen):
                 enemy.enemyBullets.clear()
 
             if enemy.enemyHealth <= 0:
-                self.enemies.remove(enemy)
+                state.enemies.remove(enemy)
                 print("level complete")
 
         # -------------------------
         # SPIKEY BALLS (unchanged)
         # -------------------------
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
 
             if not isinstance(enemy, SpikeyBall):
                 continue
@@ -344,7 +344,7 @@ class LevelSix(VerticalBattleScreen):
             enemy.update()
 
             if enemy.enemyHealth <= 0:
-                self.enemies.remove(enemy)
+                state.enemies.remove(enemy)
                 continue
 
             if self.starship.hitbox.colliderect(enemy.hitbox):
@@ -362,7 +362,7 @@ class LevelSix(VerticalBattleScreen):
         self.draw_collision_tiles(surface)
 
     def assign_single_barrage_owner(self) -> None:
-        bosses = [e for e in self.enemies if isinstance(e, BossLevelSix)]
+        bosses = [e for e in state.enemies if isinstance(e, BossLevelSix)]
 
         if not bosses:
             return

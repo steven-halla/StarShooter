@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="21" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="4">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="21" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="5">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="background" width="21" height="50">
   <data encoding="csv">
@@ -57,6 +57,7 @@
  </layer>
  <objectgroup id="2" name="enemies">
   <object id="1" name="bile_spitter" x="179.068" y="651.744" width="16" height="16"/>
+  <object id="4" name="rescue_pod" x="259.73" y="643.678" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="3" name="player">
   <object id="2" name="player" x="206.493" y="785.642" width="16" height="16"/>

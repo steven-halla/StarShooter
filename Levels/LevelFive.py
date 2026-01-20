@@ -71,7 +71,7 @@ class LevelFive(VerticalBattleScreen):
         cam_top = self.camera.y
         cam_bottom = cam_top + GlobalConstants.GAMEPLAY_HEIGHT
 
-        for boss in self.enemies:
+        for boss in state.enemies:
             if not isinstance(boss, BossLevelFive):
                 continue
 
@@ -224,7 +224,7 @@ class LevelFive(VerticalBattleScreen):
         # Check if level 5 boss is dead and clear rescue pods
         # This is commented out for further work as requested
         """
-        for enemy in self.enemies:
+        for enemy in state.enemies:
             if isinstance(enemy, BossLevelFive) and enemy.enemyHealth <= 0:
                 self.rescue_pods.clear()
                 break
@@ -287,7 +287,7 @@ class LevelFive(VerticalBattleScreen):
             self.starship.draw(state.DISPLAY, self.camera)
 
         # 4️⃣ DRAW ALL ENEMIES — EXPLICIT AND ORDERED
-        for enemy in self.enemies:
+        for enemy in state.enemies:
             enemy.draw(state.DISPLAY, self.camera)
             if hasattr(enemy, "draw_damage_flash"):
                 enemy.draw_damage_flash(state.DISPLAY, self.camera)
@@ -302,7 +302,7 @@ class LevelFive(VerticalBattleScreen):
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
-        enemies = self.enemies
+        enemies = state.enemies
 
         if not enemies:
             return None
@@ -347,7 +347,7 @@ class LevelFive(VerticalBattleScreen):
         return names
 
     def load_enemy_into_list(self):
-        self.enemies.clear()
+        state.enemies.clear()
         self.rescue_pods.clear()
 
         for obj in self.tiled_map.objects:
@@ -400,7 +400,7 @@ class LevelFive(VerticalBattleScreen):
             enemy.camera = self.camera
             enemy.target_player = self.starship
 
-            self.enemies.append(enemy)
+            state.enemies.append(enemy)
 
 
 
@@ -438,7 +438,7 @@ class LevelFive(VerticalBattleScreen):
         # -------------------------
         # ENEMY COLLISION WITH RESCUE PODS
         # -------------------------
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
             for pod in list(self.rescue_pods):
                 # Make sure we're not checking a rescue pod against itself
                 if isinstance(enemy, RescuePod) and enemy == pod:
@@ -455,7 +455,7 @@ class LevelFive(VerticalBattleScreen):
         # -------------------------
         # ENEMIES (LEVEL 5 PATTERN)
         # -------------------------
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
 
             result = enemy.update()
 
@@ -491,4 +491,4 @@ class LevelFive(VerticalBattleScreen):
             # DEATH
             # -------------------------
             if enemy.enemyHealth <= 0:
-                self.enemies.remove(enemy)
+                state.enemies.remove(enemy)

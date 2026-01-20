@@ -44,7 +44,7 @@ class LevelOne(VerticalBattleScreen):
         self.napalm_list: list = []
         self.total_enemies = 40
         self.prev_enemy_count: int = None
-        self.enemies_killed: int = 0
+        state.enemies_killed: int = 0
 
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
@@ -87,17 +87,17 @@ class LevelOne(VerticalBattleScreen):
         super().update(state)
         # print(self.missed_enemies)
         if not hasattr(self, "last_enemy_count"):
-            self.last_enemy_count = len(self.enemies)
+            self.last_enemy_count = len(state.enemies)
 
-        # if len(self.enemies) < self.last_enemy_count:
+        # if len(state.enemies) < self.last_enemy_count:
         #     print(
         #         f"[WARNING] enemies SHRANK "
-        #         f"{self.last_enemy_count} → {len(self.enemies)}"
+        #         f"{self.last_enemy_count} → {len(state.enemies)}"
         #     )
 
-        self.last_enemy_count = len(self.enemies)
-        # print(f"[ENEMIES] count={len(self.enemies)}")
-        # for i, enemy in enumerate(self.enemies):
+        self.last_enemy_count = len(state.enemies)
+        # print(f"[ENEMIES] count={len(state.enemies)}")
+        # for i, enemy in enumerate(state.enemies):
         #     print(f"{i}: {enemy.__class__.__name__} at ({enemy.x}, {enemy.y}) hp={enemy.enemyHealth}")
 
         if len(self.missed_enemies) > 9:
@@ -130,7 +130,7 @@ class LevelOne(VerticalBattleScreen):
                 - UI_KILL_PADDING
         )
 
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
             # enemy is BELOW visible gameplay area
             if enemy.y > screen_bottom:
                 if enemy not in self.missed_enemies:
@@ -157,7 +157,7 @@ class LevelOne(VerticalBattleScreen):
         # ENEMY COUNTER (TOP OF SCREEN)
         # ================================
         font = pygame.font.Font(None, 28)
-        current_enemies = len(self.enemies)
+        current_enemies = len(state.enemies)
 
         # initialize on first frame
         if self.prev_enemy_count is None:
@@ -165,12 +165,12 @@ class LevelOne(VerticalBattleScreen):
         else:
             # if enemies decreased, count the difference
             if current_enemies < self.prev_enemy_count:
-                self.enemies_killed += (self.prev_enemy_count - current_enemies)
+                state.enemies_killed += (self.prev_enemy_count - current_enemies)
 
             self.prev_enemy_count = current_enemies
 
         enemy_text = font.render(
-            f"Enemies {self.enemies_killed}/40",
+            f"Enemies {state.enemies_killed}/40",
             True,
             (255, 255, 255)
         )
@@ -188,7 +188,7 @@ class LevelOne(VerticalBattleScreen):
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
 
-        for enemy in self.enemies:
+        for enemy in state.enemies:
             enemy.draw(state.DISPLAY, self.camera)
             enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
@@ -202,7 +202,7 @@ class LevelOne(VerticalBattleScreen):
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
-        if not self.enemies:
+        if not state.enemies:
             return None
 
         # Visible camera bounds (world coordinates)
@@ -215,7 +215,7 @@ class LevelOne(VerticalBattleScreen):
         missile_x = missile.x
         missile_y = missile.y
 
-        for enemy in self.enemies:
+        for enemy in state.enemies:
 
             # skip enemies outside screen
             if enemy.y + enemy.height < visible_top:
@@ -248,7 +248,7 @@ class LevelOne(VerticalBattleScreen):
         return names
 
     def load_enemy_into_list(self):
-        self.enemies.clear()
+        state.enemies.clear()
         # print("[LOAD] clearing enemies list")
 
         for obj in self.tiled_map.objects:
@@ -286,14 +286,14 @@ class LevelOne(VerticalBattleScreen):
 
             enemy.update_hitbox()
 
-            self.enemies.append(enemy)
+            state.enemies.append(enemy)
             print(
                 f"[ADD] {enemy.__class__.__name__} "
                 f"hp={enemy.enemyHealth} "
-                f"→ enemies size = {len(self.enemies)}"
+                f"→ enemies size = {len(state.enemies)}"
             )
 
-        print(f"[DONE] total enemies loaded = {len(self.enemies)}")
+        print(f"[DONE] total enemies loaded = {len(state.enemies)}")
 
 
     def enemy_helper(self):
@@ -346,7 +346,7 @@ class LevelOne(VerticalBattleScreen):
                         self.player_bullets.remove(shield)
 
                     break
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
 
             # off-screen → missed
             if enemy.y > screen_bottom:
@@ -373,4 +373,4 @@ class LevelOne(VerticalBattleScreen):
 
             # death removal
             if enemy.enemyHealth <= 0:
-                self.enemies.remove(enemy)
+                state.enemies.remove(enemy)

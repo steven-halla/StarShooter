@@ -18,7 +18,6 @@ class VerticalBattleScreen:
         self.textbox = textbox
         self.tiled_map = pytmx.load_pygame("")
         self.tile_size: int = self.tiled_map.tileheight
-        self.enemies: list[Enemy] = []
         self.mover: MoveRectangle = MoveRectangle()
         self.controller: KeyBoardControls = KeyBoardControls()
         self.STARSHIP_HORIZONTAL_CENTER_DIVISOR: int = 2
@@ -195,7 +194,7 @@ class VerticalBattleScreen:
         self.metal_shield_helper()
 
         # Collect enemy bullets - moved from draw method to update method
-        for enemy in self.enemies:
+        for enemy in state.enemies:
             if hasattr(enemy, "enemyBullets"):
                 for b in enemy.enemyBullets:
                     self.enemy_bullets.append(b)
@@ -212,7 +211,7 @@ class VerticalBattleScreen:
                 - UI_KILL_PADDING
         )
 
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
             # ❌ skip coins
             if isinstance(enemy, Coins):
                 continue
@@ -220,7 +219,7 @@ class VerticalBattleScreen:
             # enemy is BELOW visible gameplay area
             if enemy.y > screen_bottom:
                 enemy.is_active = False
-                self.enemies.remove(enemy)
+                state.enemies.remove(enemy)
 
     def draw(self, state) -> None:
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
@@ -292,7 +291,7 @@ class VerticalBattleScreen:
             pygame.Rect(px, py, pw, ph),
             2
         )
-        # for enemy in self.enemies:
+        # for enemy in state.enemies:
         #     enemy.update()
         #
         #     if getattr(enemy, "has_barrage", False):
@@ -300,7 +299,7 @@ class VerticalBattleScreen:
         #         enemy.draw_barrage(state.DISPLAY, self.camera)
         #         enemy.apply_barrage_damage(self.starship)
 
-    def bullet_helper(self):
+    def bullet_helper(self, state):
         for bullet in list(self.player_bullets):
 
             # -------------------------
@@ -309,7 +308,7 @@ class VerticalBattleScreen:
             if bullet.weapon_name == "Metal Shield":
                 shield_rect = bullet.rect
 
-                for enemy in list(self.enemies):
+                for enemy in list(state.enemies):
                     if shield_rect.colliderect(enemy.hitbox):
                         enemy.enemyHealth -= bullet.damage
                         if enemy.enemyHealth <= 0:
@@ -324,7 +323,7 @@ class VerticalBattleScreen:
 
             bullet_rect = bullet.rect
 
-            for enemy in list(self.enemies):
+            for enemy in list(state.enemies):
                 # Skip coins - they should only be collected by starship collision
                 if hasattr(enemy, "__class__") and enemy.__class__.__name__ == "Coins":
                     continue
@@ -346,14 +345,14 @@ class VerticalBattleScreen:
                     self.remove_enemy_if_dead(enemy)
                 break
 
-    def remove_enemy_if_dead(self, enemy) -> None:
+    def remove_enemy_if_dead(self, enemy, state) -> None:
         if enemy.enemyHealth > 0:
             return
 
         enemy.is_active = False
 
-        if enemy in self.enemies:
-            self.enemies.remove(enemy)
+        if enemy in state.enemies:
+            state.enemies.remove(enemy)
 
     def get_enemy_screen_rect(self, enemy) -> pygame.Rect:
         return pygame.Rect(
@@ -607,7 +606,7 @@ class VerticalBattleScreen:
 
                 surface.blit(image, (col * tile_size, screen_y))
 
-    def update_collision_tiles(self, damage: int = 5) -> None:
+    def update_collision_tiles(self, state, damage: int = 5) -> None:
         layer = self.tiled_map.get_layer_by_name("collision")
         tile_size = self.tile_size
         KNOCKBACK = 4
@@ -674,7 +673,7 @@ class VerticalBattleScreen:
                 break
 
         # ---------- ENEMIES (PURE VECTOR vx / vy, WITH PENETRATION PREVENTION) ----------
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
             enemy_rect = enemy.hitbox
             enemy_cx = enemy_rect.centerx
             enemy_cy = enemy_rect.centery
@@ -899,7 +898,7 @@ class VerticalBattleScreen:
                 self.player_bullets.remove(bullet)
 
 
-    def rect_helper(self):
+    def rect_helper(self, state):
         ui_panel_rect = pygame.Rect(
             0,
             GlobalConstants.GAMEPLAY_HEIGHT,
@@ -907,7 +906,7 @@ class VerticalBattleScreen:
             GlobalConstants.UI_PANEL_HEIGHT
         )
 
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
             # Convert enemy position to screen coordinates
             enemy_screen_y = enemy.y - self.camera.y
 
@@ -952,7 +951,7 @@ class VerticalBattleScreen:
 
 
 
-    def collision_tile_helper(self):
+    def collision_tile_helper(self, state):
         hazard_layer = self.tiled_map.get_layer_by_name("hazard")
         player_rect = self.starship.hitbox  # already in WORLD coordinates
 
@@ -979,7 +978,7 @@ class VerticalBattleScreen:
             # TODO this MUST be reading from current_level.enemies or something, not
             # checking every f'n enemy every single time
 
-            for enemy in self.enemies:
+            for enemy in state.enemies:
                 # Skip coins - they should not hurt the player when touched
                 if hasattr(enemy, "__class__") and enemy.__class__.__name__ == "Coins":
                     continue

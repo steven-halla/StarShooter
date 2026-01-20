@@ -26,8 +26,8 @@ class RescuePod(Enemy):
         self.enemy_image = self.spore_flower_image  # 🔑 REQUIRED
 
 
-    def update(self) -> None:
-        super().update()
+    def update(self, state) -> None:
+        super().update(state)
         self.update_hitbox()
         # print(f"Rescue Pod HP: {self.enemyHealth}")?
 

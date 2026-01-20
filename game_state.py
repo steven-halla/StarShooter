@@ -60,6 +60,7 @@ class GameState:
 
         self.enemy_bullets: list[Bullet] = []
         self.player_bullets: list[Bullet] = []
+        self.enemies: list[Enemy] = []
 
 
         # --------------------------------------------------

@@ -152,100 +152,100 @@ class SpinalRaptor(Enemy):
             return
 
         # Update all active rectangle attacks
-        for attack in list(self.rectangle_attacks):
-            attack.update()
-
-            # Check if the attack hit the player
-            if attack.is_active and attack.hitbox.colliderect(self.target_player.hitbox):
-                # Apply damage to player
-                if hasattr(self.target_player, "take_damage"):
-                    self.target_player.take_damage(attack.damage)
-                # Deactivate the attack
-                attack.is_active = False
-                # print("Rectangle attack hit player!")
-
-            # Remove inactive attacks
-            if not attack.is_active:
-                self.rectangle_attacks.remove(attack)
-
-        # Check for collision with player
-        if self.target_player and not self.has_damaged_player:
-            player_rect = self.target_player.hitbox
-            if self.hitbox.colliderect(player_rect):
-                # Raptor has collided with player, set flag and freeze
-                self.has_damaged_player = True
-                self.is_frozen = True
-                self.freeze_timer.reset()
-                # print("raptor hit player, freezing for 3 seconds")
-                return  # Don't move after hitting player
-
-        # Handle freeze state
-        if self.is_frozen:
-            # Check if freeze period is over
-            if self.freeze_timer.is_ready():
-                self.is_frozen = False
-                self.has_pounced = False  # Reset pounce flag to allow pouncing again
-                self.has_damaged_player = False  # Reset damage flag to allow freezing again
-                # print("raptor unfrozen, can pounce again")
-            return  # Don't move while frozen
-
-        # Handle post-pounce timer
-        if self.has_pounced and not self.is_frozen:
-            if self.post_pounce_timer.is_ready():
-                # After 3 seconds, freeze the raptor
-                self.is_frozen = True
-                self.freeze_timer.reset()
-                # print("raptor frozen")
-                return  # Don't move when just frozen
-
-        # Check if there are any rescue pods on screen to target
-        target_x = self.target_player.x
-        target_y = self.target_player.y
-
-        # Default to targeting player
-        target_rescue_pod = False
-
-        # If we have access to rescue pods, check if any are on screen
-        if self.rescue_pod_group is not None and len(self.rescue_pod_group) > 0:
-            for pod in self.rescue_pod_group:
-                # Check if pod is on screen
-                if self.mover.enemy_on_screen(pod, self.camera):
-                    # Found a rescue pod on screen, target it instead of player
-                    target_x = pod.x
-                    target_y = pod.y
-                    target_rescue_pod = True
-                    break
-
-        # If no rescue pods on screen, target player (already set as default)
-
-        # Calculate direction vector toward target (either rescue pod or player)
-        dx = target_x - self.x
-        dy = target_y - self.y
-        dist = max(1, (dx * dx + dy * dy) ** 0.5)
-
-        # Check if player is within rectangle attack range (150 feet) and timer is ready
-        if dist <= self.rectangle_attack_distance and self.rectangle_attack_timer.is_ready() and not target_rescue_pod:
-            self.shoot_rectangle()
-
-        # Implement pounce move: triple speed when 100 pixels from target
-        current_speed = self.speed
-        if dist <= 100 and not self.has_pounced:
-            # print("raptor nomming time")
-            # Pounce! Triple the speed when close to target
-            current_speed = self.speed * 3
-            # Set pounce flag and start the post-pounce timer
-            self.has_pounced = True
-            self.post_pounce_timer.reset()
-            # print("raptor pounced, timer started")
-        elif self.has_pounced and not self.is_frozen:
-            # Continue using triple speed during the post-pounce period
-            current_speed = self.speed * 3
-            # print("raptor still in pounce mode")
-
-        self.x += (dx / dist) * current_speed
-        self.y += (dy / dist) * current_speed
-
-        self.update_hitbox()
+        # for attack in list(self.rectangle_attacks):
+        #     attack.update()
+        #
+        #     # Check if the attack hit the player
+        #     if attack.is_active and attack.hitbox.colliderect(self.target_player.hitbox):
+        #         # Apply damage to player
+        #         if hasattr(self.target_player, "take_damage"):
+        #             self.target_player.take_damage(attack.damage)
+        #         # Deactivate the attack
+        #         attack.is_active = False
+        #         # print("Rectangle attack hit player!")
+        #
+        #     # Remove inactive attacks
+        #     if not attack.is_active:
+        #         self.rectangle_attacks.remove(attack)
+        #
+        # # Check for collision with player
+        # if self.target_player and not self.has_damaged_player:
+        #     player_rect = self.target_player.hitbox
+        #     if self.hitbox.colliderect(player_rect):
+        #         # Raptor has collided with player, set flag and freeze
+        #         self.has_damaged_player = True
+        #         self.is_frozen = True
+        #         self.freeze_timer.reset()
+        #         # print("raptor hit player, freezing for 3 seconds")
+        #         return  # Don't move after hitting player
+        #
+        # # Handle freeze state
+        # if self.is_frozen:
+        #     # Check if freeze period is over
+        #     if self.freeze_timer.is_ready():
+        #         self.is_frozen = False
+        #         self.has_pounced = False  # Reset pounce flag to allow pouncing again
+        #         self.has_damaged_player = False  # Reset damage flag to allow freezing again
+        #         # print("raptor unfrozen, can pounce again")
+        #     return  # Don't move while frozen
+        #
+        # # Handle post-pounce timer
+        # if self.has_pounced and not self.is_frozen:
+        #     if self.post_pounce_timer.is_ready():
+        #         # After 3 seconds, freeze the raptor
+        #         self.is_frozen = True
+        #         self.freeze_timer.reset()
+        #         # print("raptor frozen")
+        #         return  # Don't move when just frozen
+        #
+        # # Check if there are any rescue pods on screen to target
+        # target_x = self.target_player.x
+        # target_y = self.target_player.y
+        #
+        # # Default to targeting player
+        # target_rescue_pod = False
+        #
+        # # If we have access to rescue pods, check if any are on screen
+        # if self.rescue_pod_group is not None and len(self.rescue_pod_group) > 0:
+        #     for pod in self.rescue_pod_group:
+        #         # Check if pod is on screen
+        #         if self.mover.enemy_on_screen(pod, self.camera):
+        #             # Found a rescue pod on screen, target it instead of player
+        #             target_x = pod.x
+        #             target_y = pod.y
+        #             target_rescue_pod = True
+        #             break
+        #
+        # # If no rescue pods on screen, target player (already set as default)
+        #
+        # # Calculate direction vector toward target (either rescue pod or player)
+        # dx = target_x - self.x
+        # dy = target_y - self.y
+        # dist = max(1, (dx * dx + dy * dy) ** 0.5)
+        #
+        # # Check if player is within rectangle attack range (150 feet) and timer is ready
+        # if dist <= self.rectangle_attack_distance and self.rectangle_attack_timer.is_ready() and not target_rescue_pod:
+        #     self.shoot_rectangle()
+        #
+        # # Implement pounce move: triple speed when 100 pixels from target
+        # current_speed = self.speed
+        # if dist <= 100 and not self.has_pounced:
+        #     # print("raptor nomming time")
+        #     # Pounce! Triple the speed when close to target
+        #     current_speed = self.speed * 3
+        #     # Set pounce flag and start the post-pounce timer
+        #     self.has_pounced = True
+        #     self.post_pounce_timer.reset()
+        #     # print("raptor pounced, timer started")
+        # elif self.has_pounced and not self.is_frozen:
+        #     # Continue using triple speed during the post-pounce period
+        #     current_speed = self.speed * 3
+        #     # print("raptor still in pounce mode")
+        #
+        # self.x += (dx / dist) * current_speed
+        # self.y += (dy / dist) * current_speed
+        #
+        # self.update_hitbox()
 
 
 

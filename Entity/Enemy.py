@@ -411,3 +411,41 @@ class Enemy:
         #     bullet_color=GlobalConstants.RED,
         #     bullet_damage=11
         # )
+    #
+    # def Hunt_NPC(self, target_enemy) -> None:
+    #     if target_enemy is None or self.camera is None:
+    #         return
+    #
+    #     # direction toward target (world space)
+    #     if target_enemy.x > self.x:
+    #         self.mover.enemy_move_right(self)
+    #     elif target_enemy.x < self.x:
+    #         self.mover.enemy_move_left(self)
+    #
+    #     if target_enemy.y > self.y:
+    #         self.mover.enemy_move_down(self)
+    #     elif target_enemy.y < self.y:
+    #         self.mover.enemy_move_up(self)
+    #
+    #     self.update_hitbox()
+    def Hunt_NPC(self, target_enemy, state) -> None:
+        if target_enemy is None or self.camera is None:
+            return
+
+        # move toward target (via MoveRectangle)
+        if target_enemy.x > self.x:
+            self.mover.enemy_move_right(self)
+        elif target_enemy.x < self.x:
+            self.mover.enemy_move_left(self)
+
+        if target_enemy.y > self.y:
+            self.mover.enemy_move_down(self)
+        elif target_enemy.y < self.y:
+            self.mover.enemy_move_up(self)
+
+        self.update_hitbox()
+
+        # collision → erase NPC
+        if self.hitbox.colliderect(target_enemy.hitbox):
+            if target_enemy in state.enemies:
+                state.enemies.remove(target_enemy)

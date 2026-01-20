@@ -3,6 +3,7 @@ import pygame
 
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Enemy import Enemy
+from Entity.Monsters.RescuePod import RescuePod
 from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 
@@ -47,16 +48,13 @@ class BileSpitter(Enemy):
 
         # WORLD-SPACE hitbox
         self.update_hitbox()
-
+        for e in state.enemies:
+            print(e)
         # movement AI (UNCHANGED)
-        self.moveAI()
-        self.touch_mellee(
-            bullet_width=40,
-            bullet_height=40,
-            bullet_color=GlobalConstants.RED,
-            bullet_damage=11,
-            state=state
-        )
+        for e in state.enemies:
+            if isinstance(e, RescuePod):
+                self.Hunt_NPC(e, state)
+                break
 
 
         # firing

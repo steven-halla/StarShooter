@@ -45,7 +45,7 @@ class LevelThree(VerticalBattleScreen):
 
         self.total_enemies = 40
         self.prev_enemy_count: int = None
-        self.enemies_killed: int = 0
+        state.enemies_killed: int = 0
 
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
@@ -77,7 +77,7 @@ class LevelThree(VerticalBattleScreen):
 
 
     def start(self, state) -> None:
-        print(self.enemies)
+        print(state.enemies)
         self.load_space_station_object(state)
         player_x = None
         player_y = None
@@ -192,7 +192,7 @@ class LevelThree(VerticalBattleScreen):
         )
 
         # 🔥 MELEE DAMAGE CHECK (THIS WAS MISSING)
-        for enemy in self.enemies:
+        for enemy in state.enemies:
             if getattr(enemy, "name", None) == "level_3_boss":
                 enemy.check_arm_damage(self.starship)
         # --------------------------------
@@ -224,7 +224,7 @@ class LevelThree(VerticalBattleScreen):
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
 
-        for enemy in self.enemies:
+        for enemy in state.enemies:
             enemy.draw(state.DISPLAY, self.camera)
 
         if self.space_station is not None:
@@ -236,7 +236,7 @@ class LevelThree(VerticalBattleScreen):
         pygame.display.flip()
     def get_nearest_enemy(self, missile):
 
-        enemies = self.enemies
+        enemies = state.enemies
 
         if not enemies:
             return None
@@ -362,7 +362,7 @@ class LevelThree(VerticalBattleScreen):
             # --------------------------------
             if hasattr(bullet, "is_reflected"):
 
-                enemies = list(self.enemies)
+                enemies = list(state.enemies)
 
                 for enemy in enemies:
                     enemy_rect = pygame.Rect(
@@ -380,7 +380,7 @@ class LevelThree(VerticalBattleScreen):
 
                             # death removal
                             if enemy.enemyHealth <= 0:
-                                self.enemies.remove(enemy)
+                                state.enemies.remove(enemy)
 
             # --------------------------------
             # SPACE STATION DAMAGE
@@ -426,9 +426,9 @@ class LevelThree(VerticalBattleScreen):
 
         # --------------------------------
         # ENEMY UPDATES + BULLET SPAWNING
-        # (single unified self.enemies list)
+        # (single unified state.enemies list)
         # --------------------------------
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
             # common update
             enemy.update()
 
@@ -443,7 +443,7 @@ class LevelThree(VerticalBattleScreen):
 
             # remove dead enemies (only if health exists)
             if hasattr(enemy, "enemyHealth") and enemy.enemyHealth <= 0:
-                self.enemies.remove(enemy)
+                state.enemies.remove(enemy)
 
         # --------------------------------
         # ENEMY BODY COLLISION DAMAGE (LEVEL 3)
@@ -452,7 +452,7 @@ class LevelThree(VerticalBattleScreen):
             player_rect = self.starship.melee_hitbox  # ← USE MELEE HITBOX
 
             enemies = (
-                    list(self.enemies)
+                    list(state.enemies)
 
             )
 
@@ -470,7 +470,7 @@ class LevelThree(VerticalBattleScreen):
                     if getattr(enemy, "name", None) == "kamikaze_drone":
                         self.starship.shipHealth -= 20
                         self.starship.on_hit()
-                        self.enemies.remove(enemy)
+                        state.enemies.remove(enemy)
                     else:
                         self.starship.shipHealth -= 10
                         self.starship.on_hit()
@@ -524,7 +524,7 @@ class LevelThree(VerticalBattleScreen):
         pool = []
 
         for group in (
-                self.enemies,
+                state.enemies,
 
         ):
             for enemy in group:
@@ -536,7 +536,7 @@ class LevelThree(VerticalBattleScreen):
     def spawn_enemy_wave(self):
         # clean bad data
         for group in (
-                self.enemies,
+                state.enemies,
 
         ):
             group[:] = [e for e in group if not isinstance(e, tuple)]
@@ -570,7 +570,7 @@ class LevelThree(VerticalBattleScreen):
     # FIX 1: DO NOT LOAD BOSS FROM TMX
     # -------------------------------
     def load_enemy_into_list(self):
-        self.enemies.clear()
+        state.enemies.clear()
 
         for obj in self.tiled_map.objects:
             enemy = None
@@ -600,13 +600,13 @@ class LevelThree(VerticalBattleScreen):
                 enemy.enemyHealth = 1
 
             enemy.update_hitbox()
-            self.enemies.append(enemy)
+            state.enemies.append(enemy)
 
     # -------------------------------
     # FIX 2: BOSS SPAWN CONDITION
     # -------------------------------
     def has_no_enemies(self) -> bool:
-        return len(self.enemies) == 0
+        return len(state.enemies) == 0
 
     # -------------------------------
     # FIX 3: SPAWN BOSS ONLY VIA CODE
@@ -624,7 +624,7 @@ class LevelThree(VerticalBattleScreen):
         boss.camera = self.camera
         boss.target_player = self.starship
 
-        self.enemies.append(boss)
+        state.enemies.append(boss)
         self.boss_spawned = True
 
     def load_space_station_object(self,state):

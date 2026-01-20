@@ -62,7 +62,7 @@ class MapTester(VerticalBattleScreen):
         self.starship.y = player_y
         self.starship.update_hitbox()
 
-        self.load_enemy_into_list()
+        self.load_enemy_into_list(state)
 
 
     def update(self, state) -> None:
@@ -128,15 +128,15 @@ class MapTester(VerticalBattleScreen):
         self.bullet_collision_helper_remover(state)
 
         # Collect enemy bullets
-        for enemy in self.enemies:
+        for enemy in state.enemies:
             if hasattr(enemy, "enemyBullets"):
                 for b in enemy.enemyBullets:
                     state.enemy_bullets.append(b)
                 enemy.enemyBullets.clear()
 
         # Other helpers
-        self.collision_tile_helper()
-        self.rect_helper()
+        self.collision_tile_helper(state)
+        self.rect_helper(state)
 
         # Handle enemies that go off screen
         UI_KILL_PADDING = 12  # pixels ABOVE the UI panel
@@ -146,7 +146,7 @@ class MapTester(VerticalBattleScreen):
                 - UI_KILL_PADDING
         )
 
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
             # Skip coins
             if isinstance(enemy, Coins):
                 continue
@@ -154,7 +154,7 @@ class MapTester(VerticalBattleScreen):
             # enemy is BELOW visible gameplay area
             if enemy.y > screen_bottom:
                 enemy.is_active = False
-                self.enemies.remove(enemy)
+                state.enemies.remove(enemy)
 
         # Note: Missile firing is now handled in fire_all_weapons method
 
@@ -251,7 +251,7 @@ class MapTester(VerticalBattleScreen):
 
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
-        for enemy in self.enemies:
+        for enemy in state.enemies:
             enemy.draw(state.DISPLAY, self.camera)
 
         # Restore original methods
@@ -420,9 +420,9 @@ class MapTester(VerticalBattleScreen):
                     state.starship.wind_slicer.fire_wind_slicer()
                 )
 
-    def get_nearest_enemy(self, missile):
+    def get_nearest_enemy(self, state, missile):
 
-        if not self.enemies:
+        if not state.enemies:
             return None
 
         # Visible camera bounds (world coordinates)
@@ -433,7 +433,7 @@ class MapTester(VerticalBattleScreen):
         nearest_dist = float("inf")
         mx, my = missile.x, missile.y
 
-        for enemy in self.enemies:
+        for enemy in state.enemies:
 
             # ⛔ Skip enemies outside the screen
             if enemy.y + enemy.height < visible_top:
@@ -473,7 +473,7 @@ class MapTester(VerticalBattleScreen):
             if bullet.weapon_name == "Metal Shield":
                 shield_rect = bullet.rect
 
-                for enemy in list(self.enemies):
+                for enemy in list(state.enemies):
                     if shield_rect.colliderect(enemy.hitbox):
                         enemy.enemyHealth -= bullet.damage
                         if enemy.enemyHealth <= 0:
@@ -488,7 +488,7 @@ class MapTester(VerticalBattleScreen):
 
             bullet_rect = bullet.rect
 
-            for enemy in list(self.enemies):
+            for enemy in list(state.enemies):
                 # Skip coins - they should only be collected by starship collision
                 if hasattr(enemy, "__class__") and enemy.__class__.__name__ == "Coins":
                     continue
@@ -507,7 +507,7 @@ class MapTester(VerticalBattleScreen):
                         state.player_bullets.remove(bullet)
 
                 if enemy.enemyHealth <= 0:
-                    self.remove_enemy_if_dead(enemy)
+                    self.remove_enemy_if_dead(enemy, state)
                 break
 
     def weapon_helper(self, state=None):
@@ -577,14 +577,14 @@ class MapTester(VerticalBattleScreen):
                 bullet.is_active = False
                 state.enemy_bullets.remove(bullet)
 
-    def load_enemy_into_list(self):
-        self.enemies.clear()
+    def load_enemy_into_list(self, state):
+        state.enemies.clear()
         # print("[LOAD] clearing enemies list")
 
         for obj in self.tiled_map.objects:
             enemy = None
 
-            print(f"[TMX] found object name={obj.name} at ({obj.x}, {obj.y})")
+            # print(f"[TMX] found object name={obj.name} at ({obj.x}, {obj.y})")
 
             if obj.name == "acid_launcher":
                 enemy = AcidLauncher()
@@ -642,7 +642,7 @@ class MapTester(VerticalBattleScreen):
 
             enemy.x = obj.x
             enemy.y = obj.y
-            self.enemies.append(enemy)
+            state.enemies.append(enemy)
 
             # -------------------------
             # POSITION / SIZE
@@ -668,15 +668,15 @@ class MapTester(VerticalBattleScreen):
 
             enemy.update_hitbox()
 
-            self.enemies.append(enemy)
+            state.enemies.append(enemy)
 
             print(
                 f"[ADD] {enemy.__class__.__name__} "
                 f"hp={enemy.enemyHealth} "
-                f"→ enemies size = {len(self.enemies)}"
+                f"→ enemies size = {len(state.enemies)}"
             )
 
-        print(f"[DONE] total enemies loaded = {len(self.enemies)}")
+        # print(f"[DONE] total enemies loaded = {len(state.enemies)}")
 
     def enemy_helper(self, state):
         # -------------------------
@@ -743,14 +743,16 @@ class MapTester(VerticalBattleScreen):
                     break  # one hit only
 
 
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
             enemy.update(state)
 
+
+
             if enemy.enemyHealth <= 0:
-                self.enemies.remove(enemy)
+                state.enemies.remove(enemy)
 
 
-        # for enemy_tri_spitter in self.enemies:
+        # for enemy_tri_spitter in state.enemies:
         #     enemy_tri_spitter.update(state)
         #     if self.starship.hitbox.colliderect(enemy_tri_spitter.hitbox):
         #         enemy_tri_spitter.color = (135, 206, 235)  # SKYBLUE

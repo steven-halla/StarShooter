@@ -36,7 +36,7 @@ class LevelTwo(VerticalBattleScreen):
 
         self.total_enemies = 40
         self.prev_enemy_count: int = None
-        self.enemies_killed: int = 0
+        state.enemies_killed: int = 0
 
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
@@ -153,7 +153,7 @@ class LevelTwo(VerticalBattleScreen):
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
 
-        for enemy in self.enemies:
+        for enemy in state.enemies:
             enemy.draw(state.DISPLAY, self.camera)
             enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
@@ -196,7 +196,7 @@ class LevelTwo(VerticalBattleScreen):
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
-        if not self.enemies:
+        if not state.enemies:
             return None
 
         # Visible camera bounds (world coordinates)
@@ -209,7 +209,7 @@ class LevelTwo(VerticalBattleScreen):
         missile_x = missile.x
         missile_y = missile.y
 
-        for enemy in self.enemies:
+        for enemy in state.enemies:
 
             # skip enemies outside screen
             if enemy.y + enemy.height < visible_top:
@@ -242,7 +242,7 @@ class LevelTwo(VerticalBattleScreen):
         return names
 
     def load_enemy_into_list(self):
-        self.enemies.clear()
+        state.enemies.clear()
         # print("[LOAD] clearing enemies list")
 
         for obj in self.tiled_map.objects:
@@ -275,14 +275,14 @@ class LevelTwo(VerticalBattleScreen):
 
             enemy.update_hitbox()
 
-            self.enemies.append(enemy)
+            state.enemies.append(enemy)
             print(
                 f"[ADD] {enemy.__class__.__name__} "
                 f"hp={enemy.enemyHealth} "
-                f"→ enemies size = {len(self.enemies)}"
+                f"→ enemies size = {len(state.enemies)}"
             )
 
-        print(f"[DONE] total enemies loaded = {len(self.enemies)}")
+        print(f"[DONE] total enemies loaded = {len(state.enemies)}")
 
     def enemy_helper(self):
         now = pygame.time.get_ticks()
@@ -338,7 +338,7 @@ class LevelTwo(VerticalBattleScreen):
         # --------------------------------
         # ENEMY BODY → SIDE RECT (CONTACT DAMAGE)
         # --------------------------------
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
 
             if enemy.hitbox.colliderect(self.side_rect_hitbox):
 
@@ -375,7 +375,7 @@ class LevelTwo(VerticalBattleScreen):
                 # bullet is ALWAYS destroyed
                 self.enemy_bullets.remove(bullet)
                 continue
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
 
             # update enemy
             enemy.update()
@@ -396,7 +396,7 @@ class LevelTwo(VerticalBattleScreen):
 
             # death removal
             if enemy.enemyHealth <= 0:
-                self.enemies.remove(enemy)
+                state.enemies.remove(enemy)
 
     # SIDE RECT INVINCIBILITY TIMER (NO DAMAGE LOGIC HERE)
     # =========================

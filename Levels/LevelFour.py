@@ -39,7 +39,7 @@ class LevelFour(VerticalBattleScreen):
         self.total_enemies = 40
         self.creep_last_spawn_time = 0
         self.prev_enemy_count: int = None
-        self.enemies_killed: int = 0
+        state.enemies_killed: int = 0
         self.worm_visible: bool = False
 
         self.level_start_time = pygame.time.get_ticks()
@@ -109,7 +109,7 @@ class LevelFour(VerticalBattleScreen):
         # --------------------------------
         active_worms = []
 
-        for enemy in self.enemies:
+        for enemy in state.enemies:
             if not isinstance(enemy, TransportWorm):
                 continue
 
@@ -197,7 +197,7 @@ class LevelFour(VerticalBattleScreen):
             slaver.transport_worms = active_worms  # Set the transport_worms list
             slaver.update_hitbox()
 
-            self.enemies.append(slaver)
+            state.enemies.append(slaver)
             self.creep_last_spawn_time = now
 
         # --------------------------------
@@ -213,10 +213,10 @@ class LevelFour(VerticalBattleScreen):
                         FireLauncher,
                     ],
                     enemy_groups={
-                        BileSpitter: self.enemies,
-                        KamikazeDrone: self.enemies,
-                        TriSpitter: self.enemies,
-                        FireLauncher: self.enemies,
+                        BileSpitter: state.enemies,
+                        KamikazeDrone: state.enemies,
+                        TriSpitter: state.enemies,
+                        FireLauncher: state.enemies,
                     },
                     spawn_y_offset=20
                 )
@@ -225,7 +225,7 @@ class LevelFour(VerticalBattleScreen):
         # --------------------------------
         # UPDATE ENEMIES (ONCE)
         # --------------------------------
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
             enemy.update()
 
             if hasattr(enemy, "update_hitbox"):
@@ -236,7 +236,7 @@ class LevelFour(VerticalBattleScreen):
                 enemy.enemyBullets.clear()
 
             if enemy.enemyHealth <= 0:
-                self.enemies.remove(enemy)
+                state.enemies.remove(enemy)
 
         # --------------------------------
         # LOSE CONDITION
@@ -263,7 +263,7 @@ class LevelFour(VerticalBattleScreen):
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
 
-        for enemy in self.enemies:
+        for enemy in state.enemies:
             enemy.draw(state.DISPLAY, self.camera)
 
 
@@ -272,7 +272,7 @@ class LevelFour(VerticalBattleScreen):
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
-        enemies = self.enemies
+        enemies = state.enemies
 
         if not enemies:
             return None
@@ -317,7 +317,7 @@ class LevelFour(VerticalBattleScreen):
         return names
 
     def load_enemy_into_list(self):
-        self.enemies.clear()
+        state.enemies.clear()
 
         for obj in self.tiled_map.objects:
 
@@ -357,8 +357,8 @@ class LevelFour(VerticalBattleScreen):
             enemy.camera = self.camera
             enemy.target_player = self.starship
 
-            self.enemies.append(enemy)
-            # print(self.enemies)
+            state.enemies.append(enemy)
+            # print(state.enemies)
 
 
     def enemy_helper(self):
@@ -399,7 +399,7 @@ class LevelFour(VerticalBattleScreen):
 
                     break
 
-                for enemy in list(self.enemies):
+                for enemy in list(state.enemies):
                     if getattr(enemy, "enemy_name", None) != boss:
                         continue
 
@@ -407,7 +407,7 @@ class LevelFour(VerticalBattleScreen):
                     enemy.update()
 
 
-            for enemy in list(self.enemies):
+            for enemy in list(state.enemies):
                 if getattr(enemy, "enemy_name", None) != boss:
                     continue
 
@@ -419,7 +419,7 @@ class LevelFour(VerticalBattleScreen):
                 # BOSS DEATH
                 # -------------------------
                 if enemy.enemyHealth <= 0:
-                    self.enemies.remove(enemy)
+                    state.enemies.remove(enemy)
                     print("level complete")
         # for boss in list(self.bossLevelFourGroup):
         #
@@ -433,7 +433,7 @@ class LevelFour(VerticalBattleScreen):
         #         self.bossLevelFourGroup.remove(boss)
         #         print("level complete")
 
-        for enemy in list(self.enemies):
+        for enemy in list(state.enemies):
 
             enemy_type = getattr(enemy, "enemy_name", None)
 
@@ -468,4 +468,4 @@ class LevelFour(VerticalBattleScreen):
             # DEATH
             # -------------------------
             if enemy.enemyHealth <= 0:
-                self.enemies.remove(enemy)
+                state.enemies.remove(enemy)
