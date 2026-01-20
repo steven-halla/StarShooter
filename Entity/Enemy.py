@@ -381,8 +381,10 @@ class Enemy:
             state
     ) -> None:
 
-        # create ONCE
-        if getattr(self, "_melee_bullet", None) is None:
+        bullet = getattr(self, "_melee_bullet", None)
+
+        # RECREATE if bullet does not exist OR was removed from global list
+        if bullet is None or bullet not in state.enemy_bullets:
             bullet = Bullet(self.x, self.y)
             bullet.width = bullet_width
             bullet.height = bullet_height
@@ -398,8 +400,7 @@ class Enemy:
             state.enemy_bullets.append(bullet)
             self._melee_bullet = bullet
 
-        # ALWAYS follow enemy (THIS IS THE UPDATE)
-        bullet = self._melee_bullet
+        # ALWAYS follow enemy
         bullet.x = self.x + (self.width - bullet.width) // 2
         bullet.y = self.y + (self.height - bullet.height) // 2
         bullet.update_rect()
