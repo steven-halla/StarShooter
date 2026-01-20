@@ -44,7 +44,6 @@ class BileSpitter(Enemy):
         if not self.is_active:
             return
 
-        print(self.enemyBullets)
 
         # WORLD-SPACE hitbox
         self.update_hitbox()

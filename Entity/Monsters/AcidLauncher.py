@@ -43,7 +43,7 @@ class AcidLauncher(Enemy):
         ).convert_alpha()
         self.enemy_image = self.acid_launcher_image  # 🔑 REQUIRED
 
-    def shoot_spines(self) -> None:
+    def shoot_spines(self, state=None) -> None:
         if self.last_player_x is None or self.last_player_y is None:
             return
 
@@ -69,6 +69,8 @@ class AcidLauncher(Enemy):
         bullet.color = self.bulletColor
         bullet.damage = 10
 
+        if state is not None:
+            state.enemy_bullets.append(bullet)
         self.enemyBullets.append(bullet)
 
     def update(self, state) -> None:
@@ -88,7 +90,8 @@ class AcidLauncher(Enemy):
                 bullet_width=20,
                 bullet_height=20,
                 bullet_color=self.bulletColor,
-                bullet_damage=10
+                bullet_damage=10,
+                state=state
             )
 
             self.last_shot_time = now
