@@ -177,8 +177,8 @@ class BossLevelTwo(Enemy):
     # =====================================================
     # UPDATE
     # =====================================================
-    def update(self) -> None:
-        super().update()
+    def update(self, state) -> None:
+        super().update(state)
         if not self.is_active:
             return
         self.update_hitbox()

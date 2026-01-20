@@ -233,12 +233,12 @@ class BossLevelSix(Enemy):
     # =====================================================
     # UPDATE
     # =====================================================
-    def update(self, player=None) -> None:
+    def update(self, state, player=None) -> None:
         print(f"\n=== BOSS UPDATE ===")
         print(f"Boss active: {self.is_active}")
         print(f"Camera available: {self.camera is not None}")
 
-        super().update()
+        super().update(state)
 
         self._barrage_drawn_this_frame = False  # 🔑 reset once per frame
 

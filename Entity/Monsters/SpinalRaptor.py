@@ -136,8 +136,8 @@ class SpinalRaptor(Enemy):
 
         # print("SpinalRaptor shot a rectangle attack!")
 
-    def update(self):
-        super().update()
+    def update(self, state):
+        super().update(state)
 
         self.update_hitbox()
 

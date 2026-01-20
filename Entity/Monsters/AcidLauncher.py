@@ -43,36 +43,36 @@ class AcidLauncher(Enemy):
         ).convert_alpha()
         self.enemy_image = self.acid_launcher_image  # 🔑 REQUIRED
 
-    # def shoot_spines(self) -> None:
-    #     if self.last_player_x is None or self.last_player_y is None:
-    #         return
-    #
-    #     cx = self.x + self.width // 2
-    #     cy = self.y + self.height // 2
-    #
-    #     dx = self.last_player_x - cx
-    #     dy = self.last_player_y - cy
-    #
-    #     length = math.hypot(dx, dy)
-    #     if length == 0:
-    #         return
-    #
-    #     dx /= length
-    #     dy /= length
-    #
-    #     bullet = Bullet(cx, cy)
-    #     bullet.dx = dx * self.weapon_speed
-    #     bullet.speed = dy * self.weapon_speed
-    #
-    #     bullet.width = self.bulletWidth
-    #     bullet.height = self.bulletHeight
-    #     bullet.color = self.bulletColor
-    #     bullet.damage = 10
-    #
-    #     self.enemyBullets.append(bullet)
+    def shoot_spines(self) -> None:
+        if self.last_player_x is None or self.last_player_y is None:
+            return
 
-    def update(self) -> None:
-        super().update()
+        cx = self.x + self.width // 2
+        cy = self.y + self.height // 2
+
+        dx = self.last_player_x - cx
+        dy = self.last_player_y - cy
+
+        length = math.hypot(dx, dy)
+        if length == 0:
+            return
+
+        dx /= length
+        dy /= length
+
+        bullet = Bullet(cx, cy)
+        bullet.dx = dx * self.weapon_speed
+        bullet.speed = dy * self.weapon_speed
+
+        bullet.width = self.bulletWidth
+        bullet.height = self.bulletHeight
+        bullet.color = self.bulletColor
+        bullet.damage = 10
+
+        self.enemyBullets.append(bullet)
+
+    def update(self, state) -> None:
+        super().update(state)
         self.update_hitbox()
 
         # track player every frame

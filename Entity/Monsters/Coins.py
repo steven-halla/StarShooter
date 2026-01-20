@@ -36,17 +36,13 @@ class Coins(Enemy):
         ).convert_alpha()
         self.enemy_image = self.coins_image  # 🔑 REQUIRED
 
-    def update(self) -> None:
-        super().update()
+    def update(self, state) -> None:
+        super().update(state)
         if not self.is_active:
             return
 
         self.update_hitbox()
-
-        if self.target_player is not None:
-            if self.hitbox.colliderect(self.target_player.hitbox):
-                self.is_active = False
-                self.enemyHealth = 0
+        self.check_player_collision(state)
 
 
 

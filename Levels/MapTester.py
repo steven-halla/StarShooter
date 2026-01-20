@@ -96,7 +96,7 @@ class MapTester(VerticalBattleScreen):
                           f"at ({missile.target_enemy.x}, {missile.target_enemy.y})")
                 else:
                     print("Missile locked onto: NONE (no enemies found)")
-        self.enemy_helper()
+        self.enemy_helper(state)
 
 
         self.extract_object_names()
@@ -267,7 +267,7 @@ class MapTester(VerticalBattleScreen):
 
         print(f"[DONE] total enemies loaded = {len(self.enemies)}")
 
-    def enemy_helper(self):
+    def enemy_helper(self, state):
         # -------------------------
         # NAPALM UPDATE + DAMAGE
         # -------------------------
@@ -332,7 +332,7 @@ class MapTester(VerticalBattleScreen):
                     break  # one hit only
 
         for boss in list(self.enemies):
-            boss.update()
+            boss.update(state)
 
             if boss.enemyBullets:
                 self.enemy_bullets.extend(boss.enemyBullets)
@@ -342,15 +342,15 @@ class MapTester(VerticalBattleScreen):
                 self.enemies.remove(boss)
                 continue
 
-        for enemy_tri_spitter in self.enemies:
-            enemy_tri_spitter.update()
-            if self.starship.hitbox.colliderect(enemy_tri_spitter.hitbox):
-                enemy_tri_spitter.color = (135, 206, 235)  # SKYBLUE
-            else:
-                enemy_tri_spitter.color = GlobalConstants.RED
-            enemy_tri_spitter.update_hitbox()
-
-            if enemy_tri_spitter.enemyBullets:
-                self.enemy_bullets.extend(enemy_tri_spitter.enemyBullets)
-                enemy_tri_spitter.enemyBullets.clear()
+        # for enemy_tri_spitter in self.enemies:
+        #     enemy_tri_spitter.update(state)
+        #     if self.starship.hitbox.colliderect(enemy_tri_spitter.hitbox):
+        #         enemy_tri_spitter.color = (135, 206, 235)  # SKYBLUE
+        #     else:
+        #         enemy_tri_spitter.color = GlobalConstants.RED
+        #     enemy_tri_spitter.update_hitbox()
+        #
+        #     if enemy_tri_spitter.enemyBullets:
+        #         self.enemy_bullets.extend(enemy_tri_spitter.enemyBullets)
+        #         enemy_tri_spitter.enemyBullets.clear()
 

@@ -2,13 +2,8 @@ import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelFive import BossLevelFive
-from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
-from Entity.Monsters.Ravager import Ravager
-from Entity.Monsters.RescuePod import RescuePod
-from Entity.Monsters.SpinalRaptor import SpinalRaptor
-from Entity.Monsters.SpineLauncher import SpineLauncher
-from Entity.Monsters.WaspStinger import WaspStinger
+
 from SaveStates.SaveState import SaveState
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 

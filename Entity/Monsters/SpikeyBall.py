@@ -37,8 +37,8 @@ class SpikeyBall(Enemy):
         self.enemy_image = self.coins_image  # 🔑 REQUIRED
 
 
-    def update(self) -> None:
-        super().update()
+    def update(self, state) -> None:
+        super().update(state)
         if not self.is_active:
             return
         self.update_hitbox()
@@ -100,5 +100,3 @@ class SpikeyBall(Enemy):
         if self.y + self.height >= gameplay_bottom:
             self.is_active = False
             self.enemyHealth = 0
-
-

@@ -39,9 +39,8 @@ class BileSpitter(Enemy):
         self.enemy_image = self.bile_spitter_image
 
 
-
-    def update(self) -> None:
-        super().update()
+    def update(self, state) -> None:
+        super().update(state)
         if not self.is_active:
             return
 
@@ -52,17 +51,24 @@ class BileSpitter(Enemy):
 
         # movement AI (UNCHANGED)
         self.moveAI()
+        self.touch_mellee(
+            bullet_width=40,
+            bullet_height=40,
+            bullet_color=GlobalConstants.RED,
+            bullet_damage=555
+        )
+
 
         # firing
         now = pygame.time.get_ticks()
         if now - self.last_shot_time >= self.fire_interval_ms:
-            self.shoot_single_bullet_aimed_at_player(
-                bullet_speed=4.0,
-                bullet_width=20,
-                bullet_height=20,
-                bullet_color=self.bulletColor,
-                bullet_damage=10
-            )
+            # self.shoot_single_bullet_aimed_at_player(
+            #     bullet_speed=4.0,
+            #     bullet_width=20,
+            #     bullet_height=20,
+            #     bullet_color=self.bulletColor,
+            #     bullet_damage=10
+            # )
 
             self.last_shot_time = now
 

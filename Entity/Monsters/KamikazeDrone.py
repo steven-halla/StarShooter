@@ -39,8 +39,8 @@ class KamikazeDrone(Enemy):
 
         self.is_on_screen = False
 
-    def update(self):
-        super().update()
+    def update(self, state):
+        super().update(state)
 
         self.update_hitbox()
 

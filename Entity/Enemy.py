@@ -374,22 +374,26 @@ class Enemy:
             bullet_color: tuple[int, int, int],
             bullet_damage: int
     ) -> None:
-        # create melee bullet ONCE
-        if not self.enemy_bullets:
-            bullet = Bullet(0, 0)
-            bullet.width = bullet_width
-            bullet.height = bullet_height
-            bullet.color = bullet_color
-            bullet.damage = bullet_damage
 
-            bullet.vx = 0
-            bullet.vy = 0
-            bullet.bullet_speed = 0
+        # create ONCE
+        if getattr(self, "_melee_bullet", None) is not None:
+            return
 
-            self.enemy_bullets.append(bullet)
+        bullet = Bullet(self.x, self.y)
+        bullet.width = bullet_width
+        bullet.height = bullet_height
+        bullet.color = bullet_color
+        bullet.damage = bullet_damage
 
-        # always re-lock bullet to enemy position
-        bullet = self.enemy_bullets[0]
-        bullet.x = self.x + self.width // 2 - bullet.width // 2
-        bullet.y = self.y + self.height // 2 - bullet.height // 2
+        # stationary
+        bullet.vx = 0
+        bullet.vy = 0
+        bullet.bullet_speed = 0
+
+        # REQUIRED for your engine
         bullet.update_rect()
+
+        # REQUIRED so update/draw systems see it
+        self.enemyBullets.append(bullet)
+
+        self._melee_bullet = bullet
