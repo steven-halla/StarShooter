@@ -55,7 +55,7 @@ class BileSpitter(Enemy):
             bullet_width=40,
             bullet_height=40,
             bullet_color=GlobalConstants.RED,
-            bullet_damage=555
+            bullet_damage=11
         )
 
 

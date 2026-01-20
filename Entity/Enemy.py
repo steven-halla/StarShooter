@@ -376,24 +376,32 @@ class Enemy:
     ) -> None:
 
         # create ONCE
-        if getattr(self, "_melee_bullet", None) is not None:
-            return
+        if getattr(self, "_melee_bullet", None) is None:
+            bullet = Bullet(self.x, self.y)
+            bullet.width = bullet_width
+            bullet.height = bullet_height
+            bullet.color = bullet_color
+            bullet.damage = bullet_damage
 
-        bullet = Bullet(self.x, self.y)
-        bullet.width = bullet_width
-        bullet.height = bullet_height
-        bullet.color = bullet_color
-        bullet.damage = bullet_damage
+            bullet.vx = 0
+            bullet.vy = 0
+            bullet.bullet_speed = 0
 
-        # stationary
-        bullet.vx = 0
-        bullet.vy = 0
-        bullet.bullet_speed = 0
+            bullet.update_rect()
 
-        # REQUIRED for your engine
+            self.enemyBullets.append(bullet)
+            self._melee_bullet = bullet
+
+        # ALWAYS follow enemy (THIS IS THE UPDATE)
+        bullet = self._melee_bullet
+        bullet.x = self.x + (self.width - bullet.width) // 2
+        bullet.y = self.y + (self.height - bullet.height) // 2
         bullet.update_rect()
+        # how to call
+        # self.touch_mellee(
+        #     bullet_width=40,
+        #     bullet_height=40,
+        #     bullet_color=GlobalConstants.RED,
+        #     bullet_damage=11
+        # )
 
-        # REQUIRED so update/draw systems see it
-        self.enemyBullets.append(bullet)
-
-        self._melee_bullet = bullet
