@@ -449,3 +449,64 @@ class Enemy:
         if self.hitbox.colliderect(target_enemy.hitbox):
             if target_enemy in state.enemies:
                 state.enemies.remove(target_enemy)
+
+    def pounce(self) -> None:
+        if self.target_player is None or self.camera is None:
+            return
+
+        now = pygame.time.get_ticks()
+
+        # ---------------------------------
+        # INIT STATE (once, no __init__ use)
+        # ---------------------------------
+        if not hasattr(self, "_pounce_active"):
+            self._pounce_active = False          # slow mode default
+            self._pounce_start_time = 0
+            self._pounce_cooldown_until = 0
+
+        # ---------------------------------
+        # VECTOR TO PLAYER
+        # ---------------------------------
+        dx = self.target_player.x - self.x
+        dy = self.target_player.y - self.y
+        dist = (dx * dx + dy * dy) ** 0.5
+        if dist == 0:
+            return
+
+        # ---------------------------------
+        # STATE TRANSITIONS
+        # ---------------------------------
+        # ENTER POUNCE
+        if (
+            not self._pounce_active
+            and dist <= 100
+            and now >= self._pounce_cooldown_until
+        ):
+            self._pounce_active = True
+            self._pounce_start_time = now
+
+        # EXIT POUNCE AFTER 3s
+        if self._pounce_active and now - self._pounce_start_time >= 1000:
+            self._pounce_active = False
+            self._pounce_cooldown_until = now + 5000  # 5s cooldown
+
+        # ---------------------------------
+        # SPEED BY STATE
+        # ---------------------------------
+        speed = self.moveSpeed
+        if self._pounce_active:
+            speed = self.moveSpeed * 4
+
+        # ---------------------------------
+        # MOVE
+        # ---------------------------------
+        self.x += (dx / dist) * speed
+        self.y += (dy / dist) * speed
+        self.update_hitbox()
+
+        # ---------------------------------
+        # DAMAGE ON CONTACT
+        # ---------------------------------
+        if self.hitbox.colliderect(self.target_player.hitbox):
+            if hasattr(self.target_player, "take_damage"):
+                self.target_player.take_damage(self.bullet_damage)

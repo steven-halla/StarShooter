@@ -44,17 +44,12 @@ class BileSpitter(Enemy):
         super().update(state)
         if not self.is_active:
             return
-
+        # self.moveAI()
 
         # WORLD-SPACE hitbox
         self.update_hitbox()
-        for e in state.enemies:
-            print(e)
-        # movement AI (UNCHANGED)
-        for e in state.enemies:
-            if isinstance(e, RescuePod):
-                self.Hunt_NPC(e, state)
-                break
+
+        self.pounce()
 
 
         # firing
