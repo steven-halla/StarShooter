@@ -17,8 +17,7 @@ class Enemy:
         self.bullet_speed: float = 0.0
         self.bullet_damage: int = 10
 
-        # Initialize enemyBullets for backward compatibility
-        self.enemyBullets: list[Bullet] = []
+        # No longer using self.enemyBullets - using game_state.enemy_bullets instead
 
 
 
@@ -203,7 +202,7 @@ class Enemy:
             bullet_height: int,
             bullet_color: tuple[int, int, int],
             bullet_damage: int,
-            state=None
+            state
     ) -> None:
         bullet_x = self.x + self.width // 2 - bullet_width // 2
         bullet_y = self.y + self.height
@@ -219,9 +218,7 @@ class Enemy:
         bullet.bullet_speed = bullet_speed
 
         bullet.update_rect()
-        if state is not None:
-            state.enemy_bullets.append(bullet)
-        self.enemyBullets.append(bullet)
+        state.enemy_bullets.append(bullet)
 
         #how to call for single shot
         # self.shoot_single_down_vertical_y(
@@ -241,7 +238,7 @@ class Enemy:
             bullet_damage: int,
             bullet_count: int,
             bullet_spread: int,
-            state=None
+            state
     ) -> None:
         start_x = self.x + self.width // 2 - bullet_width // 2
         bullet_y = self.y + self.height
@@ -264,9 +261,7 @@ class Enemy:
             bullet.bullet_speed = bullet_speed
 
             bullet.update_rect()
-            if state is not None:
-                state.enemy_bullets.append(bullet)
-            self.enemyBullets.append(bullet)
+            state.enemy_bullets.append(bullet)
             # below is how to call this fun with 3 bullet spread
             # self.shoot_multiple_down_vertical_y(
             #     bullet_speed=4.0,
@@ -285,7 +280,7 @@ class Enemy:
             bullet_height: int,
             bullet_color: tuple[int, int, int],
             bullet_damage: int,
-            state=None
+            state
     ) -> None:
         cx = self.x + self.width // 2
         cy = self.y + self.height // 2
@@ -313,9 +308,7 @@ class Enemy:
             b.bullet_speed = bullet_speed
 
             b.update_rect()
-            if state is not None:
-                state.enemy_bullets.append(b)
-            self.enemyBullets.append(b)
+            state.enemy_bullets.append(b)
             # how to call
             # self.shoot_spores(
             #     bullet_speed=4.0,
@@ -332,7 +325,7 @@ class Enemy:
             bullet_height: int,
             bullet_color: tuple[int, int, int],
             bullet_damage: int,
-            state=None
+            state
     ) -> None:
         if self.target_player is None:
             return
@@ -369,9 +362,7 @@ class Enemy:
         bullet.bullet_speed = bullet_speed
 
         bullet.update_rect()
-        if state is not None:
-            state.enemy_bullets.append(bullet)
-        self.enemyBullets.append(bullet)
+        state.enemy_bullets.append(bullet)
         # how to call
         # self.shoot_single_bullet_aimed_at_player(
         #     bullet_speed=4.0,
@@ -387,7 +378,7 @@ class Enemy:
             bullet_height: int,
             bullet_color: tuple[int, int, int],
             bullet_damage: int,
-            state=None
+            state
     ) -> None:
 
         # create ONCE
@@ -404,9 +395,7 @@ class Enemy:
 
             bullet.update_rect()
 
-            if state is not None:
-                state.enemy_bullets.append(bullet)
-            self.enemyBullets.append(bullet)
+            state.enemy_bullets.append(bullet)
             self._melee_bullet = bullet
 
         # ALWAYS follow enemy (THIS IS THE UPDATE)

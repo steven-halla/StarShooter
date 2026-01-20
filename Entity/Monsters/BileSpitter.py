@@ -25,7 +25,7 @@ class BileSpitter(Enemy):
         self.enemyHealth: int = 20
         self.exp: int = 1
         self.credits: int = 5
-        # self.enemyBullets: list[Bullet] = []
+        # No longer using self.enemyBullets - using game_state.enemy_bullets instead
         self.moveSpeed: float = 1.2
         self.edge_padding: int = 30
         self.move_direction: int = random.choice([-1, 1])
@@ -54,7 +54,8 @@ class BileSpitter(Enemy):
             bullet_width=40,
             bullet_height=40,
             bullet_color=GlobalConstants.RED,
-            bullet_damage=11
+            bullet_damage=11,
+            state=state
         )
 
 
@@ -66,16 +67,13 @@ class BileSpitter(Enemy):
             #     bullet_width=20,
             #     bullet_height=20,
             #     bullet_color=self.bulletColor,
-            #     bullet_damage=10
+            #     bullet_damage=10,
+            #     state=state
             # )
 
             self.last_shot_time = now
 
-        # update bullets (WORLD SPACE ONLY)
-        for bullet in self.enemyBullets[:]:
-            bullet.x += bullet.vx * bullet.bullet_speed
-            bullet.y += bullet.vy * bullet.bullet_speed
-            bullet.update_rect()
+        # No longer need to update bullets here as they are managed by the game state
 
 
     def moveAI(self) -> None:

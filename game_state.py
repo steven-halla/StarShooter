@@ -59,6 +59,7 @@ class GameState:
         self.starship: StarShip = StarShip()
 
         self.enemy_bullets: list[Bullet] = []
+        self.player_bullets: list[Bullet] = []
 
 
         # --------------------------------------------------
@@ -75,6 +76,3 @@ class GameState:
         # Bullet list
         # --------------------------------------------------
         # bullets TO DO
-
-
-
