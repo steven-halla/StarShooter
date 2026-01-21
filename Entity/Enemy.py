@@ -1020,6 +1020,8 @@ class Enemy:
         #     state=state
         # )
 
+
+    # need to update this with params for brea
     def dragons_breath(
             self,
             monster_x: float,
@@ -1087,3 +1089,19 @@ class Enemy:
             bullet.y = base_y + i * segment_length
 
             bullet.update_rect()
+            # how to call
+            # self.dragons_breath(
+            #     monster_x=self.x,
+            #     monster_y=self.y,
+            #     monster_width=self.width,
+            #     monster_height=self.height,
+            #     length=120,
+            #     min_width=10,
+            #     max_width=60,
+            #     segments=6,
+            #     color=(255, 120, 0),
+            #     damage=18,
+            #     x_offset=0,
+            #     y_offset=0,
+            #     state=state
+            # )
