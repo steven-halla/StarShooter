@@ -1039,6 +1039,8 @@ class Enemy:
         if state is None:
             return
 
+
+
         # lazy init (NO __init__ changes)
         if not hasattr(self, "_dragon_cone"):
             self._dragon_cone = []
@@ -1048,6 +1050,8 @@ class Enemy:
         # ensure correct number of segments
         while len(cone) < segments:
             b = Bullet(0, 0)
+            b.remove_type = 1
+
             b.vx = 0
             b.vy = 0
             b.bullet_speed = 0

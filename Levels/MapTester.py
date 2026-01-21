@@ -21,6 +21,7 @@ from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from Entity.StarShip import StarShip
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
+from Weapons.Bullet import Bullet
 
 
 class MapTester(VerticalBattleScreen):
@@ -516,7 +517,7 @@ class MapTester(VerticalBattleScreen):
             # --- movement / positioning ---
             if bullet.weapon_name == "Missile":
                 if getattr(bullet, "target_enemy", None) is None and hasattr(self, "get_nearest_enemy"):
-                    bullet.target_enemy = self.get_nearest_enemy(bullet)
+                    bullet.target_enemy = self.get_nearest_enemy(bullet,missile=self)
                 bullet.update()
 
             elif bullet.weapon_name == "Metal Shield":
@@ -566,7 +567,7 @@ class MapTester(VerticalBattleScreen):
             # Debug print to help diagnose the issue
             # print(f"[BULLET CHECK] bullet.y={bullet.y:.1f}, camera.y={self.camera.y:.1f}, world_bottom_delete={world_bottom_delete:.1f}")
 
-            if bullet.y < world_top_delete or bullet.y > world_bottom_delete:
+            if bullet.y < world_top_delete or bullet.y > world_bottom_delete and bullet.remove_type == 0:
                 # print(f"[DELETE BULLET] y={bullet.y:.1f}, cam_y={self.camera.y:.1f}, reason: {'above' if bullet.y < world_top_delete else 'below'}")
                 state.enemy_bullets.remove(bullet)
                 continue
@@ -575,7 +576,8 @@ class MapTester(VerticalBattleScreen):
             if bullet.collide_with_rect(self.starship.hitbox):
                 self.starship.shipHealth -= bullet.damage
                 bullet.is_active = False
-                state.enemy_bullets.remove(bullet)
+                if bullet.remove_type == 0:
+                    state.enemy_bullets.remove(bullet)
 
     def load_enemy_into_list(self, state):
         state.enemies.clear()
@@ -712,7 +714,7 @@ class MapTester(VerticalBattleScreen):
 
             for bullet in list(state.enemy_bullets):
 
-                if bullet.collide_with_rect(shield_rect):
+                if bullet.collide_with_rect(shield_rect) and bullet.remove_type == 0:
 
                     absorbed = metal.absorb_hit()
 
@@ -727,7 +729,7 @@ class MapTester(VerticalBattleScreen):
             for bullet in list(state.enemy_bullets):
 
                 # Enemy bullets already have a hitbox / rect logic
-                if bullet.collide_with_rect(shield_rect):
+                if bullet.collide_with_rect(shield_rect) and bullet.remove_type == 0:
 
                     # Shield absorbs the hit
                     absorbed = metal.absorb_hit()

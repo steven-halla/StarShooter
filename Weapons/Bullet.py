@@ -21,6 +21,7 @@ class Bullet:
         self.camera = None
 
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.remove_type: int = 0
 
     def update(self) -> None:
         # -------------------------
