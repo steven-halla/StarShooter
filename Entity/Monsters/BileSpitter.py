@@ -40,7 +40,6 @@ class BileSpitter(Enemy):
         ).convert_alpha()
         self.enemy_image = self.bile_spitter_image
 
-
     def update(self, state) -> None:
         super().update(state)
         if not self.is_active:
@@ -50,42 +49,42 @@ class BileSpitter(Enemy):
         # WORLD-SPACE hitbox
         self.update_hitbox()
 
-        # example call (inside enemy update)
-        # =========================
-        # CALL (inside enemy update)
-        # =========================
-
-
-
-        # firing
-        now = pygame.time.get_ticks()
-        if now - self.last_shot_time >= self.fire_interval_ms:
-
-            self.explosive_egg_system(
-                width=20,
-                height=20,
-                explosion_timer_ms=3000,  # Ensure explosion persists for exactly 3 seconds
-                explosion_radius=100,     # Make explosion significantly bigger than the egg
-                damage=40,
-                distance=200,  # 0 = laid bomb
-                speed=0,       # 0 if laid
+        # Always update the blade position in every frame
+        if self.is_active:
+            self.moving_blades(
+                monster_x=self.x,
+                monster_y=self.y,
+                monster_width=self.width,
+                monster_height=self.height,
+                blade_width=10,
+                blade_height=36,
+                blade_color=(0, 255, 0),
+                damage=25,
+                x_offset=0,
+                y_offset=-28,
                 state=state
             )
-            # BileSpitter.update (or wherever it’s called)
-            # self.create_bomb(64, 64)
 
+        now = pygame.time.get_ticks()
+        # firing
+        # if now - self.last_shot_time >= self.fire_interval_ms:
+        #     # Call create_bomb after egg explodes
+        #     # After calling lay_bomb, loop bullets that have already exploded
+        #     for bullet in state.enemy_bullets[:]:  # iterate over a copy to be safe
+        #         if getattr(bullet, "exploded", False):
+        #             self.create_bomb(64, 64)
+        #             # Optionally remove bullet from list to avoid multiple calls
+        #             state.enemy_bullets.remove(bullet)
 
-
-            self.last_shot_time = now
-
-        # No longer need to update bullets here as they are managed by the game state
-
-
+        self.last_shot_time = now
     def moveAI(self) -> None:
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
 
         if not hasattr(self, "_last_x"):
             self._last_x = self.x
+
+        # Print BileSpitter position before movement
+        print(f"BileSpitter before move: x={self.x:.2f}, y={self.y:.2f}")
 
         if self.move_direction > 0:
             self.mover.enemy_move_right(self)
@@ -104,10 +103,13 @@ class BileSpitter(Enemy):
             else:
                 self.mover.enemy_move_left(self)
 
+        # Print BileSpitter position after movement
+        print(f"BileSpitter after move: x={self.x:.2f}, y={self.y:.2f}")
+
         self._last_x = self.x
 
     def draw(self, surface: pygame.Surface, camera):
-        self.draw_bomb(surface, self.camera)
+        # self.draw_bomb(surface, self.camera)
         if not self.is_active:
             return
 

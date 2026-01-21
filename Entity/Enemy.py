@@ -849,7 +849,7 @@ class Enemy:
         #     state=state
         # )
 
-    def explosive_egg_system(
+    def lay_bomb(
             self,
             width: int = 20,
             height: int = 20,
@@ -863,17 +863,7 @@ class Enemy:
             surface=None,
             camera=None
     ):
-        """
-        Handles spawning, updating, and drawing explosive eggs and explosion rectangles.
-        - Call with just state to spawn a new egg.
-        - Call with bullet and state to update an existing egg.
-        - Call with bullet, surface, and camera to draw an existing egg.
-        - Explosion rects persist for 3 seconds after the egg explodes.
-        """
 
-        # Initialize explosion_rects list in state if it doesn't exist
-        if state and not hasattr(state, 'explosion_rects'):
-            state.explosion_rects = []
 
         now = pygame.time.get_ticks()
 
@@ -920,69 +910,11 @@ class Enemy:
             state.enemy_bullets.append(bullet)
             return  # Spawn complete
 
-        # =========================
-        # UPDATE MODE (move bullet / trigger explosion)
-        # =========================
-        if bullet and state and surface is None and camera is None:
-            # Lazy init
-            if not hasattr(bullet, "exploded"):
-                bullet.exploded = False
-                bullet.traveled = 0.0
-                bullet.explode_end = 0
 
-            # Move bullet
-            if not bullet.exploded:
-                if bullet.bullet_speed > 0:
-                    dx = bullet.vx * bullet.bullet_speed
-                    dy = bullet.vy * bullet.bullet_speed
-                    bullet.x += dx
-                    bullet.y += dy
-                    bullet.traveled += math.hypot(dx, dy)
-                    if bullet.traveled >= bullet.max_distance:
-                        bullet.bullet_speed = 0
-                bullet.update_rect()
-
-                # Trigger explosion
-                if now >= bullet.explode_time:
-                    bullet.exploded = True
-
-                    # Create explosion rect (larger than bullet)
-                    cx = bullet.rect.centerx
-                    cy = bullet.rect.centery
-                    explosion_rect = {
-                        'x': cx - (bullet.width + bullet.explosion_radius * 2) // 2,
-                        'y': cy - (bullet.height + bullet.explosion_radius * 2) // 2,
-                        'width': bullet.width + bullet.explosion_radius * 2,
-                        'height': bullet.height + bullet.explosion_radius * 2,
-                        'end_time': now + 3000,
-                        'rect': pygame.Rect(
-                            cx - (bullet.width + bullet.explosion_radius * 2) // 2,
-                            cy - (bullet.height + bullet.explosion_radius * 2) // 2,
-                            bullet.width + bullet.explosion_radius * 2,
-                            bullet.height + bullet.explosion_radius * 2
-                        )
-                    }
-
-                    state.explosion_rects.append(explosion_rect)
-
-                    # Damage player once on explosion
-                    if state.player and explosion_rect['rect'].colliderect(state.player.hitbox):
-                        state.player.take_damage(bullet.damage)
-
-                    # Remove bullet
-                    if bullet in state.enemy_bullets:
-                        state.enemy_bullets.remove(bullet)
-
-
-            # Clean up expired explosions
-            for ex_rect in state.explosion_rects[:]:
-                if now >= ex_rect['end_time']:
-                    state.explosion_rects.remove(ex_rect)
 
 
     # ==================================================
-    # EXPLOSIVE EGG / GRENADE (AOE BOMB)
-    # STORED IN state.enemy_bullets (NO NEW LISTS)
+    # the below should only stay as a temp example
     def create_bomb(self, width: int, height: int) -> None:
         # world-space rect (PERSISTENT: stored, not drawn here)
         x = int(self.x + (self.width - width) // 2)
@@ -996,6 +928,7 @@ class Enemy:
     def draw_bomb(self, surface: pygame.Surface, camera) -> None:
         if not hasattr(self, "bomb_rect"):
             return
+        print("adfj;safljdsl;fsajf;a")
 
         sx = int(camera.world_to_screen_x(self.bomb_rect.x))
         sy = int(camera.world_to_screen_y(self.bomb_rect.y))
@@ -1003,3 +936,86 @@ class Enemy:
         sh = int(self.bomb_rect.height * camera.zoom)
 
         pygame.draw.rect(surface, GlobalConstants.RED, (sx, sy, sw, sh))
+
+    def moving_blades(
+            self,
+            monster_x: float,
+            monster_y: float,
+            monster_width: int,
+            monster_height: int,
+            blade_width: int,
+            blade_height: int,
+            blade_color: tuple[int, int, int],
+            damage: int,
+            x_offset: int,
+            y_offset: int,
+            state
+    ) -> None:
+        if state is None:
+            return
+
+        # lazy init (NO __init__ changes)
+        if not hasattr(self, "_blade"):
+            self._blade = None
+            self._blade_params = None
+
+        blade = self._blade
+
+        # CREATE blade if missing
+        if blade is None or blade not in state.enemy_bullets:
+            blade = Bullet(0, 0)
+            blade.width = blade_width
+            blade.height = blade_height
+            blade.color = blade_color
+            blade.damage = damage
+            blade.vx = 0
+            blade.vy = 0
+            blade.bullet_speed = 0
+            blade.update_rect()
+
+            # Store the parameters for future updates
+            self._blade_params = {
+                "width": blade_width,
+                "height": blade_height,
+                "x_offset": x_offset,
+                "y_offset": y_offset
+            }
+
+            state.enemy_bullets.append(blade)
+            self._blade = blade
+
+        # Use the current enemy position instead of the passed-in position
+        if self._blade_params:
+            blade.x = (
+                    self.x
+                    + self.width // 2
+                    - self._blade_params["width"] // 2
+                    + self._blade_params["x_offset"]
+            )
+
+            blade.y = (
+                    self.y
+                    + self.height // 2
+                    - self._blade_params["height"] // 2
+                    + self._blade_params["y_offset"]
+            )
+
+            # Print enemy and blade positions for debugging
+            print(f"Enemy position: x={self.x:.2f}, y={self.y:.2f}")
+            print(f"Blade position: x={blade.x:.2f}, y={blade.y:.2f}")
+
+        blade.update_rect()
+        # how to call
+        # self.moving_blades(
+        #     monster_x=self.x,
+        #     monster_y=self.y,
+        #     monster_width=self.width,
+        #     monster_height=self.height,
+        #     blade_width=10,
+        #     blade_height=36,
+        #     blade_color=(0, 255, 0),
+        #     damage=25,
+        #     x_offset=0,
+        #     y_offset=-28,
+        #     state=state
+        # )

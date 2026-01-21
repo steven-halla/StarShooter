@@ -275,11 +275,11 @@ class VerticalBattleScreen:
                 0
             )
 
-        # Draw explosion rects using explosive_egg_system
+        # Draw explosion rects using lay_bomb
         for enemy in state.enemies:
-            if hasattr(enemy, "explosive_egg_system"):
+            if hasattr(enemy, "lay_bomb"):
                 for bullet in self.enemy_bullets:
-                    enemy.explosive_egg_system(bullet=bullet, surface=state.DISPLAY, camera=self.camera)
+                    enemy.lay_bomb(bullet=bullet, surface=state.DISPLAY, camera=self.camera)
 
         # 🔽 UI PANEL (BOTTOM BAR) - Draw last to ensure it covers anything that comes into contact with it
         self.draw_ui_panel(state.DISPLAY)
@@ -935,10 +935,10 @@ class VerticalBattleScreen:
         for bullet in list(self.enemy_bullets):
             bullet.update()
 
-            # Call explosive_egg_system in UPDATE mode for each bullet
+            # Call lay_bomb in UPDATE mode for each bullet
             for enemy in state.enemies:
-                if hasattr(enemy, "explosive_egg_system"):
-                    enemy.explosive_egg_system(bullet=bullet, state=state)
+                if hasattr(enemy, "lay_bomb"):
+                    enemy.lay_bomb(bullet=bullet, state=state)
 
             # Increase the buffer zone to ensure bullets have more time to appear on screen
             world_top_delete = self.camera.y - 500

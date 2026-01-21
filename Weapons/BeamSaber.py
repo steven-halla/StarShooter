@@ -18,18 +18,15 @@ class BeamSaber(Bullet):
         # IDENTITY
         # -----------------
         self.weapon_name: str = "Beam Saber"
-
         # -----------------
         # DAMAGE
         # -----------------
         self.damage: int = 100
-
         # -----------------
         # RATE OF FIRE
         # -----------------
         self.rate_of_fire: float = 0.10
         self.last_fire_time: float = 0.0
-
         # -----------------
         # MOVEMENT (STATIC)
         # -----------------
