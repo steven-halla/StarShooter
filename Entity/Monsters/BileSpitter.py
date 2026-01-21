@@ -51,17 +51,19 @@ class BileSpitter(Enemy):
 
         # Always update the blade position in every frame
         if self.is_active:
-            self.moving_blades(
+            self.dragons_breath(
                 monster_x=self.x,
                 monster_y=self.y,
                 monster_width=self.width,
                 monster_height=self.height,
-                blade_width=10,
-                blade_height=36,
-                blade_color=(0, 255, 0),
-                damage=25,
+                length=120,
+                min_width=10,
+                max_width=60,
+                segments=6,
+                color=(255, 120, 0),
+                damage=18,
                 x_offset=0,
-                y_offset=-28,
+                y_offset=0,
                 state=state
             )
 

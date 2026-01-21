@@ -1019,3 +1019,67 @@ class Enemy:
         #     y_offset=-28,
         #     state=state
         # )
+
+    def dragons_breath(
+            self,
+            monster_x: float,
+            monster_y: float,
+            monster_width: int,
+            monster_height: int,
+            length: int,
+            min_width: int,
+            max_width: int,
+            segments: int,
+            color: tuple[int, int, int],
+            damage: int,
+            x_offset: int,
+            y_offset: int,
+            state
+    ) -> None:
+        if state is None:
+            return
+
+        # lazy init (NO __init__ changes)
+        if not hasattr(self, "_dragon_cone"):
+            self._dragon_cone = []
+
+        cone = self._dragon_cone
+
+        # ensure correct number of segments
+        while len(cone) < segments:
+            b = Bullet(0, 0)
+            b.vx = 0
+            b.vy = 0
+            b.bullet_speed = 0
+            b.color = color
+            b.damage = damage
+            cone.append(b)
+            state.enemy_bullets.append(b)
+
+        while len(cone) > segments:
+            b = cone.pop()
+            if b in state.enemy_bullets:
+                state.enemy_bullets.remove(b)
+
+        # cone geometry
+        segment_length = length / segments
+
+        for i, bullet in enumerate(cone):
+            t = i / (segments - 1) if segments > 1 else 0
+
+            # interpolate width (narrow → wide)
+            width = int(min_width + (max_width - min_width) * t)
+            height = int(segment_length)
+
+            bullet.width = width
+            bullet.height = height
+
+            # base center of enemy
+            base_x = monster_x + monster_width // 2 + x_offset
+            base_y = monster_y + monster_height + y_offset
+
+            # position downward cone
+            bullet.x = base_x - width // 2
+            bullet.y = base_y + i * segment_length
+
+            bullet.update_rect()
