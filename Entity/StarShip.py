@@ -23,6 +23,7 @@ from Weapons.WaveCrash import WaveCrash
 from Weapons.WindSlicer import WindSlicer
 
 
+
 class StarShip:
     def __init__(self):
         self.height: int = 16
