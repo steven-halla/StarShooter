@@ -21,6 +21,7 @@ class Bullet:
         self.camera = None
 
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        # type 0 for projectile bullets, 1 is for bullets that persist like flamers
         self.remove_type: int = 0
 
     def update(self) -> None:
