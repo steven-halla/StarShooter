@@ -1,5 +1,6 @@
 import random
 import pygame
+from pygame import surface
 
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Enemy import Enemy
@@ -20,7 +21,7 @@ class BileSpitter(Enemy):
         self.bulletWidth: int = 20
         self.bulletHeight: int = 20
         self.bileSpeed: int = 2
-        self.fire_interval_ms: int = 3000
+        self.fire_interval_ms: int = 2000
         self.last_shot_time: int = 0
         self.speed: float = 0.4
         self.enemyHealth: int = 20
@@ -59,14 +60,21 @@ class BileSpitter(Enemy):
         # firing
         now = pygame.time.get_ticks()
         if now - self.last_shot_time >= self.fire_interval_ms:
-            # self.shoot_single_bullet_aimed_at_player(
-            #     bullet_speed=4.0,
-            #     bullet_width=20,
-            #     bullet_height=20,
-            #     bullet_color=self.bulletColor,
-            #     bullet_damage=10,
-            #     state=state
-            # )
+
+            self.explosive_egg_system(
+                width=20,
+                height=20,
+                explosion_timer_ms=3000,  # Ensure explosion persists for exactly 3 seconds
+                explosion_radius=100,     # Make explosion significantly bigger than the egg
+                damage=40,
+                distance=200,  # 0 = laid bomb
+                speed=0,       # 0 if laid
+                state=state
+            )
+            # BileSpitter.update (or wherever it’s called)
+            # self.create_bomb(64, 64)
+
+
 
             self.last_shot_time = now
 
@@ -99,6 +107,7 @@ class BileSpitter(Enemy):
         self._last_x = self.x
 
     def draw(self, surface: pygame.Surface, camera):
+        self.draw_bomb(surface, self.camera)
         if not self.is_active:
             return
 

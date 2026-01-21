@@ -848,3 +848,158 @@ class Enemy:
         #     cooldown_ms=1500,
         #     state=state
         # )
+
+    def explosive_egg_system(
+            self,
+            width: int = 20,
+            height: int = 20,
+            explosion_timer_ms: int = 3000,  # 3 seconds explosion duration
+            explosion_radius: int = 100,  # Larger explosion radius
+            damage: int = 40,
+            distance: float = 200,
+            speed: float = 4.0,
+            state=None,
+            bullet=None,
+            surface=None,
+            camera=None
+    ):
+        """
+        Handles spawning, updating, and drawing explosive eggs and explosion rectangles.
+        - Call with just state to spawn a new egg.
+        - Call with bullet and state to update an existing egg.
+        - Call with bullet, surface, and camera to draw an existing egg.
+        - Explosion rects persist for 3 seconds after the egg explodes.
+        """
+
+        # Initialize explosion_rects list in state if it doesn't exist
+        if state and not hasattr(state, 'explosion_rects'):
+            state.explosion_rects = []
+
+        now = pygame.time.get_ticks()
+
+        # =========================
+        # SPAWN MODE (create bullet)
+        # =========================
+        if state and bullet is None and surface is None and camera is None:
+            if self.camera is None:
+                return
+
+            bullet = Bullet(self.x, self.y)
+            bullet.width = width
+            bullet.height = height
+            bullet.color = (128, 0, 128)  # Purple color for egg
+            bullet.damage = damage
+
+            # center on enemy
+            bullet.x = self.hitbox.centerx - width // 2
+            bullet.y = self.hitbox.centery - height // 2
+
+            # movement direction (toward player if thrown)
+            if distance > 0 and self.target_player:
+                dx = self.target_player.x - self.x
+                dy = self.target_player.y - self.y
+                dist = math.hypot(dx, dy)
+                bullet.vx = dx / dist if dist != 0 else 0
+                bullet.vy = dy / dist if dist != 0 else 0
+            else:
+                bullet.vx = 0
+                bullet.vy = 0
+
+            bullet.bullet_speed = speed
+
+            # Internal bullet state
+            bullet.spawn_time = now
+            bullet.explode_time = now + explosion_timer_ms
+            bullet.max_distance = distance
+            bullet.traveled = 0
+            bullet.exploded = False
+            bullet.explosion_radius = explosion_radius
+            bullet.explode_end = 0
+
+            bullet.update_rect()
+            state.enemy_bullets.append(bullet)
+            return  # Spawn complete
+
+        # =========================
+        # UPDATE MODE (move bullet / trigger explosion)
+        # =========================
+        if bullet and state and surface is None and camera is None:
+            # Lazy init
+            if not hasattr(bullet, "exploded"):
+                bullet.exploded = False
+                bullet.traveled = 0.0
+                bullet.explode_end = 0
+
+            # Move bullet
+            if not bullet.exploded:
+                if bullet.bullet_speed > 0:
+                    dx = bullet.vx * bullet.bullet_speed
+                    dy = bullet.vy * bullet.bullet_speed
+                    bullet.x += dx
+                    bullet.y += dy
+                    bullet.traveled += math.hypot(dx, dy)
+                    if bullet.traveled >= bullet.max_distance:
+                        bullet.bullet_speed = 0
+                bullet.update_rect()
+
+                # Trigger explosion
+                if now >= bullet.explode_time:
+                    bullet.exploded = True
+
+                    # Create explosion rect (larger than bullet)
+                    cx = bullet.rect.centerx
+                    cy = bullet.rect.centery
+                    explosion_rect = {
+                        'x': cx - (bullet.width + bullet.explosion_radius * 2) // 2,
+                        'y': cy - (bullet.height + bullet.explosion_radius * 2) // 2,
+                        'width': bullet.width + bullet.explosion_radius * 2,
+                        'height': bullet.height + bullet.explosion_radius * 2,
+                        'end_time': now + 3000,
+                        'rect': pygame.Rect(
+                            cx - (bullet.width + bullet.explosion_radius * 2) // 2,
+                            cy - (bullet.height + bullet.explosion_radius * 2) // 2,
+                            bullet.width + bullet.explosion_radius * 2,
+                            bullet.height + bullet.explosion_radius * 2
+                        )
+                    }
+
+                    state.explosion_rects.append(explosion_rect)
+
+                    # Damage player once on explosion
+                    if state.player and explosion_rect['rect'].colliderect(state.player.hitbox):
+                        state.player.take_damage(bullet.damage)
+
+                    # Remove bullet
+                    if bullet in state.enemy_bullets:
+                        state.enemy_bullets.remove(bullet)
+
+
+            # Clean up expired explosions
+            for ex_rect in state.explosion_rects[:]:
+                if now >= ex_rect['end_time']:
+                    state.explosion_rects.remove(ex_rect)
+
+
+    # ==================================================
+    # EXPLOSIVE EGG / GRENADE (AOE BOMB)
+    # STORED IN state.enemy_bullets (NO NEW LISTS)
+    def create_bomb(self, width: int, height: int) -> None:
+        # world-space rect (PERSISTENT: stored, not drawn here)
+        x = int(self.x + (self.width - width) // 2)
+        y = int(self.y + (self.height - height) // 2)
+
+        self.bomb_rect = pygame.Rect(x, y, width, height)
+
+        # KEEP PRINT
+        print(f"bomb rect at x={x}, y={y}, w={width}, h={height}")
+
+    def draw_bomb(self, surface: pygame.Surface, camera) -> None:
+        if not hasattr(self, "bomb_rect"):
+            return
+
+        sx = int(camera.world_to_screen_x(self.bomb_rect.x))
+        sy = int(camera.world_to_screen_y(self.bomb_rect.y))
+        sw = int(self.bomb_rect.width * camera.zoom)
+        sh = int(self.bomb_rect.height * camera.zoom)
+
+        pygame.draw.rect(surface, GlobalConstants.RED, (sx, sy, sw, sh))

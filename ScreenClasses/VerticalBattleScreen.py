@@ -190,7 +190,7 @@ class VerticalBattleScreen:
         self.clamp_starship_to_screen()
         self.fire_all_weapons(self)
         self.weapon_helper()
-        self.bullet_helper()
+        self.bullet_helper(state)
         self.metal_shield_helper()
 
         # Collect enemy bullets - moved from draw method to update method
@@ -200,9 +200,9 @@ class VerticalBattleScreen:
                     self.enemy_bullets.append(b)
                 enemy.enemyBullets.clear()
 
-        self.bullet_collision_helper_remover()
-        self.collision_tile_helper()
-        self.rect_helper()
+        self.bullet_collision_helper_remover(state)
+        self.collision_tile_helper(state)
+        self.rect_helper(state)
         UI_KILL_PADDING = 12  # pixels ABOVE the UI panel (tweak this)
 
         screen_bottom = (
@@ -275,6 +275,12 @@ class VerticalBattleScreen:
                 0
             )
 
+        # Draw explosion rects using explosive_egg_system
+        for enemy in state.enemies:
+            if hasattr(enemy, "explosive_egg_system"):
+                for bullet in self.enemy_bullets:
+                    enemy.explosive_egg_system(bullet=bullet, surface=state.DISPLAY, camera=self.camera)
+
         # 🔽 UI PANEL (BOTTOM BAR) - Draw last to ensure it covers anything that comes into contact with it
         self.draw_ui_panel(state.DISPLAY)
 
@@ -312,7 +318,7 @@ class VerticalBattleScreen:
                     if shield_rect.colliderect(enemy.hitbox):
                         enemy.enemyHealth -= bullet.damage
                         if enemy.enemyHealth <= 0:
-                            self.remove_enemy_if_dead(enemy)
+                            self.remove_enemy_if_dead(enemy, state)
                 continue
 
             # -------------------------
@@ -342,7 +348,7 @@ class VerticalBattleScreen:
                         self.player_bullets.remove(bullet)
 
                 if enemy.enemyHealth <= 0:
-                    self.remove_enemy_if_dead(enemy)
+                    self.remove_enemy_if_dead(enemy, state)
                 break
 
     def remove_enemy_if_dead(self, enemy, state) -> None:
@@ -923,11 +929,17 @@ class VerticalBattleScreen:
                 # Set enemy health to zero and is_active to False to ensure it's removed and not drawn
                 enemy.enemyHealth = 0
                 enemy.is_active = False
-                self.remove_enemy_if_dead(enemy)
+                self.remove_enemy_if_dead(enemy, state)
 
-    def bullet_collision_helper_remover(self):
+    def bullet_collision_helper_remover(self, state):
         for bullet in list(self.enemy_bullets):
             bullet.update()
+
+            # Call explosive_egg_system in UPDATE mode for each bullet
+            for enemy in state.enemies:
+                if hasattr(enemy, "explosive_egg_system"):
+                    enemy.explosive_egg_system(bullet=bullet, state=state)
+
             # Increase the buffer zone to ensure bullets have more time to appear on screen
             world_top_delete = self.camera.y - 500
             # Adjust for camera zoom to get correct world coordinates and increase buffer
