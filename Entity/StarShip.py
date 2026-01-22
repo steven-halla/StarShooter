@@ -1,11 +1,5 @@
-# import pygame
-# from Constants.GlobalConstants import GlobalConstants
-# from Constants.Timer import Timer
-# from Movement.MoveRectangle import MoveRectangle
 import random
-
 import math
-
 import pygame
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
@@ -21,8 +15,6 @@ from Weapons.NapalmSpread import NapalmSpread
 from Weapons.PlasmaBlaster import PlasmaBlaster
 from Weapons.WaveCrash import WaveCrash
 from Weapons.WindSlicer import WindSlicer
-
-
 
 class StarShip:
     def __init__(self):

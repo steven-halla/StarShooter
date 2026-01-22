@@ -17,7 +17,6 @@ class LevelOne(VerticalBattleScreen):
         super().__init__(textbox)
         # self.starship: StarShip = StarShip()
         self.has_entered_screen = False
-
         self.level_start:bool = True
         self.current_page_lines: list[list[str]] = []
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level1.tmx")
@@ -44,7 +43,7 @@ class LevelOne(VerticalBattleScreen):
         self.napalm_list: list = []
         self.total_enemies = 40
         self.prev_enemy_count: int = None
-        state.enemies_killed: int = 0
+        self.enemies_killed: int = 0
 
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
@@ -78,10 +77,8 @@ class LevelOne(VerticalBattleScreen):
         self.starship.x = player_x
         self.starship.y = player_y
         self.starship.update_hitbox()
-        # self.starship.x = player_x
-        # self.starship.y = player_y
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
-        self.load_enemy_into_list()
+        self.load_enemy_into_list(state)
 
     def update(self, state) -> None:
         super().update(state)
@@ -139,7 +136,7 @@ class LevelOne(VerticalBattleScreen):
                     if self.missed_enemies.__len__() > 3:
                         print("GAME OVER!!!")
 
-        self.enemy_helper()
+        self.enemy_helper(state)
 
         self.extract_object_names()
         if self.level_complete:
@@ -165,12 +162,12 @@ class LevelOne(VerticalBattleScreen):
         else:
             # if enemies decreased, count the difference
             if current_enemies < self.prev_enemy_count:
-                state.enemies_killed += (self.prev_enemy_count - current_enemies)
+                self.enemies_killed += (self.prev_enemy_count - current_enemies)
 
             self.prev_enemy_count = current_enemies
 
         enemy_text = font.render(
-            f"Enemies {state.enemies_killed}/40",
+            f"Enemies {self.enemies_killed}/40",
             True,
             (255, 255, 255)
         )
@@ -201,7 +198,7 @@ class LevelOne(VerticalBattleScreen):
 
         pygame.display.flip()
 
-    def get_nearest_enemy(self, missile):
+    def get_nearest_enemy(self, state, missile):
         if not state.enemies:
             return None
 
@@ -247,7 +244,7 @@ class LevelOne(VerticalBattleScreen):
         # print(names)
         return names
 
-    def load_enemy_into_list(self):
+    def load_enemy_into_list(self, state):
         state.enemies.clear()
         # print("[LOAD] clearing enemies list")
 
@@ -296,7 +293,7 @@ class LevelOne(VerticalBattleScreen):
         print(f"[DONE] total enemies loaded = {len(state.enemies)}")
 
 
-    def enemy_helper(self):
+    def enemy_helper(self, state):
 
         # screen bottom in WORLD coordinates
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
@@ -356,7 +353,7 @@ class LevelOne(VerticalBattleScreen):
                 continue
 
             # update enemy
-            enemy.update()
+            enemy.update(state)
 
             # color change on player collision (same logic as before)
             if self.starship.hitbox.colliderect(enemy.hitbox):
@@ -367,9 +364,9 @@ class LevelOne(VerticalBattleScreen):
             enemy.update_hitbox()
 
             # emit enemy bullets (same behavior as before)
-            if enemy.enemyBullets:
-                self.enemy_bullets.extend(enemy.enemyBullets)
-                enemy.enemyBullets.clear()
+            if state.enemy_bullets:
+                state.enemy_bullets.extend(enemy.enemy_bullets)
+                enemy.enemy_bullets.clear()
 
             # death removal
             if enemy.enemyHealth <= 0:
