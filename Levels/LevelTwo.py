@@ -27,16 +27,11 @@ class LevelTwo(VerticalBattleScreen):
 
         self.map_scroll_speed_per_frame: float = .4  # move speed of camera
 
-        self.bileSpitterGroup: list[BileSpitter] = []
-        self.kamikazeDroneGroup: list[KamikazeDrone] = []
-        self.triSpitterGroup: list[TriSpitter] = []
-        self.bossLevelTwoGroup: list[BossLevelTwo] = []
-
         self.napalm_list: list = []
 
         self.total_enemies = 40
         self.prev_enemy_count: int = None
-        state.enemies_killed: int = 0
+        self.enemies_killed: int = 0
 
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
@@ -71,7 +66,7 @@ class LevelTwo(VerticalBattleScreen):
         self.starship.x = player_x
         self.starship.y = player_y
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
-        self.load_enemy_into_list()
+        self.load_enemy_into_list(state)
 
     def update(self, state) -> None:
         super().update(state)
@@ -123,7 +118,7 @@ class LevelTwo(VerticalBattleScreen):
                     print("⚠️ Side rect took hazard damage:", self.side_rect_hp)
                     break
 
-        self.enemy_helper()
+        self.enemy_helper(state)
         if not self.bossLevelTwoGroup and not self.level_complete:
             self.level_complete = True
 
@@ -195,7 +190,7 @@ class LevelTwo(VerticalBattleScreen):
 
         pygame.display.flip()
 
-    def get_nearest_enemy(self, missile):
+    def get_nearest_enemy(self,state,  missile):
         if not state.enemies:
             return None
 
@@ -241,7 +236,7 @@ class LevelTwo(VerticalBattleScreen):
         # print(names)
         return names
 
-    def load_enemy_into_list(self):
+    def load_enemy_into_list(self, state):
         state.enemies.clear()
         # print("[LOAD] clearing enemies list")
 
@@ -284,7 +279,7 @@ class LevelTwo(VerticalBattleScreen):
 
         print(f"[DONE] total enemies loaded = {len(state.enemies)}")
 
-    def enemy_helper(self):
+    def enemy_helper(self, state):
         now = pygame.time.get_ticks()
 
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
@@ -353,7 +348,7 @@ class LevelTwo(VerticalBattleScreen):
         # --------------------------------
         # ENEMY BULLETS → SIDE RECT (NEW)
         # --------------------------------
-        for bullet in list(self.enemy_bullets):
+        for bullet in list(state.enemy_bullets):
 
             # bullet rect in WORLD space
             bullet_rect = pygame.Rect(
@@ -373,7 +368,7 @@ class LevelTwo(VerticalBattleScreen):
                     print("⚠️ SIDE RECT HIT:", self.side_rect_hp)
 
                 # bullet is ALWAYS destroyed
-                self.enemy_bullets.remove(bullet)
+                state.enemy_bullets.remove(bullet)
                 continue
         for enemy in list(state.enemies):
 

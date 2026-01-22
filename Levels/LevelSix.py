@@ -11,10 +11,8 @@ from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 class LevelSix(VerticalBattleScreen):
     def __init__(self,textbox):
         super().__init__(textbox)
-        # self.starship: StarShip = StarShip()
 
         self.level_start:bool = True
-        self.current_page_lines: list[list[str]] = []
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level6.tmx")
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width

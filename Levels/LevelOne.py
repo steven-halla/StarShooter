@@ -12,9 +12,6 @@ from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 class LevelOne(VerticalBattleScreen):
     def __init__(self,textbox):
         super().__init__(textbox)
-        self.has_entered_screen = False
-        self.level_start:bool = True
-        self.current_page_lines: list[list[str]] = []
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level1.tmx")
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
@@ -27,13 +24,10 @@ class LevelOne(VerticalBattleScreen):
         self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
         self.camera.y = float(self.camera_y)
         self.map_scroll_speed_per_frame: float = .4  # move speed of camera
-        self.napalm_list: list = []
         self.total_enemies = 40
         self.prev_enemy_count: int = None
         self.enemies_killed: int = 0
-        self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
-        self.time_up = False
         self.missed_enemies = []
         self.game_over: bool = False
         self.level_complete = False

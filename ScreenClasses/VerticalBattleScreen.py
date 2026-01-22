@@ -24,7 +24,7 @@ class VerticalBattleScreen:
         self.STARSHIP_BOTTOM_OFFSET: int = 100
         self.MIN_X: int = 0
         self.MIN_Y: int = 0
-        self.map_scroll_speed_per_frame: float = 4334.33
+        self.map_scroll_speed_per_frame: float = .4
         self.was_q_pressed_last_frame: bool = False
         self.player_bullets: list = []
         # self.enemy_bullets: list = []     # LevelOne can append to this list
