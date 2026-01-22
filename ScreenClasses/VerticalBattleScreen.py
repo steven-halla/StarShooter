@@ -878,6 +878,41 @@ class VerticalBattleScreen:
             # 🔴 CRITICAL: rect must always be updated AFTER movement
             bullet.update_rect()
 
+    def get_nearest_enemy(self, state, missile):
+        if not state.enemies:
+            return None
+
+
+        # Visible camera bounds (world coordinates)
+        visible_top = self.camera.y
+        visible_bottom = self.camera.y + (self.window_height / self.camera.zoom)
+
+        nearest_enemy = None
+        nearest_dist_sq = float("inf")
+
+        missile_x = missile.x
+        missile_y = missile.y
+
+        for enemy in state.enemies:
+
+            # skip enemies outside screen
+            if enemy.y + enemy.height < visible_top:
+                continue
+            if enemy.y > visible_bottom:
+                continue
+
+            # VECTOR distance (vx / vy)
+            vx = enemy.x - missile_x
+            vy = enemy.y - missile_y
+
+            dist_sq = vx * vx + vy * vy
+
+            if dist_sq < nearest_dist_sq:
+                nearest_dist_sq = dist_sq
+                nearest_enemy = enemy
+
+        return nearest_enemy
+
 
     def metal_shield_helper(self):
         for bullet in list(self.player_bullets):
@@ -945,7 +980,7 @@ class VerticalBattleScreen:
 
             if bullet.y < world_top_delete or bullet.y > world_bottom_delete:
                 # print(f"[DELETE BULLET] y={bullet.y:.1f}, cam_y={self.camera.y:.1f}, reason: {'above' if bullet.y < world_top_delete else 'below'}")
-                self.enemy_bullets.remove(bullet)
+                state.enemy_bullets.remove(bullet)
                 continue
 
             # Collision check

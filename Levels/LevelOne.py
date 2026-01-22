@@ -4,18 +4,14 @@ from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
-from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.TriSpitter import TriSpitter
 from SaveStates.SaveState import SaveState
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
-# as an option have different dialog options based on how many you miss on waht part of stage
-
 class LevelOne(VerticalBattleScreen):
     def __init__(self,textbox):
         super().__init__(textbox)
-        # self.starship: StarShip = StarShip()
         self.has_entered_screen = False
         self.level_start:bool = True
         self.current_page_lines: list[list[str]] = []
@@ -23,28 +19,18 @@ class LevelOne(VerticalBattleScreen):
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
-
-        # WORLD HEIGHT (keep +400 as intended)
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
-
-        window_width: int = GlobalConstants.BASE_WINDOW_WIDTH
         window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
-
-        # 🔧 FIX: camera start must respect ZOOMED visible height
         visible_height = window_height / self.camera.zoom
         self.camera_y = self.WORLD_HEIGHT - visible_height
-
-        # 🔧 FIX: sync camera limits AFTER WORLD_HEIGHT change
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
         self.camera.y = float(self.camera_y)
         self.map_scroll_speed_per_frame: float = .4  # move speed of camera
-
         self.napalm_list: list = []
         self.total_enemies = 40
         self.prev_enemy_count: int = None
         self.enemies_killed: int = 0
-
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
@@ -62,9 +48,9 @@ class LevelOne(VerticalBattleScreen):
         )
 
     def start(self, state) -> None:
-        print("I only want to see this one time")
+        print("I only want to see this one time lleve one")
         player_x = None
-        # self.textbox.show(self.intro_dialogue)
+
         player_y = None
 
         for obj in self.tiled_map.objects:
@@ -73,12 +59,14 @@ class LevelOne(VerticalBattleScreen):
                 player_y = obj.y
                 break
         self.starship = state.starship
-
         self.starship.x = player_x
         self.starship.y = player_y
         self.starship.update_hitbox()
-        self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
+        self.starship.update_hitbox()
         self.load_enemy_into_list(state)
+        self.starship.shipHealth = 144
+        self.save_state.capture_player(self.starship, self.__class__.__name__)
+        self.save_state.save_to_file("player_save.json")
 
     def update(self, state) -> None:
         super().update(state)
@@ -86,49 +74,76 @@ class LevelOne(VerticalBattleScreen):
         if not hasattr(self, "last_enemy_count"):
             self.last_enemy_count = len(state.enemies)
 
-        # if len(state.enemies) < self.last_enemy_count:
-        #     print(
-        #         f"[WARNING] enemies SHRANK "
-        #         f"{self.last_enemy_count} → {len(state.enemies)}"
-        #     )
-
         self.last_enemy_count = len(state.enemies)
-        # print(f"[ENEMIES] count={len(state.enemies)}")
-        # for i, enemy in enumerate(state.enemies):
-        #     print(f"{i}: {enemy.__class__.__name__} at ({enemy.x}, {enemy.y}) hp={enemy.enemyHealth}")
+        self.update_game_over_condition()
+        self.update_add_enemy_to_missed_list(state)
+        self.update_enemy_helper(state)
+        self.update_extract_object_names()
+        self.update_handle_level_complete(state)
 
-        if len(self.missed_enemies) > 9:
-            print("GAME OVER!!!")
-            self.game_over = True
+    def draw(self, state):
+        super().draw(state)
+        font = pygame.font.Font(None, 28)
+        current_enemies = len(state.enemies)
 
-        if self.level_start == True:
-            self.level_start = False
-            self.starship.shipHealth = 144
+        self.draw_enemy_counter(current_enemies, font, state)
+        self.draw_player_and_enemy(state)
+        self.draw_ui_panel(state.DISPLAY)
 
-            self.save_state.capture_player(self.starship, self.__class__.__name__)
-            self.save_state.save_to_file("player_save.json")
+        pygame.display.flip()
 
+    def update_extract_object_names(self) -> list[str]:
+        names = []
 
+        for obj in self.tiled_map.objects:
+            if hasattr(obj, "name") and obj.name:
+                names.append(obj.name)
+        return names
 
-        now = pygame.time.get_ticks()
-        elapsed = now - self.level_start_time
-
+    def update_enemy_helper(self, state):
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
-        SCREEN_TOP = 0
-        SCREEN_BOTTOM = GlobalConstants.BASE_WINDOW_HEIGHT
+        for enemy in list(state.enemies):
 
-        screen_height = self.camera.window_height
-        UI_KILL_PADDING = 13.5 # pixels ABOVE the UI panel (tweak this)
+            if enemy.y > screen_bottom:
+                if enemy not in self.missed_enemies:
+                    self.missed_enemies.append(enemy)
+                    print("enemy missed")
+                continue
 
+            if isinstance(enemy, BileSpitter):
+                enemy.is_active = True
+
+            enemy.update(state)
+
+            if self.starship.hitbox.colliderect(enemy.hitbox):
+                enemy.color = (135, 206, 235)
+            else:
+                enemy.color = GlobalConstants.RED
+
+            enemy.update_hitbox()
+
+            if hasattr(enemy, "enemy_bullets") and enemy.enemy_bullets:
+                state.enemy_bullets.extend(enemy.enemy_bullets)
+                enemy.enemy_bullets.clear()
+
+            if enemy.enemyHealth <= 0:
+                state.enemies.remove(enemy)
+
+    def update_handle_level_complete(self, state):
+        if self.level_complete:
+            next_level = MissionBriefingScreenLevelTwo()
+            state.currentScreen = next_level
+            next_level.start(state)
+
+    def update_add_enemy_to_missed_list(self, state):
+        UI_KILL_PADDING = 13.5  # pixels ABOVE the UI panel (tweak this)
         screen_bottom = (
                 self.camera.y
                 + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
                 - UI_KILL_PADDING
         )
-
         for enemy in list(state.enemies):
-            # enemy is BELOW visible gameplay area
             if enemy.y > screen_bottom:
                 if enemy not in self.missed_enemies:
                     self.missed_enemies.append(enemy)
@@ -136,144 +151,37 @@ class LevelOne(VerticalBattleScreen):
                     if self.missed_enemies.__len__() > 3:
                         print("GAME OVER!!!")
 
-        self.enemy_helper(state)
+    def update_game_over_condition(self):
+        if len(self.missed_enemies) > 9:
+            print("GAME OVER!!!")
+            self.game_over = True
 
-        self.extract_object_names()
-        if self.level_complete:
-            next_level = MissionBriefingScreenLevelTwo()
-            # next_level.set_player(state.starship)
-            state.currentScreen = next_level
-            next_level.start(state)
-            print(type(state.currentScreen).__name__)
+    def draw_player_and_enemy(self, state):
+        if not self.playerDead:
+            self.starship.draw(state.DISPLAY, self.camera)
+        for enemy in state.enemies:
+            enemy.draw(state.DISPLAY, self.camera)
+            enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
-            return
-
-    def draw(self, state):
-        super().draw(state)
-        # ================================
-        # ENEMY COUNTER (TOP OF SCREEN)
-        # ================================
-        font = pygame.font.Font(None, 28)
-        current_enemies = len(state.enemies)
-
-        # initialize on first frame
+    def draw_enemy_counter(self, current_enemies, font, state):
         if self.prev_enemy_count is None:
             self.prev_enemy_count = current_enemies
         else:
-            # if enemies decreased, count the difference
             if current_enemies < self.prev_enemy_count:
                 self.enemies_killed += (self.prev_enemy_count - current_enemies)
 
             self.prev_enemy_count = current_enemies
-
         enemy_text = font.render(
             f"Enemies {self.enemies_killed}/40",
             True,
             (255, 255, 255)
         )
         state.DISPLAY.blit(enemy_text, (10, 50))
-        for napalm in self.napalm_list:
-            napalm.draw(state.DISPLAY, self.camera)
-        zoom = self.camera.zoom
-
-        for obj in self.tiled_map.objects:
-            if hasattr(obj, "image") and obj.image is not None:
-                screen_x = self.camera.world_to_screen_x(obj.x)
-                screen_y = self.camera.world_to_screen_y(obj.y)
-                state.DISPLAY.blit(obj.image, (screen_x, screen_y))
-
-        if not self.playerDead:
-            self.starship.draw(state.DISPLAY, self.camera)
-
-        for enemy in state.enemies:
-            enemy.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
-
-        # Draw enemy bullets
-        for bullet in state.enemy_bullets:
-            bx = self.camera.world_to_screen_x(bullet.x)
-            by = self.camera.world_to_screen_y(bullet.y)
-            bw = int(bullet.width * self.camera.zoom)
-            bh = int(bullet.height * self.camera.zoom)
-
-            # Draw a larger, more visible bullet for debugging
-            pygame.draw.rect(
-                state.DISPLAY,
-                (255, 0, 0),  # RED for better visibility
-                pygame.Rect(bx-2, by-2, bw+4, bh+4),
-                0
-            )
-
-            # Draw the actual bullet
-            pygame.draw.rect(
-                state.DISPLAY,
-                bullet.color if hasattr(bullet, "color") else (0, 255, 0),  # GREEN default
-                pygame.Rect(bx, by, bw, bh),
-                0
-            )
-
-        self.draw_ui_panel(state.DISPLAY)
-        # self.textbox.show("I am the ultimate man on the battlefiled. You cannot hope to win aginst the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla; win  the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla")
-
-        # self.textbox.draw(state.DISPLAY)
-
-        pygame.display.flip()
-
-    def get_nearest_enemy(self, state, missile):
-        if not state.enemies:
-            return None
-
-        # Visible camera bounds (world coordinates)
-        visible_top = self.camera.y
-        visible_bottom = self.camera.y + (self.window_height / self.camera.zoom)
-
-        nearest_enemy = None
-        nearest_dist_sq = float("inf")
-
-        missile_x = missile.x
-        missile_y = missile.y
-
-        for enemy in state.enemies:
-
-            # skip enemies outside screen
-            if enemy.y + enemy.height < visible_top:
-                continue
-            if enemy.y > visible_bottom:
-                continue
-
-            # VECTOR distance (vx / vy)
-            vx = enemy.x - missile_x
-            vy = enemy.y - missile_y
-
-            dist_sq = vx * vx + vy * vy
-
-            if dist_sq < nearest_dist_sq:
-                nearest_dist_sq = dist_sq
-                nearest_enemy = enemy
-
-        return nearest_enemy
-
-    def extract_object_names(self) -> list[str]:
-        """
-        Returns a list of all object.name strings found in the Tiled map.
-        """
-        names = []
-
-        for obj in self.tiled_map.objects:
-            if hasattr(obj, "name") and obj.name:
-                names.append(obj.name)
-        # print(names)
-        return names
 
     def load_enemy_into_list(self, state):
         state.enemies.clear()
-        # print("[LOAD] clearing enemies list")
 
         for obj in self.tiled_map.objects:
-            enemy = None
-
-            print(f"[TMX] found object name={obj.name} at ({obj.x}, {obj.y})")
-
             if obj.name == "level_1_boss":
                 enemy = BossLevelOne()
             elif obj.name == "bile_spitter":
@@ -283,25 +191,20 @@ class LevelOne(VerticalBattleScreen):
             elif obj.name == "tri_spitter":
                 enemy = TriSpitter()
             else:
-                # print("[SKIP] object not an enemy")
                 continue
 
-            # position / size
             enemy.x = obj.x
             enemy.y = obj.y
             enemy.width = obj.width
             enemy.height = obj.height
 
-            # REQUIRED state
             enemy.camera = self.camera
             enemy.target_player = self.starship
 
-            # 🔑 CRITICAL FIX: ensure health is initialized
             if hasattr(enemy, "maxHealth"):
                 enemy.enemyHealth = enemy.maxHealth
             else:
                 enemy.enemyHealth = 1  # safe fallback
-
             enemy.update_hitbox()
 
             state.enemies.append(enemy)
@@ -310,93 +213,3 @@ class LevelOne(VerticalBattleScreen):
                 f"hp={enemy.enemyHealth} "
                 f"→ enemies size = {len(state.enemies)}"
             )
-
-        print(f"[DONE] total enemies loaded = {len(state.enemies)}")
-
-
-    def enemy_helper(self, state):
-
-        # screen bottom in WORLD coordinates
-        screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
-
-        # -------------------------
-        # NAPALM UPDATE + DAMAGE
-        # -------------------------
-        for napalm in list(self.napalm_list):
-            napalm.update()
-
-            if napalm.is_active and napalm.hits(self.starship.hitbox):
-                if not self.starship.invincible:
-                    self.starship.shipHealth -= napalm.damage
-                    self.starship.on_hit()
-
-            if not napalm.is_active:
-                self.napalm_list.remove(napalm)
-
-        # -------------------------
-        # METAL SHIELD → ENEMY BULLETS (UNIFIED player_bullets)
-        # -------------------------
-        for shield in list(self.player_bullets):
-
-            if shield.weapon_name != "Metal Shield":
-                continue
-
-            if not shield.is_active:
-                self.player_bullets.remove(shield)
-                continue
-
-            shield_rect = pygame.Rect(
-                shield.x,
-                shield.y,
-                shield.width,
-                shield.height
-            )
-
-            for bullet in list(self.enemy_bullets):
-                if bullet.collide_with_rect(shield_rect):
-
-                    absorbed = shield.absorb_hit()
-
-                    if bullet in self.enemy_bullets:
-                        self.enemy_bullets.remove(bullet)
-
-                    if absorbed and shield in self.player_bullets:
-                        self.player_bullets.remove(shield)
-
-                    break
-        for enemy in list(state.enemies):
-
-            # off-screen → missed
-            if enemy.y > screen_bottom:
-                if enemy not in self.missed_enemies:
-                    self.missed_enemies.append(enemy)
-                    print("enemy missed")
-                continue
-
-            # Force BileSpitter to be active so it can fire
-            if isinstance(enemy, BileSpitter):
-                enemy.is_active = True
-
-            # update enemy
-            enemy.update(state)
-
-            # color change on player collision (same logic as before)
-            if self.starship.hitbox.colliderect(enemy.hitbox):
-                enemy.color = (135, 206, 235)
-            else:
-                enemy.color = GlobalConstants.RED
-
-            enemy.update_hitbox()
-
-            # # emit enemy bullets (same behavior as before)
-            # if state.enemy_bullets:
-            #     state.enemy_bullets.extend(enemy.enemy_bullets)
-            #     enemy.enemy_bullets.clear()
-
-            if hasattr(enemy, "enemy_bullets") and enemy.enemy_bullets:
-                state.enemy_bullets.extend(enemy.enemy_bullets)
-                enemy.enemy_bullets.clear()
-
-            # death removal
-            if enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)
