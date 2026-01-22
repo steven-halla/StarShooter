@@ -189,7 +189,28 @@ class LevelOne(VerticalBattleScreen):
             enemy.draw(state.DISPLAY, self.camera)
             enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
+        # Draw enemy bullets
+        for bullet in state.enemy_bullets:
+            bx = self.camera.world_to_screen_x(bullet.x)
+            by = self.camera.world_to_screen_y(bullet.y)
+            bw = int(bullet.width * self.camera.zoom)
+            bh = int(bullet.height * self.camera.zoom)
 
+            # Draw a larger, more visible bullet for debugging
+            pygame.draw.rect(
+                state.DISPLAY,
+                (255, 0, 0),  # RED for better visibility
+                pygame.Rect(bx-2, by-2, bw+4, bh+4),
+                0
+            )
+
+            # Draw the actual bullet
+            pygame.draw.rect(
+                state.DISPLAY,
+                bullet.color if hasattr(bullet, "color") else (0, 255, 0),  # GREEN default
+                pygame.Rect(bx, by, bw, bh),
+                0
+            )
 
         self.draw_ui_panel(state.DISPLAY)
         # self.textbox.show("I am the ultimate man on the battlefiled. You cannot hope to win aginst the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla; win  the likes of me, prepare yourself dum dum mortal head. bla bla bal bal bla")
@@ -351,6 +372,10 @@ class LevelOne(VerticalBattleScreen):
                     self.missed_enemies.append(enemy)
                     print("enemy missed")
                 continue
+
+            # Force BileSpitter to be active so it can fire
+            if isinstance(enemy, BileSpitter):
+                enemy.is_active = True
 
             # update enemy
             enemy.update(state)

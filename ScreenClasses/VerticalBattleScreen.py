@@ -27,7 +27,7 @@ class VerticalBattleScreen:
         self.map_scroll_speed_per_frame: float = 4334.33
         self.was_q_pressed_last_frame: bool = False
         self.player_bullets: list = []
-        self.enemy_bullets: list = []     # LevelOne can append to this list
+        # self.enemy_bullets: list = []     # LevelOne can append to this list
         self.WORLD_HEIGHT: int = GlobalConstants.GAMEPLAY_HEIGHT * 3
         self.SCROLL_SPEED_PER_SECOND: float = 55.0
         self.camera_y: float = 0.0
@@ -245,7 +245,7 @@ class VerticalBattleScreen:
 
         # 2️⃣ DRAW ENEMY BULLETS WITH CAMERA TRANSFORM - Draw before UI panel
         # print(f"[DRAW] Drawing {len(self.enemy_bullets)} enemy bullets")
-        for bullet in self.enemy_bullets:
+        for bullet in state.enemy_bullets:
             bx = self.camera.world_to_screen_x(bullet.x)
             by = self.camera.world_to_screen_y(bullet.y)
             bw = int(bullet.width * self.camera.zoom)
@@ -273,7 +273,7 @@ class VerticalBattleScreen:
         # Draw explosion rects using lay_bomb
         for enemy in state.enemies:
             if hasattr(enemy, "lay_bomb"):
-                for bullet in self.enemy_bullets:
+                for bullet in state.enemy_bullets:
                     enemy.lay_bomb(bullet=bullet, surface=state.DISPLAY, camera=self.camera)
 
         # 🔽 UI PANEL (BOTTOM BAR) - Draw last to ensure it covers anything that comes into contact with it
@@ -927,7 +927,7 @@ class VerticalBattleScreen:
                 self.remove_enemy_if_dead(enemy, state)
 
     def bullet_collision_helper_remover(self, state):
-        for bullet in list(self.enemy_bullets):
+        for bullet in list(state.enemy_bullets):
             bullet.update()
 
             # Call lay_bomb in UPDATE mode for each bullet
@@ -952,7 +952,7 @@ class VerticalBattleScreen:
             if bullet.collide_with_rect(self.starship.hitbox):
                 self.starship.shipHealth -= bullet.damage
                 bullet.is_active = False
-                self.enemy_bullets.remove(bullet)
+                state.enemy_bullets.remove(bullet)
 
 
 
