@@ -754,14 +754,3 @@ class MapTester(VerticalBattleScreen):
                 state.enemies.remove(enemy)
 
 
-        # for enemy_tri_spitter in state.enemies:
-        #     enemy_tri_spitter.update(state)
-        #     if self.starship.hitbox.colliderect(enemy_tri_spitter.hitbox):
-        #         enemy_tri_spitter.color = (135, 206, 235)  # SKYBLUE
-        #     else:
-        #         enemy_tri_spitter.color = GlobalConstants.RED
-        #     enemy_tri_spitter.update_hitbox()
-        #
-        #     if enemy_tri_spitter.enemyBullets:
-        #         self.enemy_bullets.extend(enemy_tri_spitter.enemyBullets)
-        #         enemy_tri_spitter.enemyBullets.clear()

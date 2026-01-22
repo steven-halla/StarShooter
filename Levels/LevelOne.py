@@ -86,6 +86,9 @@ class LevelOne(VerticalBattleScreen):
         if not hasattr(self, "last_enemy_count"):
             self.last_enemy_count = len(state.enemies)
 
+
+        self.bullet_helper(state)
+
         # if len(state.enemies) < self.last_enemy_count:
         #     print(
         #         f"[WARNING] enemies SHRANK "
@@ -298,51 +301,8 @@ class LevelOne(VerticalBattleScreen):
         # screen bottom in WORLD coordinates
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
-        # -------------------------
-        # NAPALM UPDATE + DAMAGE
-        # -------------------------
-        for napalm in list(self.napalm_list):
-            napalm.update()
 
-            if napalm.is_active and napalm.hits(self.starship.hitbox):
-                if not self.starship.invincible:
-                    self.starship.shipHealth -= napalm.damage
-                    self.starship.on_hit()
 
-            if not napalm.is_active:
-                self.napalm_list.remove(napalm)
-
-        # -------------------------
-        # METAL SHIELD → ENEMY BULLETS (UNIFIED player_bullets)
-        # -------------------------
-        for shield in list(self.player_bullets):
-
-            if shield.weapon_name != "Metal Shield":
-                continue
-
-            if not shield.is_active:
-                self.player_bullets.remove(shield)
-                continue
-
-            shield_rect = pygame.Rect(
-                shield.x,
-                shield.y,
-                shield.width,
-                shield.height
-            )
-
-            for bullet in list(self.enemy_bullets):
-                if bullet.collide_with_rect(shield_rect):
-
-                    absorbed = shield.absorb_hit()
-
-                    if bullet in self.enemy_bullets:
-                        self.enemy_bullets.remove(bullet)
-
-                    if absorbed and shield in self.player_bullets:
-                        self.player_bullets.remove(shield)
-
-                    break
         for enemy in list(state.enemies):
 
             # off-screen → missed
@@ -364,10 +324,58 @@ class LevelOne(VerticalBattleScreen):
             enemy.update_hitbox()
 
             # emit enemy bullets (same behavior as before)
-            if state.enemy_bullets:
+            if state.enemy_bullets and hasattr(enemy, 'enemy_bullets'):
                 state.enemy_bullets.extend(enemy.enemy_bullets)
                 enemy.enemy_bullets.clear()
 
             # death removal
             if enemy.enemyHealth <= 0:
                 state.enemies.remove(enemy)
+
+    def bullet_helper(self, state):
+        for bullet in list(state.player_bullets):
+
+            # -------------------------
+            # METAL SHIELD (uses rect, not hitbox)
+            # -------------------------
+            if bullet.weapon_name == "Metal Shield":
+                shield_rect = bullet.rect
+
+                for enemy in list(state.enemies):
+                    if shield_rect.colliderect(enemy.hitbox):
+                        enemy.enemyHealth -= bullet.damage
+                        if enemy.enemyHealth <= 0:
+                            self.remove_enemy_if_dead(enemy)
+                continue
+
+            # -------------------------
+            # ALL OTHER BULLETS
+            # -------------------------
+            if not hasattr(bullet, "rect"):
+                continue
+
+            # Ensure bullet rect is up to date before collision detection
+            bullet.update_rect()
+            bullet_rect = bullet.rect
+
+            for enemy in list(state.enemies):
+                # Skip coins - they should only be collected by starship collision
+                if hasattr(enemy, "__class__") and enemy.__class__.__name__ == "Coins":
+                    continue
+
+                if not bullet_rect.colliderect(enemy.hitbox):
+                    continue
+
+                enemy.enemyHealth -= getattr(bullet, "damage", 0)
+
+                if hasattr(bullet, "trigger_explosion"):
+                    bullet.trigger_explosion()
+                elif getattr(bullet, "is_piercing", False):
+                    pass
+                else:
+                    if bullet in state.player_bullets:
+                        state.player_bullets.remove(bullet)
+
+                if enemy.enemyHealth <= 0:
+                    self.remove_enemy_if_dead(enemy, state)
+                break

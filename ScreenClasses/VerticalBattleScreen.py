@@ -161,31 +161,10 @@ class VerticalBattleScreen:
             if self.controller.qJustPressed:
                 self.textbox.advance()
 
-        for weapon_name, icon_index in self.SUB_WEAPON_ICON_INDEX.items():
-            rect = pygame.Rect(icon_index * 16, 0, 16, 16)
-            icon = self.hud_sheet.subsurface(rect)
-            self.sub_weapon_icons[weapon_name] = pygame.transform.scale(icon, (24, 24))
-
         self.move_map_y_axis()
-
-        if not hasattr(self, "start_has_run"):
-            self.start(state)
-            self.start_has_run = True
-        # self.starship.update()
-        if self.starship.shipHealth <= 0:
-            self.playerDead = True
         self.controller.update()
 
-        # Player movement
-        if not self.playerDead:
-            if self.controller.left_button:
-                self.mover.player_move_left(self.starship)
-            if self.controller.right_button:
-                self.mover.player_move_right(self.starship)
-            if self.controller.up_button:
-                self.mover.player_move_up(self.starship)
-            if self.controller.down_button:
-                self.mover.player_move_down(self.starship)
+        self.move_player_x_y()
         self.starship.update()
         self.clamp_starship_to_screen()
         self.fire_all_weapons(state)
@@ -221,6 +200,17 @@ class VerticalBattleScreen:
                 enemy.is_active = False
                 state.enemies.remove(enemy)
 
+    def move_player_x_y(self):
+        if not self.playerDead:
+            if self.controller.left_button:
+                self.mover.player_move_left(self.starship)
+            if self.controller.right_button:
+                self.mover.player_move_right(self.starship)
+            if self.controller.up_button:
+                self.mover.player_move_up(self.starship)
+            if self.controller.down_button:
+                self.mover.player_move_down(self.starship)
+
     def draw(self, state) -> None:
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
         window_height = GlobalConstants.GAMEPLAY_HEIGHT
@@ -228,6 +218,11 @@ class VerticalBattleScreen:
         # scene_surface.fill((0, 0, 0))  # OR sky color
         scene_surface.fill((20, 20, 40))  # sky / space color
         zoom = self.camera.zoom
+
+        for weapon_name, icon_index in self.SUB_WEAPON_ICON_INDEX.items():
+            rect = pygame.Rect(icon_index * 16, 0, 16, 16)
+            icon = self.hud_sheet.subsurface(rect)
+            self.sub_weapon_icons[weapon_name] = pygame.transform.scale(icon, (24, 24))
 
         self.draw_tiled_layers(scene_surface)
 
