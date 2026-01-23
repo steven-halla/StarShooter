@@ -78,7 +78,7 @@ class LevelThree(VerticalBattleScreen):
         self.update_space_station_collision(state)
         self.update_deflect_hitbox()
         self.update_boss_helper(state)
-        self.enemy_helper(state)
+        self.update_enemy_helper(state)
 
     def draw(self, state):
         super().draw(state)
@@ -86,13 +86,7 @@ class LevelThree(VerticalBattleScreen):
         self.draw_ui_panel(state.DISPLAY)
         pygame.display.flip()
 
-    def draw_player_and_enemies_and_space_station(self, state):
-        if not self.playerDead:
-            self.starship.draw(state.DISPLAY, self.camera)
-        for enemy in state.enemies:
-            enemy.draw(state.DISPLAY, self.camera)
-        if self.space_station is not None:
-            self.space_station.draw(state.DISPLAY, self.camera)
+
 
     def update_boss_helper(self, state):
         for enemy in state.enemies:
@@ -187,178 +181,15 @@ class LevelThree(VerticalBattleScreen):
                 self.starship.update_hitbox()
 
 
-    def get_nearest_enemy(self,state,  missile):
-
-        enemies = state.enemies
-
-        if not enemies:
-            return None
-
-        # Visible camera bounds (world coordinates)
-        visible_top = self.camera.y
-        visible_bottom = self.camera.y + (self.window_height / self.camera.zoom)
-
-        nearest_enemy = None
-        nearest_dist = float("inf")
-        mx, my = missile.x, missile.y
-
-        for enemy in enemies:
-
-            # ⛔ Skip enemies outside the screen
-            if enemy.y + enemy.height < visible_top:
-                continue  # enemy is above screen
-            if enemy.y > visible_bottom:
-                continue  # enemy is below screen
-
-            # distance calculation
-            dx = enemy.x - mx
-            dy = enemy.y - my
-            dist_sq = dx * dx + dy * dy
-
-            if dist_sq < nearest_dist:
-                nearest_dist = dist_sq
-                nearest_enemy = enemy
-
-        return nearest_enemy
-
-
-    def extract_object_names(self) -> list[str]:
-        """
-        Returns a list of all object.name strings found in the Tiled map.
-        """
-        names = []
-
-        for obj in self.tiled_map.objects:
-            if hasattr(obj, "name") and obj.name:
-                names.append(obj.name)
-        # print(names)
-        return names
 
 
 
+    def update_enemy_helper(self, state):
+        self.enemy_waves_timer(state)
 
-    def enemy_helper(self, state):
-        now = pygame.time.get_ticks()
-
-        if self.intial_wave and now - self.initial_wave_start_time >= self.initial_wave_delay_ms:
-            self.spawn_enemy_wave(state)
-            self.intial_wave = False
+        self.deflect_helper(state)
 
 
-
-        if now - self.last_enemy_wave_time >= self.enemy_wave_interval_ms:
-            self.spawn_enemy_wave()
-            self.last_enemy_wave_time = now
-
-
-
-        # --------------------------------
-        # DEFLECT + REFLECT LOGIC (BULLETS ONLY)
-        # --------------------------------
-        for bullet in list(state.enemy_bullets):
-
-            bullet_rect = pygame.Rect(
-                bullet.x,
-                bullet.y,
-                bullet.width,
-                bullet.height
-            )
-
-            # ✅ FIXED DEFLECT LOGIC
-            if bullet_rect.colliderect(self.deflect_hitbox):
-
-                # --------------------------------
-                # FORCE REFLECT (EVEN NO ENEMIES)
-                # --------------------------------
-                if not hasattr(bullet, "is_reflected"):
-                    target = self.get_nearest_enemy(bullet)
-
-                    # 🔑 NO ENEMY → FORCE DOWN
-                    if target is None:
-                        # Use the same properties as in reflect_bullet
-                        speed = abs(getattr(bullet, "bullet_speed", 4)) * 6
-                        bullet.vx = 0
-                        bullet.vy = -speed  # 🔺 FORCE UP
-                        bullet.is_reflected = True
-                        bullet.damage = 0
-                        # Update the bullet's rect to ensure proper collision detection
-                        bullet.update_rect()
-                    else:
-                        self.reflect_bullet(bullet)
-
-                continue
-
-            # --------------------------------
-            # REFLECTED BULLETS → ENEMIES
-            # --------------------------------
-            if hasattr(bullet, "is_reflected"):
-
-                enemies = list(state.enemies)
-
-                for enemy in enemies:
-                    enemy_rect = pygame.Rect(
-                        enemy.x,
-                        enemy.y,
-                        enemy.width,
-                        enemy.height
-                    )
-
-                    if bullet_rect.colliderect(enemy_rect):
-                        enemy.enemyHealth -= bullet.damage
-
-                        if bullet in self.enemy_bullets:
-                            self.enemy_bullets.remove(bullet)
-
-                            # death removal
-                            if enemy.enemyHealth <= 0:
-                                state.enemies.remove(enemy)
-
-            # --------------------------------
-            # SPACE STATION DAMAGE
-            # --------------------------------
-            if self.space_station is not None:
-                if bullet_rect.colliderect(self.space_station.hitbox):
-                    self.space_station.hp -= bullet.damage
-                    if bullet in self.enemy_bullets:
-                        self.enemy_bullets.remove(bullet)
-                    continue
-
-            # -------------------------
-            # METAL SHIELD → ENEMY BULLETS (UNIFIED player_bullets)
-            # -------------------------
-            for shield in list(self.player_bullets):
-
-                if shield.weapon_name != "Metal Shield":
-                    continue
-
-                if not shield.is_active:
-                    self.player_bullets.remove(shield)
-                    continue
-
-                shield_rect = pygame.Rect(
-                    shield.x,
-                    shield.y,
-                    shield.width,
-                    shield.height
-                )
-
-                for bullet in list(self.enemy_bullets):
-                    if bullet.collide_with_rect(shield_rect):
-
-                        absorbed = shield.absorb_hit()
-
-                        if bullet in self.enemy_bullets:
-                            self.enemy_bullets.remove(bullet)
-
-                        if absorbed and shield in self.player_bullets:
-                            self.player_bullets.remove(shield)
-
-                        break
-
-        # --------------------------------
-        # ENEMY UPDATES + BULLET SPAWNING
-        # (single unified state.enemies list)
-        # --------------------------------
         for enemy in list(state.enemies):
             # common update
             enemy.update(state)
@@ -408,6 +239,75 @@ class LevelThree(VerticalBattleScreen):
 
                     break  # one hit per frame
 
+    def deflect_helper(self, state):
+        for bullet in list(state.enemy_bullets):
+
+            bullet_rect = pygame.Rect(
+                bullet.x,
+                bullet.y,
+                bullet.width,
+                bullet.height
+            )
+            if bullet_rect.colliderect(self.deflect_hitbox):
+
+                # --------------------------------
+                # FORCE REFLECT (EVEN NO ENEMIES)
+                # --------------------------------
+                if not hasattr(bullet, "is_reflected"):
+                    target = self.get_nearest_enemy(bullet)
+
+                    # 🔑 NO ENEMY → FORCE DOWN
+                    if target is None:
+                        # Use the same properties as in reflect_bullet
+                        speed = abs(getattr(bullet, "bullet_speed", 4)) * 6
+                        bullet.vx = 0
+                        bullet.vy = -speed  # 🔺 FORCE UP
+                        bullet.is_reflected = True
+                        bullet.damage = 0
+                        # Update the bullet's rect to ensure proper collision detection
+                        bullet.update_rect()
+                    else:
+                        self.reflect_bullet(bullet)
+
+                continue
+
+            # --------------------------------
+            # REFLECTED BULLETS → ENEMIES
+            # --------------------------------
+            if hasattr(bullet, "is_reflected"):
+
+                enemies = list(state.enemies)
+
+                for enemy in enemies:
+                    enemy_rect = pygame.Rect(
+                        enemy.x,
+                        enemy.y,
+                        enemy.width,
+                        enemy.height
+                    )
+
+                    if bullet_rect.colliderect(enemy_rect):
+                        enemy.enemyHealth -= bullet.damage
+
+                        if bullet in state.enemy_bullets:
+                            state.enemy_bullets.remove(bullet)
+
+                            # death removal
+                            if enemy.enemyHealth <= 0:
+                                state.enemies.remove(enemy)
+
+            # --------------------------------
+            # SPACE STATION DAMAGE
+            # --------------------------------
+            if self.space_station is not None:
+                if bullet_rect.colliderect(self.space_station.hitbox):
+                    self.space_station.hp -= bullet.damage
+                    if bullet in state.enemy_bullets:
+                        state.enemy_bullets.remove(bullet)
+                    continue
+
+
+
     def reflect_bullet(self, bullet):
         target = self.get_nearest_enemy(bullet)
 
@@ -449,6 +349,15 @@ class LevelThree(VerticalBattleScreen):
         bullet.damage = 100
         # Update the bullet's rect to ensure proper collision detection
         bullet.update_rect()
+
+    def enemy_waves_timer(self, state):
+        now = pygame.time.get_ticks()
+        if self.intial_wave and now - self.initial_wave_start_time >= self.initial_wave_delay_ms:
+            self.spawn_enemy_wave(state)
+            self.intial_wave = False
+        if now - self.last_enemy_wave_time >= self.enemy_wave_interval_ms:
+            self.spawn_enemy_wave()
+            self.last_enemy_wave_time = now
 
 
     def build_enemy_pool(self, state):
@@ -497,6 +406,13 @@ class LevelThree(VerticalBattleScreen):
 
             print(f"[RESPAWN] {enemy.__class__.__name__}")
 
+    def draw_player_and_enemies_and_space_station(self, state):
+        if not self.playerDead:
+            self.starship.draw(state.DISPLAY, self.camera)
+        for enemy in state.enemies:
+            enemy.draw(state.DISPLAY, self.camera)
+        if self.space_station is not None:
+            self.space_station.draw(state.DISPLAY, self.camera)
     # -------------------------------
     # FIX 1: DO NOT LOAD BOSS FROM TMX
     # -------------------------------
@@ -583,3 +499,4 @@ class LevelThree(VerticalBattleScreen):
 
             self.space_station.update_hitbox(state)
             break
+
