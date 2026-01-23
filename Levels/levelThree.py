@@ -11,74 +11,45 @@ from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.SpaceStation import SpaceStation
+from Entity.StarShip import StarShip
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
 class LevelThree(VerticalBattleScreen):
     def __init__(self, textbox):
         super().__init__(textbox)
-        # self.starship: StarShip = StarShip()
-
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level3.tmx")
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400  # y position of map
-        # FIX: GAMEPLAY_HEIGHT is an int, not a (width, height) tuple
-
         window_height = GlobalConstants.GAMEPLAY_HEIGHT
-
         self.camera_y = self.WORLD_HEIGHT - window_height
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
-
-        # window_width, window_height = GlobalConstants.GAMEPLAY_HEIGHT
-        #
-        # self.camera_y = self.WORLD_HEIGHT - window_height  # look at bottom of map
-        # self.camera.world_height = self.WORLD_HEIGHT
-        # self.camera.y = float(self.camera_y)
-
         self.map_scroll_speed_per_frame: float = .4  # move speed of camera
-
-        self.napalm_list: list = []
         self.space_station: Optional[SpaceStation] = None
-
         self.total_enemies = 40
         self.prev_enemy_count: int = None
-        state.enemies_killed: int = 0
-
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
         self.enemy_wave_interval_ms = 15000
         self.last_enemy_wave_time = pygame.time.get_ticks()
-        # in __init__ of LevelThree
         self.initial_wave_delay_ms = 3000
         self.initial_wave_start_time = pygame.time.get_ticks()
         self.intial_wave = True
-
         self.boss_spawned = False
         self.boss_spawn_delay_ms = 1000
         self.boss_spawn_time = None
         self.level_start = True
-        # --------------------------------
-        # SIDE RECT (ONLY HP SYSTEM)
-        # --------------------------------
-        self.side_rect_width = 16
-        self.side_rect_height = 16
-        self.side_rect_hp = 50
-        self.side_rect_max_hp = 50
-
-        self.side_rect_hitbox = pygame.Rect(0, 0, 0, 0)
-
         self.game_over: bool = False
-        # Level 3: disable base enemy bullet damage
         self.disable_player_bullet_damage = True
 
 
     def start(self, state) -> None:
-        print(state.enemies)
         self.load_space_station_object(state)
+        self.starship = state.starship
         player_x = None
         player_y = None
         self.starship.shipHealth = 100
@@ -93,27 +64,66 @@ class LevelThree(VerticalBattleScreen):
         self.starship.x = player_x
         self.starship.y = player_y
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
-        self.load_enemy_into_list()
+        self.load_enemy_into_list(state)
+        self.save_state.capture_player(self.starship, self.__class__.__name__)
+        self.save_state.save_to_file("player_save.json")
 
     def move_map_y_axis(self):
         pass
 
     def update(self, state) -> None:
-
-        if self.level_start:
-            self.level_start = False
-            self.starship.shipHealth = 150
-            self.save_state.capture_player(self.starship, self.__class__.__name__)
-            self.save_state.save_to_file("player_save.json")
-
         self.starship.hitbox = pygame.Rect(0, 0, 0, 0)
-
-        # 1️⃣ STARSHIP UPDATE (movement happens here)
         self.starship.update()
-
-        # 2️⃣ RUN BASE SCREEN UPDATE (camera / movement resolution)
         super().update(state)
+        self.update_space_station_collision(state)
+        self.update_deflect_hitbox()
+        self.update_boss_helper(state)
+        self.enemy_helper(state)
 
+    def draw(self, state):
+        super().draw(state)
+        self.draw_player_and_enemies_and_space_station(state)
+        self.draw_ui_panel(state.DISPLAY)
+        pygame.display.flip()
+
+    def draw_player_and_enemies_and_space_station(self, state):
+        if not self.playerDead:
+            self.starship.draw(state.DISPLAY, self.camera)
+        for enemy in state.enemies:
+            enemy.draw(state.DISPLAY, self.camera)
+        if self.space_station is not None:
+            self.space_station.draw(state.DISPLAY, self.camera)
+
+    def update_boss_helper(self, state):
+        for enemy in state.enemies:
+            if getattr(enemy, "name", None) == "level_3_boss":
+                enemy.check_arm_damage(self.starship)
+
+        if not self.boss_spawned and self.has_no_enemies(state):
+
+            if self.boss_spawn_time is None:
+                self.boss_spawn_time = pygame.time.get_ticks()
+
+            elif pygame.time.get_ticks() - self.boss_spawn_time >= self.boss_spawn_delay_ms:
+                self.spawn_level_3_boss(state)
+
+    def update_deflect_hitbox(self):
+        # 4️⃣ MELEE HITBOX (post-movement, post-collision)
+        self.starship.melee_hitbox = pygame.Rect(
+            int(self.starship.x),
+            int(self.starship.y),
+            self.starship.width,
+            self.starship.height
+        )
+        # Guard hitbox (bullets only)
+        self.deflect_hitbox = pygame.Rect(
+            int(self.starship.x - 0.5),
+            int(self.starship.y - 0.5),
+            17,
+            17
+        )
+
+    def update_space_station_collision(self, state):
         # 3️⃣ SPACE STATION COLLISION — AFTER movement is final
         if self.space_station is not None:
             # Update the space station's hitbox
@@ -176,65 +186,8 @@ class LevelThree(VerticalBattleScreen):
                 # Update the ship's hitbox after position adjustment
                 self.starship.update_hitbox()
 
-        # 4️⃣ MELEE HITBOX (post-movement, post-collision)
-        self.starship.melee_hitbox = pygame.Rect(
-            int(self.starship.x),
-            int(self.starship.y),
-            self.starship.width,
-            self.starship.height
-        )
-        # Guard hitbox (bullets only)
-        self.deflect_hitbox = pygame.Rect(
-            int(self.starship.x - 0.5),
-            int(self.starship.y - 0.5),
-            17,
-            17
-        )
 
-        # 🔥 MELEE DAMAGE CHECK (THIS WAS MISSING)
-        for enemy in state.enemies:
-            if getattr(enemy, "name", None) == "level_3_boss":
-                enemy.check_arm_damage(self.starship)
-        # --------------------------------
-        # BOSS SPAWN CHECK (SAFE GUARDED)
-        # --------------------------------
-        if not self.boss_spawned and self.has_no_enemies():
-
-            if self.boss_spawn_time is None:
-                self.boss_spawn_time = pygame.time.get_ticks()
-
-            elif pygame.time.get_ticks() - self.boss_spawn_time >= self.boss_spawn_delay_ms:
-                self.spawn_level_3_boss()
-
-        self.enemy_helper()
-    def draw(self, state):
-        super().draw(state)
-
-        for napalm in self.napalm_list:
-            napalm.draw(state.DISPLAY, self.camera)
-
-        zoom = self.camera.zoom
-
-        for obj in self.tiled_map.objects:
-            if hasattr(obj, "image") and obj.image is not None:
-                screen_x = self.camera.world_to_screen_x(obj.x)
-                screen_y = self.camera.world_to_screen_y(obj.y)
-                state.DISPLAY.blit(obj.image, (screen_x, screen_y))
-
-        if not self.playerDead:
-            self.starship.draw(state.DISPLAY, self.camera)
-
-        for enemy in state.enemies:
-            enemy.draw(state.DISPLAY, self.camera)
-
-        if self.space_station is not None:
-            self.space_station.draw(state.DISPLAY, self.camera)
-
-
-        self.draw_ui_panel(state.DISPLAY)
-
-        pygame.display.flip()
-    def get_nearest_enemy(self, missile):
+    def get_nearest_enemy(self,state,  missile):
 
         enemies = state.enemies
 
@@ -284,21 +237,11 @@ class LevelThree(VerticalBattleScreen):
 
 
 
-    def enemy_helper(self):
-        now = pygame.time.get_ticks()
-        # print(
-        #     f"BileSpitter: {len(self.bileSpitterGroup)} | "
-        #     f"TriSpitter: {len(self.triSpitterGroup)} | "
-        #     f"BladeSpinner: {len(self.bladeSpinnerGroup)} | "
-        #     f"FireLauncher: {len(self.fireLauncherGroup)} | "
-        #     f"KamikazeDrone: {len(self.kamikazeDroneGroup)} | "
-        #     f"BossLevelThree: {len(self.bossLevelThreeGroup)}"
-        # )
-        # in update() of LevelThree (near the top, before enemy logic)
+    def enemy_helper(self, state):
         now = pygame.time.get_ticks()
 
         if self.intial_wave and now - self.initial_wave_start_time >= self.initial_wave_delay_ms:
-            self.spawn_enemy_wave()
+            self.spawn_enemy_wave(state)
             self.intial_wave = False
 
 
@@ -307,24 +250,12 @@ class LevelThree(VerticalBattleScreen):
             self.spawn_enemy_wave()
             self.last_enemy_wave_time = now
 
-        # --------------------------------
-        # NAPALM UPDATE (PLAYER ONLY)
-        # --------------------------------
-        for napalm in list(self.napalm_list):
-            napalm.update()
 
-            if napalm.is_active and napalm.hits(self.starship.hitbox):
-                if not self.starship.invincible:
-                    self.starship.shipHealth -= napalm.damage
-                    self.starship.on_hit()
-
-            if not napalm.is_active:
-                self.napalm_list.remove(napalm)
 
         # --------------------------------
         # DEFLECT + REFLECT LOGIC (BULLETS ONLY)
         # --------------------------------
-        for bullet in list(self.enemy_bullets):
+        for bullet in list(state.enemy_bullets):
 
             bullet_rect = pygame.Rect(
                 bullet.x,
@@ -430,7 +361,7 @@ class LevelThree(VerticalBattleScreen):
         # --------------------------------
         for enemy in list(state.enemies):
             # common update
-            enemy.update()
+            enemy.update(state)
 
             # optional hitbox update (only if present)
             if hasattr(enemy, "update_hitbox"):
@@ -520,7 +451,7 @@ class LevelThree(VerticalBattleScreen):
         bullet.update_rect()
 
 
-    def build_enemy_pool(self):
+    def build_enemy_pool(self, state):
         pool = []
 
         for group in (
@@ -533,7 +464,7 @@ class LevelThree(VerticalBattleScreen):
 
         return pool
 
-    def spawn_enemy_wave(self):
+    def spawn_enemy_wave(self, state):
         # clean bad data
         for group in (
                 state.enemies,
@@ -542,7 +473,7 @@ class LevelThree(VerticalBattleScreen):
             group[:] = [e for e in group if not isinstance(e, tuple)]
 
         # build pool of INACTIVE enemies only
-        enemy_pool = self.build_enemy_pool()
+        enemy_pool = self.build_enemy_pool(state)
 
         if not enemy_pool:
             print("[WAVE] No inactive enemies left")
@@ -569,7 +500,7 @@ class LevelThree(VerticalBattleScreen):
     # -------------------------------
     # FIX 1: DO NOT LOAD BOSS FROM TMX
     # -------------------------------
-    def load_enemy_into_list(self):
+    def load_enemy_into_list(self, state):
         state.enemies.clear()
 
         for obj in self.tiled_map.objects:
@@ -605,13 +536,13 @@ class LevelThree(VerticalBattleScreen):
     # -------------------------------
     # FIX 2: BOSS SPAWN CONDITION
     # -------------------------------
-    def has_no_enemies(self) -> bool:
+    def has_no_enemies(self, state) -> bool:
         return len(state.enemies) == 0
 
     # -------------------------------
     # FIX 3: SPAWN BOSS ONLY VIA CODE
     # -------------------------------
-    def spawn_level_3_boss(self):
+    def spawn_level_3_boss(self, state):
         if self.boss_spawned:
             return
 
