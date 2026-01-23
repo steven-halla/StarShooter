@@ -125,7 +125,14 @@ class LevelOne(VerticalBattleScreen):
                 state.enemies.remove(enemy)
 
     def update_handle_level_complete(self, state):
-        if self.level_complete:
+        if (
+                not self.level_complete
+                and any(
+            enemy.__class__.__name__ == "BossLevelOne" and enemy.enemyHealth <= 0
+            for enemy in state.enemies
+        )
+        ):
+            self.level_complete = True
             next_level = MissionBriefingScreenLevelTwo()
             state.currentScreen = next_level
             next_level.start(state)

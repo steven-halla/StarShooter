@@ -280,7 +280,7 @@
  </layer>
  <objectgroup id="5" name="enemies">
   <object id="68" name="blade_spinner" x="197.645" y="804.852" width="16" height="16"/>
-  <object id="16" name="fire_launcher" x="142.704" y="4156.26" width="16" height="16"/>
+  <object id="16" name="bile_spitter" x="142.704" y="4156.26" width="16" height="16"/>
   <object id="89" name="fire_launcher" x="176.24" y="3588.3" width="16" height="16"/>
   <object id="21" name="fire_launcher" x="119.158" y="3437.03" width="16" height="16"/>
   <object id="25" name="fire_launcher" x="307.528" y="3143.77" width="16" height="16"/>
