@@ -48,26 +48,48 @@ class LevelTwo(VerticalBattleScreen):
         self.starship.y = player_y
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
         self.load_enemy_into_list(state)
-
         self.save_state.capture_player(self.starship, self.__class__.__name__)
         self.save_state.save_to_file("player_save.json")
 
     def update(self, state) -> None:
         super().update(state)
         self.update_side_rect_invincibility()
+        self.update_side_ship()
+        self.update_enemy_helper(state)
+        self.update_complete_level(state)
 
+    def draw(self, state):
+        super().draw(state)
+
+        zoom = self.camera.zoom
+        self.draw_player_and_enemies(state)
+        self.draw_side_ship_rectangle_life_meter(state, zoom)
+        self.draw_ui_panel(state.DISPLAY)
+        pygame.display.flip()
+
+
+    def update_complete_level(self,state):
+        if (
+                not self.level_complete
+                and any(
+            enemy.__class__.__name__ == "BossLevelTwo" and enemy.enemyHealth <= 0
+            for enemy in state.enemies
+        )
+        ):
+            self.level_complete = True
+            return
+
+
+    def update_side_ship(self):
         side_x = self.starship.x + self.starship.width + 10
         side_y = self.starship.y + (self.starship.height // 2) - (self.side_rect_height // 2)
-
         self.side_rect_hitbox.update(
             int(side_x),
             int(side_y),
             self.side_rect_width,
             self.side_rect_height
         )
-
         hazard_layer = self.tiled_map.get_layer_by_name("hazard")
-
         if self.side_rect_hp > 0 and not self.side_rect_invincible:
             for x, y, gid in hazard_layer:
                 if gid == 0:
@@ -87,129 +109,21 @@ class LevelTwo(VerticalBattleScreen):
                     print("⚠️ Side rect took hazard damage:", self.side_rect_hp)
                     break
 
-        self.enemy_helper(state)
-        if (
-                not self.level_complete
-                and any(
-            enemy.__class__.__name__ == "BossLevelTwo" and enemy.enemyHealth <= 0
-            for enemy in state.enemies
-        )
-        ):
-            self.level_complete = True
+    def update_side_rect_invincibility(self) -> None:
+        if not hasattr(self, "side_rect_invincible"):
+            self.side_rect_invincible = False
+            self.side_rect_invincible_start_time = 0
             return
 
-    def draw(self, state):
-        super().draw(state)
+        if self.side_rect_invincible:
+            if pygame.time.get_ticks() - self.side_rect_invincible_start_time >= 1000:
+                self.side_rect_invincible = False
 
-        zoom = self.camera.zoom
 
-        for obj in self.tiled_map.objects:
-            if hasattr(obj, "image") and obj.image is not None:
-                screen_x = self.camera.world_to_screen_x(obj.x)
-                screen_y = self.camera.world_to_screen_y(obj.y)
-                state.DISPLAY.blit(obj.image, (screen_x, screen_y))
 
-        if not self.playerDead:
-            self.starship.draw(state.DISPLAY, self.camera)
 
-        for enemy in state.enemies:
-            enemy.draw(state.DISPLAY, self.camera)
-            enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
-        # -------------------------
-        # SIDE RECT HP BAR (ONLY HP BAR)
-        # -------------------------
-        side_screen_x = self.camera.world_to_screen_x(self.side_rect_hitbox.x)
-        side_screen_y = self.camera.world_to_screen_y(self.side_rect_hitbox.y)
-
-        side_w = int(self.side_rect_hitbox.width * zoom)
-        side_h = int(self.side_rect_hitbox.height * zoom)
-
-        hp_ratio = max(0, self.side_rect_hp / self.side_rect_max_hp)
-        hp_width = int(side_w * hp_ratio)
-
-        # background
-        pygame.draw.rect(
-            state.DISPLAY,
-            (60, 60, 60),
-            (side_screen_x, side_screen_y, side_w, side_h)
-        )
-
-        # HP fill
-        pygame.draw.rect(
-            state.DISPLAY,
-            (0, 255, 0),
-            (side_screen_x, side_screen_y, hp_width, side_h)
-        )
-
-        # outline
-        pygame.draw.rect(
-            state.DISPLAY,
-            (255, 255, 255),
-            (side_screen_x, side_screen_y, side_w, side_h),
-            1
-        )
-
-        self.draw_ui_panel(state.DISPLAY)
-
-        pygame.display.flip()
-
-    def extract_object_names(self) -> list[str]:
-        """
-        Returns a list of all object.name strings found in the Tiled map.
-        """
-        names = []
-
-        for obj in self.tiled_map.objects:
-            if hasattr(obj, "name") and obj.name:
-                names.append(obj.name)
-        # print(names)
-        return names
-
-    def load_enemy_into_list(self, state):
-        state.enemies.clear()
-        # print("[LOAD] clearing enemies list")
-
-        for obj in self.tiled_map.objects:
-            enemy = None
-
-            print(f"[TMX] found object name={obj.name} at ({obj.x}, {obj.y})")
-
-            if obj.name == "level_2_boss":
-                enemy = BossLevelTwo()
-            elif obj.name == "bile_spitter":
-                enemy = BileSpitter()
-            else:
-                continue
-
-            # position / size
-            enemy.x = obj.x
-            enemy.y = obj.y
-            enemy.width = obj.width
-            enemy.height = obj.height
-
-            # REQUIRED state
-            enemy.camera = self.camera
-            enemy.target_player = self.starship
-
-            # 🔑 CRITICAL FIX: ensure health is initialized
-            if hasattr(enemy, "maxHealth"):
-                enemy.enemyHealth = enemy.maxHealth
-            else:
-                enemy.enemyHealth = 1  # safe fallback
-
-            enemy.update_hitbox()
-
-            state.enemies.append(enemy)
-            print(
-                f"[ADD] {enemy.__class__.__name__} "
-                f"hp={enemy.enemyHealth} "
-                f"→ enemies size = {len(state.enemies)}"
-            )
-
-        print(f"[DONE] total enemies loaded = {len(state.enemies)}")
-
-    def enemy_helper(self, state):
+    def update_enemy_helper(self, state):
         now = pygame.time.get_ticks()
 
         for enemy in list(state.enemies):
@@ -267,14 +181,81 @@ class LevelTwo(VerticalBattleScreen):
             if enemy.enemyHealth <= 0:
                 state.enemies.remove(enemy)
 
-    # SIDE RECT INVINCIBILITY TIMER (NO DAMAGE LOGIC HERE)
-    # =========================
-    def update_side_rect_invincibility(self) -> None:
-        if not hasattr(self, "side_rect_invincible"):
-            self.side_rect_invincible = False
-            self.side_rect_invincible_start_time = 0
-            return
 
-        if self.side_rect_invincible:
-            if pygame.time.get_ticks() - self.side_rect_invincible_start_time >= 1000:
-                self.side_rect_invincible = False
+
+    def draw_player_and_enemies(self, state):
+        if not self.playerDead:
+            self.starship.draw(state.DISPLAY, self.camera)
+        for enemy in state.enemies:
+            enemy.draw(state.DISPLAY, self.camera)
+            enemy.draw_damage_flash(state.DISPLAY, self.camera)
+
+    def draw_side_ship_rectangle_life_meter(self, state, zoom):
+        side_screen_x = self.camera.world_to_screen_x(self.side_rect_hitbox.x)
+        side_screen_y = self.camera.world_to_screen_y(self.side_rect_hitbox.y)
+        side_w = int(self.side_rect_hitbox.width * zoom)
+        side_h = int(self.side_rect_hitbox.height * zoom)
+        hp_ratio = max(0, self.side_rect_hp / self.side_rect_max_hp)
+        hp_width = int(side_w * hp_ratio)
+        # background
+        pygame.draw.rect(
+            state.DISPLAY,
+            (60, 60, 60),
+            (side_screen_x, side_screen_y, side_w, side_h)
+        )
+        # HP fill
+        pygame.draw.rect(
+            state.DISPLAY,
+            (0, 255, 0),
+            (side_screen_x, side_screen_y, hp_width, side_h)
+        )
+        # outline
+        pygame.draw.rect(
+            state.DISPLAY,
+            (255, 255, 255),
+            (side_screen_x, side_screen_y, side_w, side_h),
+            1
+        )
+
+    def load_enemy_into_list(self, state):
+        state.enemies.clear()
+        # print("[LOAD] clearing enemies list")
+
+        for obj in self.tiled_map.objects:
+            enemy = None
+
+            print(f"[TMX] found object name={obj.name} at ({obj.x}, {obj.y})")
+
+            if obj.name == "level_2_boss":
+                enemy = BossLevelTwo()
+            elif obj.name == "bile_spitter":
+                enemy = BileSpitter()
+            else:
+                continue
+
+            # position / size
+            enemy.x = obj.x
+            enemy.y = obj.y
+            enemy.width = obj.width
+            enemy.height = obj.height
+
+            # REQUIRED state
+            enemy.camera = self.camera
+            enemy.target_player = self.starship
+
+            # 🔑 CRITICAL FIX: ensure health is initialized
+            if hasattr(enemy, "maxHealth"):
+                enemy.enemyHealth = enemy.maxHealth
+            else:
+                enemy.enemyHealth = 1  # safe fallback
+
+            enemy.update_hitbox()
+
+            state.enemies.append(enemy)
+            print(
+                f"[ADD] {enemy.__class__.__name__} "
+                f"hp={enemy.enemyHealth} "
+                f"→ enemies size = {len(state.enemies)}"
+            )
+
+        print(f"[DONE] total enemies loaded = {len(state.enemies)}")
