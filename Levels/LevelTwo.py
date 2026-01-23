@@ -36,6 +36,7 @@ class LevelTwo(VerticalBattleScreen):
     def start(self, state) -> None:
         player_x = None
         player_y = None
+        self.starship = state.starship
         self.starship.shipHealth = 333
 
         for obj in self.tiled_map.objects:
