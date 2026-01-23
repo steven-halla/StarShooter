@@ -60,7 +60,6 @@ class LevelTwo(VerticalBattleScreen):
 
     def draw(self, state):
         super().draw(state)
-
         zoom = self.camera.zoom
         self.draw_player_and_enemies(state)
         self.draw_side_ship_rectangle_life_meter(state, zoom)
@@ -119,26 +118,22 @@ class LevelTwo(VerticalBattleScreen):
             if pygame.time.get_ticks() - self.side_rect_invincible_start_time >= 1000:
                 self.side_rect_invincible = False
 
-
-
-
-
     def update_enemy_helper(self, state):
         now = pygame.time.get_ticks()
 
-        for enemy in list(state.enemies):
+        dead_enemies = []
 
+        # SIDE RECT vs ENEMIES
+        for enemy in state.enemies:
             if enemy.hitbox.colliderect(self.side_rect_hitbox):
-
                 if not self.side_rect_invincible:
                     self.side_rect_hp -= 10
                     self.side_rect_invincible = True
-                    self.side_rect_invincible_start_time = pygame.time.get_ticks()
+                    self.side_rect_invincible_start_time = now
                     print("⚠️ SIDE RECT TOOK CONTACT DAMAGE:", self.side_rect_hp)
 
+        # SIDE RECT vs ENEMY BULLETS
         for bullet in list(state.enemy_bullets):
-
-            # bullet rect in WORLD space
             bullet_rect = pygame.Rect(
                 bullet.x,
                 bullet.y,
@@ -146,25 +141,19 @@ class LevelTwo(VerticalBattleScreen):
                 bullet.height
             )
 
-            # SIDE RECT TAKES PRIORITY
             if bullet_rect.colliderect(self.side_rect_hitbox):
-
                 if not self.side_rect_invincible:
                     self.side_rect_hp -= bullet.damage
                     self.side_rect_invincible = True
                     self.side_rect_invincible_start_time = now
                     print("⚠️ SIDE RECT HIT:", self.side_rect_hp)
 
-                # bullet is ALWAYS destroyed
                 state.enemy_bullets.remove(bullet)
-                continue
-        for enemy in list(state.enemies):
 
-            # update enemy
+        # ENEMY UPDATE
+        for enemy in state.enemies:
             enemy.update(state)
-            # enemy.update_hitbox()
 
-            # color change on player collision (same logic as before)
             if self.starship.hitbox.colliderect(enemy.hitbox):
                 enemy.color = (135, 206, 235)
             else:
@@ -172,14 +161,12 @@ class LevelTwo(VerticalBattleScreen):
 
             enemy.update_hitbox()
 
-            # emit enemy bullets (same behavior as before)
-            if state.enemy_bullets:
-                state.enemy_bullets.extend(state.enemy_bullets)
-                state.enemy_bullets.clear()
-
-            # death removal
             if enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)
+                dead_enemies.append(enemy)
+
+        # SAFE CLEANUP (AFTER ALL UPDATES)
+        for enemy in dead_enemies:
+            state.enemies.remove(enemy)
 
 
 

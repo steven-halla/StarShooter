@@ -79,7 +79,6 @@ class LevelOne(VerticalBattleScreen):
         super().draw(state)
         font = pygame.font.Font(None, 28)
         current_enemies = len(state.enemies)
-
         self.draw_enemy_counter(current_enemies, font, state)
         self.draw_player_and_enemy(state)
         self.draw_ui_panel(state.DISPLAY)
