@@ -1,12 +1,12 @@
 {
   "version": 1,
   "player": {
-    "shipHealth": 144,
+    "shipHealth": 150,
     "shipHealthMax": 150,
     "equipped_magic": [
       "Napalm Spread",
       null
     ],
-    "level": "LevelOne"
+    "level": "LevelFour"
   }
 }

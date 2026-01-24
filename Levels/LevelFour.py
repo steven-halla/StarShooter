@@ -2,48 +2,36 @@ import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelFour import BossLevelFour
-from Entity.Bosses.BossLevelOne import BossLevelOne
-from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
-from Entity.Monsters.Ravager import Ravager
 from Entity.Monsters.Slaver import Slaver
-from Entity.Monsters.SpineLauncher import SpineLauncher
-from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TransportWorm import TransportWorm
 from Entity.Monsters.TriSpitter import TriSpitter
-from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
-
 
 class LevelFour(VerticalBattleScreen):
     def __init__(self,textbox):
         super().__init__(textbox)
-        # self.starship: StarShip = StarShip()
-
         self.level_start = True
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level4.tmx")
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
-        self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400 # y position of map
+        self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
-        self.camera_y = self.WORLD_HEIGHT - window_height # look at bottom of map
+        self.camera_y = self.WORLD_HEIGHT - window_height
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
-        self.map_scroll_speed_per_frame: float = .4 # move speed of camera
-        # self.load_enemy_into_list()
+        self.map_scroll_speed_per_frame: float = .4
         self.napalm_list: list = []
         self.total_enemies = 40
         self.creep_last_spawn_time = 0
         self.prev_enemy_count: int = None
-        state.enemies_killed: int = 0
         self.worm_visible: bool = False
-
         self.level_start_time = pygame.time.get_ticks()
-        self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
+        self.time_limit_ms = 2 * 60 * 1000
         self.time_up = False
         self.missed_enemies = []
         self.game_over: bool = False
@@ -65,50 +53,40 @@ class LevelFour(VerticalBattleScreen):
         self.starship.x = player_x
         self.starship.y = player_y
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
-        self.load_enemy_into_list()
+        self.load_enemy_into_list(state)
+        self.save_state.capture_player(self.starship, self.__class__.__name__)
+        self.save_state.save_to_file("player_save.json")
 
     def update(self, state) -> None:
         super().update(state)
+        active_worms, creep_found_on_screen, now, screen_left, screen_top = self.worm_helper(state)
+
+        self.creep_helper(active_worms, creep_found_on_screen, now, screen_left, screen_top, state)
+        self.summon_enemies(active_worms, now, state)
+        self.enemy_bullet_helper(state)
+
+        if self.touched_worms:
+            print("you lost")
+
+        self.enemy_helper(state)
+        self.extract_object_names()
+
+    def worm_helper(self, state):
         PADDING = 100
-
-        if self.level_start:
-            self.level_start = False
-            self.starship.shipHealth = 222
-            self.save_state.capture_player(self.starship, self.__class__.__name__)
-            self.save_state.save_to_file("player_save.json")
-
         now = pygame.time.get_ticks()
-
-        # --------------------------------
-        # CAMERA SCROLL (DEFAULT = MOVE)
-        # --------------------------------
-        self.map_scroll_speed_per_frame = 0.4
-        self.camera.scroll_speed_per_frame = 0.4
-
-        # --------------------------------
-        # CAMERA SCREEN-SPACE CHECKS
-        # --------------------------------
-        # USE PADDING ONLY HERE — IN SCREEN-SPACE VISIBILITY CHECKS
-
         player_screen_y = self.camera.world_to_screen_y(self.starship.y)
         player_screen_bottom = player_screen_y + self.starship.height
-
         player_visible = (
                 player_screen_bottom >= + PADDING
                 and player_screen_y <= self.camera.window_height + PADDING
         )
-
-        print(
-            f"[PLAYER SCREEN] y={player_screen_y:.1f} "
-            f"bottom={player_screen_bottom:.1f} "
-            f"visible={player_visible}"
-        )
-
+        # Initialize screen_left and screen_top with default values
+        screen_left = self.camera.get_world_x_left()
+        screen_top = self.camera.y
         # --------------------------------
         # TRANSPORT WORMS ONLY (SCREEN SPACE)
         # --------------------------------
         active_worms = []
-
         for enemy in state.enemies:
             if not isinstance(enemy, TransportWorm):
                 continue
@@ -130,7 +108,6 @@ class LevelFour(VerticalBattleScreen):
 
             if self.worm_visible:
                 active_worms.append(enemy)
-
         # --------------------------------
         # FREEZE ONLY IF BOTH ON SCREEN
         # --------------------------------
@@ -140,12 +117,10 @@ class LevelFour(VerticalBattleScreen):
                 self.map_scroll_speed_per_frame = 0.0
                 self.camera.scroll_speed_per_frame = 0.0
                 break
-
         # --------------------------------
         # CREEP LAYER SCAN (ONLY WHEN FROZEN)
         # --------------------------------
         creep_found_on_screen = False
-
         if self.map_scroll_speed_per_frame == 0.0:
             try:
                 creep_layer = self.tiled_map.get_layer_by_name("creep")
@@ -181,10 +156,9 @@ class LevelFour(VerticalBattleScreen):
 
                     if creep_found_on_screen:
                         break
+        return active_worms, creep_found_on_screen, now, screen_left, screen_top
 
-        # --------------------------------
-        # CREEP SPAWN (SLAVER)
-        # --------------------------------
+    def creep_helper(self, active_worms, creep_found_on_screen, now, screen_left, screen_top, state):
         if creep_found_on_screen and now - self.creep_last_spawn_time >= 5500:
             slaver = Slaver()
             slaver.x = screen_left
@@ -200,9 +174,7 @@ class LevelFour(VerticalBattleScreen):
             state.enemies.append(slaver)
             self.creep_last_spawn_time = now
 
-        # --------------------------------
-        # WORM SUMMONING
-        # --------------------------------
+    def summon_enemies(self, active_worms, now, state):
         for worm in active_worms:
             if now - worm.last_summon_time >= worm.summon_interval_ms:
                 worm.summon_enemy(
@@ -222,30 +194,19 @@ class LevelFour(VerticalBattleScreen):
                 )
                 worm.last_summon_time = now
 
-        # --------------------------------
-        # UPDATE ENEMIES (ONCE)
-        # --------------------------------
+    def enemy_bullet_helper(self, state):
         for enemy in list(state.enemies):
-            enemy.update()
+            enemy.update(state)
 
             if hasattr(enemy, "update_hitbox"):
                 enemy.update_hitbox()
 
             if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
-                self.enemy_bullets.extend(enemy.enemyBullets)
+                state.enemy_bullets.extend(enemy.enemyBullets)
                 enemy.enemyBullets.clear()
 
             if enemy.enemyHealth <= 0:
                 state.enemies.remove(enemy)
-
-        # --------------------------------
-        # LOSE CONDITION
-        # --------------------------------
-        if self.touched_worms:
-            print("you lost")
-
-        self.enemy_helper()
-        self.extract_object_names()
 
     def draw(self, state):
         super().draw(state)
@@ -317,7 +278,7 @@ class LevelFour(VerticalBattleScreen):
         # print(names)
         return names
 
-    def load_enemy_into_list(self):
+    def load_enemy_into_list(self,state):
         state.enemies.clear()
 
         for obj in self.tiled_map.objects:
@@ -362,7 +323,7 @@ class LevelFour(VerticalBattleScreen):
             # print(state.enemies)
 
 
-    def enemy_helper(self):
+    def enemy_helper(self,state):
         # screen bottom in WORLD coordinates
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
@@ -387,13 +348,13 @@ class LevelFour(VerticalBattleScreen):
                 shield.height
             )
 
-            for bullet in list(self.enemy_bullets):
+            for bullet in list(state.enemy_bullets):
                 if bullet.collide_with_rect(shield_rect):
 
                     absorbed = shield.absorb_hit()
 
-                    if bullet in self.enemy_bullets:
-                        self.enemy_bullets.remove(bullet)
+                    if bullet in state.enemy_bullets:
+                        state.enemy_bullets.remove(bullet)
 
                     if absorbed and shield in self.player_bullets:
                         self.player_bullets.remove(shield)
@@ -422,17 +383,6 @@ class LevelFour(VerticalBattleScreen):
                 if enemy.enemyHealth <= 0:
                     state.enemies.remove(enemy)
                     print("level complete")
-        # for boss in list(self.bossLevelFourGroup):
-        #
-        #     boss.update()
-        #
-        #     if boss.enemyBullets:
-        #         self.enemy_bullets.extend(boss.enemyBullets)
-        #         boss.enemyBullets.clear()
-        #
-        #     if boss.enemyHealth <= 0:
-        #         self.bossLevelFourGroup.remove(boss)
-        #         print("level complete")
 
         for enemy in list(state.enemies):
 
@@ -441,7 +391,7 @@ class LevelFour(VerticalBattleScreen):
             # -------------------------
             # UPDATE
             # -------------------------
-            enemy.update()
+            enemy.update(state)
 
             if hasattr(enemy, "update_hitbox"):
                 enemy.update_hitbox()
@@ -450,7 +400,7 @@ class LevelFour(VerticalBattleScreen):
             # ENEMY BULLETS
             # -------------------------
             if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
-                self.enemy_bullets.extend(enemy.enemyBullets)
+                state.enemy_bullets.extend(enemy.enemyBullets)
                 enemy.enemyBullets.clear()
 
             # -------------------------
