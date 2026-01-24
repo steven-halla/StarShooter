@@ -6,12 +6,8 @@ import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelThree import BossLevelThree
 from Entity.Monsters.BileSpitter import BileSpitter
-from Entity.Monsters.BladeSpinners import BladeSpinner
-from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
-from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.SpaceStation import SpaceStation
-from Entity.StarShip import StarShip
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
