@@ -166,30 +166,21 @@ class LevelThree(VerticalBattleScreen):
 
     def update_enemy_helper(self, state):
         self.enemy_waves_timer(state)
-
         self.deflect_helper(state)
 
-
         for enemy in list(state.enemies):
-            # common update
             enemy.update(state)
 
-            # optional hitbox update (only if present)
             if hasattr(enemy, "update_hitbox"):
                 enemy.update_hitbox()
 
-            # collect enemy bullets (only if present)
             if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
-                self.enemy_bullets.extend(enemy.enemyBullets)
+                state.enemy_bullets.extend(enemy.enemyBullets)
                 enemy.enemyBullets.clear()
 
-            # remove dead enemies (only if health exists)
             if hasattr(enemy, "enemyHealth") and enemy.enemyHealth <= 0:
                 state.enemies.remove(enemy)
 
-        # --------------------------------
-        # ENEMY BODY COLLISION DAMAGE (LEVEL 3)
-        # --------------------------------
         if not self.starship.invincible:
             player_rect = self.starship.melee_hitbox  # ← USE MELEE HITBOX
 
@@ -207,8 +198,6 @@ class LevelThree(VerticalBattleScreen):
                 )
 
                 if player_rect.colliderect(enemy_rect):
-
-                    # 🔥 KAMIKAZE DRONE SPECIAL CASE
                     if getattr(enemy, "name", None) == "kamikaze_drone":
                         self.starship.shipHealth -= 20
                         self.starship.on_hit()
@@ -216,8 +205,7 @@ class LevelThree(VerticalBattleScreen):
                     else:
                         self.starship.shipHealth -= 10
                         self.starship.on_hit()
-
-                    break  # one hit per frame
+                    break
 
     def deflect_helper(self, state):
         for bullet in list(state.enemy_bullets):
@@ -229,35 +217,23 @@ class LevelThree(VerticalBattleScreen):
                 bullet.height
             )
             if bullet_rect.colliderect(self.deflect_hitbox):
-
-                # --------------------------------
-                # FORCE REFLECT (EVEN NO ENEMIES)
-                # --------------------------------
                 if not hasattr(bullet, "is_reflected"):
                     target = self.get_nearest_enemy(bullet)
 
-                    # 🔑 NO ENEMY → FORCE DOWN
                     if target is None:
-                        # Use the same properties as in reflect_bullet
                         speed = abs(getattr(bullet, "bullet_speed", 4)) * 6
                         bullet.vx = 0
                         bullet.vy = -speed  # 🔺 FORCE UP
                         bullet.is_reflected = True
                         bullet.damage = 0
-                        # Update the bullet's rect to ensure proper collision detection
                         bullet.update_rect()
                     else:
                         self.reflect_bullet(bullet)
-
                 continue
 
-            # --------------------------------
-            # REFLECTED BULLETS → ENEMIES
-            # --------------------------------
             if hasattr(bullet, "is_reflected"):
 
                 enemies = list(state.enemies)
-
                 for enemy in enemies:
                     enemy_rect = pygame.Rect(
                         enemy.x,
@@ -272,13 +248,9 @@ class LevelThree(VerticalBattleScreen):
                         if bullet in state.enemy_bullets:
                             state.enemy_bullets.remove(bullet)
 
-                            # death removal
                             if enemy.enemyHealth <= 0:
                                 state.enemies.remove(enemy)
 
-            # --------------------------------
-            # SPACE STATION DAMAGE
-            # --------------------------------
             if self.space_station is not None:
                 if bullet_rect.colliderect(self.space_station.hitbox):
                     self.space_station.hp -= bullet.damage
@@ -286,17 +258,11 @@ class LevelThree(VerticalBattleScreen):
                         state.enemy_bullets.remove(bullet)
                     continue
 
-
-
     def reflect_bullet(self, bullet):
         target = self.get_nearest_enemy(bullet)
 
-        # use existing speed system
         speed = abs(getattr(bullet, "bullet_speed", 4)) * 6
 
-        # --------------------------------
-        # NO ENEMY → FORCE STRAIGHT UP
-        # --------------------------------
         if target is None:
             bullet.vx = 0
             bullet.vy = -speed
@@ -304,15 +270,12 @@ class LevelThree(VerticalBattleScreen):
             bullet.damage = 0
             return
 
-        # Bullet center
         bx = bullet.x + bullet.width / 2
         by = bullet.y + bullet.height / 2
 
-        # Enemy center
         ex = target.x + target.width / 2
         ey = target.y + target.height / 2
 
-        # Direction vector
         dx = ex - bx
         dy = ey - by
         dist = (dx * dx + dy * dy) ** 0.5
@@ -322,12 +285,10 @@ class LevelThree(VerticalBattleScreen):
         dx /= dist
         dy /= dist
 
-        # ✅ VECTOR VELOCITY
         bullet.vx = dx * speed
         bullet.vy = dy * speed
         bullet.is_reflected = True
         bullet.damage = 100
-        # Update the bullet's rect to ensure proper collision detection
         bullet.update_rect()
 
     def enemy_waves_timer(self, state):
@@ -350,29 +311,23 @@ class LevelThree(VerticalBattleScreen):
             for enemy in group:
                 if not isinstance(enemy, tuple):
                     pool.append(enemy)
-
         return pool
 
     def spawn_enemy_wave(self, state):
-        # clean bad data
         for group in (
                 state.enemies,
 
         ):
             group[:] = [e for e in group if not isinstance(e, tuple)]
 
-        # build pool of INACTIVE enemies only
         enemy_pool = self.build_enemy_pool(state)
 
         if not enemy_pool:
             print("[WAVE] No inactive enemies left")
             return
 
-        # 🔑 RANDOMIZE ONCE
         random.shuffle(enemy_pool)
-
         spawn_count = min(random.randint(4, 8), len(enemy_pool))
-
         screen_right = int(self.window_width / self.camera.zoom)
         spawn_y = int(self.camera.y) + 5
 
@@ -393,18 +348,12 @@ class LevelThree(VerticalBattleScreen):
             enemy.draw(state.DISPLAY, self.camera)
         if self.space_station is not None:
             self.space_station.draw(state.DISPLAY, self.camera)
-    # -------------------------------
-    # FIX 1: DO NOT LOAD BOSS FROM TMX
-    # -------------------------------
+
     def load_enemy_into_list(self, state):
         state.enemies.clear()
 
         for obj in self.tiled_map.objects:
-            enemy = None
 
-            # ❌ REMOVE boss loading entirely
-            # if obj.name == "level_3_boss":
-            #     enemy = BossLevelThree()
 
             if obj.name == "kamikazi_drone":
                 enemy = KamikazeDrone()
@@ -417,7 +366,6 @@ class LevelThree(VerticalBattleScreen):
             enemy.y = obj.y
             enemy.width = obj.width
             enemy.height = obj.height
-
             enemy.camera = self.camera
             enemy.target_player = self.starship
 
@@ -429,35 +377,25 @@ class LevelThree(VerticalBattleScreen):
             enemy.update_hitbox()
             state.enemies.append(enemy)
 
-    # -------------------------------
-    # FIX 2: BOSS SPAWN CONDITION
-    # -------------------------------
     def has_no_enemies(self, state) -> bool:
         return len(state.enemies) == 0
 
-    # -------------------------------
-    # FIX 3: SPAWN BOSS ONLY VIA CODE
-    # -------------------------------
     def spawn_level_3_boss(self, state):
         if self.boss_spawned:
             return
 
         boss = BossLevelThree()
-
         boss.x = (self.window_width / self.camera.zoom) // 2 - boss.width // 2
         boss.y = self.camera.y + 40
-
         boss.update_hitbox()
         boss.camera = self.camera
         boss.target_player = self.starship
-
         state.enemies.append(boss)
         self.boss_spawned = True
 
     def load_space_station_object(self,state):
         self.space_station = None
 
-        # World Y where the UI panel starts
         ui_top_world_y = (
                 self.camera.y
                 + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
@@ -467,7 +405,6 @@ class LevelThree(VerticalBattleScreen):
             if getattr(obj, "name", None) != "space_station":
                 continue
 
-            # Place station so its BOTTOM sits just above the UI panel
             station_y = ui_top_world_y - obj.height
 
             self.space_station = SpaceStation(
