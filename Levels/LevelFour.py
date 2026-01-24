@@ -45,7 +45,7 @@ class LevelFour(VerticalBattleScreen):
         player_y = None
 
         for obj in self.tiled_map.objects:
-            if obj.name == "player":  # this string comes from Tiled
+            if obj.name == "player":
                 player_x = obj.x
                 player_y = obj.y
                 break
