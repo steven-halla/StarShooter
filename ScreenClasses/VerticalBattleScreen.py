@@ -176,7 +176,7 @@ class VerticalBattleScreen:
         for enemy in state.enemies:
             if hasattr(enemy, "enemyBullets"):
                 for b in enemy.enemyBullets:
-                    self.enemy_bullets.append(b)
+                    state.enemy_bullets.append(b)
                 enemy.enemyBullets.clear()
 
         self.bullet_collision_helper_remover(state)
@@ -852,13 +852,17 @@ class VerticalBattleScreen:
                 )
 
 
-    def weapon_helper(self, state=None):
+    def weapon_helper(self, state):
+        # Store state as an instance variable so get_nearest_enemy can access it
+        self.state = state
+
         for bullet in list(self.player_bullets):
 
             # --- movement / positioning ---
             if bullet.weapon_name == "Missile":
-                if getattr(bullet, "target_enemy", None) is None and hasattr(self, "get_nearest_enemy"):
-                    bullet.target_enemy = self.get_nearest_enemy(state, bullet)
+                if getattr(bullet, "target_enemy", None) is None:
+                    # Get the nearest enemy for this missile
+                    bullet.target_enemy = self.get_nearest_enemy(bullet)
                 bullet.update()
 
             elif bullet.weapon_name == "Metal Shield":
@@ -878,10 +882,13 @@ class VerticalBattleScreen:
             # 🔴 CRITICAL: rect must always be updated AFTER movement
             bullet.update_rect()
 
-    def get_nearest_enemy(self, state, missile):
-        if not state.enemies:
-            return None
+    def get_nearest_enemy(self, bullet):
+        # Get the state from the instance or from a parameter
+        state = getattr(self, 'state', None)
 
+        # If we don't have a state or there are no enemies, return None
+        if state is None or not state.enemies:
+            return None
 
         # Visible camera bounds (world coordinates)
         visible_top = self.camera.y
@@ -890,8 +897,8 @@ class VerticalBattleScreen:
         nearest_enemy = None
         nearest_dist_sq = float("inf")
 
-        missile_x = missile.x
-        missile_y = missile.y
+        bullet_x = bullet.x
+        bullet_y = bullet.y
 
         for enemy in state.enemies:
 
@@ -902,8 +909,8 @@ class VerticalBattleScreen:
                 continue
 
             # VECTOR distance (vx / vy)
-            vx = enemy.x - missile_x
-            vy = enemy.y - missile_y
+            vx = enemy.x - bullet_x
+            vy = enemy.y - bullet_y
 
             dist_sq = vx * vx + vy * vy
 

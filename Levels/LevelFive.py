@@ -302,9 +302,10 @@ class LevelFive(VerticalBattleScreen):
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
-        enemies = state.enemies
+        # Get state from self
+        state = getattr(self, 'state', None)
 
-        if not enemies:
+        if state is None or not state.enemies:
             return None
 
         # Visible camera bounds (world coordinates)
@@ -315,7 +316,7 @@ class LevelFive(VerticalBattleScreen):
         nearest_dist = float("inf")
         mx, my = missile.x, missile.y
 
-        for enemy in enemies:
+        for enemy in state.enemies:
 
             # ⛔ Skip enemies outside the screen
             if enemy.y + enemy.height < visible_top:

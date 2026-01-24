@@ -200,9 +200,10 @@ class LevelSix(VerticalBattleScreen):
         pygame.display.flip()
 
     def get_nearest_enemy(self, missile):
-        enemies = state.enemies
+        # Get state from self
+        state = getattr(self, 'state', None)
 
-        if not enemies:
+        if state is None or not state.enemies:
             return None
 
         # Visible camera bounds (world coordinates)
@@ -213,7 +214,7 @@ class LevelSix(VerticalBattleScreen):
         nearest_dist = float("inf")
         mx, my = missile.x, missile.y
 
-        for enemy in enemies:
+        for enemy in state.enemies:
 
             if isinstance(enemy, Coins):
                 continue

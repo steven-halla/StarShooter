@@ -517,7 +517,7 @@ class MapTester(VerticalBattleScreen):
             # --- movement / positioning ---
             if bullet.weapon_name == "Missile":
                 if getattr(bullet, "target_enemy", None) is None and hasattr(self, "get_nearest_enemy"):
-                    bullet.target_enemy = self.get_nearest_enemy(bullet,missile=self)
+                    bullet.target_enemy = self.get_nearest_enemy(state, bullet)
                 bullet.update()
 
             elif bullet.weapon_name == "Metal Shield":
@@ -752,5 +752,3 @@ class MapTester(VerticalBattleScreen):
 
             if enemy.enemyHealth <= 0:
                 state.enemies.remove(enemy)
-
-

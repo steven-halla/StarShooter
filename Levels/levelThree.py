@@ -180,10 +180,6 @@ class LevelThree(VerticalBattleScreen):
                 # Update the ship's hitbox after position adjustment
                 self.starship.update_hitbox()
 
-
-
-
-
     def update_enemy_helper(self, state):
         self.enemy_waves_timer(state)
 
@@ -356,7 +352,7 @@ class LevelThree(VerticalBattleScreen):
             self.spawn_enemy_wave(state)
             self.intial_wave = False
         if now - self.last_enemy_wave_time >= self.enemy_wave_interval_ms:
-            self.spawn_enemy_wave()
+            self.spawn_enemy_wave(state)
             self.last_enemy_wave_time = now
 
 
@@ -499,4 +495,3 @@ class LevelThree(VerticalBattleScreen):
 
             self.space_station.update_hitbox(state)
             break
-
