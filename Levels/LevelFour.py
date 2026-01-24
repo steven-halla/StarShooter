@@ -59,19 +59,89 @@ class LevelFour(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
-        active_worms, creep_found_on_screen, now, screen_left, screen_top = self.worm_helper(state)
+        active_worms, creep_found_on_screen, now, screen_left, screen_top = self.update_worm_helper(state)
+        self.update_creep_helper(active_worms, creep_found_on_screen, now, screen_left, screen_top, state)
+        self.update_summon_enemies(active_worms, now, state)
+        self.update_enemy_bullet_helper(state)
+        self.update_enemy_helper(state)
 
-        self.creep_helper(active_worms, creep_found_on_screen, now, screen_left, screen_top, state)
-        self.summon_enemies(active_worms, now, state)
-        self.enemy_bullet_helper(state)
+    def draw(self, state):
+        super().draw(state)
+        self.draw_enemy_player(state)
+        self.draw_ui_panel(state.DISPLAY)
+        pygame.display.flip()
 
-        if self.touched_worms:
-            print("you lost")
+    def update_enemy_helper(self, state):
+        boss = "level_4_boss"
+        for shield in list(self.player_bullets):
 
-        self.enemy_helper(state)
-        self.extract_object_names()
+            if shield.weapon_name != "Metal Shield":
+                continue
 
-    def worm_helper(self, state):
+            if not shield.is_active:
+                self.player_bullets.remove(shield)
+                continue
+
+            shield_rect = pygame.Rect(
+                shield.x,
+                shield.y,
+                shield.width,
+                shield.height
+            )
+
+            for bullet in list(state.enemy_bullets):
+                if bullet.collide_with_rect(shield_rect):
+
+                    absorbed = shield.absorb_hit()
+
+                    if bullet in state.enemy_bullets:
+                        state.enemy_bullets.remove(bullet)
+
+                    if absorbed and shield in self.player_bullets:
+                        self.player_bullets.remove(shield)
+                    break
+
+                for enemy in list(state.enemies):
+                    if getattr(enemy, "enemy_name", None) != boss:
+                        continue
+                    enemy.update()
+
+            for enemy in list(state.enemies):
+                if getattr(enemy, "enemy_name", None) != boss:
+                    continue
+
+                if enemy.enemyBullets:
+                    state.enemy_bullets.extend(enemy.enemyBullets)
+                    enemy.enemyBullets.clear()
+
+                if enemy.enemyHealth <= 0:
+                    state.enemies.remove(enemy)
+                    print("level complete")
+
+        for enemy in list(state.enemies):
+            enemy_type = getattr(enemy, "enemy_name", None)
+            enemy.update(state)
+
+            if hasattr(enemy, "update_hitbox"):
+                enemy.update_hitbox()
+
+            if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
+                state.enemy_bullets.extend(enemy.enemyBullets)
+                enemy.enemyBullets.clear()
+
+            if enemy_type == "transport_worm":
+                print(
+                    "[LEVEL 4] Touched worms:",
+                    [(w.enemyHealth, w.x, w.y) for w in self.touched_worms]
+                )
+
+            if enemy_type == "slaver" and enemy.enemyHealth <= 0:
+                print("[LEVEL 4] Slaver removed after touching worm")
+
+            if enemy.enemyHealth <= 0:
+                state.enemies.remove(enemy)
+
+    def update_worm_helper(self, state):
         PADDING = 100
         now = pygame.time.get_ticks()
         player_screen_y = self.camera.world_to_screen_y(self.starship.y)
@@ -80,12 +150,9 @@ class LevelFour(VerticalBattleScreen):
                 player_screen_bottom >= + PADDING
                 and player_screen_y <= self.camera.window_height + PADDING
         )
-        # Initialize screen_left and screen_top with default values
         screen_left = self.camera.get_world_x_left()
         screen_top = self.camera.y
-        # --------------------------------
-        # TRANSPORT WORMS ONLY (SCREEN SPACE)
-        # --------------------------------
+
         active_worms = []
         for enemy in state.enemies:
             if not isinstance(enemy, TransportWorm):
@@ -108,18 +175,14 @@ class LevelFour(VerticalBattleScreen):
 
             if self.worm_visible:
                 active_worms.append(enemy)
-        # --------------------------------
-        # FREEZE ONLY IF BOTH ON SCREEN
-        # --------------------------------
+
         if player_visible:
             for worm in active_worms:
                 print(">>> PLAYER AND WORM ON SCREEN <<<")
                 self.map_scroll_speed_per_frame = 0.0
                 self.camera.scroll_speed_per_frame = 0.0
                 break
-        # --------------------------------
-        # CREEP LAYER SCAN (ONLY WHEN FROZEN)
-        # --------------------------------
+
         creep_found_on_screen = False
         if self.map_scroll_speed_per_frame == 0.0:
             try:
@@ -158,7 +221,7 @@ class LevelFour(VerticalBattleScreen):
                         break
         return active_worms, creep_found_on_screen, now, screen_left, screen_top
 
-    def creep_helper(self, active_worms, creep_found_on_screen, now, screen_left, screen_top, state):
+    def update_creep_helper(self, active_worms, creep_found_on_screen, now, screen_left, screen_top, state):
         if creep_found_on_screen and now - self.creep_last_spawn_time >= 5500:
             slaver = Slaver()
             slaver.x = screen_left
@@ -170,11 +233,10 @@ class LevelFour(VerticalBattleScreen):
             slaver.touched_worms = self.touched_worms
             slaver.transport_worms = active_worms  # Set the transport_worms list
             slaver.update_hitbox()
-
             state.enemies.append(slaver)
             self.creep_last_spawn_time = now
 
-    def summon_enemies(self, active_worms, now, state):
+    def update_summon_enemies(self, active_worms, now, state):
         for worm in active_worms:
             if now - worm.last_summon_time >= worm.summon_interval_ms:
                 worm.summon_enemy(
@@ -194,7 +256,7 @@ class LevelFour(VerticalBattleScreen):
                 )
                 worm.last_summon_time = now
 
-    def enemy_bullet_helper(self, state):
+    def update_enemy_bullet_helper(self, state):
         for enemy in list(state.enemies):
             enemy.update(state)
 
@@ -208,105 +270,32 @@ class LevelFour(VerticalBattleScreen):
             if enemy.enemyHealth <= 0:
                 state.enemies.remove(enemy)
 
-    def draw(self, state):
-        super().draw(state)
-
-        for napalm in self.napalm_list:
-            napalm.draw(state.DISPLAY, self.camera)
-        zoom = self.camera.zoom
-
-        for obj in self.tiled_map.objects:
-            if hasattr(obj, "image") and obj.image is not None:
-                screen_x = self.camera.world_to_screen_x(obj.x)
-                screen_y = self.camera.world_to_screen_y(obj.y)
-                state.DISPLAY.blit(obj.image, (screen_x, screen_y))
-
+    def draw_enemy_player(self, state):
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
-
         for enemy in state.enemies:
             enemy.draw(state.DISPLAY, self.camera)
-
-
-        self.draw_ui_panel(state.DISPLAY)
-
-        pygame.display.flip()
-
-    def get_nearest_enemy(self, missile):
-        # Get state from self
-        state = getattr(self, 'state', None)
-
-        if state is None or not state.enemies:
-            return None
-
-        # Visible camera bounds (world coordinates)
-        visible_top = self.camera.y
-        visible_bottom = self.camera.y + (self.window_height / self.camera.zoom)
-
-        nearest_enemy = None
-        nearest_dist = float("inf")
-        mx, my = missile.x, missile.y
-
-        for enemy in state.enemies:
-
-            # ⛔ Skip enemies outside the screen
-            if enemy.y + enemy.height < visible_top:
-                continue  # enemy is above screen
-            if enemy.y > visible_bottom:
-                continue  # enemy is below screen
-
-            # distance calculation
-            dx = enemy.x - mx
-            dy = enemy.y - my
-            dist_sq = dx * dx + dy * dy
-
-            if dist_sq < nearest_dist:
-                nearest_dist = dist_sq
-                nearest_enemy = enemy
-
-        return nearest_enemy
-
-    def extract_object_names(self) -> list[str]:
-        """
-        Returns a list of all object.name strings found in the Tiled map.
-        """
-        names = []
-
-        for obj in self.tiled_map.objects:
-            if hasattr(obj, "name") and obj.name:
-                names.append(obj.name)
-        # print(names)
-        return names
 
     def load_enemy_into_list(self,state):
         state.enemies.clear()
 
         for obj in self.tiled_map.objects:
-
             if obj.name == "level_4_boss":
                 enemy = BossLevelFour()
-
             elif obj.name == "transport_worm":
                 enemy = TransportWorm()
-
             elif obj.name == "kamikazi_drone":
                 enemy = KamikazeDrone()
-
             elif obj.name == "bile_spitter":
                 enemy = BileSpitter()
-
             elif obj.name == "blade_spinner":
                 enemy = BladeSpinner()
-
             elif obj.name == "fire_launcher":
                 enemy = FireLauncher()
-
             elif obj.name == "tri_spitter":
                 enemy = TriSpitter()
-
             elif obj.name == "slaver":
                 enemy = Slaver()
-
             else:
                 continue
 
@@ -315,108 +304,10 @@ class LevelFour(VerticalBattleScreen):
             enemy.width = obj.width
             enemy.height = obj.height
             enemy.update_hitbox()
-
             enemy.camera = self.camera
             enemy.target_player = self.starship
-
             state.enemies.append(enemy)
-            # print(state.enemies)
 
 
-    def enemy_helper(self,state):
-        # screen bottom in WORLD coordinates
-        screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
-
-        boss = "level_4_boss"
-
-        # -------------------------
-        # METAL SHIELD → ENEMY BULLETS
-        # -------------------------
-        for shield in list(self.player_bullets):
-
-            if shield.weapon_name != "Metal Shield":
-                continue
-
-            if not shield.is_active:
-                self.player_bullets.remove(shield)
-                continue
-
-            shield_rect = pygame.Rect(
-                shield.x,
-                shield.y,
-                shield.width,
-                shield.height
-            )
-
-            for bullet in list(state.enemy_bullets):
-                if bullet.collide_with_rect(shield_rect):
-
-                    absorbed = shield.absorb_hit()
-
-                    if bullet in state.enemy_bullets:
-                        state.enemy_bullets.remove(bullet)
-
-                    if absorbed and shield in self.player_bullets:
-                        self.player_bullets.remove(shield)
-
-                    break
-
-                for enemy in list(state.enemies):
-                    if getattr(enemy, "enemy_name", None) != boss:
-                        continue
-
-                    # ✅ REQUIRED — DO NOT REMOVE
-                    enemy.update()
 
 
-            for enemy in list(state.enemies):
-                if getattr(enemy, "enemy_name", None) != boss:
-                    continue
-
-                if enemy.enemyBullets:
-                    self.enemy_bullets.extend(enemy.enemyBullets)
-                    enemy.enemyBullets.clear()
-
-                # -------------------------
-                # BOSS DEATH
-                # -------------------------
-                if enemy.enemyHealth <= 0:
-                    state.enemies.remove(enemy)
-                    print("level complete")
-
-        for enemy in list(state.enemies):
-
-            enemy_type = getattr(enemy, "enemy_name", None)
-
-            # -------------------------
-            # UPDATE
-            # -------------------------
-            enemy.update(state)
-
-            if hasattr(enemy, "update_hitbox"):
-                enemy.update_hitbox()
-
-            # -------------------------
-            # ENEMY BULLETS
-            # -------------------------
-            if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
-                state.enemy_bullets.extend(enemy.enemyBullets)
-                enemy.enemyBullets.clear()
-
-            # -------------------------
-            # TYPE-SPECIFIC DEBUG / LOGIC
-            # -------------------------
-            if enemy_type == "transport_worm":
-                print(
-                    "[LEVEL 4] Touched worms:",
-                    [(w.enemyHealth, w.x, w.y) for w in self.touched_worms]
-                )
-
-            if enemy_type == "slaver" and enemy.enemyHealth <= 0:
-                print("[LEVEL 4] Slaver removed after touching worm")
-
-            # -------------------------
-            # DEATH
-            # -------------------------
-            if enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)

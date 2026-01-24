@@ -11,6 +11,11 @@ from SaveStates.SaveState import SaveState
 from ScreenClasses.Camera import Camera
 from ScreenClasses.TextBox import TextBox
 
+
+# I NEED TO BUILD AN ENEMY LIST HELPER THAT TAKES ALL LOADED ENEMIES AND PUTS THEM AS PART OF
+# HELPER I SHOULD DO THIS FOR EACH LEVEL PERHAPS
+
+
 class VerticalBattleScreen:
     def __init__(self, textbox):
         self.starship = StarShip()
