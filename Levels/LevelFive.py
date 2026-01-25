@@ -9,15 +9,12 @@ from Entity.Monsters.RescuePod import RescuePod
 from Entity.Monsters.SpinalRaptor import SpinalRaptor
 from Entity.Monsters.SpineLauncher import SpineLauncher
 from Entity.Monsters.WaspStinger import WaspStinger
-
 from SaveStates.SaveState import SaveState
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 class LevelFive(VerticalBattleScreen):
     def __init__(self,textbox):
         super().__init__(textbox)
-        # self.starship: StarShip = StarShip()
-
         self.level_start:bool = True
         self.current_page_lines: list[list[str]] = []
         self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level5.tmx")
@@ -25,49 +22,37 @@ class LevelFive(VerticalBattleScreen):
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400 # y position of map
-        window_width: int = GlobalConstants.BASE_WINDOW_WIDTH
         window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
         self.camera_y = self.WORLD_HEIGHT - window_height # look at bottom of map
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
         self.map_scroll_speed_per_frame: float = .4 # move speed of camera
-
         self.rescue_pods = []  # Separate list for rescue pods
         self.rescue_pod_destroyed = 0  # Counter for destroyed rescue pods
-
         self.flame_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
-
-
         self.total_enemies = 40
         self.prev_enemy_count: int = None
-
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
         self.missed_escape_pods = []
         self.game_over: bool = False
         self.level_complete = False
-
         self.save_state = SaveState()
-
         self._hazard_active = False
         self._hazard_start_time = None
         self._fire_growth_start_time = None
         self._fire_last_growth_time = None
-
         self.fire_row_length = 1
         self.MAX_FIRE_ROW_LENGTH = 27
-
         self.fire_row_length = 0  # columns in current row
         self.fire_row_index = 0  # which row we are on (0 = bottom)
         self.MAX_FIRE_ROW_LENGTH = 27  # columns per row
         self.MAX_FIRE_ROWS = 10  # total rows
-
         self.fire_rows_completed = 0
         self.fire_row_length = 0
-
         self.MAX_FIRE_ROW_LENGTH = 27
         self.MAX_FIRE_ROWS = 20
 
@@ -80,10 +65,8 @@ class LevelFive(VerticalBattleScreen):
         for boss in state.enemies:
             if not isinstance(boss, BossLevelFive):
                 continue
-
             boss_top = boss.y
             boss_bottom = boss.y + boss.height
-
             if boss_bottom >= cam_top and boss_top <= cam_bottom:
                 return True
 
@@ -92,7 +75,6 @@ class LevelFive(VerticalBattleScreen):
 
     def start(self, state) -> None:
         player_x = None
-        # self.textbox.show(self.intro_dialogue)
         player_y = None
 
         for obj in self.tiled_map.objects:
@@ -105,36 +87,10 @@ class LevelFive(VerticalBattleScreen):
         self.starship.x = player_x
         self.starship.y = player_y
         self.starship.update_hitbox()
-        # self.starship.x = player_x
-        # self.starship.y = player_y
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
         self.load_enemy_into_list(state)
 
-    def draw_hazard_square(self, surface: pygame.Surface, camera) -> None:
-        if not self._hazard_active:
-            return
 
-        tile_size = 32
-        offset = 50
-        h = surface.get_height()
-
-        sprite_rect = pygame.Rect(65, 130, 32, 32)
-        base_sprite = self.flame_image.subsurface(sprite_rect)
-        sprite = pygame.transform.scale(base_sprite, (tile_size, tile_size))
-
-        # 1️⃣ Draw ALL completed rows (never disappear)
-        for row in range(self.fire_rows_completed):
-            y = h - offset - (row + 1) * tile_size
-            for col in range(self.MAX_FIRE_ROW_LENGTH):
-                x = col * tile_size
-                surface.blit(sprite, (x, y))
-
-        # 2️⃣ Draw current growing row
-        if self.fire_rows_completed < self.MAX_FIRE_ROWS:
-            y = h - offset - (self.fire_rows_completed + 1) * tile_size
-            for col in range(self.fire_row_length):
-                x = col * tile_size
-                surface.blit(sprite, (x, y))
 
     def update_hazard_square(self,state, current_time_ms: int) -> None:
         # Fire only exists when boss is visible
@@ -215,7 +171,6 @@ class LevelFive(VerticalBattleScreen):
         now = pygame.time.get_ticks()
         self.update_hazard_square(state,current_time_ms=500)
         self.update_hazard_damage(state.DISPLAY.get_height())
-        self.extract_object_names()
 
     def rescue_pod_helper(self, state):
         # Update rescue pods
@@ -307,8 +262,31 @@ class LevelFive(VerticalBattleScreen):
 
         pygame.display.flip()
 
+    def draw_hazard_square(self, surface: pygame.Surface, camera) -> None:
+        if not self._hazard_active:
+            return
+
+        tile_size = 32
+        offset = 50
+        h = surface.get_height()
+
+        sprite_rect = pygame.Rect(65, 130, 32, 32)
+        base_sprite = self.flame_image.subsurface(sprite_rect)
+        sprite = pygame.transform.scale(base_sprite, (tile_size, tile_size))
+
+        for row in range(self.fire_rows_completed):
+            y = h - offset - (row + 1) * tile_size
+            for col in range(self.MAX_FIRE_ROW_LENGTH):
+                x = col * tile_size
+                surface.blit(sprite, (x, y))
+
+        if self.fire_rows_completed < self.MAX_FIRE_ROWS:
+            y = h - offset - (self.fire_rows_completed + 1) * tile_size
+            for col in range(self.fire_row_length):
+                x = col * tile_size
+                surface.blit(sprite, (x, y))
+
     def get_nearest_enemy(self, missile):
-        # Get state from self
         state = getattr(self, 'state', None)
 
         if state is None or not state.enemies:
@@ -341,17 +319,7 @@ class LevelFive(VerticalBattleScreen):
 
         return nearest_enemy
 
-    def extract_object_names(self) -> list[str]:
-        """
-        Returns a list of all object.name strings found in the Tiled map.
-        """
-        names = []
 
-        for obj in self.tiled_map.objects:
-            if hasattr(obj, "name") and obj.name:
-                names.append(obj.name)
-        # print(names)
-        return names
 
     def load_enemy_into_list(self,state):
         state.enemies.clear()
