@@ -109,16 +109,41 @@ class SpinalRaptor(Enemy):
         self.rectangle_attack_distance = 150  # Distance in feet to trigger attack
 
     def shoot_rectangle(self):
-        """Shoot a rectangle attack at the player"""
-        if self.target_player is None:
-            return
-
+        """Shoot a rectangle attack at the target (rescue pod or player)"""
         # Get the center positions
         start_x = self.x + self.width / 2
         start_y = self.y + self.height / 2
 
-        target_x = self.target_player.x + self.target_player.width / 2
-        target_y = self.target_player.y + self.target_player.height / 2
+        # Default target coordinates
+        target_x = None
+        target_y = None
+        target_width = 0
+        target_height = 0
+
+        # PRIORITY: rescue pods
+        if self.rescue_pod_group:
+            for pod in self.rescue_pod_group:
+                if self.mover.enemy_on_screen(pod, self.camera):
+                    target_x = pod.x
+                    target_y = pod.y
+                    target_width = pod.width
+                    target_height = pod.height
+                    break
+
+        # FALLBACK: player
+        if target_x is None and self.target_player:
+            target_x = self.target_player.x
+            target_y = self.target_player.y
+            target_width = self.target_player.width
+            target_height = self.target_player.height
+
+        # NO TARGET → DO NOTHING
+        if target_x is None:
+            return
+
+        # Adjust to center of target
+        target_x += target_width / 2
+        target_y += target_height / 2
 
         # Create the rectangle attack
         rect_attack = RectangleAttack(
@@ -148,25 +173,69 @@ class SpinalRaptor(Enemy):
         if not self.is_on_screen:
             return
 
-        if self.target_player is None:
+        target_x = None
+        target_y = None
+
+        # PRIORITY: rescue pods
+        if self.rescue_pod_group:
+            for pod in self.rescue_pod_group:
+                if self.mover.enemy_on_screen(pod, self.camera):
+                    target_x = pod.x
+                    target_y = pod.y
+                    break
+
+        # FALLBACK: player
+        if target_x is None and self.target_player:
+            target_x = self.target_player.x
+            target_y = self.target_player.y
+
+        # NO TARGET → DO NOTHING
+        if target_x is None:
             return
 
+        # Calculate direction vector toward target (either rescue pod or player)
+        dx = target_x - self.x
+        dy = target_y - self.y
+        dist = max(1, (dx * dx + dy * dy) ** 0.5)
+
+        # Check if target is within rectangle attack range and timer is ready
+        if dist <= self.rectangle_attack_distance and self.rectangle_attack_timer.is_ready():
+            self.shoot_rectangle()
+
+        # Move toward target
+        self.x += (dx / dist) * self.speed
+        self.y += (dy / dist) * self.speed
+
+        self.update_hitbox()
+
         # Update all active rectangle attacks
-        # for attack in list(self.rectangle_attacks):
-        #     attack.update()
-        #
-        #     # Check if the attack hit the player
-        #     if attack.is_active and attack.hitbox.colliderect(self.target_player.hitbox):
-        #         # Apply damage to player
-        #         if hasattr(self.target_player, "take_damage"):
-        #             self.target_player.take_damage(attack.damage)
-        #         # Deactivate the attack
-        #         attack.is_active = False
-        #         # print("Rectangle attack hit player!")
-        #
-        #     # Remove inactive attacks
-        #     if not attack.is_active:
-        #         self.rectangle_attacks.remove(attack)
+        for attack in list(self.rectangle_attacks):
+            attack.update()
+
+            # Check if the attack hit the target
+            if attack.is_active:
+                # Check for collision with player
+                if self.target_player and attack.hitbox.colliderect(self.target_player.hitbox):
+                    # Apply damage to player
+                    if hasattr(self.target_player, "take_damage"):
+                        self.target_player.take_damage(attack.damage)
+                    # Deactivate the attack
+                    attack.is_active = False
+
+                # Check for collision with rescue pods
+                elif self.rescue_pod_group:
+                    for pod in self.rescue_pod_group:
+                        if attack.hitbox.colliderect(pod.hitbox):
+                            # Apply damage to rescue pod
+                            if hasattr(pod, "take_damage"):
+                                pod.take_damage(attack.damage)
+                            # Deactivate the attack
+                            attack.is_active = False
+                            break
+
+            # Remove inactive attacks
+            if not attack.is_active:
+                self.rectangle_attacks.remove(attack)
         #
         # # Check for collision with player
         # if self.target_player and not self.has_damaged_player:
