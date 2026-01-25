@@ -2,7 +2,13 @@ import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelFive import BossLevelFive
+from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
+from Entity.Monsters.Ravager import Ravager
+from Entity.Monsters.RescuePod import RescuePod
+from Entity.Monsters.SpinalRaptor import SpinalRaptor
+from Entity.Monsters.SpineLauncher import SpineLauncher
+from Entity.Monsters.WaspStinger import WaspStinger
 
 from SaveStates.SaveState import SaveState
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
@@ -67,7 +73,7 @@ class LevelFive(VerticalBattleScreen):
 
 
 
-    def is_boss_on_screen(self) -> bool:
+    def is_boss_on_screen(self, state) -> bool:
         cam_top = self.camera.y
         cam_bottom = cam_top + GlobalConstants.GAMEPLAY_HEIGHT
 
@@ -102,7 +108,7 @@ class LevelFive(VerticalBattleScreen):
         # self.starship.x = player_x
         # self.starship.y = player_y
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
-        self.load_enemy_into_list()
+        self.load_enemy_into_list(state)
 
     def draw_hazard_square(self, surface: pygame.Surface, camera) -> None:
         if not self._hazard_active:
@@ -130,9 +136,9 @@ class LevelFive(VerticalBattleScreen):
                 x = col * tile_size
                 surface.blit(sprite, (x, y))
 
-    def update_hazard_square(self, current_time_ms: int) -> None:
+    def update_hazard_square(self,state, current_time_ms: int) -> None:
         # Fire only exists when boss is visible
-        if not self.is_boss_on_screen():
+        if not self.is_boss_on_screen(state):
             return
 
         # Activate fire ONCE when boss appears
@@ -203,18 +209,18 @@ class LevelFive(VerticalBattleScreen):
             self.save_state.capture_player(self.starship, self.__class__.__name__)
             self.save_state.save_to_file("player_save.json")
 
-        self.enemy_helper()
-        self.rescue_pod_helper()
+        self.enemy_helper(state)
+        self.rescue_pod_helper(state)
 
         now = pygame.time.get_ticks()
-        self.update_hazard_square(now)
+        self.update_hazard_square(state,current_time_ms=500)
         self.update_hazard_damage(state.DISPLAY.get_height())
         self.extract_object_names()
 
-    def rescue_pod_helper(self):
+    def rescue_pod_helper(self, state):
         # Update rescue pods
         for pod in list(self.rescue_pods):
-            pod.update()
+            pod.update(state)
 
             # Check if player touches rescue pod
             if self.starship.hitbox.colliderect(pod.hitbox):
@@ -347,7 +353,7 @@ class LevelFive(VerticalBattleScreen):
         # print(names)
         return names
 
-    def load_enemy_into_list(self):
+    def load_enemy_into_list(self,state):
         state.enemies.clear()
         self.rescue_pods.clear()
 
@@ -405,7 +411,7 @@ class LevelFive(VerticalBattleScreen):
 
 
 
-    def enemy_helper(self):
+    def enemy_helper(self, state):
         # -------------------------
         # METAL SHIELD → ENEMY BULLETS
         # -------------------------
@@ -458,7 +464,7 @@ class LevelFive(VerticalBattleScreen):
         # -------------------------
         for enemy in list(state.enemies):
 
-            result = enemy.update()
+            result = enemy.update(state)
 
             if hasattr(enemy, "update_hitbox"):
                 enemy.update_hitbox()
@@ -467,14 +473,14 @@ class LevelFive(VerticalBattleScreen):
             # ENEMY BULLETS
             # -------------------------
             if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
-                self.enemy_bullets.extend(enemy.enemyBullets)
+                state.enemy_bullets.extend(enemy.enemyBullets)
                 enemy.enemyBullets.clear()
 
             # -------------------------
             # SPECIAL RETURN (e.g. Ravager napalm)
             # -------------------------
             if result is not None:
-                self.enemy_bullets.append(result)
+                state.enemy_bullets.append(result)
 
             # -------------------------
             # COLLISION WITH PLAYER

@@ -730,7 +730,7 @@
 </data>
  </layer>
  <objectgroup id="3" name="enemies">
-  <object id="2" name="rescue_pod" x="73.3052" y="5546.34" width="16" height="16"/>
+  <object id="2" name="rescue_pod" x="126.838" y="5611.92" width="16" height="16"/>
   <object id="6" name="rescue_pod" x="8.20719" y="4965.35" width="16" height="16"/>
   <object id="9" name="rescue_pod" x="44.6836" y="4235.82" width="16" height="16"/>
   <object id="13" name="rescue_pod" x="80.2695" y="2212.44" width="16" height="16"/>
@@ -741,7 +741,7 @@
   <object id="17" name="rescue_pod" x="161.514" y="523.058" width="16" height="16"/>
   <object id="16" name="rescue_pod" x="264.923" y="2264.62" width="16" height="16"/>
   <object id="18" name="rescue_pod" x="264.923" y="455.289" width="16" height="16"/>
-  <object id="7" name="spinal_raptor" x="73.8647" y="5418.86" width="16" height="16"/>
+  <object id="7" name="spinal_raptor" x="130.075" y="5536.63" width="16" height="16"/>
   <object id="10" name="spinal_raptor" x="229.801" y="4214.85" width="16" height="16"/>
   <object id="14" name="spinal_raptor" x="237.814" y="2120.91" width="16" height="16"/>
   <object id="20" name="spinal_raptor" x="249.517" y="269.821" width="16" height="16"/>

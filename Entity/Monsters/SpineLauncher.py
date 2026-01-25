@@ -54,8 +54,8 @@ class SpineLauncher(Enemy):
         bullet_down.damage = 10
 
         self.enemyBullets.append(bullet_down)
-    def update(self) -> None:
-        super().update()
+    def update(self,state) -> None:
+        super().update(state)
         self.update_hitbox()
 
         now = pygame.time.get_ticks()

@@ -35,8 +35,8 @@ class WaspStinger(Enemy):
         ).convert_alpha()
         self.enemy_image = self.wasp_stinger_image  # 🔑 REQUIRED
 
-    def update(self):
-        super().update()
+    def update(self,state):
+        super().update(state)
 
         if self.camera is None or self.target_player is None:
             return

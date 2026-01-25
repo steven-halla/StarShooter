@@ -1,0 +1,77 @@
+
+This is an update, currently doing a huge refactor
+Enemies, bullets, player are now all part of global state
+i need to make sure weapons are being handled on a global level
+
+I currently have 6 levels complte
+level 7 is a work in progress
+I need to create more sprites
+I need to create music
+I need to create sound effects
+
+I need to build shop class
+Rewards
+Bonus Objectives  1-3 per stage
+Examples of bonus objectives
+-run with a certain number of chips
+- Kill all of an enemy type
+- Dont let any enemies escape
+
+Stage 8
+Diffuse the bomb
+stay in the Staging area, diffuse the bomb, which is on a counter
+ENemies spawn fast in these areas
+Leving the circle will be a penalty
+this could be a bonus objective to never leave circle
+Cirle will slowly move in random directions
+Circle will always move UP on the Y position
+Circle will slowly move in X positions
+Createa  collide rect
+Metal shield will be useful here
+
+STage 9
+Beat Cyclone Roy in the race
+Use BUster cannon to destroy his missiles
+Missiel clusters are in a pack of 8
+
+stage 10-final for now
+Escape the gravity well
+Thre is a " safe path " which I will use tiled to do
+If on the unsafe path ship gets dragged to right, or left side, can have two types of tiles to do this
+drag left tile
+drag right tile
+follow the vaper trail
+Targeting systems OUT no missiles
+SOme times FIre will be on entire path so they will have ot soemtimes leave safety of vapor trails
+Misison is to go to back enemy lines via this dangerious route and take out boss
+in future HEAT Will be affected by danger zones as it eats up HEAT as controls are locked being in this zone.
+
+
+CHIPS
+Chips system is going forward
+I am not doing FF7 Materia system and instead doig CHIPS
+Max chips can increase at store for money
+
+Welcome to the shop:
+Machine Gun
+Dual Link
+Tri Link
+Speed up
+Attack Up
+Width up
+
+
+Missile
+Misiel max up
+Speed up
+Power up
+
+
+sub weapons
+bonus after stage
+
+Ship Tune UPs
+Chip max up
+HP max
+Shield MAX
+heat MAX
