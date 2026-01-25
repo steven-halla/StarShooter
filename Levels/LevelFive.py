@@ -26,54 +26,25 @@ class LevelFive(VerticalBattleScreen):
         self.camera_y = self.WORLD_HEIGHT - window_height # look at bottom of map
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
-        self.map_scroll_speed_per_frame: float = .4 # move speed of camera
-        self.rescue_pods = []  # Separate list for rescue pods
-        self.rescue_pod_destroyed = 0  # Counter for destroyed rescue pods
+        self.rescue_pods = []
+        self.rescue_pod_destroyed = 0
         self.flame_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
-        self.total_enemies = 40
-        self.prev_enemy_count: int = None
-        self.level_start_time = pygame.time.get_ticks()
-        self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
-        self.time_up = False
-        self.missed_escape_pods = []
         self.game_over: bool = False
         self.level_complete = False
         self.save_state = SaveState()
-        self._hazard_active = False
-        self._hazard_start_time = None
-        self._fire_growth_start_time = None
-        self._fire_last_growth_time = None
-        self.fire_row_length = 1
-        self.MAX_FIRE_ROW_LENGTH = 27
-        self.fire_row_length = 0  # columns in current row
-        self.fire_row_index = 0  # which row we are on (0 = bottom)
-        self.MAX_FIRE_ROW_LENGTH = 27  # columns per row
-        self.MAX_FIRE_ROWS = 10  # total rows
+        self.hazard_active = False
+        self.hazard_start_time = None
+        self.fire_last_growth_time = None
+        self.fire_row_index = 0
         self.fire_rows_completed = 0
         self.fire_row_length = 0
         self.MAX_FIRE_ROW_LENGTH = 27
         self.MAX_FIRE_ROWS = 20
 
-
-
-    def is_boss_on_screen(self, state) -> bool:
-        cam_top = self.camera.y
-        cam_bottom = cam_top + GlobalConstants.GAMEPLAY_HEIGHT
-
-        for boss in state.enemies:
-            if not isinstance(boss, BossLevelFive):
-                continue
-            boss_top = boss.y
-            boss_bottom = boss.y + boss.height
-            if boss_bottom >= cam_top and boss_top <= cam_bottom:
-                return True
-
-        return False
-
-
     def start(self, state) -> None:
+        print("One time load")
         player_x = None
         player_y = None
 
@@ -82,8 +53,8 @@ class LevelFive(VerticalBattleScreen):
                 player_x = obj.x
                 player_y = obj.y
                 break
-        self.starship = state.starship
 
+        self.starship = state.starship
         self.starship.x = player_x
         self.starship.y = player_y
         self.starship.update_hitbox()
@@ -92,36 +63,27 @@ class LevelFive(VerticalBattleScreen):
         self.save_state.capture_player(self.starship, self.__class__.__name__)
         self.save_state.save_to_file("player_save.json")
 
-
-
     def update(self, state) -> None:
         super().update(state)
-
-        self.enemy_helper(state)
-        self.rescue_pod_helper(state)
+        self.update_enemy_helper(state)
+        self.update_rescue_pod_helper(state)
         self.update_hazard_square(state,current_time_ms=500)
         self.update_hazard_damage(state.DISPLAY.get_height())
 
-    def rescue_pod_helper(self, state):
-        for pod in list(self.rescue_pods):
-            pod.update(state)
-
-            if self.starship.hitbox.colliderect(pod.hitbox):
-                self.rescue_pods.remove(pod)
-
-
-
+    def draw(self, state):
+        super().draw(state)
+        self.draw_player_and_enemy(state)
+        self.draw_hazard_square(state.DISPLAY, self.camera)
+        pygame.display.flip()
 
     def update_hazard_square(self,state, current_time_ms: int) -> None:
-        # Fire only exists when boss is visible
         if not self.is_boss_on_screen(state):
             return
 
-        # Activate fire ONCE when boss appears
-        if not self._hazard_active:
-            self._hazard_active = True
-            self._hazard_start_time = current_time_ms
-            self._fire_last_growth_time = current_time_ms
+        if not self.hazard_active:
+            self.hazard_active = True
+            self.hazard_start_time = current_time_ms
+            self.fire_last_growth_time = current_time_ms
             self.fire_rows_completed = 0
             self.fire_row_length = 0
             return
@@ -129,18 +91,17 @@ class LevelFive(VerticalBattleScreen):
         if self.fire_rows_completed >= self.MAX_FIRE_ROWS:
             return
 
-        if current_time_ms - self._fire_last_growth_time >= 500:
-            self._fire_last_growth_time = current_time_ms
+        if current_time_ms - self.fire_last_growth_time >= 500:
+            self.fire_last_growth_time = current_time_ms
 
             self.fire_row_length += 1
 
-            # Move to next row when full
             if self.fire_row_length >= self.MAX_FIRE_ROW_LENGTH:
                 self.fire_row_length = 0
                 self.fire_rows_completed += 1
 
     def update_hazard_damage(self, surface_height: int) -> None:
-        if not self._hazard_active:
+        if not self.hazard_active:
             return
 
         tile_size = 32
@@ -168,7 +129,6 @@ class LevelFive(VerticalBattleScreen):
                         self.starship.on_hit()
                     return
 
-        # 2️⃣ Damage current growing row
         if self.fire_rows_completed < self.MAX_FIRE_ROWS:
             y = h - offset - (self.fire_rows_completed + 1) * tile_size
             for col in range(self.fire_row_length):
@@ -180,38 +140,15 @@ class LevelFive(VerticalBattleScreen):
                         self.starship.shipHealth -= damage
                         self.starship.on_hit()
                     return
-    def draw(self, state):
-        # 1️⃣ Let BattleScreen draw map, bullets, UI, etc.
-        super().draw(state)
 
-        # 2️⃣ Draw TILE OBJECTS (pipes, decorations, etc.)
-        for obj in self.tiled_map.objects:
-            if hasattr(obj, "image") and obj.image is not None:
-                screen_x = self.camera.world_to_screen_x(obj.x)
-                screen_y = self.camera.world_to_screen_y(obj.y)
-                state.DISPLAY.blit(obj.image, (screen_x, screen_y))
-
-        # 3️⃣ Draw PLAYER
-        if not self.playerDead:
-            self.starship.draw(state.DISPLAY, self.camera)
-
-        # 4️⃣ DRAW ALL ENEMIES — EXPLICIT AND ORDERED
-        for enemy in state.enemies:
-            enemy.draw(state.DISPLAY, self.camera)
-            if hasattr(enemy, "draw_damage_flash"):
-                enemy.draw_damage_flash(state.DISPLAY, self.camera)
-
-        # 4.5️⃣ DRAW ALL RESCUE PODS
-        for pod in self.rescue_pods:
-            pod.draw(state.DISPLAY, self.camera)
-
-        # 5️⃣ Flip ONCE, LAST
-        self.draw_hazard_square(state.DISPLAY, self.camera)
-
-        pygame.display.flip()
+    def update_rescue_pod_helper(self, state):
+        for pod in list(self.rescue_pods):
+            pod.update(state)
+            if self.starship.hitbox.colliderect(pod.hitbox):
+                self.rescue_pods.remove(pod)
 
     def draw_hazard_square(self, surface: pygame.Surface, camera) -> None:
-        if not self._hazard_active:
+        if not self.hazard_active:
             return
 
         tile_size = 32
@@ -234,7 +171,50 @@ class LevelFive(VerticalBattleScreen):
                 x = col * tile_size
                 surface.blit(sprite, (x, y))
 
+    def update_enemy_helper(self, state):
+        for enemy in list(state.enemies):
+            for pod in list(self.rescue_pods):
+                if isinstance(enemy, RescuePod) and enemy == pod:
+                    continue
+                if enemy.hitbox.colliderect(pod.hitbox):
+                    if pod in self.rescue_pods:
+                        self.rescue_pods.remove(pod)
+                        self.rescue_pod_destroyed += 1
+                    break
 
+        for enemy in list(state.enemies):
+            result = enemy.update(state)
+
+            if hasattr(enemy, "update_hitbox"):
+                enemy.update_hitbox()
+
+            if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
+                state.enemy_bullets.extend(enemy.enemyBullets)
+                enemy.enemyBullets.clear()
+
+            if result is not None:
+                state.enemy_bullets.append(result)
+
+            if self.starship.hitbox.colliderect(enemy.hitbox):
+                enemy.color = (135, 206, 235)
+                if not self.starship.invincible:
+                    self.starship.shipHealth -= getattr(enemy, "contact_damage", 10)
+                    self.starship.on_hit()
+            else:
+                enemy.color = GlobalConstants.RED
+
+            if enemy.enemyHealth <= 0:
+                state.enemies.remove(enemy)
+
+    def draw_player_and_enemy(self, state):
+        if not self.playerDead:
+            self.starship.draw(state.DISPLAY, self.camera)
+        for enemy in state.enemies:
+            enemy.draw(state.DISPLAY, self.camera)
+            if hasattr(enemy, "draw_damage_flash"):
+                enemy.draw_damage_flash(state.DISPLAY, self.camera)
+        for pod in self.rescue_pods:
+            pod.draw(state.DISPLAY, self.camera)
 
     def load_enemy_into_list(self,state):
         state.enemies.clear()
@@ -260,7 +240,6 @@ class LevelFive(VerticalBattleScreen):
 
             elif obj.name == "spinal_raptor":
                 enemy = SpinalRaptor()
-                # Update to use the new rescue_pods list
                 enemy.rescue_pod_group = self.rescue_pods
 
             elif obj.name == "wasp_stinger":
@@ -286,99 +265,21 @@ class LevelFive(VerticalBattleScreen):
             enemy.width = obj.width
             enemy.height = obj.height
             enemy.update_hitbox()
-
             enemy.camera = self.camera
             enemy.target_player = self.starship
-
             state.enemies.append(enemy)
 
+    def is_boss_on_screen(self, state) -> bool:
+        cam_top = self.camera.y
+        cam_bottom = cam_top + GlobalConstants.GAMEPLAY_HEIGHT
 
-
-    def enemy_helper(self, state):
-        # -------------------------
-        # METAL SHIELD → ENEMY BULLETS
-        # -------------------------
-        for shield in list(self.player_bullets):
-            if getattr(shield, "weapon_name", None) != "Metal Shield":
+        for boss in state.enemies:
+            if not isinstance(boss, BossLevelFive):
                 continue
+            boss_top = boss.y
+            boss_bottom = boss.y + boss.height
+            if boss_bottom >= cam_top and boss_top <= cam_bottom:
+                return True
+        return False
 
-            if not shield.is_active:
-                self.player_bullets.remove(shield)
-                continue
 
-            shield_rect = pygame.Rect(
-                shield.x,
-                shield.y,
-                shield.width,
-                shield.height
-            )
-
-            for bullet in list(self.enemy_bullets):
-                if bullet.collide_with_rect(shield_rect):
-                    absorbed = shield.absorb_hit()
-
-                    if bullet in self.enemy_bullets:
-                        self.enemy_bullets.remove(bullet)
-
-                    if absorbed and shield in self.player_bullets:
-                        self.player_bullets.remove(shield)
-
-                    break
-
-        # -------------------------
-        # ENEMY COLLISION WITH RESCUE PODS
-        # -------------------------
-        for enemy in list(state.enemies):
-            for pod in list(self.rescue_pods):
-                # Make sure we're not checking a rescue pod against itself
-                if isinstance(enemy, RescuePod) and enemy == pod:
-                    continue
-
-                # Check for collision between enemy and rescue pod
-                if enemy.hitbox.colliderect(pod.hitbox):
-                    # Remove the rescue pod and increment the counter
-                    if pod in self.rescue_pods:
-                        self.rescue_pods.remove(pod)
-                        self.rescue_pod_destroyed += 1
-                    break
-
-        # -------------------------
-        # ENEMIES (LEVEL 5 PATTERN)
-        # -------------------------
-        for enemy in list(state.enemies):
-
-            result = enemy.update(state)
-
-            if hasattr(enemy, "update_hitbox"):
-                enemy.update_hitbox()
-
-            # -------------------------
-            # ENEMY BULLETS
-            # -------------------------
-            if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
-                state.enemy_bullets.extend(enemy.enemyBullets)
-                enemy.enemyBullets.clear()
-
-            # -------------------------
-            # SPECIAL RETURN (e.g. Ravager napalm)
-            # -------------------------
-            if result is not None:
-                state.enemy_bullets.append(result)
-
-            # -------------------------
-            # COLLISION WITH PLAYER
-            # -------------------------
-            if self.starship.hitbox.colliderect(enemy.hitbox):
-                enemy.color = (135, 206, 235)
-
-                if not self.starship.invincible:
-                    self.starship.shipHealth -= getattr(enemy, "contact_damage", 10)
-                    self.starship.on_hit()
-            else:
-                enemy.color = GlobalConstants.RED
-
-            # -------------------------
-            # DEATH
-            # -------------------------
-            if enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)
