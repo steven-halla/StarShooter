@@ -89,6 +89,26 @@ class LevelFive(VerticalBattleScreen):
         self.starship.update_hitbox()
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
         self.load_enemy_into_list(state)
+        self.save_state.capture_player(self.starship, self.__class__.__name__)
+        self.save_state.save_to_file("player_save.json")
+
+
+
+    def update(self, state) -> None:
+        super().update(state)
+
+        self.enemy_helper(state)
+        self.rescue_pod_helper(state)
+        self.update_hazard_square(state,current_time_ms=500)
+        self.update_hazard_damage(state.DISPLAY.get_height())
+
+    def rescue_pod_helper(self, state):
+        for pod in list(self.rescue_pods):
+            pod.update(state)
+
+            if self.starship.hitbox.colliderect(pod.hitbox):
+                self.rescue_pods.remove(pod)
+
 
 
 
@@ -106,90 +126,18 @@ class LevelFive(VerticalBattleScreen):
             self.fire_row_length = 0
             return
 
-        # Stop growing after max rows
         if self.fire_rows_completed >= self.MAX_FIRE_ROWS:
             return
 
-        # Grow every 500ms
         if current_time_ms - self._fire_last_growth_time >= 500:
             self._fire_last_growth_time = current_time_ms
 
-            # Grow current row
             self.fire_row_length += 1
 
             # Move to next row when full
             if self.fire_row_length >= self.MAX_FIRE_ROW_LENGTH:
                 self.fire_row_length = 0
                 self.fire_rows_completed += 1
-    def update(self, state) -> None:
-        super().update(state)
-        print(self.rescue_pod_destroyed)
-
-        ##################################
-        # use the below pattern if weapons and missiles targeting pods
-        # for enemy in enemies:
-        #
-        #     if isinstance(enemy, Coins):
-        #         continue
-        #
-        #     # ⛔ Skip enemies outside the screen
-        #     if enemy.y + enemy.height < visible_top:
-        #         continue
-        #     if enemy.y > visible_bottom:
-        #         continue
-        #
-        #     dx = enemy.x - mx
-        #     dy = enemy.y - my
-        #     dist_sq = dx * dx + dy * dy
-        #
-        #     if dist_sq < nearest_dist:
-        #         nearest_dist = dist_sq
-        #         nearest_enemy = enemy
-        #
-        # return nearest_enemy
-
-
-
-
-
-        ###################################
-
-        # Check if 3 or more rescue pods are destroyed
-        if self.rescue_pod_destroyed >= 3:
-            print("game over")
-            # You might want to add additional game over logic here
-
-        if self.level_start == True:
-            self.level_start = False
-            self.starship.shipHealth = 450
-            self.save_state.capture_player(self.starship, self.__class__.__name__)
-            self.save_state.save_to_file("player_save.json")
-
-        self.enemy_helper(state)
-        self.rescue_pod_helper(state)
-
-        now = pygame.time.get_ticks()
-        self.update_hazard_square(state,current_time_ms=500)
-        self.update_hazard_damage(state.DISPLAY.get_height())
-
-    def rescue_pod_helper(self, state):
-        # Update rescue pods
-        for pod in list(self.rescue_pods):
-            pod.update(state)
-
-            # Check if player touches rescue pod
-            if self.starship.hitbox.colliderect(pod.hitbox):
-                self.rescue_pods.remove(pod)
-                # You could add score or other benefits here
-
-        # Check if level 5 boss is dead and clear rescue pods
-        # This is commented out for further work as requested
-        """
-        for enemy in state.enemies:
-            if isinstance(enemy, BossLevelFive) and enemy.enemyHealth <= 0:
-                self.rescue_pods.clear()
-                break
-        """
 
     def update_hazard_damage(self, surface_height: int) -> None:
         if not self._hazard_active:
@@ -285,39 +233,6 @@ class LevelFive(VerticalBattleScreen):
             for col in range(self.fire_row_length):
                 x = col * tile_size
                 surface.blit(sprite, (x, y))
-
-    def get_nearest_enemy(self, missile):
-        state = getattr(self, 'state', None)
-
-        if state is None or not state.enemies:
-            return None
-
-        # Visible camera bounds (world coordinates)
-        visible_top = self.camera.y
-        visible_bottom = self.camera.y + (self.window_height / self.camera.zoom)
-
-        nearest_enemy = None
-        nearest_dist = float("inf")
-        mx, my = missile.x, missile.y
-
-        for enemy in state.enemies:
-
-            # ⛔ Skip enemies outside the screen
-            if enemy.y + enemy.height < visible_top:
-                continue  # enemy is above screen
-            if enemy.y > visible_bottom:
-                continue  # enemy is below screen
-
-            # distance calculation
-            dx = enemy.x - mx
-            dy = enemy.y - my
-            dist_sq = dx * dx + dy * dy
-
-            if dist_sq < nearest_dist:
-                nearest_dist = dist_sq
-                nearest_enemy = enemy
-
-        return nearest_enemy
 
 
 
