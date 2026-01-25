@@ -26,7 +26,7 @@ class LevelSeven(VerticalBattleScreen):
         self.camera_y = self.WORLD_HEIGHT - window_height
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
-        self.map_scroll_speed_per_frame = 0.4
+        self.map_scroll_speed_per_frame = 1.2
         self.save_state = SaveState()
         self.last_flame_row_time = pygame.time.get_ticks()
         self.flame_rows: list[list[Bullet]] = []
@@ -69,7 +69,7 @@ class LevelSeven(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
-        self.update_loop_level()
+        self.update_loop_level(state)
         self.update_build_flame_row()
         self.update_enemy_helper(state)
         self.update_repeat_map(state)
@@ -78,27 +78,28 @@ class LevelSeven(VerticalBattleScreen):
     def draw(self, state):
         super().draw(state)
         self.draw_player_and_enemies(state)
-        self.draw_flames_rect(state)
+        self.draw_flames(state.DISPLAY, self.camera)
         self.draw_ui_panel(state.DISPLAY)
         pygame.display.flip()
 
     def update_build_flame_row(self):
-        now = pygame.time.get_ticks()
-        if (
-                self.flame_rows_built < self.max_flame_rows
-                and now - self.last_flame_row_time >= self.flame_row_interval_ms
-        ):
-            self.flame_rows_built += 1
-            self.last_flame_row_time = now
-            self.build_flame_grid()
+        # This method is now disabled as flame rows are added when a loop is completed
+        # Keeping the method for compatibility with existing code
+        pass
 
-    def update_loop_level(self):
+    def update_loop_level(self, state):
         if self.camera.y <= 0 and not self.start_loop:
             self.start_loop = True
             self.end_loop = False
 
+            # Add a new row of flames when a loop starts
+            if self.flame_rows_built < self.max_flame_rows:
+                self.flame_rows_built += 1
+                self.build_flame_grid()
+                print(f"Added flame row #{self.flame_rows_built} at loop start")
+
             if not self.boss_placement:
-                self.set_boss_position_once()
+                self.set_boss_position_once(state)
 
         elif self.camera.y > 200 and not self.end_loop:
             self.end_loop = True
