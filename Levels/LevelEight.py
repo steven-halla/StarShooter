@@ -9,10 +9,10 @@ from SaveStates.SaveState import SaveState
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
-class LevelOne(VerticalBattleScreen):
+class LevelEight(VerticalBattleScreen):
     def __init__(self,textbox):
         super().__init__(textbox)
-        self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level1.tmx")
+        self.tiled_map = pytmx.load_pygame("./Levels/MapAssets/leveltmxfiles/level8.tmx")
         self.tile_size: int = self.tiled_map.tileheight
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height

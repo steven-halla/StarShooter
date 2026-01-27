@@ -75,3 +75,74 @@ Chip max up
 HP max
 Shield MAX
 heat MAX
+
+
+Some Tiers can have mutliple choices where you only get to choose one,
+Example Triple Barrle vs Damage + 3
+
+shop:
+bullets']
+ - base 4 Damage. -
+ Faster bullet - speed + 1
+ Fire rate up  + 1
+ Double barrel
+ Triple Barrel
+ Damage + 1
+Damage + 2
+Damage + 3
+Reduced Het + 1
+Reduced Heat + 2
+Reduced Heat + 3
+
+Missile
+Base 20 damage
+Faster misstile + 1
+Faster Missile  + 2
+Damage + 10
+Damage + 20
+Damage + 40
+More missiles + 2
+More Missiles + 2
+Faster recharce + 1
+ REduced Heat + 1
+ reduced Heat +2
+
+Ship:
+Ship speed +1
+ship speed + 1
+ship speed + 1
+Ship HP + 10
+ship HP + 20
+Ship HP + 30
+Post hit invinci ility + .1
+
+
+
+sub weapons
+16 chips total
+
+8 tiers
+each teir has  1 choice of two sub weapon upgrades
+
+
+
+
+Engine 5 tiers once hoice of each
+shield
+Shields Max + 30
+sheilds max + 30
+shields max + 40
+Shield recharge rate+ 1
+shield recharge rate+ 2
+
+heat
+Heat Max + 30
+Heat max + 50
+heat max + 50
+Heat Cooldown + 1
+Heat cooldwon + 2
+
+
+
+
+

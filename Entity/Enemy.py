@@ -4,6 +4,11 @@ from Constants.GlobalConstants import GlobalConstants
 from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 
+#####
+# new mellee : Grabber, grabs player so they have to shoot to get out.
+# new melle: hook shot, grab player and put them in new position
+####
+
 
 class Enemy:
     def __init__(self):

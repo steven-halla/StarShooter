@@ -4,6 +4,7 @@ import json
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Enemy import Enemy
 from Entity.StarShip import StarShip
+from Levels.LevelEight import LevelEight
 from Levels.LevelFive import LevelFive
 from Levels.LevelFour import LevelFour
 from Levels.LevelSix import LevelSix
@@ -71,7 +72,7 @@ class GameState:
         # --------------------------------------------------
         # CURRENT SCREEN
         # --------------------------------------------------
-        self.currentScreen = LevelSeven(self.textbox)
+        self.currentScreen = LevelOne(self.textbox)
 
         # --------------------------------------------------
         # Bullet list
