@@ -65,8 +65,6 @@ class LevelEight(VerticalBattleScreen):
     def update(self, state) -> None:
         super().update(state)
         # print(self.missed_enemies)
-
-
         self.update_game_over_condition()
         self.update_enemy_helper(state)
         self.update_handle_level_complete(state)

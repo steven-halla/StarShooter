@@ -186,6 +186,7 @@ class VerticalBattleScreen:
 
         self.bullet_collision_helper_remover(state)
         self.collision_tile_helper(state)
+        self.enemy_player_collision(state)
         self.rect_helper(state)
         UI_KILL_PADDING = 12  # pixels ABOVE the UI panel (tweak this)
 
@@ -331,7 +332,7 @@ class VerticalBattleScreen:
 
             for enemy in list(state.enemies):
                 # Skip coins - they should only be collected by starship collision
-                if hasattr(enemy, "__class__") and enemy.__class__.__name__ == "Coins":
+                if hasattr(enemy, "__class__") and enemy.__class__.__name__ in ("Coins", "TimeBomb"):
                     continue
 
                 if not bullet_rect.colliderect(enemy.hitbox):
@@ -1003,6 +1004,33 @@ class VerticalBattleScreen:
 
 
 
+    def enemy_player_collision(self, state):
+        # -------------------------
+        # ENEMY BODY COLLISION DAMAGE (GLOBAL RULE)
+        # -------------------------
+        player_rect = self.starship.hitbox
+
+        if not self.starship.invincible:
+            # TODO this MUST be reading from current_level.enemies or something, not
+            # checking every f'n enemy every single time
+
+            for enemy in state.enemies:
+                # Skip coins - they should not hurt the player when touched
+                if hasattr(enemy, "__class__") and enemy.__class__.__name__ in ("Coins", "TimeBomb"):
+                    continue
+
+                enemy_rect = pygame.Rect(
+                    enemy.x,
+                    enemy.y,
+                    enemy.width,
+                    enemy.height
+                )
+
+                if player_rect.colliderect(enemy_rect):
+                    self.starship.shipHealth -= 10
+                    self.starship.on_hit()
+                    break  # ⛔ only one hit per frame
+
 
 
     def collision_tile_helper(self, state):
@@ -1023,31 +1051,6 @@ class VerticalBattleScreen:
                 print("⚠️ Player took hazard damage! Health =", self.starship.shipHealth)
                 break
 
-        # -------------------------
-        # ENEMY BODY COLLISION DAMAGE (GLOBAL RULE)
-        # -------------------------
-        player_rect = self.starship.hitbox
-
-        if not self.starship.invincible:
-            # TODO this MUST be reading from current_level.enemies or something, not
-            # checking every f'n enemy every single time
-
-            for enemy in state.enemies:
-                # Skip coins - they should not hurt the player when touched
-                if hasattr(enemy, "__class__") and enemy.__class__.__name__ == "Coins":
-                    continue
-
-                enemy_rect = pygame.Rect(
-                    enemy.x,
-                    enemy.y,
-                    enemy.width,
-                    enemy.height
-                )
-
-                if player_rect.colliderect(enemy_rect):
-                    self.starship.shipHealth -= 10
-                    self.starship.on_hit()
-                    break  # ⛔ only one hit per frame
 
     def draw_sub_weapon_rect_helper(self,state):
         zoom = self.camera.zoom

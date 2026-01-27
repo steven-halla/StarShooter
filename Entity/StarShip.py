@@ -101,6 +101,7 @@ class StarShip:
         self.invincibility_timer.reset()
 
     def update(self) -> None:
+        print(self.shipHealth)
         self.update_hitbox()
         # -------------------------
         # Machine Gun

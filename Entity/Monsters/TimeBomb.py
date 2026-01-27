@@ -15,6 +15,7 @@ class TimeBomb(Enemy):
         self.width: int = 16
         self.height: int = 16
         self.color: tuple[int, int, int] = GlobalConstants.RED
+        self.name: str = "TimeBomb"
 
         # gameplay
         self.enemyHealth: int = 1
@@ -25,6 +26,8 @@ class TimeBomb(Enemy):
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
         self.enemy_image = self.spore_flower_image  # 🔑 REQUIRED
+        self.is_active = True
+
 
     # --------------------------------------------------
     # UPDATE
@@ -33,8 +36,11 @@ class TimeBomb(Enemy):
         super().update(state)
         print("f;djfas")
 
+
         # 🔑 FORCE OBJECTIVE ENTITY ACTIVE
-        self.is_active = True
+
+        if not self.is_active:
+            return
 
         # random drifting movement
         self.enemy_move_random(interval_ms=3000)
@@ -82,3 +88,5 @@ class TimeBomb(Enemy):
             self.mover.enemy_move_up(self)
         elif self._dir == 3:
             self.mover.enemy_move_down(self)
+
+
