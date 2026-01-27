@@ -35,6 +35,11 @@ class TimeBomb(Enemy):
     def update(self, state) -> None:
         super().update(state)
         print("f;djfas")
+        if self.target_player and self.hitbox.colliderect(self.target_player.hitbox):
+            print("Your in the zone, auto zone")
+
+        else:
+            print("you're not in the zone, bad for you good luckers")
 
 
         # 🔑 FORCE OBJECTIVE ENTITY ACTIVE
