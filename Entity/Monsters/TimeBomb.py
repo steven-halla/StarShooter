@@ -28,74 +28,106 @@ class TimeBomb(Enemy):
         self.enemy_image = self.spore_flower_image  # 🔑 REQUIRED
         self.is_active = True
         self.timer_vanish_enemy_ms: int = 20000
-        self.timer_start: int = 0
+        self.time_bomb_timer_start: int = 0
         self.time_needed_to_diffuse: int = 10000
+        self.diffuse_time_bomb_timer: int = 0
 
 
+    # --------------------------------------------------
+    # UPDATE
+    # --------------------------------------------------
     # --------------------------------------------------
     # UPDATE
     # --------------------------------------------------
     def update(self, state) -> None:
         super().update(state)
 
+        if not self.is_active or not self.camera or not self.target_player:
+            return
+
+        now = pygame.time.get_ticks()
         camera = self.camera
         player = self.target_player
 
-        if not camera or not player:
-            self.timer_start = 0
-            print("[TimeBomb] not together | timer reset")
-            return
-
+        # -----------------------------
+        # FULL RECT VISIBILITY CHECK
+        # -----------------------------
         visible_top = camera.y
         visible_bottom = camera.y + (camera.window_height / camera.zoom)
 
-        # enemy_on_screen = (
-        #         self.y + self.height >= visible_top
-        #         and self.y <= visible_bottom
-        # )
-        enemy_on_screen = (
+        enemy_fully_on_screen = (
                 self.y >= visible_top
-                and (self.y + self.height) <= visible_bottom
+                and self.y + self.height <= visible_bottom
         )
 
-        player_on_screen = (
-                player.y + player.height >= visible_top
-                and player.y <= visible_bottom
+        player_fully_on_screen = (
+                player.y >= visible_top
+                and player.y + player.height <= visible_bottom
         )
 
-        now = pygame.time.get_ticks()
+        # -----------------------------
+        # VANISH TIMER (ON SCREEN ONLY)
+        # -----------------------------
+        if enemy_fully_on_screen and player_fully_on_screen:
+            if self.time_bomb_timer_start == 0:
+                self.time_bomb_timer_start = now
+                print("[TimeBomb] vanish timer started")
 
-        if enemy_on_screen and player_on_screen:
-            print("we're together again")
-
-            if self.timer_start == 0:
-                self.timer_start = now
-                print("[TimeBomb] timer started")
-
-            elapsed = now - self.timer_start
-            remaining = max(0, self.timer_vanish_enemy_ms - elapsed)
+            vanish_elapsed = now - self.time_bomb_timer_start
+            vanish_remaining = max(
+                0, self.timer_vanish_enemy_ms - vanish_elapsed
+            )
 
             print(
-                f"[TimeBomb Timers] "
-                f"elapsed={elapsed}ms "
-                f"remaining={remaining}ms "
+                f"[TimeBomb Vanish Timer] "
+                f"elapsed={vanish_elapsed}ms "
+                f"remaining={vanish_remaining}ms "
                 f"limit={self.timer_vanish_enemy_ms}ms"
             )
 
-            if elapsed >= self.timer_vanish_enemy_ms:
-                print("[TimeBomb] vanished")
+            if vanish_elapsed >= self.timer_vanish_enemy_ms:
+                print("[TimeBomb] vanished (timeout)")
                 self.enemyHealth = 0
                 self.is_active = False
-                self.timer_start = 0
+                self.time_bomb_timer_start = 0
+                self.diffuse_time_bomb_timer = 0
                 return
-
         else:
-            print("we are not together")
-            self.timer_start = 0
+            self.time_bomb_timer_start = 0
 
-        if not self.is_active:
-            return
+        # -----------------------------
+        # DIFFUSE TIMER (INSIDE RECT ONLY)
+        # -----------------------------
+        if self.hitbox.colliderect(player.hitbox):
+            if self.diffuse_time_bomb_timer == 0:
+                self.diffuse_time_bomb_timer = now
+                print("[TimeBomb] diffuse timer started")
 
+            diffuse_elapsed = now - self.diffuse_time_bomb_timer
+            diffuse_remaining = max(
+                0, self.time_needed_to_diffuse - diffuse_elapsed
+            )
+
+            print(
+                f"[TimeBomb Diffuse Timer] "
+                f"elapsed={diffuse_elapsed}ms "
+                f"remaining={diffuse_remaining}ms "
+                f"limit={self.time_needed_to_diffuse}ms"
+            )
+
+            if diffuse_elapsed >= self.time_needed_to_diffuse:
+                print("[TimeBomb] diffused successfully")
+                self.enemyHealth = 0
+                self.is_active = False
+                self.time_bomb_timer_start = 0
+                self.diffuse_time_bomb_timer = 0
+                return
+        else:
+            self.diffuse_time_bomb_timer = 0
+
+        # -----------------------------
+        # MOVEMENT
+        # -----------------------------
         self.enemy_move_random(interval_ms=3000)
         self.update_hitbox()
     # --------------------------------------------------
