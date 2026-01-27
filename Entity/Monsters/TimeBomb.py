@@ -27,9 +27,9 @@ class TimeBomb(Enemy):
         ).convert_alpha()
         self.enemy_image = self.spore_flower_image  # 🔑 REQUIRED
         self.is_active = True
-        self.timer_vanish_enemy_ms: int = 5000
+        self.timer_vanish_enemy_ms: int = 20000
         self.timer_start: int = 0
-        self.time_needed_to_diffuse: int = 3000
+        self.time_needed_to_diffuse: int = 10000
 
 
     # --------------------------------------------------
@@ -38,20 +38,24 @@ class TimeBomb(Enemy):
     def update(self, state) -> None:
         super().update(state)
 
-        # ⬇️ MOVE PRINT LOGIC ABOVE ALL RETURNS ⬇️
         camera = self.camera
         player = self.target_player
 
         if not camera or not player:
-            print("we are not together")
+            self.timer_start = 0
+            print("[TimeBomb] not together | timer reset")
             return
 
         visible_top = camera.y
         visible_bottom = camera.y + (camera.window_height / camera.zoom)
 
+        # enemy_on_screen = (
+        #         self.y + self.height >= visible_top
+        #         and self.y <= visible_bottom
+        # )
         enemy_on_screen = (
-                self.y + self.height >= visible_top
-                and self.y <= visible_bottom
+                self.y >= visible_top
+                and (self.y + self.height) <= visible_bottom
         )
 
         player_on_screen = (
@@ -59,12 +63,36 @@ class TimeBomb(Enemy):
                 and player.y <= visible_bottom
         )
 
+        now = pygame.time.get_ticks()
+
         if enemy_on_screen and player_on_screen:
             print("we're together again")
+
+            if self.timer_start == 0:
+                self.timer_start = now
+                print("[TimeBomb] timer started")
+
+            elapsed = now - self.timer_start
+            remaining = max(0, self.timer_vanish_enemy_ms - elapsed)
+
+            print(
+                f"[TimeBomb Timers] "
+                f"elapsed={elapsed}ms "
+                f"remaining={remaining}ms "
+                f"limit={self.timer_vanish_enemy_ms}ms"
+            )
+
+            if elapsed >= self.timer_vanish_enemy_ms:
+                print("[TimeBomb] vanished")
+                self.enemyHealth = 0
+                self.is_active = False
+                self.timer_start = 0
+                return
+
         else:
             print("we are not together")
+            self.timer_start = 0
 
-        # ⬇️ now handle active logic
         if not self.is_active:
             return
 
