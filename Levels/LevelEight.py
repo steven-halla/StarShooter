@@ -86,6 +86,7 @@ class LevelEight(VerticalBattleScreen):
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
         for enemy in list(state.enemies):
+            enemy.update(state)
 
             if enemy.y > screen_bottom:
                 if enemy not in self.missed_enemies:
