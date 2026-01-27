@@ -69,15 +69,17 @@ class LevelEight(VerticalBattleScreen):
         self.update_enemy_helper(state)
         self.update_handle_level_complete(state)
 
+
     def draw(self, state):
         super().draw(state)
         font = pygame.font.Font(None, 28)
         current_enemies = len(state.enemies)
-        self.draw_enemy_counter(current_enemies, font, state)
         self.draw_player_and_enemy(state)
         self.draw_ui_panel(state.DISPLAY)
 
         pygame.display.flip()
+
+
 
 
     def update_enemy_helper(self, state):
@@ -114,14 +116,14 @@ class LevelEight(VerticalBattleScreen):
         if (
                 not self.level_complete
                 and any(
-            enemy.__class__.__name__ == "BossLevelOne" and enemy.enemyHealth <= 0
+            enemy.__class__.__name__ == "BossLevelEight" and enemy.enemyHealth <= 0
             for enemy in state.enemies
         )
         ):
             self.level_complete = True
-            next_level = MissionBriefingScreenLevelTwo()
-            state.currentScreen = next_level
-            next_level.start(state)
+            # next_level = MissionBriefingScreenLevelNine()
+            # state.currentScreen = next_level
+            # next_level.start(state)
 
 
 
@@ -137,28 +139,14 @@ class LevelEight(VerticalBattleScreen):
             enemy.draw(state.DISPLAY, self.camera)
             enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
-    def draw_enemy_counter(self, current_enemies, font, state):
-        if self.prev_enemy_count is None:
-            self.prev_enemy_count = current_enemies
-        else:
-            if current_enemies < self.prev_enemy_count:
-                self.enemies_killed += (self.prev_enemy_count - current_enemies)
-
-            self.prev_enemy_count = current_enemies
-        enemy_text = font.render(
-            f"Enemies {self.enemies_killed}/40",
-            True,
-            (255, 255, 255)
-        )
-        state.DISPLAY.blit(enemy_text, (10, 50))
 
     def load_enemy_into_list(self, state):
         state.enemies.clear()
 
         for obj in self.tiled_map.objects:
-            if obj.name == "level_8_boss":
-                enemy = BossLevelOne()
-            elif obj.name == "bile_spitter":
+            # if obj.name == "level_8_boss":
+            #     enemy = BossLevelEight()
+            if obj.name == "bile_spitter":
                 enemy = BileSpitter()
             elif obj.name == "time_bomb":
                 enemy = TimeBomb()

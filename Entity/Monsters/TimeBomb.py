@@ -27,6 +27,9 @@ class TimeBomb(Enemy):
         ).convert_alpha()
         self.enemy_image = self.spore_flower_image  # 🔑 REQUIRED
         self.is_active = True
+        self.timer_vanish_enemy_ms: int = 5000
+        self.timer_start: int = 0
+        self.time_needed_to_diffuse: int = 3000
 
 
     # --------------------------------------------------
@@ -34,24 +37,39 @@ class TimeBomb(Enemy):
     # --------------------------------------------------
     def update(self, state) -> None:
         super().update(state)
-        print("f;djfas")
-        if self.target_player and self.hitbox.colliderect(self.target_player.hitbox):
-            print("Your in the zone, auto zone")
 
+        # ⬇️ MOVE PRINT LOGIC ABOVE ALL RETURNS ⬇️
+        camera = self.camera
+        player = self.target_player
+
+        if not camera or not player:
+            print("we are not together")
+            return
+
+        visible_top = camera.y
+        visible_bottom = camera.y + (camera.window_height / camera.zoom)
+
+        enemy_on_screen = (
+                self.y + self.height >= visible_top
+                and self.y <= visible_bottom
+        )
+
+        player_on_screen = (
+                player.y + player.height >= visible_top
+                and player.y <= visible_bottom
+        )
+
+        if enemy_on_screen and player_on_screen:
+            print("we're together again")
         else:
-            print("you're not in the zone, bad for you good luckers")
+            print("we are not together")
 
-
-        # 🔑 FORCE OBJECTIVE ENTITY ACTIVE
-
+        # ⬇️ now handle active logic
         if not self.is_active:
             return
 
-        # random drifting movement
         self.enemy_move_random(interval_ms=3000)
-
         self.update_hitbox()
-
     # --------------------------------------------------
     # DRAW
     # --------------------------------------------------

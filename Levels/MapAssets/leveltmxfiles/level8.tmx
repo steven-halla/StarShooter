@@ -314,7 +314,7 @@
 </data>
  </layer>
  <objectgroup id="4" name="enemies">
-  <object id="1" name="time_bomb" x="144.368" y="1450.79" width="120" height="120"/>
+  <object id="1" name="time_bomb" x="129.831" y="1241.22" width="120" height="120"/>
   <object id="2" name="player" x="78.7402" y="1586.92"/>
  </objectgroup>
  <objectgroup id="6" name="player"/>
