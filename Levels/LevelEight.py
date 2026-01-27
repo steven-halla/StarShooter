@@ -64,12 +64,9 @@ class LevelEight(VerticalBattleScreen):
     def update(self, state) -> None:
         super().update(state)
         # print(self.missed_enemies)
-        if not hasattr(self, "last_enemy_count"):
-            self.last_enemy_count = len(state.enemies)
 
-        self.last_enemy_count = len(state.enemies)
+
         self.update_game_over_condition()
-        self.update_add_enemy_to_missed_list(state)
         self.update_enemy_helper(state)
         self.update_handle_level_complete(state)
 
@@ -98,7 +95,6 @@ class LevelEight(VerticalBattleScreen):
             if isinstance(enemy, BileSpitter):
                 enemy.is_active = True
 
-            enemy.update(state)
 
             if self.starship.hitbox.colliderect(enemy.hitbox):
                 enemy.color = (135, 206, 235)
@@ -127,20 +123,7 @@ class LevelEight(VerticalBattleScreen):
             state.currentScreen = next_level
             next_level.start(state)
 
-    def update_add_enemy_to_missed_list(self, state):
-        UI_KILL_PADDING = 13.5  # pixels ABOVE the UI panel (tweak this)
-        screen_bottom = (
-                self.camera.y
-                + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
-                - UI_KILL_PADDING
-        )
-        for enemy in list(state.enemies):
-            if enemy.y > screen_bottom:
-                if enemy not in self.missed_enemies:
-                    self.missed_enemies.append(enemy)
-                    print(self.missed_enemies)
-                    if self.missed_enemies.__len__() > 3:
-                        print("GAME OVER!!!")
+
 
     def update_game_over_condition(self):
         if len(self.missed_enemies) > 9:
@@ -173,14 +156,12 @@ class LevelEight(VerticalBattleScreen):
         state.enemies.clear()
 
         for obj in self.tiled_map.objects:
-            if obj.name == "level_1_boss":
+            if obj.name == "level_8_boss":
                 enemy = BossLevelOne()
             elif obj.name == "bile_spitter":
                 enemy = BileSpitter()
-            elif obj.name == "blade_spinner":
+            elif obj.name == "time_bomb":
                 enemy = BladeSpinner()
-            elif obj.name == "tri_spitter":
-                enemy = TriSpitter()
             else:
                 continue
 
