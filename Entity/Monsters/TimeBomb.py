@@ -31,14 +31,12 @@ class TimeBomb(Enemy):
         self.update_hitbox()
         # print(f"Rescue Pod HP: {self.enemyHealth}")?
 
-    def draw(self, surface: pygame.Surface, camera, state):
-        # Determine color based on collision with player
-        if self.hitbox.colliderect(state.starship.hitbox):
+    def draw(self, surface: pygame.Surface, camera):
+        if self.hitbox.colliderect(self.target_player.hitbox):
             color = (0, 0, 255)  # blue
         else:
             color = (255, 0, 0)  # red
 
-        # Convert hitbox to screen space
         hb_x = camera.world_to_screen_x(self.hitbox.x)
         hb_y = camera.world_to_screen_y(self.hitbox.y)
         hb_w = int(self.hitbox.width * camera.zoom)

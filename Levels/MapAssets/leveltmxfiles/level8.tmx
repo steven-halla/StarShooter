@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="21" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="3">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="21" height="100" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="4">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="background" width="21" height="100">
   <data encoding="csv">
@@ -314,7 +314,7 @@
 </data>
  </layer>
  <objectgroup id="4" name="enemies">
-  <object id="1" name="time_bomb" x="144.368" y="1450.79" width="48" height="48"/>
+  <object id="1" name="time_bomb" x="144.368" y="1450.79" width="120" height="120"/>
   <object id="2" name="player" x="78.7402" y="1586.92"/>
  </objectgroup>
  <objectgroup id="6" name="player"/>

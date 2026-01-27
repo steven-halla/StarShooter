@@ -4,6 +4,7 @@ from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
+from Entity.Monsters.TimeBomb import TimeBomb
 from Entity.Monsters.TriSpitter import TriSpitter
 from SaveStates.SaveState import SaveState
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
@@ -161,7 +162,7 @@ class LevelEight(VerticalBattleScreen):
             elif obj.name == "bile_spitter":
                 enemy = BileSpitter()
             elif obj.name == "time_bomb":
-                enemy = BladeSpinner()
+                enemy = TimeBomb()
             else:
                 continue
 
