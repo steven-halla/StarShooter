@@ -5,13 +5,8 @@ class Timer:
 
     def __init__(self, interval_seconds: float) -> None:
         self.interval_ms: int = int(interval_seconds * self.MS_PER_SECOND)
-        self.start_time_ms: int | None = None
-        self.paused: bool = False
-        self.pause_time_ms: int = 0
-
         # start “ready” so first call can fire immediately
         self.last_time_ms: int = pygame.time.get_ticks() - self.interval_ms
-
 
     def reset(self) -> None:
         self.last_time_ms = pygame.time.get_ticks()
@@ -20,24 +15,22 @@ class Timer:
         now: int = pygame.time.get_ticks()
         return now - self.last_time_ms >= self.interval_ms
 
-    # -----------------------------
-    # BASIC CONTROL
-    # -----------------------------
+        # -----------------------------
+        # BASIC CONTROL
+        # -----------------------------
+
     def start(self) -> None:
         if self.start_time_ms is None:
             self.start_time_ms = pygame.time.get_ticks()
 
-    def reset(self) -> None:
-        self.start_time_ms = None
-        self.paused = False
-        self.pause_time_ms = 0
 
     def stop(self) -> None:
         self.reset()
 
-    # -----------------------------
-    # PAUSE / RESUME
-    # -----------------------------
+        # -----------------------------
+        # PAUSE / RESUME
+        # -----------------------------
+
     def pause(self) -> None:
         if not self.paused and self.start_time_ms is not None:
             self.paused = True
@@ -50,9 +43,10 @@ class Timer:
             self.start_time_ms += paused_duration
             self.paused = False
 
-    # -----------------------------
-    # STATE QUERIES
-    # -----------------------------
+        # -----------------------------
+        # STATE QUERIES
+        # -----------------------------
+
     def is_running(self) -> bool:
         return self.start_time_ms is not None and not self.paused
 
