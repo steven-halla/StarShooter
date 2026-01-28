@@ -167,7 +167,6 @@ class VerticalBattleScreen:
                 self.textbox.advance()
 
         self.move_map_y_axis()
-        self.controller.update()
 
         self.move_player_x_y()
         self.starship.update()

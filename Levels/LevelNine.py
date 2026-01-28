@@ -196,8 +196,11 @@ class LevelNine(VerticalBattleScreen):
         layer = self.tiled_map.get_layer_by_name("leftpuller")
         tile_size = self.tile_size
 
-        # 5 pixels per second → ~0.083 px per frame @ 60 FPS
-        PULL_SPEED = 120 / 60.0
+        # horizontal pull (pixels per frame)
+        PULL_SPEED_X = 120 / 60.0
+
+        # how much we cancel upward movement (1.0 = full cancel)
+        UP_RESIST_CANCEL = 4.75
 
         player = self.starship
         player_rect = player.hitbox
@@ -214,8 +217,21 @@ class LevelNine(VerticalBattleScreen):
             )
 
             if player_rect.colliderect(tile_rect):
-                # pull player LEFT
-                player.x -= PULL_SPEED
+                # pull LEFT
+                player.x -= PULL_SPEED_X
+
+                # detect upward intent by comparing hitbox movement THIS FRAME
+                # (player.y was already modified earlier by input)
+                dy = player.hitbox.y - player.y
+
+                if dy != 0:
+                    print("going y")
+
+                # resist UP only (negative dy means moving up)
+                if dy < 0:
+                    cancel = abs(dy) * UP_RESIST_CANCEL
+                    player.y += cancel  # push back DOWN slightly
+
                 player.update_hitbox()
                 break
 
