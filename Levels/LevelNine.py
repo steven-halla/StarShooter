@@ -72,28 +72,50 @@ class LevelNine(VerticalBattleScreen):
         self.update_pull_right(state)
 
     def draw(self, state):
+        # 1. DRAW TO scene_surface (WORLD SPACE)
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
         window_height = GlobalConstants.GAMEPLAY_HEIGHT
-
         scene_surface = pygame.Surface((window_width, window_height))
         scene_surface.fill((20, 20, 40))
-        zoom = self.camera.zoom
 
-        # WORLD SPACE — DRAW EVERYTHING HERE
+        # Base tiles
         self.draw_tiled_layers(scene_surface)
+        # Unique Level Nine tiles
         self.draw_tiled_layers_leftpuller_and_rightpuller(scene_surface)
 
-        # SCALE ONCE
+        # 2. SCALE AND BLIT TO DISPLAY (SCREEN SPACE)
+        zoom = self.camera.zoom
         scaled_scene = pygame.transform.scale(
             scene_surface,
             (int(window_width * zoom), int(window_height * zoom))
         )
 
-        # SCREEN SPACE
         state.DISPLAY.fill(GlobalConstants.BLACK)
         state.DISPLAY.blit(scaled_scene, (0, 0))
 
+        # 3. DRAW EVERYTHING ELSE DIRECTLY TO DISPLAY (already handled in screen space by their draw methods)
+        # Explosion rects for enemies that have them
+        for enemy in state.enemies:
+            if hasattr(enemy, "lay_bomb"):
+                for bullet in state.enemy_bullets:
+                    enemy.lay_bomb(bullet=bullet, surface=state.DISPLAY, camera=self.camera)
+
+        # Player and enemies
         self.draw_player_and_enemy(state)
+
+        # Player weapons
+        self.draw_sub_weapon_rect_helper(state)
+
+        # Enemy bullets
+        for bullet in state.enemy_bullets:
+            bx = self.camera.world_to_screen_x(bullet.x)
+            by = self.camera.world_to_screen_y(bullet.y)
+            bw = int(bullet.width * self.camera.zoom)
+            bh = int(bullet.height * self.camera.zoom)
+            pygame.draw.rect(state.DISPLAY, (255, 0, 0), pygame.Rect(bx - 2, by - 2, bw + 4, bh + 4), 0)
+            pygame.draw.rect(state.DISPLAY, (0, 255, 0), pygame.Rect(bx, by, bw, bh), 0)
+
+        # UI Panel
         self.draw_ui_panel(state.DISPLAY)
 
         pygame.display.flip()
@@ -239,8 +261,11 @@ class LevelNine(VerticalBattleScreen):
         layer = self.tiled_map.get_layer_by_name("rightpuller")
         tile_size = self.tile_size
 
-        # 5 pixels per second → ~0.083 px per frame @ 60 FPS
-        PULL_SPEED = 120 / 60.0
+        # horizontal pull (pixels per frame)
+        PULL_SPEED_X = 120 / 60.0
+
+        # how much we cancel upward movement (same as left)
+        UP_RESIST_CANCEL = 4.75
 
         player = self.starship
         player_rect = player.hitbox
@@ -257,8 +282,20 @@ class LevelNine(VerticalBattleScreen):
             )
 
             if player_rect.colliderect(tile_rect):
-                # pull player RIGHT
-                player.x += PULL_SPEED
+                # pull RIGHT
+                player.x += PULL_SPEED_X
+
+                # detect upward intent (same pattern as left)
+                dy = player.hitbox.y - player.y
+
+                if dy != 0:
+                    print("going y")
+
+                # resist UP only (negative dy means moving up)
+                if dy < 0:
+                    cancel = abs(dy) * UP_RESIST_CANCEL
+                    player.y += cancel  # push back DOWN slightly
+
                 player.update_hitbox()
                 break
 
