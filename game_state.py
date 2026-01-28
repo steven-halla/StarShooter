@@ -7,6 +7,7 @@ from Entity.StarShip import StarShip
 from Levels.LevelEight import LevelEight
 from Levels.LevelFive import LevelFive
 from Levels.LevelFour import LevelFour
+from Levels.LevelNine import LevelNine
 from Levels.LevelSix import LevelSix
 from Levels.LevelSeven import LevelSeven
 from Levels.LevelTwo import LevelTwo
@@ -72,7 +73,7 @@ class GameState:
         # --------------------------------------------------
         # CURRENT SCREEN
         # --------------------------------------------------
-        self.currentScreen = LevelEight(self.textbox)
+        self.currentScreen = LevelNine(self.textbox)
 
         # --------------------------------------------------
         # Bullet list

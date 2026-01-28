@@ -68,12 +68,31 @@ class LevelNine(VerticalBattleScreen):
         self.update_game_over_condition()
         self.update_enemy_helper(state)
         self.update_handle_level_complete(state)
-
+        self.update_pull_left(state)
+        self.update_pull_right(state)
 
     def draw(self, state):
-        super().draw(state)
-        font = pygame.font.Font(None, 28)
-        current_enemies = len(state.enemies)
+        window_width = GlobalConstants.BASE_WINDOW_WIDTH
+        window_height = GlobalConstants.GAMEPLAY_HEIGHT
+
+        scene_surface = pygame.Surface((window_width, window_height))
+        scene_surface.fill((20, 20, 40))
+        zoom = self.camera.zoom
+
+        # WORLD SPACE — DRAW EVERYTHING HERE
+        self.draw_tiled_layers(scene_surface)
+        self.draw_tiled_layers_leftpuller_and_rightpuller(scene_surface)
+
+        # SCALE ONCE
+        scaled_scene = pygame.transform.scale(
+            scene_surface,
+            (int(window_width * zoom), int(window_height * zoom))
+        )
+
+        # SCREEN SPACE
+        state.DISPLAY.fill(GlobalConstants.BLACK)
+        state.DISPLAY.blit(scaled_scene, (0, 0))
+
         self.draw_player_and_enemy(state)
         self.draw_ui_panel(state.DISPLAY)
 
@@ -82,7 +101,8 @@ class LevelNine(VerticalBattleScreen):
 
 
 
-    def update_enemy_helper(self, state):
+    def update_enemy_helper(
+            self, state):
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
         for enemy in list(state.enemies):
@@ -171,3 +191,81 @@ class LevelNine(VerticalBattleScreen):
                 f"hp={enemy.enemyHealth} "
                 f"→ enemies size = {len(state.enemies)}"
             )
+
+    def update_pull_left(self, state) -> None:
+        layer = self.tiled_map.get_layer_by_name("leftpuller")
+        tile_size = self.tile_size
+
+        # 5 pixels per second → ~0.083 px per frame @ 60 FPS
+        PULL_SPEED = 5 / 60.0
+
+        player = self.starship
+        player_rect = player.hitbox
+
+        for col, row, image in layer.tiles():
+            if image is None:
+                continue
+
+            tile_rect = pygame.Rect(
+                col * tile_size,
+                row * tile_size,
+                tile_size,
+                tile_size
+            )
+
+            if player_rect.colliderect(tile_rect):
+                # pull player LEFT
+                player.x -= PULL_SPEED
+                player.update_hitbox()
+                break
+
+    def update_pull_right(self, state) -> None:
+        layer = self.tiled_map.get_layer_by_name("rightpuller")
+        tile_size = self.tile_size
+
+        # 5 pixels per second → ~0.083 px per frame @ 60 FPS
+        PULL_SPEED = 5 / 60.0
+
+        player = self.starship
+        player_rect = player.hitbox
+
+        for col, row, image in layer.tiles():
+            if image is None:
+                continue
+
+            tile_rect = pygame.Rect(
+                col * tile_size,
+                row * tile_size,
+                tile_size,
+                tile_size
+            )
+
+            if player_rect.colliderect(tile_rect):
+                # pull player RIGHT
+                player.x += PULL_SPEED
+                player.update_hitbox()
+                break
+
+    # --------------------------------------------------
+    # DRAW LEFTPULLER / RIGHTPULLER TILED LAYERS
+    # --------------------------------------------------
+
+
+    def draw_tiled_layers_leftpuller_and_rightpuller(self, surface: pygame.Surface) -> None:
+        tile_size = self.tile_size
+        window_height = GlobalConstants.GAMEPLAY_HEIGHT
+
+        for layer_name in ("leftpuller", "rightpuller"):
+            layer = self.tiled_map.get_layer_by_name(layer_name)
+
+            for col, row, image in layer.tiles():
+                if image is None:
+                    continue
+
+                world_y = row * tile_size
+                screen_y = world_y - self.camera.y
+
+                if screen_y + tile_size < 0 or screen_y > window_height:
+                    continue
+
+                surface.blit(image, (col * tile_size, screen_y))

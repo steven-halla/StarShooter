@@ -378,10 +378,6 @@ class VerticalBattleScreen:
         )
 
     def draw_player_hp_bar(self, surface):
-        """
-        Draws player HP text at the top of the screen.
-        Format: HP: current/100
-        """
         font = pygame.font.Font(None, 24)
         current_hp = max(0, int(self.starship.shipHealth))
         max_hp = 100
