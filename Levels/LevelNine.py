@@ -197,7 +197,7 @@ class LevelNine(VerticalBattleScreen):
         tile_size = self.tile_size
 
         # 5 pixels per second → ~0.083 px per frame @ 60 FPS
-        PULL_SPEED = 5 / 60.0
+        PULL_SPEED = 120 / 60.0
 
         player = self.starship
         player_rect = player.hitbox
@@ -224,7 +224,7 @@ class LevelNine(VerticalBattleScreen):
         tile_size = self.tile_size
 
         # 5 pixels per second → ~0.083 px per frame @ 60 FPS
-        PULL_SPEED = 5 / 60.0
+        PULL_SPEED = 120 / 60.0
 
         player = self.starship
         player_rect = player.hitbox
