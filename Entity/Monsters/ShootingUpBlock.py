@@ -25,7 +25,7 @@ class ShootingUpBlock(Enemy):
 
         # gameplay
         self.enemyHealth: int = 1000
-        self.moveSpeed: float = 0.4   # 🔑 REQUIRED OR IT WILL NOT MOVE'
+        self.moveSpeed: float = 1.4   # 🔑 REQUIRED OR IT WILL NOT MOVE'
         self.bullet_damage = 0
 
         self.spore_flower_image = pygame.image.load(
@@ -52,9 +52,9 @@ class ShootingUpBlock(Enemy):
 
             # update
             if self.shoot_timer.is_ready():
-                print("yes")
+                # print("yes")
                 self.shoot_single_down_vertical_y(
-                    bullet_speed=-1,
+                    bullet_speed=-4,
                     bullet_width=16,
                     bullet_height=16,
                     bullet_color=GlobalConstants.RED,
@@ -125,24 +125,29 @@ class ShootingUpBlock(Enemy):
 
     # --------------------------------------------------
     # RANDOM MOVEMENT (3s INTERVAL)
-    # --------------------------------------------------
     def moveAI(self) -> None:
-        window_width = GlobalConstants.BASE_WINDOW_WIDTH
+        # WORLD-SPACE camera bounds
+        left_bound = self.camera.x + self.edge_padding
+        right_bound = (
+                self.camera.x
+                + (self.camera.window_width / self.camera.zoom)
+                - self.edge_padding
+                - self.width
+        )
 
-        # Move based on direction
+        # EDGE CHECK FIRST (WORLD SPACE)
+        if self.x <= left_bound:
+            self.x = left_bound
+            self.move_direction = 1
+
+        elif self.x >= right_bound:
+            self.x = right_bound
+            self.move_direction = -1
+
+        # MOVE AFTER DIRECTION IS CORRECT
         if self.move_direction > 0:
             self.mover.enemy_move_right(self)
         else:
             self.mover.enemy_move_left(self)
-
-        # Left edge → flip to right
-        if self.x <= self.edge_padding:
-            self.x = self.edge_padding
-            self.move_direction = 1
-
-        # Right edge → flip to left
-        elif self.x + self.width >= window_width - self.edge_padding:
-            self.x = window_width - self.edge_padding - self.width
-            self.move_direction = -1
 
 

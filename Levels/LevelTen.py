@@ -79,20 +79,33 @@ class LevelTen(VerticalBattleScreen):
 
         pygame.display.flip()
 
+    # LevelTen.update_enemy_helper
 
     def update_enemy_helper(self, state):
+        screen_top = self.camera.y
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
+        # default: scrolling ON
+        self.map_scroll_speed_per_frame = 0.4
+
         for enemy in list(state.enemies):
-
-
-
             enemy.update(state)
             enemy.update_hitbox()
 
-            if hasattr(enemy, "enemy_bullets") and enemy.enemy_bullets:
-                state.enemy_bullets.extend(enemy.enemy_bullets)
-                enemy.enemy_bullets.clear()
+            enemy_fully_on_screen = (
+                    enemy.y >= screen_top
+                    and enemy.y + enemy.height <= screen_bottom
+            )
+
+            player = self.starship
+            player_fully_on_screen = (
+                    player.y >= screen_top
+                    and player.y + player.height <= screen_bottom
+            )
+
+            if enemy_fully_on_screen and player_fully_on_screen:
+                self.map_scroll_speed_per_frame = 0
+                self.camera.y = self.camera.y  # hard freeze
 
             if enemy.enemyHealth <= 0:
                 state.enemies.remove(enemy)

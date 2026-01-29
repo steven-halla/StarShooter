@@ -19,7 +19,7 @@ class ObjectiveBlock(Enemy):
         self.name: str = "ObjectiveBlock"
         # gameplay
         self.enemyHealth: int = 1000
-        self.moveSpeed: float = 0.4   # 🔑 REQUIRED OR IT WILL NOT MOVE'
+        self.moveSpeed: float = 1.9   # 🔑 REQUIRED OR IT WILL NOT MOVE'
         self.bullet_damage = 0
 
         self.spore_flower_image = pygame.image.load(
@@ -32,13 +32,14 @@ class ObjectiveBlock(Enemy):
         self.time_needed_to_diffuse: int = 10000
         self.diffuse_time_bomb_timer: int = 0
         self.getting_shot: bool = False
+        self.hit_by_shooting_up_block: bool = False
 
 
 
 
     def update(self, state) -> None:
         super().update(state)
-        print(self.enemyHealth)
+        # print(self.enemyHealth)
         if self.is_flashing:
             self.getting_shot = True
             if self.enemyHealth < 1000:
@@ -50,6 +51,15 @@ class ObjectiveBlock(Enemy):
 
         if not self.is_active or not self.camera or not self.target_player:
             return
+
+        # -----------------------------
+        # COLLISION WITH ENEMY BULLETS
+        # -----------------------------
+        for bullet in state.enemy_bullets:
+            if bullet.rect.colliderect(self.hitbox):
+                if getattr(bullet, "owner", "") == "ShootingUpBlock":
+                    self.hit_by_shooting_up_block = True
+                bullet.is_active = False # consume bullet
 
         now = pygame.time.get_ticks()
         camera = self.camera
@@ -89,7 +99,9 @@ class ObjectiveBlock(Enemy):
     # DRAW
     # --------------------------------------------------
     def draw(self, surface: pygame.Surface, camera):
-        if self.target_player and self.hitbox.colliderect(self.target_player.hitbox):
+        if getattr(self, "hit_by_shooting_up_block", False):
+            color = (0, 0, 255)  # BLUE when hit by ShootingUpBlock
+        elif self.target_player and self.hitbox.colliderect(self.target_player.hitbox):
             color = (0, 0, 255)  # blue when player inside
         else:
             color = (255, 0, 0)  # red otherwise

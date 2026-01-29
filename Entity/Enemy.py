@@ -230,6 +230,7 @@ class Enemy:
         bullet.vx = 0
         bullet.vy = 1
         bullet.bullet_speed = bullet_speed
+        bullet.owner = self.name if hasattr(self, "name") else self.__class__.__name__
 
         bullet.update_rect()
         state.enemy_bullets.append(bullet)
