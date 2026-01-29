@@ -11,15 +11,12 @@ class ObjectiveBlock(Enemy):
     def __init__(self) -> None:
         super().__init__()
         self.edge_padding: int = 30
-
-
         # appearance
         self.move_direction = 1  # start moving right
         self.width: int = 16
         self.height: int = 16
         self.color: tuple[int, int, int] = GlobalConstants.RED
         self.name: str = "ObjectiveBlock"
-
         # gameplay
         self.enemyHealth: int = 1000
         self.moveSpeed: float = 0.4   # 🔑 REQUIRED OR IT WILL NOT MOVE'

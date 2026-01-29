@@ -3,6 +3,7 @@ import random
 import pygame
 
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Enemy import Enemy
 from Weapons.Bullet import Bullet
 
@@ -11,6 +12,8 @@ class ShootingUpBlock(Enemy):
     def __init__(self) -> None:
         super().__init__()
         self.edge_padding: int = 30
+        # __init__
+        self.shoot_timer = Timer(3.0)
 
 
         # appearance
@@ -39,11 +42,26 @@ class ShootingUpBlock(Enemy):
 
 
 
+
     def update(self, state) -> None:
         super().update(state)
-        print(self.enemyHealth)
+
         if self.is_flashing:
             self.getting_shot = True
+            # __init__
+
+            # update
+            if self.shoot_timer.is_ready():
+                print("yes")
+                self.shoot_single_down_vertical_y(
+                    bullet_speed=-1,
+                    bullet_width=16,
+                    bullet_height=16,
+                    bullet_color=GlobalConstants.RED,
+                    bullet_damage=10,
+                    state=state
+                )
+                self.shoot_timer.reset()
             if self.enemyHealth < 1000:
                 self.enemyHealth = 1000
             if pygame.time.get_ticks() - self.flash_start_time >= self.flash_duration_ms:
