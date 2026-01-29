@@ -14,6 +14,7 @@ class BileSpitter(Enemy):
         super().__init__()
         self.mover: MoveRectangle = MoveRectangle()
         self.id = 0
+        self.name: str = "BileSpitter"
         self.width: int = 40
         self.height: int = 40
         self.color: tuple[int, int, int] = GlobalConstants.RED

@@ -748,6 +748,8 @@ class VerticalBattleScreen:
             surface.blit(image, (col * tile_size, screen_y))
 
 
+
+
     def fire_all_weapons(self,state):
         def has_active(self, weapon_name: str) -> bool:
             return any(b.weapon_name == weapon_name for b in self.player_bullets)

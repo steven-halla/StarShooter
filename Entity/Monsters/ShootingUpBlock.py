@@ -11,9 +11,10 @@ from Weapons.Bullet import Bullet
 class ShootingUpBlock(Enemy):
     def __init__(self) -> None:
         super().__init__()
-        self.edge_padding: int = 30
+        self.edge_padding: int = 40
         # __init__
         self.shoot_timer = Timer(3.0)
+
 
 
         # appearance
@@ -123,10 +124,12 @@ class ShootingUpBlock(Enemy):
 
         pygame.draw.rect(surface, color, (hb_x, hb_y, hb_w, hb_h), 2)
 
-    # --------------------------------------------------
-    # RANDOM MOVEMENT (3s INTERVAL)
     def moveAI(self) -> None:
-        # WORLD-SPACE camera bounds
+        # HARD GUARD — DO NOT TOUCH CAMERA IF IT IS NONE
+        if self.camera is None:
+            return
+
+        # WORLD-SPACE camera bounds (ONLY AFTER CAMERA EXISTS)
         left_bound = self.camera.x + self.edge_padding
         right_bound = (
                 self.camera.x
@@ -135,19 +138,18 @@ class ShootingUpBlock(Enemy):
                 - self.width
         )
 
-        # EDGE CHECK FIRST (WORLD SPACE)
+        # EDGE HANDLING
         if self.x <= left_bound:
-            self.x = left_bound
+            self.x = left_bound + self.moveSpeed
             self.move_direction = 1
 
         elif self.x >= right_bound:
-            self.x = right_bound
+            self.x = right_bound - self.moveSpeed
             self.move_direction = -1
 
-        # MOVE AFTER DIRECTION IS CORRECT
+        # MOVE
         if self.move_direction > 0:
             self.mover.enemy_move_right(self)
         else:
             self.mover.enemy_move_left(self)
-
 

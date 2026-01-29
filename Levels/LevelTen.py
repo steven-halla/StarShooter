@@ -70,9 +70,12 @@ class LevelTen(VerticalBattleScreen):
         self.update_game_over_condition()
         self.update_enemy_helper(state)
         self.update_handle_level_complete(state)
+        self.update_collision_tiles(state, damage=5)
+
 
     def draw(self, state):
         super().draw(state)
+        # self.draw_level_collision(state.DISPLAY)
 
         self.draw_player_and_enemy(state)
         self.draw_ui_panel(state.DISPLAY)
@@ -80,6 +83,8 @@ class LevelTen(VerticalBattleScreen):
         pygame.display.flip()
 
     # LevelTen.update_enemy_helper
+    def draw_level_collision(self, surface: pygame.Surface) -> None:
+        self.draw_collision_tiles(surface)
 
     def update_enemy_helper(self, state):
         screen_top = self.camera.y
@@ -89,23 +94,26 @@ class LevelTen(VerticalBattleScreen):
         self.map_scroll_speed_per_frame = 0.4
 
         for enemy in list(state.enemies):
+            # update ALL enemies once
             enemy.update(state)
             enemy.update_hitbox()
 
-            enemy_fully_on_screen = (
-                    enemy.y >= screen_top
-                    and enemy.y + enemy.height <= screen_bottom
-            )
+            # ONLY ObjectiveBlock can lock scroll
+            if enemy.name == "ObjectiveBlock":
+                enemy_fully_on_screen = (
+                        enemy.y >= screen_top
+                        and enemy.y + enemy.height <= screen_bottom
+                )
 
-            player = self.starship
-            player_fully_on_screen = (
-                    player.y >= screen_top
-                    and player.y + player.height <= screen_bottom
-            )
+                player = self.starship
+                player_fully_on_screen = (
+                        player.y >= screen_top
+                        and player.y + player.height <= screen_bottom
+                )
 
-            if enemy_fully_on_screen and player_fully_on_screen:
-                self.map_scroll_speed_per_frame = 0
-                self.camera.y = self.camera.y  # hard freeze
+                if enemy_fully_on_screen and player_fully_on_screen:
+                    self.map_scroll_speed_per_frame = 0
+                    self.camera.y = self.camera.y
 
             if enemy.enemyHealth <= 0:
                 state.enemies.remove(enemy)

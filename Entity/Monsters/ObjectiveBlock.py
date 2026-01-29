@@ -103,8 +103,11 @@ class ObjectiveBlock(Enemy):
     def draw(self, surface: pygame.Surface, camera):
         if getattr(self, "hit_by_shooting_up_block", False):
             color = (0, 0, 255)  # BLUE when hit by ShootingUpBlock
+            self.enemyHealth = 0
+            print(self.enemyHealth)
         elif self.target_player and self.hitbox.colliderect(self.target_player.hitbox):
             color = (0, 0, 255)  # blue when player inside
+
         else:
             color = (255, 0, 0)  # red otherwise
 
