@@ -96,7 +96,16 @@ class Enemy:
     # --------------------------------------------------
     # DAMAGE
     # --------------------------------------------------
-    def take_damage(self, amount: int) -> None:
+    def take_damage(self, state, amount: int) -> None:
+        # inside Enemy.update(), where bullet collision damage happens
+        for bullet in state.player_bullets:
+            if bullet.hitbox.colliderect(self.hitbox):
+
+                # 🚫 ShootingUpBlock ignores damage
+                if self.name == "ShootingUpBlock":
+                    continue  # collision allowed, no damage
+
+                self.take_damage(bullet.damage)
         self.enemyHealth -= amount
         self.is_flashing = True
         self.flash_start_time = pygame.time.get_ticks()

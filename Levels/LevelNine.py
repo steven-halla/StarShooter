@@ -93,12 +93,6 @@ class LevelNine(VerticalBattleScreen):
         state.DISPLAY.fill(GlobalConstants.BLACK)
         state.DISPLAY.blit(scaled_scene, (0, 0))
 
-        # 3. DRAW EVERYTHING ELSE DIRECTLY TO DISPLAY (already handled in screen space by their draw methods)
-        # Explosion rects for enemies that have them
-        for enemy in state.enemies:
-            if hasattr(enemy, "lay_bomb"):
-                for bullet in state.enemy_bullets:
-                    enemy.lay_bomb(bullet=bullet, surface=state.DISPLAY, camera=self.camera)
 
         # Player and enemies
         self.draw_player_and_enemy(state)

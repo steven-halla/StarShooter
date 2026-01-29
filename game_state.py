@@ -10,6 +10,7 @@ from Levels.LevelFour import LevelFour
 from Levels.LevelNine import LevelNine
 from Levels.LevelSix import LevelSix
 from Levels.LevelSeven import LevelSeven
+from Levels.LevelTen import LevelTen
 from Levels.LevelTwo import LevelTwo
 from Levels.MapTester import MapTester
 from Levels.levelThree import LevelThree
@@ -73,7 +74,7 @@ class GameState:
         # --------------------------------------------------
         # CURRENT SCREEN
         # --------------------------------------------------
-        self.currentScreen = LevelNine(self.textbox)
+        self.currentScreen = LevelTen(self.textbox)
 
         # --------------------------------------------------
         # Bullet list
