@@ -145,4 +145,22 @@ Heat cooldwon + 2
 
 
 
+PLANNER PHASE NEXT PHASE:
+Controller For Switch needs to be implmented
+All Enemys needs to be updated with new methods
+All Boss needs to be updated with new methods
+Save feature needs to be fully implemented
+Load features needs to be fully implemented
+check points system needs to be fully implemented
+Shop feeature needs to be fully implemented
+between mission screends:
+Shop for player upgrades
+nexxt mission
+save/load
+player stats page
+text boxes for each level
+New text box for use during battle
+Text box for all other cases
+Shop class
 
+Need to go thorugh each level and create it with a balanced approach

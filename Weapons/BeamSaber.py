@@ -4,6 +4,7 @@ import pygame
 from Weapons.Bullet import Bullet
 
 # in future thinking on doing ramp up to damage like void rays
+# this will make an effficeint about it
 class BeamSaber(Bullet):
     def __init__(self, x: float, y: float):
         super().__init__(x, y)

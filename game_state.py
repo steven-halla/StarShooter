@@ -19,6 +19,7 @@ from ScreenClasses.MissionBriefingScreenLevelOne import MissionBriefingScreenLev
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.Screen import Screen
 from ScreenClasses.TextBox import TextBox
+from ScreenClasses.TitleScreen import TitleScreen
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 from Levels.LevelOne import LevelOne
 
@@ -74,7 +75,7 @@ class GameState:
         # --------------------------------------------------
         # CURRENT SCREEN
         # --------------------------------------------------
-        self.currentScreen = LevelTen(self.textbox)
+        self.currentScreen = TitleScreen(self.DISPLAY)
 
         # --------------------------------------------------
         # Bullet list
