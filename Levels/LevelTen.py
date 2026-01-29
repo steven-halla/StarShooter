@@ -167,3 +167,11 @@ class LevelTen(VerticalBattleScreen):
                 f"hp={enemy.enemyHealth} "
                 f"→ enemies size = {len(state.enemies)}"
             )
+
+    # 🔑 THE Y-CLAMP IS NOT HERE
+    # It is coming from Enemy.update() → clamp_vertical()
+
+    # ===============================
+    # FIX: DISABLE Y CLAMP FOR THIS ENEMY
+    # ===============================
+

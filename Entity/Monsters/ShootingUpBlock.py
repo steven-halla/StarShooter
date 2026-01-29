@@ -153,3 +153,7 @@ class ShootingUpBlock(Enemy):
         else:
             self.mover.enemy_move_left(self)
 
+
+    # ADD THIS METHOD TO ShootingUpBlock
+    def clamp_vertical(self) -> None:
+        pass
