@@ -4,6 +4,7 @@ from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
+from Entity.Monsters.ObjectiveBlock import ObjectiveBlock
 from Entity.Monsters.ShootingUpBlock import ShootingUpBlock
 from Entity.Monsters.TriSpitter import TriSpitter
 from SaveStates.SaveState import SaveState
@@ -122,6 +123,8 @@ class LevelTen(VerticalBattleScreen):
                 enemy = BileSpitter()
             elif obj.name == "shooting_up_block":
                 enemy = ShootingUpBlock()
+            elif obj.name == "objective_block":
+                enemy = ObjectiveBlock()
 
             else:
                 continue
@@ -134,7 +137,7 @@ class LevelTen(VerticalBattleScreen):
             enemy.camera = self.camera
             enemy.target_player = self.starship
 
-         
+
             enemy.update_hitbox()
 
             state.enemies.append(enemy)
