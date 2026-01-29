@@ -55,11 +55,13 @@ class ObjectiveBlock(Enemy):
         # -----------------------------
         # COLLISION WITH ENEMY BULLETS
         # -----------------------------
-        for bullet in state.enemy_bullets:
+        for bullet in list(state.enemy_bullets):
             if bullet.rect.colliderect(self.hitbox):
                 if getattr(bullet, "owner", "") == "ShootingUpBlock":
                     self.hit_by_shooting_up_block = True
                 bullet.is_active = False # consume bullet
+                if bullet in state.enemy_bullets:
+                    state.enemy_bullets.remove(bullet)
 
         now = pygame.time.get_ticks()
         camera = self.camera
