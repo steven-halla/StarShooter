@@ -96,7 +96,6 @@ class StarShip:
         # -------------------------
         self.speed: float = 3.0
         self.shipHealth: int = 150
-
         self.shipHealthMax: int = 150
         self.invincibility_timer: Timer = Timer(2.0)
         self.upgrade_chips: list = []
