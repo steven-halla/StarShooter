@@ -90,6 +90,7 @@ class StarShip:
         # Napalm Spread
         # -------------------------
         self.napalm_spread = NapalmSpread(self.x, self.y)
+
         # -------------------------
         # Player Data that needs to be saved,
         # the below can get UPGRADED
@@ -109,7 +110,8 @@ class StarShip:
         # -------------------------
         # DO NOT SAVE BELOW TO PLAYER SAVE FILE
         # -------------------------
-        self.last_health: int = self.shipHealth
+        self.frozen_health = self.shipHealth
+        self.last_health = self.shipHealth
 
 
 
@@ -192,7 +194,8 @@ class StarShip:
             self.is_electrocuted = True
             self.electric_start_time = pygame.time.get_ticks()
 
-            # lock health
+            # lock health to current health (after taking damage)
+            self.frozen_health = self.shipHealth
             self.last_health = self.shipHealth
 
         # --------------------------------
@@ -201,12 +204,15 @@ class StarShip:
         if self.invincible:
             if self.invincibility_timer.is_ready():
                 self.invincible = False
+                # Update last_health and frozen_health when invincibility ends
+                self.last_health = self.shipHealth
+                self.frozen_health = self.shipHealth
             else:
-                # freeze health during invincibility
-                self.shipHealth = self.last_health
+                self.shipHealth = self.frozen_health
 
         if not self.invincible:
             self.last_health = self.shipHealth
+            self.frozen_health = self.shipHealth
 
         # --------------------------------
         # ELECTRIC VISUAL TIMER (GRAPHICS ONLY)

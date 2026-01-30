@@ -995,7 +995,8 @@ class VerticalBattleScreen:
 
             # Collision check
             if bullet.collide_with_rect(self.starship.hitbox):
-                self.starship.shipHealth -= bullet.damage
+                if not self.starship.invincible:
+                    self.starship.shipHealth -= bullet.damage
                 bullet.is_active = False
                 state.enemy_bullets.remove(bullet)
 
@@ -1022,7 +1023,9 @@ class VerticalBattleScreen:
                     enemy.width,
                     enemy.height
                 )
-
+                
+                
+                # DO NOT TAKE THIS OUT EVER jan 29th 2026
                 # if player_rect.colliderect(enemy_rect):
                 #     for enemy in state.enemies:
                 #         if hasattr(enemy, "touch_damage") and enemy.hitbox.colliderect(self.starship.hitbox):
@@ -1046,8 +1049,9 @@ class VerticalBattleScreen:
             )
 
             if player_rect.colliderect(tile_rect):
-                self.starship.shipHealth -= 1
-                print("⚠️ Player took hazard damage! Health =", self.starship.shipHealth)
+                if not self.starship.invincible:
+                    self.starship.shipHealth -= 1
+                    print("⚠️ Player took hazard damage! Health =", self.starship.shipHealth)
                 break
 
 
