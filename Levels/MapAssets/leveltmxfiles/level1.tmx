@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="210" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="97">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="210" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="100">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="background" width="25" height="210">
   <data encoding="csv">
@@ -219,47 +219,9 @@
   <object id="1" name="player" x="141.669" y="3370.93" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="3" name="enemies">
-  <object id="6" name="bile_spitter" x="168.86" y="3216.94" width="16" height="16"/>
-  <object id="70" name="tri_spitter" x="164.11" y="1313.25" width="16" height="16"/>
-  <object id="64" name="tri_spitter" x="362.815" y="2539.51" width="16" height="16"/>
-  <object id="73" name="tri_spitter" x="177.284" y="1192.49" width="16" height="16"/>
-  <object id="61" name="tri_spitter" x="147.643" y="2371.55" width="16" height="16"/>
-  <object id="82" name="tri_spitter" x="178.382" y="2009.27" width="16" height="16"/>
-  <object id="76" name="tri_spitter" x="144.35" y="764.347" width="16" height="16"/>
-  <object id="92" name="tri_spitter" x="138.861" y="443.784" width="16" height="16"/>
-  <object id="90" name="tri_spitter" x="152.034" y="963.051" width="16" height="16"/>
-  <object id="67" name="tri_spitter" x="160.817" y="2250.79" width="16" height="16"/>
-  <object id="85" name="tri_spitter" x="191.556" y="1888.51" width="16" height="16"/>
-  <object id="79" name="tri_spitter" x="157.524" y="643.587" width="16" height="16"/>
-  <object id="94" name="tri_spitter" x="152.034" y="323.025" width="16" height="16"/>
+  <object id="6" name="blade_spinner" x="229.346" y="3236.69" width="16" height="16"/>
+  <object id="99" name="bile_spitter" x="149.109" y="3234.22" width="16" height="16"/>
   <object id="9" name="level_1_boss" x="89.0143" y="7.96063" width="140" height="60"/>
-  <object id="55" name="blade_spinner" x="277.747" y="3044.24" width="16" height="16"/>
-  <object id="69" name="blade_spinner" x="275.552" y="1331.65" width="16" height="16"/>
-  <object id="63" name="blade_spinner" x="259.084" y="2542.54" width="16" height="16"/>
-  <object id="72" name="blade_spinner" x="288.725" y="1210.89" width="16" height="16"/>
-  <object id="60" name="blade_spinner" x="240.422" y="1576.46" width="16" height="16"/>
-  <object id="87" name="blade_spinner" x="18.6629" y="1639.04" width="16" height="16"/>
-  <object id="81" name="blade_spinner" x="298.606" y="1566.58" width="16" height="16"/>
-  <object id="88" name="blade_spinner" x="301.899" y="1631.35" width="16" height="16"/>
-  <object id="75" name="blade_spinner" x="255.791" y="782.742" width="16" height="16"/>
-  <object id="89" name="blade_spinner" x="263.476" y="981.447" width="16" height="16"/>
-  <object id="66" name="blade_spinner" x="272.258" y="2269.18" width="16" height="16"/>
-  <object id="84" name="blade_spinner" x="302.997" y="1906.91" width="16" height="16"/>
-  <object id="78" name="blade_spinner" x="268.965" y="661.983" width="16" height="16"/>
-  <object id="96" name="blade_spinner" x="299.704" y="333.736" width="16" height="16"/>
-  <object id="56" name="bile_spitter" x="286.227" y="2969.27" width="16" height="16"/>
-  <object id="71" name="bile_spitter" x="95.5099" y="1304.2" width="16" height="16"/>
-  <object id="65" name="bile_spitter" x="82.3362" y="2654.52" width="16" height="16"/>
-  <object id="74" name="bile_spitter" x="108.684" y="1183.44" width="16" height="16"/>
-  <object id="62" name="bile_spitter" x="79.0427" y="2362.5" width="16" height="16"/>
-  <object id="83" name="bile_spitter" x="109.782" y="2000.22" width="16" height="16"/>
-  <object id="77" name="bile_spitter" x="75.7493" y="755.297" width="16" height="16"/>
-  <object id="93" name="bile_spitter" x="70.2602" y="434.735" width="16" height="16"/>
-  <object id="91" name="bile_spitter" x="83.434" y="954.002" width="16" height="16"/>
-  <object id="68" name="bile_spitter" x="92.2165" y="2241.74" width="16" height="16"/>
-  <object id="86" name="bile_spitter" x="122.955" y="1879.46" width="16" height="16"/>
-  <object id="80" name="bile_spitter" x="88.923" y="634.537" width="16" height="16"/>
-  <object id="95" name="bile_spitter" x="83.434" y="313.975" width="16" height="16"/>
  </objectgroup>
  <layer id="4" name="hazard" width="25" height="210">
   <data encoding="csv">

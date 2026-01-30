@@ -3,6 +3,7 @@ import pygame
 from pygame import surface
 
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Enemy import Enemy
 from Entity.Monsters.RescuePod import RescuePod
 from Movement.MoveRectangle import MoveRectangle
@@ -21,7 +22,6 @@ class BileSpitter(Enemy):
         self.bulletColor: tuple[int, int, int] = GlobalConstants.SKYBLUE
         self.bulletWidth: int = 20
         self.bulletHeight: int = 20
-        self.bileSpeed: int = 2
         self.fire_interval_ms: int = 2000
         self.last_shot_time: int = 0
         self.speed: float = 0.4
@@ -29,56 +29,46 @@ class BileSpitter(Enemy):
         self.exp: int = 1
         self.credits: int = 5
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
-        self.moveSpeed: float = 1.2
-        self.edge_padding: int = 30
+        self.moveSpeed: float = 2.2
+        self.edge_padding: int = 0
         self.move_direction: int = random.choice([-1, 1])
         self.move_interval_ms: int = 3000
         self.last_move_toggle: int = pygame.time.get_ticks()
         self.is_moving: bool = True
+        # __init__
+        self.attack_timer = Timer(3.0)  # 3 seconds
 
         self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
         self.enemy_image = self.bile_spitter_image
+        self.touch_damage: int = 10
 
     def update(self, state) -> None:
         super().update(state)
         if not self.is_active:
             return
         self.moveAI()
-        print(self.enemyHealth)
+        # print(self.enemyHealth)
 
         # WORLD-SPACE hitbox
         self.update_hitbox()
 
         # Always update the blade position in every frame
-        if self.is_active:
-            self.dragons_breath(
-                monster_x=self.x,
-                monster_y=self.y,
-                monster_width=self.width,
-                monster_height=self.height,
-                length=120,
-                min_width=10,
-                max_width=60,
-                segments=6,
-                color=(255, 120, 0),
-                damage=18,
-                x_offset=0,
-                y_offset=0,
-                state=state
+            # update
+        if self.is_active and self.attack_timer.is_ready():
+            self.shoot_single_bullet_aimed_at_player(
+                bullet_speed= 4.0,
+                bullet_width=40,
+                bullet_height=40,
+                bullet_color=self.bulletColor,
+                bullet_damage=50,
+                state = state
             )
+            self.attack_timer.reset()
 
         now = pygame.time.get_ticks()
-        # firing
-        # if now - self.last_shot_time >= self.fire_interval_ms:
-        #     # Call create_bomb after egg explodes
-        #     # After calling lay_bomb, loop bullets that have already exploded
-        #     for bullet in state.enemy_bullets[:]:  # iterate over a copy to be safe
-        #         if getattr(bullet, "exploded", False):
-        #             self.create_bomb(64, 64)
-        #             # Optionally remove bullet from list to avoid multiple calls
-        #             state.enemy_bullets.remove(bullet)
+
 
         self.last_shot_time = now
     def moveAI(self) -> None:
@@ -132,5 +122,5 @@ class BileSpitter(Enemy):
         screen_y = camera.world_to_screen_y(self.y)
         surface.blit(scaled_sprite, (screen_x, screen_y))
 
-    def _clamp_vertical(self) -> None:
+    def clamp_vertical(self) -> None:
         pass

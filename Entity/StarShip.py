@@ -98,7 +98,7 @@ class StarShip:
         self.shipHealth: int = 150
         self.shipHealthMax: int = 150
         self.invincibility_timer: Timer = Timer(2.0)
-        self.upgrade_chips: list = []
+        self.upgrade_chips: list = ["machine_gun_attack_up_plus_5"]
         self.player_ki: int = 0
         self.player_max_ki: int = 50
         self.current_heat: int = 100

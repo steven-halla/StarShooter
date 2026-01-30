@@ -1023,10 +1023,12 @@ class VerticalBattleScreen:
                     enemy.height
                 )
 
-                if player_rect.colliderect(enemy_rect):
-                    self.starship.shipHealth -= 10
-                    self.starship.on_hit()
-                    break  # ⛔ only one hit per frame
+                # if player_rect.colliderect(enemy_rect):
+                #     for enemy in state.enemies:
+                #         if hasattr(enemy, "touch_damage") and enemy.hitbox.colliderect(self.starship.hitbox):
+                #             self.starship.shipHealth -= enemy.touch_damage
+
+
 
 
 

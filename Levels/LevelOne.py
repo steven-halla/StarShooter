@@ -58,11 +58,12 @@ class LevelOne(VerticalBattleScreen):
 
         self.load_enemy_into_list(state)
         self.starship.shipHealth = 144
-        self.save_state.capture_player(self.starship, self.__class__.__name__)
+        self.save_state.capture_player(self.starship)
         self.save_state.save_to_file("player_save.json")
 
     def update(self, state) -> None:
         super().update(state)
+        print(state.starship.shipHealth)
         # print(self.missed_enemies)
         if not hasattr(self, "last_enemy_count"):
             self.last_enemy_count = len(state.enemies)
@@ -95,15 +96,9 @@ class LevelOne(VerticalBattleScreen):
                     print("enemy missed")
                 continue
 
-            if isinstance(enemy, BileSpitter):
-                enemy.is_active = True
 
             enemy.update(state)
 
-            if self.starship.hitbox.colliderect(enemy.hitbox):
-                enemy.color = (135, 206, 235)
-            else:
-                enemy.color = GlobalConstants.RED
 
             enemy.update_hitbox()
 

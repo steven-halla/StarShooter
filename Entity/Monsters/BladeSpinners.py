@@ -13,6 +13,8 @@ class BladeSpinner(Enemy):
         # movement helper
         self.mover: MoveRectangle = MoveRectangle()
         self.camera = None
+        self.touch_damage: int = 0
+
 
         # appearance
         self.width: int = 16
@@ -41,6 +43,13 @@ class BladeSpinner(Enemy):
         super().update(state)
         if not self.is_active:
             return
+        self.touch_mellee(
+            bullet_width=16,
+            bullet_height=16,
+            bullet_color=GlobalConstants.RED,
+            bullet_damage= 30,
+            state = state
+        )
 
         self.update_hitbox()
 

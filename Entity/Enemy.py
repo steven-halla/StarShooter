@@ -14,6 +14,7 @@ class Enemy:
     def __init__(self):
         # size
         self.width: int = 0
+        self.touch_damage: int = 0
         self.height: int = 0
         self.bulletColor: tuple[int, int, int] = GlobalConstants.SKYBLUE
         self.bulletWidth: int = 20
