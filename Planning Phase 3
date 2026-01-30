@@ -80,6 +80,10 @@ heat MAX
 Some Tiers can have mutliple choices where you only get to choose one,
 Example Triple Barrle vs Damage + 3
 
+
+#
+I need to create something like a planning map for enemy damage/hit points and player stats
+#
 shop:
 bullets']
  - base 4 Damage. -
@@ -112,17 +116,25 @@ Ship speed +1
 ship speed + 1
 ship speed + 1
 Ship HP + 10
-ship HP + 20
-Ship HP + 30
-Post hit invinci ility + .1
+ship HP + 10
+Ship HP + 20
+Post hit invinciility + .5
+power gobbler - gets double pick up from enemy drops
+
 
 
 
 sub weapons
 16 chips total
 
-8 tiers
-each teir has  1 choice of two sub weapon upgrades
+10 tiers- Each tier gives + 10 Points of max ki
+each teir has  1 choice of two sub weapon
+duel sub weapons
+max ki + 50
+some tiers have 3 choices
+
+if a weapon is not chooosen at the tier then its level 2 upgrade appears
+at next tier
 
 
 
@@ -164,3 +176,5 @@ Text box for all other cases
 Shop class
 
 Need to go thorugh each level and create it with a balanced approach
+big change is making player act more global with saves and such
+each level should have bonus objectives as an option for future

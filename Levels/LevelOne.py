@@ -192,10 +192,10 @@ class LevelOne(VerticalBattleScreen):
             enemy.camera = self.camera
             enemy.target_player = self.starship
 
-            if hasattr(enemy, "maxHealth"):
-                enemy.enemyHealth = enemy.maxHealth
-            else:
-                enemy.enemyHealth = 1  # safe fallback
+            # if hasattr(enemy, "maxHealth"):
+            #     enemy.enemyHealth = enemy.maxHealth
+            # else:
+            #     enemy.enemyHealth = 1  # safe fallback
             enemy.update_hitbox()
 
             state.enemies.append(enemy)

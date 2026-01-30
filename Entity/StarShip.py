@@ -24,8 +24,7 @@ class StarShip:
         self.x: int = 0
         self.y: int = 0
         self.moveStarShip: MoveRectangle = MoveRectangle()
-        self.speed: float = 3.0
-        self.shipHealthMax: int = 150
+
         self.camera = None
         self.equipped_magic: list = ["Napalm Spread", None]
         self.napalm_fire_interval_seconds: float = 3.5
@@ -43,7 +42,6 @@ class StarShip:
         self.electric_start_time: int = 0
         self.electric_duration_ms: int = 180
         self.was_hit: bool = False
-        self.shipHealth: int = 150
 
         self.player_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
@@ -51,8 +49,6 @@ class StarShip:
 
         # the below handles post hit invinciblity
         self.invincible: bool = False
-        self.last_health: int = self.shipHealth
-        self.invincibility_timer: Timer = Timer(2.0)
         # ------------------------
         # machine gun
         # -------------------------
@@ -94,6 +90,30 @@ class StarShip:
         # Napalm Spread
         # -------------------------
         self.napalm_spread = NapalmSpread(self.x, self.y)
+        # -------------------------
+        # Player Data that needs to be saved,
+        # the below can get UPGRADED
+        # -------------------------
+        self.speed: float = 3.0
+        self.shipHealth: int = 150
+
+        self.shipHealthMax: int = 150
+        self.invincibility_timer: Timer = Timer(2.0)
+        self.upgrade_chips: list = []
+        self.player_ki: int = 0
+        self.player_max_ki: int = 50
+        self.current_heat: int = 100
+        self.max_heat: int = 100
+        self.current_shield: int = 100
+        self.max_shield: int = 100
+
+        # -------------------------
+        # DO NOT SAVE BELOW TO PLAYER SAVE FILE
+        # -------------------------
+        self.last_health: int = self.shipHealth
+
+
+
 
     def start_invincibility(self) -> None:
         # Begin a 10-second invincibility period

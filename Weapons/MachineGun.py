@@ -2,6 +2,17 @@ import pygame
 from Weapons.Bullet import Bullet
 from Constants.Timer import Timer
 
+# CHIPS WE CAN USE FOR UPGRades
+# Chip 1: Increase Width/Height of bullets by 1
+# Chip 2: incease damage. 1
+# Chip 3: incease damage. 1
+# Chip 4: incease damage. 1
+#Chip 5: double barrel
+#Chip 7 : reduced heat
+#Chip 8 : reduced heat
+#Chip 9 : reduced heat
+#chip 6: bullet speed UP + 2
+#chip 10: bullet speed UP + 2
 
 class MachineGun(Bullet):
     def __init__(self, x: float, y: float):
@@ -15,9 +26,9 @@ class MachineGun(Bullet):
         self.height: int = 4
 
         # stats
-        self.damage: int = 1
+        self.damage: float = 0.7
         self.rate_of_fire: float = 0.1
-        self.bullet_speed: float = 12.0
+        self.bullet_speed: float = 6.0
 
         # firing config
         self.bullets_per_shot: int = 2
