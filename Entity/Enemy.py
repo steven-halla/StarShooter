@@ -391,6 +391,14 @@ class Enemy:
             state
     ) -> None:
 
+        # 🔥 CLEANUP WHEN ENEMY IS DEAD
+        if self.enemyHealth <= 0:
+            bullet = getattr(self, "_melee_bullet", None)
+            if bullet and bullet in state.enemy_bullets:
+                state.enemy_bullets.remove(bullet)
+            self._melee_bullet = None
+            return
+
         bullet = getattr(self, "_melee_bullet", None)
 
         # RECREATE if bullet does not exist OR was removed from global list
