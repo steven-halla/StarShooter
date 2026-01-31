@@ -87,6 +87,17 @@ class Enemy:
             if pygame.time.get_ticks() - self.flash_start_time >= self.flash_duration_ms:
                 self.is_flashing = False
 
+    def player_collide_damage(self, player) -> None:
+        """
+        Apply touch damage to the player if colliding.
+        Player handles invincibility / cooldown.
+        """
+        if not self.is_active:
+            return
+
+        if self.hitbox.colliderect(player.hitbox):
+            player.shipHealth -= self.touch_damage
+            player.on_hit()
 
     # --------------------------------------------------
     # DAMAGE

@@ -73,6 +73,13 @@ class TriSpitter(Enemy):
 
 
         self.last_shot_time = now
+        self.player_collide_damage(state.starship)
+
+    # -------------------------------------------------
+    # TOUCH DAMAGE (STANDALONE FUNCTION)
+    # -------------------------------------------------
+
+
 
     def moveAI(self) -> None:
         # 🔼 smooth upward drift (fractional movement)
