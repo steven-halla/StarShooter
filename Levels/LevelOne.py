@@ -62,6 +62,7 @@ class LevelOne(VerticalBattleScreen):
         self.starship.shipHealth = 144
         self.save_state.capture_player(self.starship)
         self.save_state.save_to_file("player_save.json")
+        state.starship.apply_upgrades()
 
     def update(self, state) -> None:
         super().update(state)

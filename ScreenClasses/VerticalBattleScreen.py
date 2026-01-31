@@ -762,9 +762,20 @@ class VerticalBattleScreen:
         # -------------------------
         # MACHINE GUN
         # -------------------------
+        # if self.controller.main_weapon_button and not self.playerDead:
+        #     self.player_bullets.extend(
+        #         self.starship.machine_gun.fire_machine_gun()
+        #     )
         if self.controller.main_weapon_button and not self.playerDead:
             self.player_bullets.extend(
-                self.starship.machine_gun.fire_machine_gun()
+                self.starship.machine_gun.fire_machine_gun(
+                    damage=self.starship.machine_gun_damage,
+                    width=self.starship.machine_gun_width,
+                    height=self.starship.machine_gun_height,
+                    rate_of_fire=self.starship.machine_gun_rate_of_fire,
+                    bullet_speed=self.starship.machine_gun_bullet_speed,
+                    bullets_per_shot=self.starship.machine_gun_bullets_per_shot,
+                )
             )
 
         # -------------------------
@@ -1028,8 +1039,8 @@ class VerticalBattleScreen:
                     enemy.width,
                     enemy.height
                 )
-                
-                
+
+
                 # DO NOT TAKE THIS OUT EVER jan 29th 2026
                 # if player_rect.colliderect(enemy_rect):
                 #     for enemy in state.enemies:

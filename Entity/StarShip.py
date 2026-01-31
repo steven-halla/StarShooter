@@ -107,7 +107,7 @@ class StarShip:
         self.shipHealth: int = 150
         self.shipHealthMax: int = 150
         self.invincibility_timer: Timer = Timer(2.0)
-        self.upgrade_chips: list = ["machine_gun_attack_up_plus_5"]
+        self.upgrade_chips: list = [""]
         self.player_ki: int = 0
         self.player_max_ki: int = 50
         self.current_heat: int = 100
@@ -298,3 +298,45 @@ class StarShip:
                 points,
                 2
             )
+
+    def apply_upgrades(self) -> None:
+        """
+        Apply all upgrade chips to player-owned weapon stats.
+        This should be called ONCE per level start or after loading a save.
+        """
+
+        # -------------------------
+        # UPGRADE DEFINITIONS
+        # -------------------------
+        upgrade_effects = {
+            "bullet_attack_up_plus_five": lambda: setattr(
+                self, "machine_gun_damage", self.machine_gun_damage + 5
+            ),
+
+            "bullet_width_height_plus_one": lambda: (
+                setattr(self, "machine_gun_width", self.machine_gun_width + 1),
+                setattr(self, "machine_gun_height", self.machine_gun_height + 1),
+            ),
+
+            "machine_gun_rate_of_fire_up": lambda: setattr(
+                self, "machine_gun_rate_of_fire",
+                max(0.01, self.machine_gun_rate_of_fire - 0.02)  # faster fire
+            ),
+
+            "machine_gun_bullet_speed_up": lambda: setattr(
+                self, "machine_gun_bullet_speed", self.machine_gun_bullet_speed + 1.5
+            ),
+
+            "machine_gun_extra_bullet": lambda: setattr(
+                self, "machine_gun_bullets_per_shot",
+                self.machine_gun_bullets_per_shot + 1
+            ),
+        }
+
+        # -------------------------
+        # APPLY CHIPS
+        # -------------------------
+        for chip in self.upgrade_chips:
+            effect = upgrade_effects.get(chip)
+            if effect:
+                effect()

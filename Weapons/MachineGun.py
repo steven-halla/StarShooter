@@ -47,7 +47,20 @@ class MachineGun(Bullet):
 
         self.update_rect()
 
-    def fire_machine_gun(self) -> list:
+    def fire_machine_gun(self, damage: float, width: int, height: int, rate_of_fire: float, bullet_speed: float, bullets_per_shot: int) -> list:
+        # update stats if they were passed in
+        self.damage = damage
+        self.width = width
+        self.height = height
+        self.rate_of_fire = rate_of_fire
+        self.bullet_speed = bullet_speed
+        self.bullets_per_shot = bullets_per_shot
+
+        # update timer interval if rate_of_fire changed
+        new_interval_ms = int(self.rate_of_fire * Timer.MS_PER_SECOND)
+        if self.bullet_timer.interval_ms != new_interval_ms:
+            self.bullet_timer.interval_ms = new_interval_ms
+
         if not self.bullet_timer.is_ready():
             return []
 
