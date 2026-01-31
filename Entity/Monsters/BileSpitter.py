@@ -29,7 +29,7 @@ class BileSpitter(Enemy):
         self.enemy_image = self.bile_spitter_image
 
         # stats
-        self.enemyHealth: float = 10.0
+        self.enemyHealth: float = 4.0
         self.exp: int = 1
         self.credits: int = 5
 
@@ -54,9 +54,9 @@ class BileSpitter(Enemy):
 
         if self.attack_timer.is_ready():
             self.shoot_single_bullet_aimed_at_player(
-                bullet_speed=4.0,
-                bullet_width=40,
-                bullet_height=40,
+                bullet_speed=3.5,
+                bullet_width=20,
+                bullet_height=20,
                 bullet_color=self.bulletColor,
                 bullet_damage=50,
                 state=state
@@ -119,3 +119,6 @@ class BileSpitter(Enemy):
                 camera.world_to_screen_y(self.y),
             )
         )
+
+    def clamp_vertical(self) -> None:
+        pass

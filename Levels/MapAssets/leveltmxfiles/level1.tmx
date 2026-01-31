@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="210" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="149">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="210" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="151">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="background" width="25" height="210">
   <data encoding="csv">
@@ -223,14 +223,14 @@
   <object id="146" name="blade_spinner" x="210.83" y="1929.44" width="16" height="16"/>
   <object id="140" name="blade_spinner" x="68.8723" y="1662.81" width="16" height="16"/>
   <object id="141" name="blade_spinner" x="323.162" y="1976.35" width="16" height="16"/>
-  <object id="137" name="blade_spinner" x="156.516" y="1712.19" width="16" height="16"/>
-  <object id="134" name="blade_spinner" x="316.99" y="1678.86" width="16" height="16"/>
+  <object id="137" name="blade_spinner" x="193.548" y="1733.17" width="16" height="16"/>
+  <object id="134" name="blade_spinner" x="172.563" y="300.016" width="16" height="16"/>
   <object id="145" name="blade_spinner" x="70.1068" y="1913.4" width="16" height="16"/>
   <object id="139" name="blade_spinner" x="249.097" y="2335.57" width="16" height="16"/>
-  <object id="148" name="blade_spinner" x="205.892" y="1671.45" width="16" height="16"/>
+  <object id="148" name="blade_spinner" x="282.426" y="1048.07" width="16" height="16"/>
   <object id="135" name="blade_spinner" x="83.6853" y="2328.16" width="16" height="16"/>
   <object id="142" name="blade_spinner" x="325.631" y="2143" width="16" height="16"/>
-  <object id="138" name="blade_spinner" x="250.331" y="2367.66" width="16" height="16"/>
+  <object id="138" name="blade_spinner" x="63.9347" y="2675.03" width="16" height="16"/>
   <object id="144" name="blade_spinner" x="124.421" y="2981.17" width="16" height="16"/>
   <object id="100" name="tri_spitter" x="114.546" y="479.006" width="16" height="16"/>
   <object id="117" name="tri_spitter" x="147.875" y="1991.17" width="16" height="16"/>
@@ -247,7 +247,7 @@
   <object id="99" name="bile_spitter" x="310.818" y="1424.57" width="16" height="16"/>
   <object id="131" name="bile_spitter" x="114.546" y="2251.63" width="16" height="16"/>
   <object id="123" name="bile_spitter" x="162.688" y="2338.04" width="16" height="16"/>
-  <object id="126" name="bile_spitter" x="119.483" y="3244.1" width="16" height="16"/>
+  <object id="126" name="bile_spitter" x="107.139" y="3161.39" width="16" height="16"/>
   <object id="121" name="bile_spitter" x="54.0594" y="1423.33" width="16" height="16"/>
   <object id="132" name="bile_spitter" x="284.895" y="2525.67" width="16" height="16"/>
   <object id="124" name="bile_spitter" x="76.2788" y="1012.27" width="16" height="16"/>

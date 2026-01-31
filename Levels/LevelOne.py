@@ -32,6 +32,8 @@ class LevelOne(VerticalBattleScreen):
         self.game_over: bool = False
         self.level_complete = False
         self.save_state = SaveState()
+        self.map_scroll_speed_per_frame: float = .4
+
 
         self.intro_dialogue = (
             "I am the ultimate man on the battlefield. "

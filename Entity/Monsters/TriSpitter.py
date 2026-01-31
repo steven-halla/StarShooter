@@ -25,7 +25,7 @@ class TriSpitter(Enemy):
         self.fire_interval_ms: int = 2000
         self.last_shot_time: int = 0
         self.speed: float = 0.4
-        self.enemyHealth: float = 10.0
+        self.enemyHealth: float = 8.0
         self.exp: int = 1
         self.credits: int = 5
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
@@ -58,7 +58,7 @@ class TriSpitter(Enemy):
             # update
         if self.is_active and self.attack_timer.is_ready():
             self.shoot_multiple_down_vertical_y(
-                bullet_speed=5.0,
+                bullet_speed=4.0,
                 bullet_width=10,
                 bullet_height=50,
                 bullet_color=self.bulletColor,
