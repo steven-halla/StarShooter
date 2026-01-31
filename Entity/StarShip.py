@@ -54,6 +54,13 @@ class StarShip:
         # -------------------------
         self.machine_gun = MachineGun(self.x, self.y)
 
+        self.machine_gun_damage = self.machine_gun.damage
+        self.machine_gun_width = self.machine_gun.width
+        self.machine_gun_height = self.machine_gun.height
+        self.machine_gun_rate_of_fire = self.machine_gun.rate_of_fire
+        self.machine_gun_bullet_speed = self.machine_gun.bullet_speed
+        self.machine_gun_bullets_per_shot = self.machine_gun.bullets_per_shot
+
         # -------------------------
         # Missile
         # -------------------------
