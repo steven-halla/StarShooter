@@ -1,9 +1,11 @@
 import random
-
 import pygame
+from pygame import surface
 
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Enemy import Enemy
+from Entity.Monsters.RescuePod import RescuePod
 from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 
@@ -13,151 +15,104 @@ class TriSpitter(Enemy):
         super().__init__()
         self.mover: MoveRectangle = MoveRectangle()
         self.id = 0
-        self.freeze_start_time = None
-        self.freeze_duration_ms = 2000  # 2 seconds
-
-        # enemy appearance
+        self.name: str = "TriSpitter"
         self.width: int = 40
         self.height: int = 40
         self.color: tuple[int, int, int] = GlobalConstants.RED
-
-        # bullet appearance
         self.bulletColor: tuple[int, int, int] = GlobalConstants.SKYBLUE
-        self.bulletWidth: int = 9
-        self.bulletHeight: int = 9
-
-        # firing + bullet movement
-        self.bileSpeed: int = 3
+        self.bulletWidth: int = 20
+        self.bulletHeight: int = 20
         self.fire_interval_ms: int = 2000
-        self.last_shot_time: int = pygame.time.get_ticks()
-
-        # gameplay stats
-        self.speed: float = 1.0
-        self.enemyHealth: int = 20
+        self.last_shot_time: int = 0
+        self.speed: float = 0.4
+        self.enemyHealth: float = 10.0
         self.exp: int = 1
         self.credits: int = 5
-
-        self.enemyBullets: list[Bullet] = []
-
-        # AI movement
-        self.moveSpeed: float = 2.0
-        self.edge_padding: int = 30
+        # No longer using self.enemyBullets - using game_state.enemy_bullets instead
+        self.moveSpeed: float = 2.2
+        self.edge_padding: int = 0
         self.move_direction: int = random.choice([-1, 1])
-
         self.move_interval_ms: int = 3000
         self.last_move_toggle: int = pygame.time.get_ticks()
         self.is_moving: bool = True
+        # __init__
+        self.attack_timer = Timer(3.0)  # 3 seconds
 
-        self.tri_spiter_image = pygame.image.load(
+        self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
-        self.enemy_image = self.tri_spiter_image
-
-    def shoot_triple_bullets(self) -> None:
-        base_x = self.x + self.width // 2 - self.bulletWidth // 2
-        bullet_y = self.y + self.height
-
-        offsets = [-1, 0, 1]  # left, center, right
-
-        for offset in offsets:
-            bullet = Bullet(base_x, bullet_y)
-
-            bullet.color = self.bulletColor
-            bullet.width = self.bulletWidth
-            bullet.height = self.bulletHeight
-            bullet.damage = 10
-
-            # KEEP YOUR BASELINE BEHAVIOR
-            bullet.vy = 1
-            bullet.vx = offset
-            bullet.bullet_speed = self.bileSpeed
-
-            bullet.update_rect()
-            self.enemyBullets.append(bullet)
-
+        self.enemy_image = self.bile_spitter_image
+        self.touch_damage: int = 10
 
     def update(self, state) -> None:
-            super().update(state)
-            if not self.is_active:
-                return
+        super().update(state)
+        if not self.is_active:
+            return
+        self.moveAI()
+        # print(self.enemyHealth)
 
-            now = pygame.time.get_ticks()
+        # WORLD-SPACE hitbox
+        self.update_hitbox()
 
-            # -------------------------------
-            # FREEZE LOGIC
-            # -------------------------------
-            if self.freeze_start_time is not None:
-                if now - self.freeze_start_time >= self.freeze_duration_ms:
-                    self.freeze_start_time = None
-            else:
-                # -------------------------------
-                # PLAYER X TRACKING
-                # -------------------------------
-                if hasattr(self, "target_player") and self.target_player is not None:
-                    if self.target_player.x > self.x:
-                        self.mover.enemy_move_right(self)
-                    elif self.target_player.x < self.x:
-                        self.mover.enemy_move_left(self)
+        # Always update the blade position in every frame
+            # update
+        if self.is_active and self.attack_timer.is_ready():
+            self.shoot_multiple_down_vertical_y(
+                bullet_speed=5.0,
+                bullet_width=20,
+                bullet_height=20,
+                bullet_color=self.bulletColor,
+                bullet_damage=25,
+                bullet_count=3,
+                bullet_spread=44,
+                state = state
+            )
+            self.attack_timer.reset()
 
-                    aligned = abs(self.x - self.target_player.x) <= 5
-                    if aligned:
-                        self.freeze_start_time = now
-
-                # -------------------------------
-                # HORIZONTAL AI MOVEMENT
-                # -------------------------------
-                self.moveAI()
-
-            # -------------------------------
-            # SHOOTING
-            # -------------------------------
-            if hasattr(self, "target_player") and self.target_player is not None:
-                aligned = abs(self.x - self.target_player.x) <= 5
-                if aligned and self.freeze_start_time is not None:
-                    if now - self.last_shot_time >= self.fire_interval_ms:
-                        self.shoot_triple_bullets()
-                        self.last_shot_time = now
-
-            # -------------------------------
-            # BULLET VECTOR MOVEMENT
-            # -------------------------------
-            for bullet in self.enemyBullets:
-                bullet.x += bullet.vx
-                bullet.y += bullet.vy
-                bullet.update_rect()
-
-            self.update_hitbox()
-
-    def moveAI(self) -> None:
-        window_width = GlobalConstants.BASE_WINDOW_WIDTH
         now = pygame.time.get_ticks()
 
-        if now - self.last_move_toggle >= self.move_interval_ms:
-            self.is_moving = not self.is_moving
-            self.last_move_toggle = now
-            if self.is_moving:
-                self.move_direction = random.choice([-1, 1])
 
-        if not self.is_moving:
-            return
+        self.last_shot_time = now
+    def moveAI(self) -> None:
+        window_width = GlobalConstants.BASE_WINDOW_WIDTH
+
+        if not hasattr(self, "_last_x"):
+            self._last_x = self.x
+
+        # Print BileSpitter position before movement
+        # print(f"BileSpitter before move: x={self.x:.2f}, y={self.y:.2f}")
 
         if self.move_direction > 0:
             self.mover.enemy_move_right(self)
         else:
             self.mover.enemy_move_left(self)
 
-        if self.x <= self.edge_padding:
+        if self.x < self.edge_padding:
             self.x = self.edge_padding
-            self.move_direction = 1
-        elif self.x + self.width >= window_width - self.edge_padding:
+        elif self.x + self.width > window_width - self.edge_padding:
             self.x = window_width - self.edge_padding - self.width
-            self.move_direction = -1
+
+        if self.x == self._last_x:
+            self.move_direction *= -1
+            if self.move_direction > 0:
+                self.mover.enemy_move_right(self)
+            else:
+                self.mover.enemy_move_left(self)
+
+        # Print BileSpitter position after movement
+        # print(f"BileSpitter after move: x={self.x:.2f}, y={self.y:.2f}")
+
+        self._last_x = self.x
 
     def draw(self, surface: pygame.Surface, camera):
+        # self.draw_bomb(surface, self.camera)
+        if not self.is_active:
+            return
+
         super().draw(surface, camera)
 
-        sprite_rect = pygame.Rect(60, 128, 32, 32)
-        sprite = self.tri_spiter_image.subsurface(sprite_rect)
+        sprite_rect = pygame.Rect(0, 344, 32, 32)
+        sprite = self.bile_spitter_image.subsurface(sprite_rect)
 
         scale = camera.zoom
         scaled_sprite = pygame.transform.scale(
@@ -167,15 +122,7 @@ class TriSpitter(Enemy):
 
         screen_x = camera.world_to_screen_x(self.x)
         screen_y = camera.world_to_screen_y(self.y)
-
         surface.blit(scaled_sprite, (screen_x, screen_y))
 
-        hb_x = camera.world_to_screen_x(self.hitbox.x)
-        hb_y = camera.world_to_screen_y(self.hitbox.y)
-        hb_w = int(self.hitbox.width * camera.zoom)
-        hb_h = int(self.hitbox.height * camera.zoom)
-
-        pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
-
-    def _clamp_vertical(self) -> None:
+    def clamp_vertical(self) -> None:
         pass

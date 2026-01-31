@@ -22,12 +22,6 @@ class Enemy:
         # generic bullet config (base enemy default)
         self.bullet_speed: float = 0.0
         self.bullet_damage: int = 10
-
-        # No longer using self.enemyBullets - using game_state.enemy_bullets instead
-
-
-
-        # position (WORLD space)
         self.x: float = 0
         self.y: float = 0
 
