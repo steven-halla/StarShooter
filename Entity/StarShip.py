@@ -53,6 +53,7 @@ class StarShip:
         # machine gun
         # -------------------------
         self.machine_gun = MachineGun(self.x, self.y)
+
         # -------------------------
         # Missile
         # -------------------------
@@ -124,6 +125,9 @@ class StarShip:
     def update(self) -> None:
         # print(self.shipHealth)
         self.update_hitbox()
+        ############
+        # Be sure to change the below to use as an for loop to check what you ahve equiped so we dont update all the time
+        #############
         # -------------------------
         # Machine Gun
         # -------------------------

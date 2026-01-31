@@ -92,6 +92,7 @@ class Enemy:
     # DAMAGE
     # --------------------------------------------------
     def take_damage(self, state, amount: int) -> None:
+
         # inside Enemy.update(), where bullet collision damage happens
         for bullet in state.player_bullets:
             if bullet.hitbox.colliderect(self.hitbox):
