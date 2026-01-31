@@ -23,7 +23,7 @@ class LevelOne(VerticalBattleScreen):
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
         self.camera.y = float(self.camera_y)
-        self.map_scroll_speed_per_frame: float = .4  # move speed of camera
+        self.map_scroll_speed_per_frame: float = 0.0  # move speed of camera
         self.total_enemies = 40
         self.prev_enemy_count: int = None
         self.enemies_killed: int = 0

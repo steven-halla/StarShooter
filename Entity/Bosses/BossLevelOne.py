@@ -1,9 +1,11 @@
-import math
 import random
 import pygame
+from pygame import surface
 
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Enemy import Enemy
+from Entity.Monsters.RescuePod import RescuePod
 from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 
@@ -13,188 +15,112 @@ class BossLevelOne(Enemy):
         super().__init__()
         self.mover: MoveRectangle = MoveRectangle()
         self.id = 0
+        self.name: str = "BossLevelOne"
+        self.width: int = 40
+        self.height: int = 40
+        self.color: tuple[int, int, int] = GlobalConstants.RED
+        self.bulletColor: tuple[int, int, int] = GlobalConstants.SKYBLUE
+        self.bulletWidth: int = 20
+        self.bulletHeight: int = 20
+        self.fire_interval_ms: int = 2000
+        self.last_shot_time: int = 0
+        self.speed: float = 0.4
+        self.enemyHealth: float = 1111.0
+        self.exp: int = 1
+        self.credits: int = 5
+        # No longer using self.enemyBullets - using game_state.enemy_bullets instead
+        self.moveSpeed: float = 2.2
+        self.edge_padding: int = 0
+        self.move_direction: int = random.choice([-1, 1])
+        self.move_interval_ms: int = 3000
+        self.last_move_toggle: int = pygame.time.get_ticks()
+        self.is_moving: bool = True
+        # __init__
+        self.attack_timer = Timer(3.0)  # 3 seconds
 
-        # -------------------------
-        # APPEARANCE
-        # -------------------------
-        self.width = 40
-        self.height = 40
-        self.color = GlobalConstants.RED
-
-        # -------------------------
-        # BULLETS
-        # -------------------------
-        self.bulletColor = GlobalConstants.SKYBLUE
-        self.bulletWidth = 15
-        self.bulletHeight = 15
-        self.weapon_speed = 5.0
-        self.enemyBullets: list[Bullet] = []
-
-        # -------------------------
-        # FIRING TIMERS
-        # -------------------------
-        self.fire_interval_ms = 1000
-        self.last_shot_time = pygame.time.get_ticks()
-
-        self.triple_fire_interval_ms = 3000
-        self.last_triple_shot_time = pygame.time.get_ticks()
-
-        # -------------------------
-        # MOVEMENT
-        # -------------------------
-        self.moveSpeed = 2.0
-        self.move_interval_ms = 3000
-        self.last_move_toggle = pygame.time.get_ticks()
-        self.move_direction = random.choice([-1, 1])
-
-        # -------------------------
-        # STATS
-        # -------------------------
-        self.enemyHealth = 400
-        self.exp = 5
-        self.credits = 50
-
-        # -------------------------
-        # SPRITE
-        # -------------------------
         self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
+        self.enemy_image = self.bile_spitter_image
+        self.touch_damage: int = 10
 
-    # =====================================================
-    # ORIGINAL SINGLE SHOT (UNCHANGED)
-    # =====================================================
-    def _shoot_bile(self) -> None:
-        bullet_x = self.x + self.width // 2 - self.bulletWidth // 2
-        bullet_y = self.y + self.height
-
-        bullet = Bullet(bullet_x, bullet_y)
-        bullet.color = self.bulletColor
-        bullet.width = self.bulletWidth
-        bullet.height = self.bulletHeight
-        bullet.speed = self.weapon_speed
-        bullet.damage = 10
-
-        bullet.rect.width = bullet.width
-        bullet.rect.height = bullet.height
-
-        self.enemyBullets.append(bullet)
-
-    # =====================================================
-    # TRIPLE FIRE — SHOOTS AT PLAYER LAST POSITION
-    # =====================================================
-    def shoot_triple_line(self) -> None:
-        if self.target_player is None:
-            return
-
-        cx = self.x + self.width / 2
-        cy = self.y + self.height / 2
-
-        px = self.target_player.hitbox.centerx
-        py = self.target_player.hitbox.centery
-
-        dx = px - cx
-        dy = py - cy
-        dist = math.hypot(dx, dy)
-        if dist == 0:
-            return
-
-        dx /= dist
-        dy /= dist
-
-        perp_x = -dy
-        perp_y = dx
-
-        spacing = 30
-        offsets = [-spacing, 0, spacing]
-
-        for offset in offsets:
-            bx = cx + perp_x * offset
-            by = cy + perp_y * offset
-
-            bullet = Bullet(bx, by)
-            bullet.dx = dx * self.weapon_speed
-            bullet.speed = dy * self.weapon_speed
-            bullet.width = self.bulletWidth
-            bullet.height = self.bulletHeight
-            bullet.color = self.bulletColor
-            bullet.damage = 10
-
-            bullet.rect.width = bullet.width
-            bullet.rect.height = bullet.height
-
-            self.enemyBullets.append(bullet)
-
-    # =====================================================
-    # UPDATE
-    # =====================================================
     def update(self, state) -> None:
         super().update(state)
         if not self.is_active:
             return
+        self.moveAI()
+        # print(self.enemyHealth)
+
+        # WORLD-SPACE hitbox
         self.update_hitbox()
 
-        if self.camera is None:
-            return
+        # Always update the blade position in every frame
+            # update
+        if self.is_active and self.attack_timer.is_ready():
+            self.shoot_single_bullet_aimed_at_player(
+                bullet_speed= 4.0,
+                bullet_width=40,
+                bullet_height=40,
+                bullet_color=self.bulletColor,
+                bullet_damage=50,
+                state = state
+            )
+            self.attack_timer.reset()
 
-        self.moveAI()
         now = pygame.time.get_ticks()
 
-        # ORIGINAL FIRE
-        if now - self.last_shot_time >= self.fire_interval_ms:
-            self._shoot_bile()
-            self.last_shot_time = now
 
-        # TRIPLE FIRE
-        if now - self.last_triple_shot_time >= self.triple_fire_interval_ms:
-            self.shoot_triple_line()
-            self.last_triple_shot_time = now
-
-        for bullet in self.enemyBullets:
-            bullet.update()
-
-    # =====================================================
-    # MOVEMENT
-    # =====================================================
+        self.last_shot_time = now
     def moveAI(self) -> None:
-        if self.camera is None:
-            return
+        window_width = GlobalConstants.BASE_WINDOW_WIDTH
 
-        now = pygame.time.get_ticks()
-        window_width = self.camera.window_width / self.camera.zoom
+        if not hasattr(self, "_last_x"):
+            self._last_x = self.x
 
-        if now - self.last_move_toggle >= self.move_interval_ms:
-            self.last_move_toggle = now
-            self.move_direction = random.choice([-1, 1])
+        # Print BileSpitter position before movement
+        # print(f"BileSpitter before move: x={self.x:.2f}, y={self.y:.2f}")
 
         if self.move_direction > 0:
             self.mover.enemy_move_right(self)
         else:
             self.mover.enemy_move_left(self)
 
-        if self.x <= 0:
-            self.x = 0
-            self.move_direction = 1
-        elif self.x + self.width >= window_width:
-            self.x = window_width - self.width
-            self.move_direction = -1
+        if self.x < self.edge_padding:
+            self.x = self.edge_padding
+        elif self.x + self.width > window_width - self.edge_padding:
+            self.x = window_width - self.edge_padding - self.width
 
-    # =====================================================
-    # DRAW
-    # =====================================================
+        if self.x == self._last_x:
+            self.move_direction *= -1
+            if self.move_direction > 0:
+                self.mover.enemy_move_right(self)
+            else:
+                self.mover.enemy_move_left(self)
+
+        # Print BileSpitter position after movement
+        # print(f"BileSpitter after move: x={self.x:.2f}, y={self.y:.2f}")
+
+        self._last_x = self.x
+
     def draw(self, surface: pygame.Surface, camera):
+        # self.draw_bomb(surface, self.camera)
+
+
+        super().draw(surface, camera)
+
+
         sprite_rect = pygame.Rect(0, 344, 32, 32)
         sprite = self.bile_spitter_image.subsurface(sprite_rect)
 
         scale = camera.zoom
-        sprite = pygame.transform.scale(
-            sprite, (int(self.width * scale), int(self.height * scale))
+        scaled_sprite = pygame.transform.scale(
+            sprite,
+            (int(self.width * scale), int(self.height * scale))
         )
 
-        surface.blit(
-            sprite,
-            (
-                camera.world_to_screen_x(self.x),
-                camera.world_to_screen_y(self.y),
-            ),
-        )
+        screen_x = camera.world_to_screen_x(self.x)
+        screen_y = camera.world_to_screen_y(self.y)
+        surface.blit(scaled_sprite, (screen_x, screen_y))
+
+    def clamp_vertical(self) -> None:
+        pass
