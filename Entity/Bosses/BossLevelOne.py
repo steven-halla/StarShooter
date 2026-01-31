@@ -43,6 +43,13 @@ class BossLevelOne(Enemy):
         ).convert_alpha()
         self.enemy_image = self.bile_spitter_image
         self.touch_damage: int = 10
+        # state machine
+        self.is_firing = False
+
+        self.fire_phase_timer = Timer(5.0)  # how long FIRE lasts
+        self.rest_phase_timer = Timer(10.0)  # how long REST lasts
+        self.machine_gun_timer = Timer(0.5)  # fire rate during FIRE
+        self.aimed_shot_timer = Timer(1.0)  # 1 second
 
     def update(self, state) -> None:
         super().update(state)
@@ -56,16 +63,50 @@ class BossLevelOne(Enemy):
 
         # Always update the blade position in every frame
             # update
-        if self.is_active and self.attack_timer.is_ready():
-            self.shoot_single_bullet_aimed_at_player(
-                bullet_speed= 4.0,
-                bullet_width=40,
-                bullet_height=40,
-                bullet_color=self.bulletColor,
-                bullet_damage=50,
-                state = state
-            )
-            self.attack_timer.reset()
+
+        # -------------------------
+        # FIRE / REST STATE MACHINE
+        # -------------------------
+
+        if self.is_firing:
+            # FIRE PHASE
+            if self.machine_gun_timer.is_ready():
+                self.shoot_multiple_down_vertical_y(
+                    bullet_speed=4.0,
+                    bullet_width=3,
+                    bullet_height=10,
+                    bullet_color=self.bulletColor,
+                    bullet_damage=10,
+                    bullet_count=3,
+                    bullet_spread=50,
+                    state=state
+                )
+                self.machine_gun_timer.reset()
+
+            # end FIRE phase → switch to REST
+            if self.fire_phase_timer.is_ready():
+
+                self.is_firing = False
+                self.rest_phase_timer.reset()
+
+        else:
+            # REST PHASE — aimed shot every 1 second
+            if self.aimed_shot_timer.is_ready():
+                self.shoot_single_bullet_aimed_at_player(
+                    bullet_speed=4.0,
+                    bullet_width=20,
+                    bullet_height=20,
+                    bullet_color=self.bulletColor,
+                    bullet_damage=10,
+                    state=state
+                )
+                self.aimed_shot_timer.reset()
+
+            # END REST → switch to FIRE
+            if self.rest_phase_timer.is_ready():
+                self.is_firing = True
+                self.fire_phase_timer.reset()
+                self.machine_gun_timer.reset()
 
         now = pygame.time.get_ticks()
 
@@ -108,7 +149,8 @@ class BossLevelOne(Enemy):
 
         super().draw(surface, camera)
 
-
+        if not self.is_active:
+            return
         sprite_rect = pygame.Rect(0, 344, 32, 32)
         sprite = self.bile_spitter_image.subsurface(sprite_rect)
 
