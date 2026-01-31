@@ -357,6 +357,11 @@ class VerticalBattleScreen:
 
         enemy.is_active = False
 
+        # Cleanup melee bullet if it exists
+        melee_bullet = getattr(enemy, "_melee_bullet", None)
+        if melee_bullet and melee_bullet in state.enemy_bullets:
+            state.enemy_bullets.remove(melee_bullet)
+
         if enemy in state.enemies:
             state.enemies.remove(enemy)
 

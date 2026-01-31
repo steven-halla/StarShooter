@@ -38,8 +38,8 @@ class BladeSpinner(Enemy):
 
     def update(self, state):
         super().update(state)
-        if not self.is_active:
-            return
+        # if not self.is_active:
+        #     return
         if self.is_active:
             self.touch_mellee(
                 bullet_width=16,
