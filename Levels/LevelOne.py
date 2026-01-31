@@ -25,9 +25,10 @@ class LevelOne(VerticalBattleScreen):
         self.camera.y = float(self.camera_y)
         self.total_enemies = 40
         self.prev_enemy_count: int = None
+
         self.enemies_killed: int = 0
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
-        self.missed_enemies = []
+        self.missed_enemies: list[int] = []
         self.game_over: bool = False
         self.level_complete = False
         self.save_state = SaveState()
@@ -62,7 +63,6 @@ class LevelOne(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
-        print(len(self.missed_enemies))
         # print(self.missed_enemies)
         if not hasattr(self, "last_enemy_count"):
             self.last_enemy_count = len(state.enemies)
@@ -149,19 +149,66 @@ class LevelOne(VerticalBattleScreen):
             enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
     def draw_enemy_counter(self, current_enemies, font, state):
+        now = pygame.time.get_ticks()
+
+        # ---------------------------------
+        # lazy-init local state (ONCE)
+        # ---------------------------------
+        if not hasattr(self, "_counter_pending_kill_delta"):
+            self._counter_pending_kill_delta = 0
+            self._counter_delay_start = None
+
+        COUNTER_DELAY_MS = 250
+
+        # ---------------------------------
+        # detect enemy count change
+        # ---------------------------------
         if self.prev_enemy_count is None:
             self.prev_enemy_count = current_enemies
         else:
-            if current_enemies < self.prev_enemy_count:
-                self.enemies_killed += (self.prev_enemy_count - current_enemies)
+            delta = self.prev_enemy_count - current_enemies
+
+            if delta > 0:
+                self._counter_pending_kill_delta += delta
+                self._counter_delay_start = now
 
             self.prev_enemy_count = current_enemies
+
+        # ---------------------------------
+        # apply delayed update
+        # ---------------------------------
+        if (
+                self._counter_delay_start is not None
+                and now - self._counter_delay_start >= COUNTER_DELAY_MS
+        ):
+            self.enemies_killed += self._counter_pending_kill_delta
+            self._counter_pending_kill_delta = 0
+            self._counter_delay_start = None
+
+        # ---------------------------------
+        # draw (no flicker)
+        # ---------------------------------
         enemy_text = font.render(
             f"Enemies {self.enemies_killed}/40",
             True,
             (255, 255, 255)
         )
         state.DISPLAY.blit(enemy_text, (10, 50))
+
+    # def draw_enemy_counter(self, current_enemies, font, state):
+    #     if self.prev_enemy_count is None:
+    #         self.prev_enemy_count = current_enemies
+    #     else:
+    #         if current_enemies < self.prev_enemy_count:
+    #             self.enemies_killed += (self.prev_enemy_count - current_enemies)
+    #
+    #         self.prev_enemy_count = current_enemies
+    #     enemy_text = font.render(
+    #         f"Enemies {self.enemies_killed - len(self.missed_enemies)}/40",
+    #         True,
+    #         (255, 255, 255)
+    #     )
+    #     state.DISPLAY.blit(enemy_text, (10, 50))
 
     def load_enemy_into_list(self, state):
         state.enemies.clear()
