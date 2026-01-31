@@ -219,9 +219,9 @@
   <object id="1" name="player" x="141.669" y="3370.93" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="3" name="enemies">
-  <object id="6" name="blade_spinner" x="284.895" y="3113.25" width="16" height="16"/>
-  <object id="100" name="tri_spitter" x="162.688" y="3199.66" width="16" height="16"/>
-  <object id="99" name="bile_spitter" x="125.655" y="3121.89" width="16" height="16"/>
+  <object id="6" name="blade_spinner" x="252.8" y="2849.08" width="16" height="16"/>
+  <object id="100" name="tri_spitter" x="163.922" y="3210.77" width="16" height="16"/>
+  <object id="99" name="bile_spitter" x="93.5607" y="2857.73" width="16" height="16"/>
   <object id="9" name="level_1_boss" x="89.0143" y="7.96063" width="140" height="60"/>
  </objectgroup>
  <layer id="4" name="hazard" width="25" height="210">

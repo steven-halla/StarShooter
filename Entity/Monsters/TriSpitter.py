@@ -29,7 +29,7 @@ class TriSpitter(Enemy):
         self.exp: int = 1
         self.credits: int = 5
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
-        self.moveSpeed: float = 2.2
+        self.moveSpeed: float = .2
         self.edge_padding: int = 0
         self.move_direction: int = random.choice([-1, 1])
         self.move_interval_ms: int = 3000
@@ -73,36 +73,10 @@ class TriSpitter(Enemy):
 
 
         self.last_shot_time = now
+
     def moveAI(self) -> None:
-        window_width = GlobalConstants.BASE_WINDOW_WIDTH
-
-        if not hasattr(self, "_last_x"):
-            self._last_x = self.x
-
-        # Print BileSpitter position before movement
-        # print(f"BileSpitter before move: x={self.x:.2f}, y={self.y:.2f}")
-
-        if self.move_direction > 0:
-            self.mover.enemy_move_right(self)
-        else:
-            self.mover.enemy_move_left(self)
-
-        if self.x < self.edge_padding:
-            self.x = self.edge_padding
-        elif self.x + self.width > window_width - self.edge_padding:
-            self.x = window_width - self.edge_padding - self.width
-
-        if self.x == self._last_x:
-            self.move_direction *= -1
-            if self.move_direction > 0:
-                self.mover.enemy_move_right(self)
-            else:
-                self.mover.enemy_move_left(self)
-
-        # Print BileSpitter position after movement
-        # print(f"BileSpitter after move: x={self.x:.2f}, y={self.y:.2f}")
-
-        self._last_x = self.x
+        # 🔼 smooth upward drift (fractional movement)
+        self.y -= self.moveSpeed
 
     def draw(self, surface: pygame.Surface, camera):
         # self.draw_bomb(surface, self.camera)
