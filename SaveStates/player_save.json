@@ -4,7 +4,8 @@
     "shipHealth": 144,
     "shipHealthMax": 150,
     "equipped_magic": [
-      "Buster Cannon"
+      "",
+      null
     ]
   }
 }
