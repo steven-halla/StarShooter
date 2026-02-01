@@ -32,13 +32,13 @@ class Missile(Bullet):
 
         # self.missileSpeed: int = 10 # 10 original
         self.missile_spread_offset: int = 20
-        self.max_missiles: int = 1
-        self.current_missiles: int = 1
+        self.max_missiles: int = 2
+        self.current_missiles: int = 2
 
         # missile stats
         self.missile_fire_interval_seconds: float = 3.0
         self.missile_timer: Timer = Timer(self.missile_fire_interval_seconds)
-        self.missile_regen_interval_seconds: float = 3.0
+        self.missile_regen_interval_seconds: float = 10.0
         self.missile_regen_timer: Timer = Timer(self.missile_regen_interval_seconds)
 
     def update(self) -> None:
