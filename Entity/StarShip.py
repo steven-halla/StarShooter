@@ -26,7 +26,7 @@ class StarShip:
         self.moveStarShip: MoveRectangle = MoveRectangle()
 
         self.camera = None
-        self.equipped_magic: list = ["Napalm Spread", None]
+        self.equipped_magic: list = ["", None]
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
         self.hitbox: pygame.Rect = pygame.Rect(

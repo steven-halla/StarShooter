@@ -45,6 +45,7 @@ class LevelOne(VerticalBattleScreen):
 
     def start(self, state) -> None:
         print("I only want to see this one time lleve one")
+        state.starship.equipped_magic = ["", None]
         player_x = None
 
         player_y = None
@@ -63,6 +64,7 @@ class LevelOne(VerticalBattleScreen):
         self.save_state.capture_player(self.starship)
         self.save_state.save_to_file("player_save.json")
         state.starship.apply_upgrades()
+
 
     def update(self, state) -> None:
         super().update(state)
