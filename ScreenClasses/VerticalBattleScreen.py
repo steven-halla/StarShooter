@@ -391,10 +391,6 @@ class VerticalBattleScreen:
         surface.blit(text_surface, (10, 10))
 
     def draw_ui_panel(self, surface: pygame.Surface) -> None:
-        font = pygame.font.Font(None, 24)
-
-        missile_text = f"{self.starship.missile.current_missiles}/{self.starship.missile.max_missiles}"
-        missile_text_surface = font.render(missile_text, True, (255, 255, 255))
         # -----------------------------
         # PANEL RECT
         # -----------------------------
@@ -495,13 +491,13 @@ class VerticalBattleScreen:
         # -----------------------------
 
         font = pygame.font.Font(None, 24)
-        missile_text = f"{self.starship.missile.current_missiles}/{self.starship.missile.max_missiles}"
+        missile_text = f"{self.starship.missile_current}/{self.starship.missile_max}"
         missile_surface = font.render(missile_text, True, (255, 255, 255))
 
         missile_text_x = icon_x + 32 + 5
         missile_text_y = icon_y + 8
 
-        surface.blit(missile_text_surface, (missile_text_x, missile_text_y))
+        surface.blit(missile_surface, (missile_text_x, missile_text_y))
         # -----------------------------
         # EQUIPPED WEAPON ICON POSITION
         # -----------------------------
@@ -778,6 +774,10 @@ class VerticalBattleScreen:
                 )
             )
 
+
+        # -------------------------
+        # PLAYER MISSILES
+        # -------------------------
         # -------------------------
         # PLAYER MISSILES
         # -------------------------
@@ -785,9 +785,30 @@ class VerticalBattleScreen:
             self.starship.missile.x = self.starship.x
             self.starship.missile.y = self.starship.y
 
-            missile = self.starship.missile.fire_missile()
+            missile = self.starship.missile.fire_missile(
+                missile_damage=self.starship.missile_damage,
+                bullet_speed=self.starship.missile_bullet_speed,
+                rate_of_fire=self.starship.missile_rate_of_fire,
+                max_missiles=self.starship.missile_max,
+            )
+
             if missile is not None:
                 self.player_bullets.append(missile)
+        # if self.controller.fire_missiles and not self.playerDead:
+        #     missile_launcher = self.starship.missile
+        #
+        #     # sync PLAYER-owned stats onto the missile launcher
+        #     missile_launcher.damage = self.starship.missile_damage
+        #     missile_launcher.bullet_speed = self.starship.missile_bullet_speed
+        #     missile_launcher.max_missiles = self.starship.missile_max
+        #
+        #     # position launcher at ship
+        #     missile_launcher.x = self.starship.x
+        #     missile_launcher.y = self.starship.y
+        #
+        #     missile = missile_launcher.fire_missile()
+        #     if missile is not None:
+        #         self.player_bullets.append(missile)
 
         # -------------------------
         # BUSTER CANNON

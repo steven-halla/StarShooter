@@ -42,7 +42,6 @@ class Missile(Bullet):
         self.missile_regen_timer: Timer = Timer(self.missile_regen_interval_seconds)
 
     def update(self) -> None:
-
         if self.target_enemy is not None and self.target_enemy.enemyHealth <= 0:
             self.target_enemy = None
 
@@ -58,8 +57,15 @@ class Missile(Bullet):
 
         # movement handled by Bullet via vx/vy
         super().update()
+        self.update_rect()
 
-    def fire_missile(self):
+    def fire_missile(
+        self,
+        missile_damage: int = None,
+        bullet_speed: float = None,
+        rate_of_fire: float = None,
+        max_missiles: int = None,
+    ):
         # Only fire if timer is ready and we have missiles
         if not self.missile_timer.is_ready() or self.current_missiles <= 0:
             return None
@@ -71,6 +77,16 @@ class Missile(Bullet):
         # Create the missile
         missile = Missile(missile_x, missile_y)
 
+        # Apply passed-in stats if provided
+        if missile_damage is not None:
+            missile.damage = missile_damage
+        if bullet_speed is not None:
+            missile.bullet_speed = bullet_speed
+        if rate_of_fire is not None:
+            missile.rate_of_fire = rate_of_fire
+        if max_missiles is not None:
+            self.max_missiles = max_missiles  # Update launcher's max
+
         # Reset cooldown and decrease missile count
         self.missile_timer.reset()
         self.current_missiles -= 1
@@ -79,8 +95,23 @@ class Missile(Bullet):
 
         return missile
 
-    def draw(self, surface: pygame.Surface) -> None:
-        pygame.draw.rect(surface, (255, 165, 0), self.rect)
+    def draw(self, surface: pygame.Surface, camera) -> None:
+        if not self.is_active:
+            return
+
+        screen_x = camera.world_to_screen_x(self.x)
+        screen_y = camera.world_to_screen_y(self.y)
+
+        pygame.draw.rect(
+            surface,
+            (255, 165, 0),
+            pygame.Rect(
+                screen_x,
+                screen_y,
+                int(self.width * camera.zoom),
+                int(self.height * camera.zoom),
+            ),
+        )
 
     # Missile class
 

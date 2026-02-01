@@ -61,10 +61,27 @@ class StarShip:
         self.machine_gun_bullet_speed = self.machine_gun.bullet_speed
         self.machine_gun_bullets_per_shot = self.machine_gun.bullets_per_shot
 
+
         # -------------------------
         # Missile
         # -------------------------
         self.missile = Missile(self.x, self.y)
+
+        # -------------------------
+        # MISSILE STATS (PLAYER-OWNED)
+        # -------------------------
+        self.missile_damage = self.missile.damage
+        self.missile_bullet_speed = self.missile.bullet_speed
+        self.missile_rate_of_fire = self.missile.rate_of_fire
+
+        self.missile_max = self.missile.max_missiles
+        self.missile_current = self.missile.current_missiles
+
+        self.missile_fire_interval_seconds = self.missile.missile_fire_interval_seconds
+        self.missile_timer = Timer(self.missile_fire_interval_seconds)
+
+        self.missile_regen_interval_seconds = self.missile.missile_regen_interval_seconds
+        self.missile_regen_timer = Timer(self.missile_regen_interval_seconds)
         # -------------------------
         # Buster cannon
         # -------------------------
@@ -108,6 +125,9 @@ class StarShip:
         self.shipHealthMax: int = 150
         self.invincibility_timer: Timer = Timer(2.0)
         self.upgrade_chips: list = [""]
+        self.upgrade_chips = [
+            "max_missiles_plus_two"
+        ]
         self.player_ki: int = 0
         self.player_max_ki: int = 50
         self.current_heat: int = 100
@@ -145,6 +165,8 @@ class StarShip:
         # Missile
         # -------------------------
         self.missile.reload_missiles()
+        self.missile_current = self.missile.current_missiles
+        self.missile_max = self.missile.max_missiles
         # -------------------------
         # buster cannon
         # -------------------------
@@ -309,27 +331,60 @@ class StarShip:
         # UPGRADE DEFINITIONS
         # -------------------------
         upgrade_effects = {
-            "bullet_attack_up_plus_five": lambda: setattr(
-                self, "machine_gun_damage", self.machine_gun_damage + 5
+            "bullet_attack_up_plus_five": lambda: (
+                setattr(self, "machine_gun_damage", self.machine_gun_damage + 5),
+                setattr(self.machine_gun, "damage", self.machine_gun.damage + 5)
             ),
 
             "bullet_width_height_plus_one": lambda: (
                 setattr(self, "machine_gun_width", self.machine_gun_width + 1),
+                setattr(self.machine_gun, "width", self.machine_gun.width + 1),
                 setattr(self, "machine_gun_height", self.machine_gun_height + 1),
+                setattr(self.machine_gun, "height", self.machine_gun.height + 1),
             ),
 
-            "machine_gun_rate_of_fire_up": lambda: setattr(
-                self, "machine_gun_rate_of_fire",
-                max(0.01, self.machine_gun_rate_of_fire - 0.02)  # faster fire
+            "machine_gun_rate_of_fire_up": lambda: (
+                setattr(self, "machine_gun_rate_of_fire", max(0.01, self.machine_gun_rate_of_fire - 0.02)),
+                setattr(self.machine_gun, "rate_of_fire", max(0.01, self.machine_gun.rate_of_fire - 0.02))
             ),
 
-            "machine_gun_bullet_speed_up": lambda: setattr(
-                self, "machine_gun_bullet_speed", self.machine_gun_bullet_speed + 1.5
+            "machine_gun_bullet_speed_up": lambda: (
+                setattr(self, "machine_gun_bullet_speed", self.machine_gun_bullet_speed + 1.5),
+                setattr(self.machine_gun, "bullet_speed", self.machine_gun.bullet_speed + 1.5)
             ),
 
-            "machine_gun_extra_bullet": lambda: setattr(
-                self, "machine_gun_bullets_per_shot",
-                self.machine_gun_bullets_per_shot + 1
+            "machine_gun_extra_bullet": lambda: (
+                setattr(self, "machine_gun_bullets_per_shot", self.machine_gun_bullets_per_shot + 1),
+                setattr(self.machine_gun, "bullets_per_shot", self.machine_gun.bullets_per_shot + 1)
+            ),
+            # -------------------------
+            # MISSILE UPGRADES
+            # -------------------------
+            "missile_attack_up_plus_ten": lambda: (
+                setattr(self, "missile_damage", self.missile_damage + 10),
+                setattr(self.missile, "damage", self.missile.damage + 10)
+            ),
+
+            "missile_bullet_speed_up": lambda: (
+                setattr(self, "missile_bullet_speed", self.missile_bullet_speed + 1.0),
+                setattr(self.missile, "bullet_speed", self.missile.bullet_speed + 1.0)
+            ),
+
+            "missile_rate_of_fire_up": lambda: (
+                setattr(self, "missile_rate_of_fire", max(0.1, self.missile_rate_of_fire - 0.25)),
+                setattr(self.missile, "rate_of_fire", max(0.1, self.missile.rate_of_fire - 0.25))
+            ),
+
+            "max_missiles_plus_two": lambda: (
+                setattr(self, "missile_max", self.missile_max + 2),
+                setattr(self, "missile_current", self.missile_current + 2),
+                setattr(self.missile, "max_missiles", self.missile.max_missiles + 2),
+                setattr(self.missile, "current_missiles", self.missile.current_missiles + 2),
+            ),
+
+            "missile_regen_faster": lambda: (
+                setattr(self, "missile_regen_interval_seconds", max(0.5, self.missile_regen_interval_seconds - 0.5)),
+                setattr(self.missile, "missile_regen_interval_seconds", max(0.5, self.missile.missile_regen_interval_seconds - 0.5))
             ),
         }
 
