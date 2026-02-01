@@ -36,7 +36,7 @@ class Missile(Bullet):
         self.current_missiles: int = 2
 
         # missile stats
-        self.missile_fire_interval_seconds: float = 3.0
+        self.missile_fire_interval_seconds: float = 0.5
         self.missile_timer: Timer = Timer(self.missile_fire_interval_seconds)
         self.missile_regen_interval_seconds: float = 10.0
         self.missile_regen_timer: Timer = Timer(self.missile_regen_interval_seconds)

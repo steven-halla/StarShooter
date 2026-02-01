@@ -1,13 +1,13 @@
 {
   "version": 1,
   "player": {
-    "shipHealth": 333,
+    "shipHealth": 144,
     "shipHealthMax": 150,
     "equipped_magic": [
       "",
       null
     ],
-    "current_level": 2
+    "current_level": 1
   },
   "weapons": {
     "machine_gun": {
@@ -25,7 +25,7 @@
     "rate_of_fire": 0.5,
     "max": 2,
     "current": 2,
-    "fire_interval_seconds": 3.0,
+    "fire_interval_seconds": 0.5,
     "regen_interval_seconds": 10.0
   },
   "shield": {
