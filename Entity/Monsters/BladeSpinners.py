@@ -26,6 +26,9 @@ class BladeSpinner(Enemy):
         self.exp: int = 1
         self.credits: int = 5
 
+        self.last_hit_time_field: int = 0
+        self.hit_cooldown: int = 500  # 0.5 seconds
+
         # kamikaze-specific
         self.target_player = None     # will be assigned externally
 
@@ -41,14 +44,26 @@ class BladeSpinner(Enemy):
         # if not self.is_active:
         #     return
         if self.is_active:
-            self.touch_mellee(
-                bullet_width=16,
-                bullet_height=16,
-                bullet_color=GlobalConstants.RED,
-                bullet_damage= 30,
-                state = state
-            )
-
+            now = pygame.time.get_ticks()
+            if now - self.last_hit_time_field >= self.hit_cooldown:
+                self.touch_mellee(
+                    bullet_width=16,
+                    bullet_height=16,
+                    bullet_color=GlobalConstants.RED,
+                    bullet_damage= 30,
+                    state = state
+                )
+                
+                # Check if bullet hit the player to start cooldown
+                if hasattr(self, "_melee_bullet") and self._melee_bullet in state.enemy_bullets:
+                    if self._melee_bullet.rect.colliderect(self.target_player.hitbox):
+                        self.last_hit_time_field = now
+            else:
+                # If in cooldown, we can remove the bullet to ensure no extra hits
+                if hasattr(self, "_melee_bullet") and self._melee_bullet in state.enemy_bullets:
+                    state.enemy_bullets.remove(self._melee_bullet)
+                    self._melee_bullet = None
+        
         self.update_hitbox()
 
         # check if visible first
