@@ -28,6 +28,8 @@ class StarShip:
 
         self.camera = None
         self.equipped_magic: list = ["", None]
+        self.magic_inventory: list = []
+
         self.napalm_fire_interval_seconds: float = 3.5
         self.napalm_timer: Timer = Timer(self.napalm_fire_interval_seconds)
         self.hitbox: pygame.Rect = pygame.Rect(

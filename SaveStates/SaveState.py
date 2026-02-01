@@ -29,6 +29,7 @@ class SaveState:
             "shipHealth": starship.shipHealth,
             "shipHealthMax": starship.shipHealthMax,
             "equipped_magic": list(starship.equipped_magic),
+            "magic_inventory": list(starship.magic_inventory),
             "current_level": starship.current_level,  # ✅ ADDED
         }
 
@@ -83,6 +84,9 @@ class SaveState:
             starship.shipHealthMax = p.get("shipHealthMax", starship.shipHealthMax)
             starship.equipped_magic = list(
                 p.get("equipped_magic", starship.equipped_magic)
+            )
+            starship.magic_inventory = list(
+                p.get("magic_inventory", starship.magic_inventory)
             )
             starship.current_level = p.get(  # ✅ RESTORED
                 "current_level", starship.current_level

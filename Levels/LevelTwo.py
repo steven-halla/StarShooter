@@ -46,13 +46,16 @@ class LevelTwo(VerticalBattleScreen):
                 player_x = obj.x
                 player_y = obj.y
                 break
-
+        if "Energy Ball" not in state.starship.magic_inventory:
+            state.starship.magic_inventory.append("Energy Ball")
+        state.starship.equipped_magic = ["Energy Ball", None]
         self.starship.x = player_x
         self.starship.y = player_y
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
         self.load_enemy_into_list(state)
         self.save_state.capture_player(self.starship)
         self.save_state.save_to_file("player_save.json")
+
 
     def update(self, state) -> None:
         super().update(state)

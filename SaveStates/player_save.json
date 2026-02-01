@@ -1,13 +1,16 @@
 {
   "version": 1,
   "player": {
-    "shipHealth": 144,
+    "shipHealth": 333,
     "shipHealthMax": 150,
     "equipped_magic": [
-      "",
+      "Energy Ball",
       null
     ],
-    "current_level": 1
+    "magic_inventory": [
+      "Energy Ball"
+    ],
+    "current_level": 2
   },
   "weapons": {
     "machine_gun": {
