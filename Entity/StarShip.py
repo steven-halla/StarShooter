@@ -133,7 +133,7 @@ class StarShip:
         self.player_max_ki: int = 50
         self.current_heat: int = 100
         self.max_heat: int = 100
-        self.shield_system = Shield(100, 1.1, 1000)
+        self.shield_system = Shield(100, 1.1, 3000)
         self.shield_system.owner = self
         self.current_shield: int = 100
         self.max_shield: int = 100
@@ -297,6 +297,7 @@ class StarShip:
         if self.invincible:
             return
 
+        self.shield_system.reset_recharge_timer()
         self.was_hit = True
         self.is_electrocuted = True
         self.electric_start_time = pygame.time.get_ticks()

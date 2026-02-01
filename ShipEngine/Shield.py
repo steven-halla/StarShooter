@@ -25,11 +25,11 @@ class Shield:
         Applies damage to shield.
         Any overflow damage is applied to owner.shipHealth.
         """
+        self._last_damage_time = pygame.time.get_ticks()
+
         if self.current_shield_points <= 0:
             self.owner.shipHealth -= damage
             return
-
-        self._last_damage_time = pygame.time.get_ticks()
 
         self.current_shield_points -= damage
 
@@ -72,6 +72,9 @@ class Shield:
     def force_disable(self) -> None:
         self.current_shield_points = 0
         self._is_depleted = True
+
+    def reset_recharge_timer(self) -> None:
+        self._last_damage_time = pygame.time.get_ticks()
 
     def reset(self) -> None:
         self.current_shield_points = self.max_shield_points
