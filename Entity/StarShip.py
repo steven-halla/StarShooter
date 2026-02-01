@@ -126,17 +126,16 @@ class StarShip:
         self.shipHealthMax: int = 150
         self.invincibility_timer: Timer = Timer(2.0)
         self.upgrade_chips: list = [""]
-        self.upgrade_chips = [
-            "max_missiles_plus_two"
-        ]
         self.player_ki: int = 50
         self.player_max_ki: int = 50
         self.current_heat: int = 100
         self.max_heat: int = 100
         self.shield_system = Shield(100, 0.2, 10000)
-        self.shield_system.owner = self
         self.current_shield: int = 100
         self.max_shield: int = 100
+
+
+        self.shield_system.owner = self
 
         # -------------------------
         # DO NOT SAVE BELOW TO PLAYER SAVE FILE
