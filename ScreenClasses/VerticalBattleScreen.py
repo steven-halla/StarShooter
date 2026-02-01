@@ -381,14 +381,6 @@ class VerticalBattleScreen:
             int(obj.height * self.camera.zoom)
         )
 
-    def draw_player_hp_bar(self, surface):
-        font = pygame.font.Font(None, 24)
-        current_hp = max(0, int(self.starship.shipHealth))
-        max_hp = 100
-        hp_text = f"HP: {current_hp}/{max_hp}"
-        text_surface = font.render(hp_text, True, (255, 255, 255))
-        # Top-left padding
-        surface.blit(text_surface, (10, 10))
 
     def draw_ui_panel(self, surface: pygame.Surface) -> None:
         # -----------------------------
@@ -418,17 +410,27 @@ class VerticalBattleScreen:
         max_hp = max(1, int(self.starship.shipHealthMax))
 
         # -----------------------------
-        # HP BAR
+        # HEART ICON & HEALTH NUMBER
+        # -----------------------------
+        icon_x = 10
+        icon_y = GlobalConstants.GAMEPLAY_HEIGHT + 10
+        surface.blit(self.heart_icon, (icon_x, icon_y))
+
+        font = pygame.font.Font(None, 24)
+        hp_text = f"{current_hp}/{max_hp}"
+        text_surface = font.render(hp_text, True, (255, 255, 255))
+        surface.blit(text_surface, (icon_x + 30, icon_y + 4))
+
+        # -----------------------------
+        # SHIELD BAR (REPLACES GREEN HP BAR)
         # -----------------------------
         BAR_WIDTH = 100
         BAR_HEIGHT = 20
+        bar_x = icon_x + 100 # Position it to the right of health text
+        bar_y = icon_y
 
-        hp_percent = current_hp / max_hp
-        filled_width = max(0, min(BAR_WIDTH, int(BAR_WIDTH * hp_percent)))
-
-        # Position the bar directly after the heart image
-        bar_x = 50  # Starting position for the bar
-        bar_y = GlobalConstants.GAMEPLAY_HEIGHT + 10
+        shield_percent = self.starship.current_shield / max(1, self.starship.max_shield)
+        shield_filled_width = max(0, min(BAR_WIDTH, int(BAR_WIDTH * shield_percent)))
 
         pygame.draw.rect(
             surface,
@@ -436,47 +438,11 @@ class VerticalBattleScreen:
             (bar_x, bar_y, BAR_WIDTH, BAR_HEIGHT),
             1
         )
-
-        if filled_width > 0:
-            pygame.draw.rect(
-                surface,
-                (0, 200, 0),
-                (bar_x + 1, bar_y + 1, filled_width - 2, BAR_HEIGHT - 2)
-            )
-
-        # -----------------------------
-        # HUD ICON (LOAD ONCE)
-        # -----------------------------
-
-        # -----------------------------
-        # HEART ICON (PRELOADED, NO IMAGE.LOAD HERE)
-        # -----------------------------
-
-        if filled_width > 0:
-            pygame.draw.rect(
-                surface,
-                (0, 200, 0),
-                (bar_x + 1, bar_y + 1, filled_width - 2, BAR_HEIGHT - 2)
-            )
-
-        # -----------------------------
-        # SHIELD BAR
-        # -----------------------------
-        shield_bar_y = bar_y + BAR_HEIGHT + 2
-        shield_percent = self.starship.current_shield / max(1, self.starship.max_shield)
-        shield_filled_width = max(0, min(BAR_WIDTH, int(BAR_WIDTH * shield_percent)))
-
-        pygame.draw.rect(
-            surface,
-            (255, 255, 255),
-            (bar_x, shield_bar_y, BAR_WIDTH, 5),
-            1
-        )
         if shield_filled_width > 0:
             pygame.draw.rect(
                 surface,
-                (0, 150, 255),
-                (bar_x + 1, shield_bar_y + 1, shield_filled_width - 2, 3)
+                (0, 150, 255), # Blue color for shield
+                (bar_x + 1, bar_y + 1, shield_filled_width - 2, BAR_HEIGHT - 2)
             )
 
         # -----------------------------
