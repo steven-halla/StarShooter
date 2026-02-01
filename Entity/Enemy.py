@@ -95,8 +95,20 @@ class Enemy:
         if not self.is_active:
             return
 
+        # if self.hitbox.colliderect(player.hitbox):
+        #     player.shipHealth -= self.touch_damage
+        #     player.on_hit()
         if self.hitbox.colliderect(player.hitbox):
-            player.shipHealth -= self.touch_damage
+            damage = self.touch_damage
+
+            # --- SHIELD FIRST ---
+            if hasattr(player, "shield") and player.shield is not None:
+                damage = player.shield.take_damage(damage)
+
+            # --- REMAINDER TO HULL ---
+            if damage > 0:
+                player.shipHealth -= damage
+
             player.on_hit()
 
     # --------------------------------------------------

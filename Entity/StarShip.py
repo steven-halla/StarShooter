@@ -15,6 +15,7 @@ from Weapons.NapalmSpread import NapalmSpread
 from Weapons.PlasmaBlaster import PlasmaBlaster
 from Weapons.WaveCrash import WaveCrash
 from Weapons.WindSlicer import WindSlicer
+from ShipEngine.Shield import Shield
 
 class StarShip:
     def __init__(self):
@@ -128,10 +129,12 @@ class StarShip:
         self.upgrade_chips = [
             "max_missiles_plus_two"
         ]
-        self.player_ki: int = 0
+        self.player_ki: int = 50
         self.player_max_ki: int = 50
         self.current_heat: int = 100
         self.max_heat: int = 100
+        self.shield_system = Shield(100, 0.1, 3000)
+        self.shield_system.owner = self
         self.current_shield: int = 100
         self.max_shield: int = 100
 
@@ -152,6 +155,10 @@ class StarShip:
     def update(self) -> None:
         # print(self.shipHealth)
         self.update_hitbox()
+        self.shield_system.update()
+        self.current_shield = int(self.shield_system.current_shield_points)
+        self.max_shield = self.shield_system.max_shield_points
+        print(self.current_shield)
         ############
         # Be sure to change the below to use as an for loop to check what you ahve equiped so we dont update all the time
         #############
@@ -219,13 +226,11 @@ class StarShip:
         # DETECT DAMAGE (HEALTH DROP)
         # --------------------------------
         if self.shipHealth < self.last_health and not self.invincible:
+            self.on_hit()
+
             # trigger invincibility
             self.invincible = True
             self.invincibility_timer.reset()
-
-            # trigger electric visual
-            self.is_electrocuted = True
-            self.electric_start_time = pygame.time.get_ticks()
 
             # lock health to current health (after taking damage)
             self.frozen_health = self.shipHealth

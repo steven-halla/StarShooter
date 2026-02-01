@@ -452,30 +452,31 @@ class VerticalBattleScreen:
         # HEART ICON (PRELOADED, NO IMAGE.LOAD HERE)
         # -----------------------------
 
-        # draw heart icon (already sliced + scaled in __init__)
-        heart_x = 10
-        heart_y = GlobalConstants.GAMEPLAY_HEIGHT + 6
-        surface.blit(self.heart_icon, (heart_x, heart_y))
-
-        # -----------------------------
-        # HP BAR (POSITIONED AFTER HEART)
-        # -----------------------------
-
-        bar_x = heart_x + self.heart_icon.get_width() + 8
-        bar_y = GlobalConstants.GAMEPLAY_HEIGHT + 10
-
-        pygame.draw.rect(
-            surface,
-            (255, 255, 255),
-            (bar_x, bar_y, BAR_WIDTH, BAR_HEIGHT),
-            1
-        )
-
         if filled_width > 0:
             pygame.draw.rect(
                 surface,
                 (0, 200, 0),
                 (bar_x + 1, bar_y + 1, filled_width - 2, BAR_HEIGHT - 2)
+            )
+
+        # -----------------------------
+        # SHIELD BAR
+        # -----------------------------
+        shield_bar_y = bar_y + BAR_HEIGHT + 2
+        shield_percent = self.starship.current_shield / max(1, self.starship.max_shield)
+        shield_filled_width = max(0, min(BAR_WIDTH, int(BAR_WIDTH * shield_percent)))
+
+        pygame.draw.rect(
+            surface,
+            (255, 255, 255),
+            (bar_x, shield_bar_y, BAR_WIDTH, 5),
+            1
+        )
+        if shield_filled_width > 0:
+            pygame.draw.rect(
+                surface,
+                (0, 150, 255),
+                (bar_x + 1, shield_bar_y + 1, shield_filled_width - 2, 3)
             )
 
         # -----------------------------
@@ -1033,7 +1034,10 @@ class VerticalBattleScreen:
             # Collision check
             if bullet.collide_with_rect(self.starship.hitbox):
                 if not self.starship.invincible:
-                    self.starship.shipHealth -= bullet.damage
+                    old_health = self.starship.shipHealth
+                    self.starship.shield_system.take_damage(bullet.damage)
+                    if self.starship.shipHealth < old_health:
+                        self.starship.on_hit()
                 bullet.is_active = False
                 state.enemy_bullets.remove(bullet)
 
@@ -1046,9 +1050,6 @@ class VerticalBattleScreen:
         player_rect = self.starship.hitbox
 
         if not self.starship.invincible:
-            # TODO this MUST be reading from current_level.enemies or something, not
-            # checking every f'n enemy every single time
-
             for enemy in state.enemies:
                 # Skip coins - they should not hurt the player when touched
                 if hasattr(enemy, "__class__") and enemy.__class__.__name__ in ("Coins", "TimeBomb"):
@@ -1061,12 +1062,13 @@ class VerticalBattleScreen:
                     enemy.height
                 )
 
-
-                # DO NOT TAKE THIS OUT EVER jan 29th 2026
-                # if player_rect.colliderect(enemy_rect):
-                #     for enemy in state.enemies:
-                #         if hasattr(enemy, "touch_damage") and enemy.hitbox.colliderect(self.starship.hitbox):
-                #             self.starship.shipHealth -= enemy.touch_damage
+                if player_rect.colliderect(enemy_rect):
+                    if hasattr(enemy, "touch_damage"):
+                        old_health = self.starship.shipHealth
+                        self.starship.shield_system.take_damage(enemy.touch_damage)
+                        if self.starship.shipHealth < old_health:
+                             self.starship.on_hit()
+                        break # Only take damage from one enemy per frame
 
 
 
@@ -1087,7 +1089,10 @@ class VerticalBattleScreen:
 
             if player_rect.colliderect(tile_rect):
                 if not self.starship.invincible:
-                    self.starship.shipHealth -= 1
+                    old_health = self.starship.shipHealth
+                    self.starship.shield_system.take_damage(1)
+                    if self.starship.shipHealth < old_health:
+                        self.starship.on_hit()
                     print("⚠️ Player took hazard damage! Health =", self.starship.shipHealth)
                 break
 

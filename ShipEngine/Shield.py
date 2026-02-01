@@ -20,13 +20,14 @@ class Shield:
     # -------------------------
     # DAMAGE HANDLING
     # -------------------------
-    def take_damage(self, damage: float) -> float:
+    def take_damage(self, damage: float) -> None:
         """
         Applies damage to shield.
-        Returns leftover damage if shield breaks.
+        Any overflow damage is applied to owner.shipHealth.
         """
         if self.current_shield_points <= 0:
-            return damage
+            self.owner.shipHealth -= damage
+            return
 
         self._last_damage_time = pygame.time.get_ticks()
 
@@ -36,9 +37,9 @@ class Shield:
             leftover = abs(self.current_shield_points)
             self.current_shield_points = 0
             self._is_depleted = True
-            return leftover
 
-        return 0.0
+            # 🔑 APPLY REMAINDER TO HEALTH
+            self.owner.shipHealth -= leftover
 
     # -------------------------
     # UPDATE (CALL EVERY FRAME)
