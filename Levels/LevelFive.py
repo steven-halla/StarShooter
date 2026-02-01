@@ -44,9 +44,9 @@ class LevelFive(VerticalBattleScreen):
         self.MAX_FIRE_ROWS = 20
 
     def start(self, state) -> None:
-        print("One time load")
         player_x = None
         player_y = None
+        state.starship.current_level = 5
 
         for obj in self.tiled_map.objects:
             if obj.name == "player":  # this string comes from Tiled

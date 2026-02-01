@@ -64,7 +64,6 @@ class BossLevelSix(Enemy):
     def build_barrage_grid(self) -> None:
         # Check if camera is properly initialized
         if self.camera is None:
-            print("Cannot build barrage grid: camera is None")
             return
 
         self.barrage_rects.clear()
@@ -97,7 +96,6 @@ class BossLevelSix(Enemy):
         cam_x = int(self.camera.x)
         cam_y = int(self.camera.y)
 
-        print(f"Building barrage grid with camera position: x={cam_x}, y={cam_y}")
 
         for sx, sy in BASE_COORDS:
             self.barrage_rects.append(
@@ -105,7 +103,6 @@ class BossLevelSix(Enemy):
             )
 
         self._grid_built = True
-        print(f"Barrage grid built with {len(self.barrage_rects)} rectangles")
 
     # =====================================================
     # TEMP GRID — KEEP EXACTLY ONE TOP ROW TILE

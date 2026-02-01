@@ -128,11 +128,7 @@ class BossLevelSeven(Enemy):
 
         self.enemyBullets.append(bullet_left)
 
-        print(
-            f"[BOSS FIRE TEST] "
-            f"RIGHT(dx={bullet_right.dx}, dy={bullet_right.dy}) | "
-            f"LEFT(dx={bullet_left.dx}, dy={bullet_left.dy})"
-        )
+
 
 
     # =====================================================

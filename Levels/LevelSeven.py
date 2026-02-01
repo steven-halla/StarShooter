@@ -53,6 +53,7 @@ class LevelSeven(VerticalBattleScreen):
     def start(self, state) -> None:
         player_x = None
         player_y = None
+        state.starship.current_level = 7
 
         for obj in self.tiled_map.objects:
             if obj.name == "player":  # this string comes from Tiled

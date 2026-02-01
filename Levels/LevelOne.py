@@ -46,6 +46,7 @@ class LevelOne(VerticalBattleScreen):
     def start(self, state) -> None:
         print("I only want to see this one time lleve one")
         state.starship.equipped_magic = ["", None]
+        state.starship.current_level = 1
         player_x = None
 
         player_y = None

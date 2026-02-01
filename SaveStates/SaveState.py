@@ -29,6 +29,7 @@ class SaveState:
             "shipHealth": starship.shipHealth,
             "shipHealthMax": starship.shipHealthMax,
             "equipped_magic": list(starship.equipped_magic),
+            "current_level": starship.current_level,  # ✅ ADDED
         }
 
         self.data["stats"] = {
@@ -80,7 +81,12 @@ class SaveState:
         if p:
             starship.shipHealth = p.get("shipHealth", starship.shipHealth)
             starship.shipHealthMax = p.get("shipHealthMax", starship.shipHealthMax)
-            starship.equipped_magic = list(p.get("equipped_magic", starship.equipped_magic))
+            starship.equipped_magic = list(
+                p.get("equipped_magic", starship.equipped_magic)
+            )
+            starship.current_level = p.get(  # ✅ RESTORED
+                "current_level", starship.current_level
+            )
 
         s = self.data.get("stats", {})
         if s:
@@ -95,8 +101,12 @@ class SaveState:
             starship.machine_gun_damage = w.get("damage", starship.machine_gun_damage)
             starship.machine_gun_width = w.get("width", starship.machine_gun_width)
             starship.machine_gun_height = w.get("height", starship.machine_gun_height)
-            starship.machine_gun_rate_of_fire = w.get("rate_of_fire", starship.machine_gun_rate_of_fire)
-            starship.machine_gun_bullet_speed = w.get("bullet_speed", starship.machine_gun_bullet_speed)
+            starship.machine_gun_rate_of_fire = w.get(
+                "rate_of_fire", starship.machine_gun_rate_of_fire
+            )
+            starship.machine_gun_bullet_speed = w.get(
+                "bullet_speed", starship.machine_gun_bullet_speed
+            )
             starship.machine_gun_bullets_per_shot = w.get(
                 "bullets_per_shot", starship.machine_gun_bullets_per_shot
             )
@@ -104,8 +114,12 @@ class SaveState:
         m = self.data.get("missiles", {})
         if m:
             starship.missile_damage = m.get("damage", starship.missile_damage)
-            starship.missile_bullet_speed = m.get("bullet_speed", starship.missile_bullet_speed)
-            starship.missile_rate_of_fire = m.get("rate_of_fire", starship.missile_rate_of_fire)
+            starship.missile_bullet_speed = m.get(
+                "bullet_speed", starship.missile_bullet_speed
+            )
+            starship.missile_rate_of_fire = m.get(
+                "rate_of_fire", starship.missile_rate_of_fire
+            )
             starship.missile_max = m.get("max", starship.missile_max)
             starship.missile_current = m.get("current", starship.missile_current)
             starship.missile_fire_interval_seconds = m.get(
@@ -133,7 +147,9 @@ class SaveState:
 
         u = self.data.get("upgrades", {})
         if u:
-            starship.upgrade_chips = list(u.get("upgrade_chips", starship.upgrade_chips))
+            starship.upgrade_chips = list(
+                u.get("upgrade_chips", starship.upgrade_chips)
+            )
 
         # reset transient combat state
         starship.invincible = False

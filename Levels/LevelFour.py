@@ -43,6 +43,7 @@ class LevelFour(VerticalBattleScreen):
     def start(self, state) -> None:
         player_x = None
         player_y = None
+        state.starship.current_level = 4
 
         for obj in self.tiled_map.objects:
             if obj.name == "player":

@@ -48,6 +48,7 @@ class LevelThree(VerticalBattleScreen):
         self.starship = state.starship
         player_x = None
         player_y = None
+        self.starship.current_level = 3
         self.starship.shipHealth = 100
 
 
@@ -61,7 +62,7 @@ class LevelThree(VerticalBattleScreen):
         self.starship.y = player_y
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
         self.load_enemy_into_list(state)
-        self.save_state.capture_player(self.starship, self.__class__.__name__)
+        self.save_state.capture_player(self.starship)
         self.save_state.save_to_file("player_save.json")
 
     def move_map_y_axis(self):

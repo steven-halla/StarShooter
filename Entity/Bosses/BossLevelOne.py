@@ -56,7 +56,6 @@ class BossLevelOne(Enemy):
         if not self.is_active:
             return
         self.moveAI()
-        # print(self.enemyHealth)
 
         # WORLD-SPACE hitbox
         self.update_hitbox()
@@ -118,8 +117,6 @@ class BossLevelOne(Enemy):
         if not hasattr(self, "_last_x"):
             self._last_x = self.x
 
-        # Print BileSpitter position before movement
-        # print(f"BileSpitter before move: x={self.x:.2f}, y={self.y:.2f}")
 
         if self.move_direction > 0:
             self.mover.enemy_move_right(self)
@@ -138,8 +135,7 @@ class BossLevelOne(Enemy):
             else:
                 self.mover.enemy_move_left(self)
 
-        # Print BileSpitter position after movement
-        # print(f"BileSpitter after move: x={self.x:.2f}, y={self.y:.2f}")
+
 
         self._last_x = self.x
 

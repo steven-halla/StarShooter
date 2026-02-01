@@ -14,6 +14,7 @@ from Levels.LevelTen import LevelTen
 from Levels.LevelTwo import LevelTwo
 from Levels.MapTester import MapTester
 from Levels.levelThree import LevelThree
+from SaveStates.SaveState import SaveState
 from ScreenClasses.MissionBriefingScreenLevelFour import MissionBriefingScreenLevelFour
 from ScreenClasses.MissionBriefingScreenLevelOne import MissionBriefingScreenLevelOne
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
@@ -65,6 +66,9 @@ class GameState:
         self.enemy_bullets: list[Bullet] = []
         self.player_bullets: list[Bullet] = []
         self.enemies: list[Enemy] = []
+
+        self.save_state = SaveState()
+
 
 
         # --------------------------------------------------

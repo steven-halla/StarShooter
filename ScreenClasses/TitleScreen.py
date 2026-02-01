@@ -15,8 +15,8 @@ class TitleScreen:
         self.font_title = pygame.font.SysFont("arial", 72, bold=True)
         self.font_menu = pygame.font.SysFont("arial", 32)
 
-        # levels 1–10
-        self.levels = list(range(1, 11))
+        # levels 1–10, 11 = LOAD
+        self.levels = list(range(1, 12))
         self.selected_index = 0
 
         self.bg_color = (0, 0, 0)
@@ -35,27 +35,71 @@ class TitleScreen:
     def update(self, state) -> None:
         self.controls.update()
 
-        # UP = previous level
+        # UP = previous option
         if self.controls.down_button and not self._up_lock:
             self.selected_index = (self.selected_index - 1) % len(self.levels)
             self._up_lock = True
         elif not self.controls.down_button:
             self._up_lock = False
 
-        # DOWN = next level
+        # DOWN = next option
         if self.controls.up_button and not self._down_lock:
             self.selected_index = (self.selected_index + 1) % len(self.levels)
             self._down_lock = True
         elif not self.controls.up_button:
             self._down_lock = False
 
-        # 🔑 FIRE (F) → SWITCH LEVEL
+        # FIRE (F)
         if self.controls.main_weapon_button:
             selected_level = self.levels[self.selected_index]
 
-            # LEVEL MAP (LOCAL, NO IMPORT CYCLE)
+            # -------------------------
+            # LOAD GAME (LEVEL 11)
+            # -------------------------
+            if selected_level == 11:
+                if state.save_state.load_from_file("player_save.json"):
+                    # 1) Restore data into the starship object
+                    state.save_state.restore_player(state.starship)
+
+                    # 2) Determine which level to load based on the restored current_level
+                    from Levels.LevelOne import LevelOne
+                    from Levels.LevelTwo import LevelTwo
+                    from Levels.levelThree import LevelThree
+                    from Levels.LevelFour import LevelFour
+                    from Levels.LevelFive import LevelFive
+                    from Levels.LevelSix import LevelSix
+                    from Levels.LevelSeven import LevelSeven
+                    from Levels.LevelEight import LevelEight
+                    from Levels.LevelNine import LevelNine
+                    from Levels.LevelTen import LevelTen
+
+                    LEVEL_MAP = {
+                        1: LevelOne,
+                        2: LevelTwo,
+                        3: LevelThree,
+                        4: LevelFour,
+                        5: LevelFive,
+                        6: LevelSix,
+                        7: LevelSeven,
+                        8: LevelEight,
+                        9: LevelNine,
+                        10: LevelTen,
+                    }
+
+                    # Default to LevelOne if current_level is invalid
+                    level_num = state.starship.current_level
+                    level_class = LEVEL_MAP.get(level_num, LevelOne)
+
+                    state.currentScreen = level_class(state.textbox)
+                    state.currentScreen.start(state)
+                return
+
+            # -------------------------
+            # NORMAL LEVEL LOAD
+            # -------------------------
             from Levels.LevelOne import LevelOne
             from Levels.LevelTwo import LevelTwo
+            from Levels.levelThree import LevelThree
             from Levels.LevelFour import LevelFour
             from Levels.LevelFive import LevelFive
             from Levels.LevelSix import LevelSix
@@ -93,15 +137,16 @@ class TitleScreen:
             title_surf.get_rect(center=(w // 2, h // 4))
         )
 
-        # LEVEL SELECT (BOTTOM MIDDLE)
+        # MENU POSITION
         cx = w // 2
         cy = int(h * 0.70)
 
         up_arrow = self.font_menu.render("▲", True, self.text_color)
         self.screen.blit(up_arrow, up_arrow.get_rect(center=(cx, cy - 50)))
 
-        level_text = f"LEVEL {self.levels[self.selected_index]}"
-        level_surf = self.font_menu.render(level_text, True, self.highlight_color)
+        current = self.levels[self.selected_index]
+        label = "LOAD GAME" if current == 11 else f"LEVEL {current}"
+        level_surf = self.font_menu.render(label, True, self.highlight_color)
         self.screen.blit(level_surf, level_surf.get_rect(center=(cx, cy)))
 
         down_arrow = self.font_menu.render("▼", True, self.text_color)

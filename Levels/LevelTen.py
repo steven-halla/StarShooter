@@ -47,8 +47,8 @@ class LevelTen(VerticalBattleScreen):
     def start(self, state) -> None:
         print("I only want to see this one time lleve one")
         player_x = None
-
         player_y = None
+        state.starship.current_level = 10
 
         for obj in self.tiled_map.objects:
             if obj.name == "player":  # this string comes from Tiled

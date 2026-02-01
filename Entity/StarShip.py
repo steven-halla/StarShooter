@@ -133,6 +133,7 @@ class StarShip:
         self.shield_system = Shield(100, 0.2, 10000)
         self.current_shield: int = 100
         self.max_shield: int = 100
+        self.current_level: int = 1
 
 
         self.shield_system.owner = self
@@ -157,7 +158,6 @@ class StarShip:
         self.shield_system.update()
         self.current_shield = int(self.shield_system.current_shield_points)
         self.max_shield = self.shield_system.max_shield_points
-        print(self.current_shield)
         ############
         # Be sure to change the below to use as an for loop to check what you ahve equiped so we dont update all the time
         #############
