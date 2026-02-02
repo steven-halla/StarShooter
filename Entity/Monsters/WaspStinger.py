@@ -24,7 +24,8 @@ class WaspStinger(Enemy):
 
 
         # stats
-        self.enemyHealth: int = 40
+        self.enemyHealth: int = 100
+        self.maxHealth: int = 100
         self.enemy_speed: float = 2.5
         self.width: int = 16
         self.height: int = 16

@@ -33,7 +33,8 @@ class AcidLauncher(Enemy):
         self.last_shot_time: int = pygame.time.get_ticks()
 
         # gameplay
-        self.enemyHealth: int = 10
+        self.enemyHealth: int = 50
+        self.maxHealth: int = 50
 
         # bullets owned by this enemy
         self.enemyBullets: list[Bullet] = []

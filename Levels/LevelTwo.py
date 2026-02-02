@@ -3,6 +3,8 @@ import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelTwo import BossLevelTwo
 from Entity.Monsters.BileSpitter import BileSpitter
+from Entity.Monsters.BladeSpinners import BladeSpinner
+from Entity.Monsters.FireLauncher import FireLauncher
 
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.TriSpitter import TriSpitter
@@ -20,7 +22,7 @@ class LevelTwo(VerticalBattleScreen):
         self.camera_y = self.WORLD_HEIGHT - window_height
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
-        self.map_scroll_speed_per_frame: float = .4
+        self.map_scroll_speed_per_frame: float = 0
         self.prev_enemy_count: int = None
         self.enemies_killed: int = 0
         self.level_start_time = pygame.time.get_ticks()
@@ -39,7 +41,6 @@ class LevelTwo(VerticalBattleScreen):
         player_y = None
         state.starship.current_level = 2
         self.starship = state.starship
-        self.starship.shipHealth = 333
 
         for obj in self.tiled_map.objects:
             if obj.name == "player":  # this string comes from Tiled
@@ -223,6 +224,12 @@ class LevelTwo(VerticalBattleScreen):
                 enemy = BossLevelTwo()
             elif obj.name == "bile_spitter":
                 enemy = BileSpitter()
+            elif obj.name == "blade_spinner":
+                enemy = BladeSpinner()
+            elif obj.name == "tri_spitter":
+                enemy = TriSpitter()
+            elif obj.name == "fire_launcher":
+                enemy = FireLauncher()
             else:
                 continue
 
@@ -252,3 +259,8 @@ class LevelTwo(VerticalBattleScreen):
             )
 
         print(f"[DONE] total enemies loaded = {len(state.enemies)}")
+# enemy name:  count
+# Bile spitter: 10
+# fire launcehr: 12
+# tri spitter: 10
+# blade spinner: 12

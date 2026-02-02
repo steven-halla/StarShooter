@@ -30,6 +30,7 @@ class BileSpitter(Enemy):
 
         # stats
         self.enemyHealth: float = 4.0
+        self.maxHealth: float = 40.0
         self.exp: int = 1
         self.credits: int = 5
 

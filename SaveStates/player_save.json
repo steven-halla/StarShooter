@@ -1,7 +1,7 @@
 {
   "version": 1,
   "player": {
-    "shipHealth": 333,
+    "shipHealth": 150,
     "shipHealthMax": 150,
     "equipped_magic": [
       "Energy Ball",

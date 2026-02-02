@@ -37,6 +37,7 @@ class Ravager(Enemy):
         self.last_napalm_time = pygame.time.get_ticks()
 
         self.enemyHealth = 200
+        self.maxHealth = 200
         self.enemyBullets: list[Bullet] = []
 
         self.ravager_image = pygame.image.load(
