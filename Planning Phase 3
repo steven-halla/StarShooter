@@ -182,7 +182,80 @@ each level should have bonus objectives as an option for future
 NEW PLAN
 half sub weapons from 8 to 4
 
-metal shield
+metal shield level 2
 napalm spread
 buster cannon
-wind slicer
+wind slicer level 3
+
+
+
+
+
+Shop:
+
+
+shop:
+
+machine gun
+
+Faster bullet - speed + 1
+Fire rate up  + 1
+Double barrel
+Damage + level 1
+Damage + level 2
+
+
+Missile
+
+Faster misstile + 1
+Damage + 100
+More missiles + 1
+More Missiles + 2
+Faster recharce + 1
+
+
+Ship:
+
+ship speed + 1
+ship speed + 1
+Ship HP + 25
+ship HP + 25
+Post hit invinciility + .5
+
+shield
+Shields max + 50
+Shields Max + 50
+Faster recharge +1
+faster rate chaeg + 1
+faster rate chaeg + 1
+
+Ki:
+ki max + 25
+ki max + 25
+faster recharge + 1
+level 2 weapon chip upgrade pick 2
+Buster cannon
+Metal Shield
+Napalm Spread
+Wind Slicer
+
+
+
+
+sub weapons
+16 chips total
+
+10 tiers- Each tier gives + 10 Points of max ki
+each teir has  1 choice of two sub weapon
+duel sub weapons
+max ki + 50
+some tiers have 3 choices
+
+if a weapon is not chooosen at the tier then its level 2 upgrade appears
+at next tier
+
+
+
+
+Engine 5 tiers once hoice of each
+

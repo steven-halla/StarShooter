@@ -4,7 +4,7 @@ from Weapons.Bullet import Bullet
 
 
 class MetalShield(Bullet):
-    def __init__(self, x: float, y: float):
+    def __init__(self, x: float, y: float, damage: int = 20, max_hits: int = 3):
         super().__init__(x, y)
 
         # size
@@ -15,7 +15,7 @@ class MetalShield(Bullet):
         self.METAL_SHIELD: str = "Metal Shield"
 
         # stats
-        self.damage: int = 20            # shield does not deal damage
+        self.damage: int = damage            # shield does not deal damage
         self.rate_of_fire: float = 0.0  # not applicable, but consistent
         self.bullet_speed: float = 0.0  # does not translate
 
@@ -28,7 +28,7 @@ class MetalShield(Bullet):
         self.is_active: bool = True
         self.has_blocked: bool = False
         self.hit_count: int = 0
-        self.max_hits: int = 3
+        self.max_hits: int = max_hits
         self.damage_cooldown_ms: int = 500  # 0.5 second cooldown
         self.last_damage_time: int = 0
 
@@ -65,14 +65,14 @@ class MetalShield(Bullet):
         pass
 
 
-    def fire_metal_shield(self):
+    def fire_metal_shield(self, damage: int = 20, max_hits: int = 3):
         """
         Activates the Metal Shield spell and returns the shield instance.
         """
 
         # Use the current position as the center for the new shield
         # The shield will orbit around this position
-        shield = MetalShield(self.x, self.y)
+        shield = MetalShield(self.x, self.y, damage, max_hits)
         shield.weapon_name = "Metal Shield"
         return shield
 

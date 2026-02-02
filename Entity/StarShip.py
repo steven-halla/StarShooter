@@ -101,6 +101,11 @@ class StarShip:
         # Metal Shield
         # -------------------------
         self.metal_shield = MetalShield(self.x, self.y)
+        self.metal_shield_damage = self.metal_shield.damage
+        self.max_metal_shield_hits = self.metal_shield.max_hits
+
+
+
         # -------------------------
         # Plasma Blaster
         # -------------------------

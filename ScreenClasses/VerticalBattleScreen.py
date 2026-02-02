@@ -819,7 +819,10 @@ class VerticalBattleScreen:
         # -------------------------
         if state.starship.equipped_magic[0] == "Metal Shield" and not self.playerDead:
             if self.controller.magic_1_button and not has_active(self, "Metal Shield"):
-                shield = state.starship.metal_shield.fire_metal_shield()
+                shield = state.starship.metal_shield.fire_metal_shield(
+                    state.starship.metal_shield_damage,
+                    state.starship.max_metal_shield_hits
+                )
                 if shield is not None:
                     self.player_bullets.append(shield)
 

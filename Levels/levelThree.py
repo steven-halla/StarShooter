@@ -25,7 +25,6 @@ class LevelThree(VerticalBattleScreen):
         self.camera.y = float(self.camera_y)
         self.map_scroll_speed_per_frame: float = .4  # move speed of camera
         self.space_station: Optional[SpaceStation] = None
-        self.total_enemies = 40
         self.prev_enemy_count: int = None
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
@@ -49,7 +48,6 @@ class LevelThree(VerticalBattleScreen):
         player_x = None
         player_y = None
         self.starship.current_level = 3
-        self.starship.shipHealth = 100
 
 
         for obj in self.tiled_map.objects:
@@ -57,6 +55,10 @@ class LevelThree(VerticalBattleScreen):
                 player_x = obj.x
                 player_y = obj.y
                 break
+
+        if "Metal Shield" not in state.starship.magic_inventory:
+            state.starship.magic_inventory.append("Wind Slicer")
+        state.starship.equipped_magic = ["Wind Slicer", None]
 
         self.starship.x = player_x
         self.starship.y = player_y
