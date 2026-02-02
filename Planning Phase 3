@@ -213,12 +213,11 @@ More missiles + 1
 
 
 Ship:
-
-ship speed + 1
+Post hit invinciility + .5
 ship speed + 1
 Ship HP + 25
+ship speed + 1
 ship HP + 25
-Post hit invinciility + .5
 
 shield
 Shields max + 50

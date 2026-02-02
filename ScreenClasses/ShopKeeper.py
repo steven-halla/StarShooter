@@ -11,10 +11,10 @@ class ShopKeeper:
         self.box_size = 32
         self.box_spacing = 40
         self.num_rows = 5
-        self.num_cols = 2
+        self.num_cols = 3
 
         # top-left anchor for the vertical stack
-        self.start_x = 70
+        self.start_x = 80
         self.start_y = 90
 
         # spacing between columns
@@ -45,7 +45,12 @@ class ShopKeeper:
             "More Missiles + 2",
             "Faster Missile",
             "Damage + 100",
-            "More Missiles + 1"
+            "More Missiles + 1",
+            "Post Hit Invincibility",
+            "Ship Speed + 1",
+            "Ship HP + 25",
+            "Ship Speed + 1",
+            "Ship HP + 25"
         ]
 
         self.current_selected_chip = 0
@@ -61,7 +66,12 @@ class ShopKeeper:
             "Increases missile count by 2.\nLaunch a bigger volley.",
             "Increases missile flight speed.\nTargets have less time to react.",
             "Massive damage boost for missiles.\nDestroys heavy targets.",
-            "Increases missile count by 1.\nSlightly larger volley."
+            "Increases missile count by 1.\nSlightly larger volley.",
+            "Increases post-hit invincibility by 0.5s.\nStay safe longer after being hit.",
+            "Increases ship movement speed by 1.\nBe more agile.",
+            "Increases ship max HP by 25.\nTake more hits.",
+            "Further increases ship movement speed by 1.\nMaximum agility.",
+            "Further increases ship max HP by 25.\nUltimate durability."
         ]
 
         # precompute box rects
@@ -80,25 +90,25 @@ class ShopKeeper:
         row = self.current_selected_chip % self.num_rows
         col = self.current_selected_chip // self.num_rows
 
-        if self.controls.isUpPressed:
+        if self.controls.up_button:
             if row > 0:
                 self.current_selected_chip -= 1
                 self.textbox.show(self.item_descriptions[self.current_selected_chip])
             self.controls.isUpPressed = False
 
-        if self.controls.isDownPressed:
+        if self.controls.down_button:
             if row < self.num_rows - 1:
                 self.current_selected_chip += 1
                 self.textbox.show(self.item_descriptions[self.current_selected_chip])
             self.controls.isDownPressed = False
 
-        if self.controls.isLeftPressed:
+        if self.controls.left_button:
             if col > 0:
                 self.current_selected_chip -= self.num_rows
                 self.textbox.show(self.item_descriptions[self.current_selected_chip])
             self.controls.isLeftPressed = False
 
-        if self.controls.isRightPressed:
+        if self.controls.right_button:
             if col < self.num_cols - 1:
                 self.current_selected_chip += self.num_rows
                 self.textbox.show(self.item_descriptions[self.current_selected_chip])
