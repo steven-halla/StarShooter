@@ -197,12 +197,11 @@ Shop:
 shop:
 
 machine gun
-
-Faster bullet - speed + 1
-Fire rate up  + 1
 Double barrel
-Damage + level 1
+Faster bullet - speed + 1
 Damage + level 2
+Fire rate up  + 1
+Damage + level 1
 
 
 Missile

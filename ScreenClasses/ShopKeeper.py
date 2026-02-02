@@ -16,17 +16,43 @@ class ShopKeeper:
         self.start_x = 100
         self.start_y = 120
 
+        # text layout
+        self.text_offset_x = 60  # space to the right of the box
+
         # colors
         self.box_color = (60, 60, 60)
         self.box_border_color = (255, 255, 255)
         self.line_color = (200, 200, 200)
+        self.text_color = (220, 220, 220)
+
+        # font
+        self.font = pygame.font.Font(None, 24)
+
+        # item names (RIGHT of boxes)
+        self.item_names = [
+            "Double Barrel",
+            "Faster Bullet",
+            "Damage + Level 2",
+            "Fire Rate Up",
+            "Damage + Level 1",
+        ]
+
+        # dummy descriptions for textbox
+        self.item_descriptions = [
+            "Adds a second barrel.\nFires two bullets at once.",
+            "Increases bullet speed by +1.\nShots travel faster.",
+            "Increases weapon damage by 2 levels.",
+            "Improves fire rate.\nShoot more often.",
+            "Minor damage increase.\nCheap but effective.",
+        ]
 
         # precompute box rects
         self.boxes: list[pygame.Rect] = []
         self.build_boxes()
 
     def start(self, state):
-        pass
+        # dummy: always show first item description for now
+        self.textbox.show(self.item_descriptions[0])
 
     def update(self, state):
         self.controls.update()
@@ -47,9 +73,11 @@ class ShopKeeper:
             self.boxes.append(rect)
 
     def draw(self, state) -> None:
-        state.DISPLAY.fill((0, 0, 0)) # Fill background
+        state.DISPLAY.fill((0, 0, 0))
+
         self.draw_boxes(state.DISPLAY)
         self.draw_connecting_lines(state.DISPLAY)
+        self.draw_item_names(state.DISPLAY)
 
         if self.textbox.is_visible():
             self.textbox.draw(state.DISPLAY)
@@ -70,19 +98,22 @@ class ShopKeeper:
             top_rect = self.boxes[i]
             bottom_rect = self.boxes[i + 1]
 
-            start_pos = (
-                top_rect.centerx,
-                top_rect.bottom
-            )
-            end_pos = (
-                bottom_rect.centerx,
-                bottom_rect.top
-            )
-
             pygame.draw.line(
                 display,
                 self.line_color,
-                start_pos,
-                end_pos,
+                (top_rect.centerx, top_rect.bottom),
+                (bottom_rect.centerx, bottom_rect.top),
                 2
+            )
+
+    def draw_item_names(self, display: pygame.Surface) -> None:
+        for i, rect in enumerate(self.boxes):
+            text_surf = self.font.render(
+                self.item_names[i],
+                True,
+                self.text_color
+            )
+            display.blit(
+                text_surf,
+                (rect.right + self.text_offset_x, rect.centery - text_surf.get_height() // 2)
             )
