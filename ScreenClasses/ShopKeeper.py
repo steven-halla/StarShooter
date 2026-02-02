@@ -224,12 +224,12 @@ class ShopKeeper:
 
     def draw_boxes(self, display: pygame.Surface) -> None:
         for i, rect in enumerate(self.boxes):
-            color = self.box_color
+            border_color = self.box_border_color
             if i == self.current_selected_chip:
-                color = self.selected_box_color
+                border_color = self.selected_box_color
 
-            pygame.draw.rect(display, color, rect)
-            pygame.draw.rect(display, self.box_border_color, rect, 2)
+            pygame.draw.rect(display, self.box_color, rect)
+            pygame.draw.rect(display, border_color, rect, 2)
 
     def draw_connecting_lines(self, display: pygame.Surface) -> None:
         for c in range(self.num_cols):
