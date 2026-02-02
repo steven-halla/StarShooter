@@ -119,6 +119,8 @@ class StarShip:
         # Wind Slicer
         # -------------------------
         self.wind_slicer = WindSlicer(self.x, self.y)
+        self.wind_slicer_damage = self.wind_slicer.damage
+        self.wind_slicer_bullet_count = self.wind_slicer.bullet_count
         # -------------------------
         # Napalm Spread
         # -------------------------

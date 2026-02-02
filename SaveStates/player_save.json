@@ -4,13 +4,13 @@
     "shipHealth": 150,
     "shipHealthMax": 150,
     "equipped_magic": [
-      "Metal Shield",
+      "Wind Slicer",
       null
     ],
     "magic_inventory": [
-      "Metal Shield"
+      "Wind Slicer"
     ],
-    "current_level": 2
+    "current_level": 3
   },
   "weapons": {
     "machine_gun": {
@@ -20,6 +20,10 @@
       "rate_of_fire": 0.1,
       "bullet_speed": 6.0,
       "bullets_per_shot": 2
+    },
+    "wind_slicer": {
+      "damage": 5,
+      "bullet_count": 8
     }
   },
   "missiles": {

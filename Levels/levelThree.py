@@ -56,7 +56,7 @@ class LevelThree(VerticalBattleScreen):
                 player_y = obj.y
                 break
 
-        if "Metal Shield" not in state.starship.magic_inventory:
+        if "Wind Slicer" not in state.starship.magic_inventory:
             state.starship.magic_inventory.append("Wind Slicer")
         state.starship.equipped_magic = ["Wind Slicer", None]
 

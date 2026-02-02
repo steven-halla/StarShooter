@@ -49,6 +49,10 @@ class SaveState:
                 "rate_of_fire": starship.machine_gun_rate_of_fire,
                 "bullet_speed": starship.machine_gun_bullet_speed,
                 "bullets_per_shot": starship.machine_gun_bullets_per_shot,
+            },
+            "wind_slicer": {
+                "damage": starship.wind_slicer_damage,
+                "bullet_count": starship.wind_slicer_bullet_count,
             }
         }
 
@@ -100,20 +104,25 @@ class SaveState:
             starship.current_heat = s.get("current_heat", starship.current_heat)
             starship.max_heat = s.get("max_heat", starship.max_heat)
 
-        w = self.data.get("weapons", {}).get("machine_gun", {})
-        if w:
-            starship.machine_gun_damage = w.get("damage", starship.machine_gun_damage)
-            starship.machine_gun_width = w.get("width", starship.machine_gun_width)
-            starship.machine_gun_height = w.get("height", starship.machine_gun_height)
-            starship.machine_gun_rate_of_fire = w.get(
+        w_mg = self.data.get("weapons", {}).get("machine_gun", {})
+        if w_mg:
+            starship.machine_gun_damage = w_mg.get("damage", starship.machine_gun_damage)
+            starship.machine_gun_width = w_mg.get("width", starship.machine_gun_width)
+            starship.machine_gun_height = w_mg.get("height", starship.machine_gun_height)
+            starship.machine_gun_rate_of_fire = w_mg.get(
                 "rate_of_fire", starship.machine_gun_rate_of_fire
             )
-            starship.machine_gun_bullet_speed = w.get(
+            starship.machine_gun_bullet_speed = w_mg.get(
                 "bullet_speed", starship.machine_gun_bullet_speed
             )
-            starship.machine_gun_bullets_per_shot = w.get(
+            starship.machine_gun_bullets_per_shot = w_mg.get(
                 "bullets_per_shot", starship.machine_gun_bullets_per_shot
             )
+
+        w_ws = self.data.get("weapons", {}).get("wind_slicer", {})
+        if w_ws:
+            starship.wind_slicer_damage = w_ws.get("damage", starship.wind_slicer_damage)
+            starship.wind_slicer_bullet_count = w_ws.get("bullet_count", starship.wind_slicer_bullet_count)
 
         m = self.data.get("missiles", {})
         if m:

@@ -428,7 +428,10 @@ class MapTester(VerticalBattleScreen):
         if state.starship.equipped_magic[0] == "Wind Slicer" and not self.playerDead:
             if self.controller.magic_1_button:
                 state.player_bullets.extend(
-                    state.starship.wind_slicer.fire_wind_slicer()
+                    state.starship.wind_slicer.fire_wind_slicer(
+                        damage=state.starship.wind_slicer_damage,
+                        bullet_count=state.starship.wind_slicer_bullet_count
+                    )
                 )
 
     def get_nearest_enemy(self, state, missile):
