@@ -244,10 +244,16 @@ class LevelTwo(VerticalBattleScreen):
             enemy.target_player = self.starship
 
             # 🔑 CRITICAL FIX: ensure health is initialized
-            if hasattr(enemy, "maxHealth"):
+            if obj.name == "blade_spinner":
+                enemy.enemyHealth = 40
+            elif obj.name == "tri_spitter":
+                enemy.enemyHealth = 35
+            elif obj.name == "fire_launcher":
+                enemy.enemyHealth = 40
+            elif hasattr(enemy, "maxHealth"):
                 enemy.enemyHealth = enemy.maxHealth
             else:
-                enemy.enemyHealth = 1  # safe fallback
+                enemy.enemyHealth = 30  # safe fallback for bile_spitter and others
 
             enemy.update_hitbox()
 
