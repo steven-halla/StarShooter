@@ -14,7 +14,7 @@ class ShopKeeper:
         self.num_cols = 2
 
         # top-left anchor for the vertical stack
-        self.start_x = 50
+        self.start_x = 70
         self.start_y = 90
 
         # spacing between columns
