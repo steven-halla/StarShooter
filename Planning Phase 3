@@ -220,16 +220,21 @@ ship speed + 1
 ship HP + 25
 
 shield
+faster rate charge + 1
 Shields max + 50
+Faster recharge timer +1
+faster rate charge + 1
 Shields Max + 50
-Faster recharge +1
-faster rate chaeg + 1
-faster rate chaeg + 1
 
 Ki:
 ki max + 25
+weapon chip upgrade
+weapon chip upgrade
+weapon chip upgrade
 ki max + 25
-faster recharge + 1
+
+
+
 level 2 weapon chip upgrade pick 2
 Buster cannon
 Metal Shield

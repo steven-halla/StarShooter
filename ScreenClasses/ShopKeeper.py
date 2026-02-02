@@ -11,7 +11,7 @@ class ShopKeeper:
         self.box_size = 32
         self.box_spacing = 40
         self.num_rows = 5
-        self.num_cols = 3
+        self.num_cols = 4
 
         # top-left anchor for the vertical stack
         self.start_x = 80
@@ -50,7 +50,12 @@ class ShopKeeper:
             "Ship Speed + 1",
             "Ship HP + 25",
             "Ship Speed + 1",
-            "Ship HP + 25"
+            "Ship HP + 25",
+            "Faster Rate Charge + 1",
+            "Shields Max + 50",
+            "Faster Recharge Timer + 1",
+            "Faster Rate Charge + 1",
+            "Shields Max + 50"
         ]
 
         self.current_selected_chip = 0
@@ -71,7 +76,35 @@ class ShopKeeper:
             "Increases ship movement speed by 1.\nBe more agile.",
             "Increases ship max HP by 25.\nTake more hits.",
             "Further increases ship movement speed by 1.\nMaximum agility.",
-            "Further increases ship max HP by 25.\nUltimate durability."
+            "Further increases ship max HP by 25.\nUltimate durability.",
+            "Increases shield charge rate by 1.\nShield recovers faster.",
+            "Increases maximum shield by 50.\nAbsorb more damage.",
+            "Decreases shield recharge delay by 1.\nShield starts recovering sooner.",
+            "Further increases shield charge rate by 1.\nRapid shield recovery.",
+            "Further increases maximum shield by 50.\nMaximum shield capacity."
+        ]
+
+        self.item_chips = [
+            "machine_gun_extra_bullet",
+            "machine_gun_bullet_speed_up",
+            "bullet_attack_up_plus_five",  # Actually level 2 is mapped to +5 in apply_upgrades
+            "machine_gun_rate_of_fire_up",
+            "bullet_attack_up_plus_five",  # This is a bit redundant but matches names
+            "missile_regen_faster",
+            "max_missiles_plus_two",
+            "missile_bullet_speed_up",
+            "missile_attack_up_plus_ten",
+            "max_missiles_plus_two", # More missiles + 1?
+            "post_hit_invincibility_plus_half",
+            "ship_speed_plus_one",
+            "ship_hp_plus_twenty_five",
+            "ship_speed_plus_one",
+            "ship_hp_plus_twenty_five",
+            "shield_charge_rate_plus_one",
+            "shield_max_plus_fifty",
+            "shield_recharge_timer_plus_one",
+            "shield_charge_rate_plus_one",
+            "shield_max_plus_fifty"
         ]
 
         # precompute box rects
@@ -113,6 +146,14 @@ class ShopKeeper:
                 self.current_selected_chip += self.num_rows
                 self.textbox.show(self.item_descriptions[self.current_selected_chip])
             self.controls.isRightPressed = False
+
+        if self.controls.qJustPressed:
+            chip_id = self.item_chips[self.current_selected_chip]
+            if chip_id not in state.starship.upgrade_chips:
+                state.starship.upgrade_chips.append(chip_id)
+                state.starship.apply_upgrades()
+                print(f"Purchased chip: {chip_id}")
+            self.controls.qJustPressed = False
 
     def build_boxes(self) -> None:
         self.boxes.clear()

@@ -133,7 +133,8 @@ class StarShip:
         self.speed: float = 3.0
         self.shipHealth: int = 150
         self.shipHealthMax: int = 150
-        self.invincibility_timer: Timer = Timer(2.0)
+        self.post_hit_invincibility_duration: float = 2.0
+        self.invincibility_timer: Timer = Timer(self.post_hit_invincibility_duration)
         self.upgrade_chips: list = [""]
         self.player_ki: int = 50
         self.player_max_ki: int = 50
@@ -340,6 +341,49 @@ class StarShip:
         Apply all upgrade chips to player-owned weapon stats.
         This should be called ONCE per level start or after loading a save.
         """
+        # Reset to base stats before applying upgrades to avoid compounding on multiple calls
+        self.speed = 3.0
+        self.shipHealthMax = 150
+        self.post_hit_invincibility_duration = 2.0
+        self.invincibility_timer.interval = 2.0
+        
+        # Reset shield base stats
+        self.shield_system.max_shield_points = 100
+        self.shield_system.recharge_rate_shield = 0.2
+        self.shield_system.time_to_start_shield_recharge = 10000
+
+        # Reset machine gun base stats
+        self.machine_gun_damage = 0.7
+        self.machine_gun.damage = 0.7
+        self.machine_gun_width = 4
+        self.machine_gun.width = 4
+        self.machine_gun_height = 4
+        self.machine_gun.height = 4
+        self.machine_gun_rate_of_fire = 0.1
+        self.machine_gun.rate_of_fire = 0.1
+        self.machine_gun_bullet_speed = 6.0
+        self.machine_gun.bullet_speed = 6.0
+        self.machine_gun_bullets_per_shot = 2
+        self.machine_gun.bullets_per_shot = 2
+
+        # Reset missile base stats
+        self.missile_damage = 343
+        self.missile.damage = 343
+        self.missile_bullet_speed = 1.5
+        self.missile.bullet_speed = 1.5
+        self.missile_rate_of_fire = 0.5
+        self.missile.rate_of_fire = 0.5
+        self.missile_max = 2
+        self.missile.max_missiles = 2
+        self.missile_regen_interval_seconds = 10.0
+        self.missile.missile_regen_interval_seconds = 10.0
+        self.missile_regen_timer.interval = 10.0
+
+        # Reset other weapons
+        self.wind_slicer_damage = 5.0 # Need to check base
+        self.wind_slicer.damage = 5.0
+        self.wind_slicer_bullet_count = 1
+        self.wind_slicer.bullet_count = 1
 
         # -------------------------
         # UPGRADE DEFINITIONS
@@ -399,6 +443,32 @@ class StarShip:
             "missile_regen_faster": lambda: (
                 setattr(self, "missile_regen_interval_seconds", max(0.5, self.missile_regen_interval_seconds - 0.5)),
                 setattr(self.missile, "missile_regen_interval_seconds", max(0.5, self.missile.missile_regen_interval_seconds - 0.5))
+            ),
+
+            "shield_charge_rate_plus_one": lambda: (
+                setattr(self.shield_system, "recharge_rate_shield", self.shield_system.recharge_rate_shield + 1)
+            ),
+
+            "shield_max_plus_fifty": lambda: (
+                setattr(self.shield_system, "max_shield_points", self.shield_system.max_shield_points + 50)
+            ),
+
+            "shield_recharge_timer_plus_one": lambda: (
+                setattr(self.shield_system, "time_to_start_shield_recharge", max(0, self.shield_system.time_to_start_shield_recharge - 1000))
+            ),
+
+            "post_hit_invincibility_plus_half": lambda: (
+                setattr(self, "post_hit_invincibility_duration", self.post_hit_invincibility_duration + 0.5),
+                setattr(self.invincibility_timer, "interval", self.post_hit_invincibility_duration)
+            ),
+
+            "ship_speed_plus_one": lambda: (
+                setattr(self, "speed", self.speed + 1)
+            ),
+
+            "ship_hp_plus_twenty_five": lambda: (
+                setattr(self, "shipHealthMax", self.shipHealthMax + 25),
+                setattr(self, "shipHealth", self.shipHealth + 25)
             ),
         }
 
