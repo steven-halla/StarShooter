@@ -22,6 +22,7 @@ class ShopKeeper:
         # colors
         self.box_color = (60, 60, 60)
         self.box_border_color = (255, 255, 255)
+        self.selected_box_color = (0, 200, 0) # Highlight green
         self.line_color = (200, 200, 200)
         self.text_color = (220, 220, 220)
 
@@ -37,6 +38,8 @@ class ShopKeeper:
             "Damage + Level 1",
         ]
 
+        self.current_selected_chip = len(self.item_names) - 1
+
         # dummy descriptions for textbox
         self.item_descriptions = [
             "Adds a second barrel.\nFires two bullets at once.",
@@ -51,13 +54,25 @@ class ShopKeeper:
         self.build_boxes()
 
     def start(self, state):
-        # dummy: always show first item description for now
-        self.textbox.show(self.item_descriptions[0])
+        # Always show current selected item description
+        self.textbox.show(self.item_descriptions[self.current_selected_chip])
 
     def update(self, state):
         self.controls.update()
         if self.controls.isExitPressed:
             state.isRunning = False
+
+        if self.controls.isUpPressed:
+            if self.current_selected_chip > 0:
+                self.current_selected_chip -= 1
+                self.textbox.show(self.item_descriptions[self.current_selected_chip])
+            self.controls.isUpPressed = False
+
+        if self.controls.isDownPressed:
+            if self.current_selected_chip < len(self.boxes) - 1:
+                self.current_selected_chip += 1
+                self.textbox.show(self.item_descriptions[self.current_selected_chip])
+            self.controls.isDownPressed = False
 
     def build_boxes(self) -> None:
         self.boxes.clear()
@@ -89,8 +104,12 @@ class ShopKeeper:
     # --------------------------------------------------
 
     def draw_boxes(self, display: pygame.Surface) -> None:
-        for rect in self.boxes:
-            pygame.draw.rect(display, self.box_color, rect)
+        for i, rect in enumerate(self.boxes):
+            color = self.box_color
+            if i == self.current_selected_chip:
+                color = self.selected_box_color
+
+            pygame.draw.rect(display, color, rect)
             pygame.draw.rect(display, self.box_border_color, rect, 2)
 
     def draw_connecting_lines(self, display: pygame.Surface) -> None:
