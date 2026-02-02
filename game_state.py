@@ -19,6 +19,7 @@ from ScreenClasses.MissionBriefingScreenLevelFour import MissionBriefingScreenLe
 from ScreenClasses.MissionBriefingScreenLevelOne import MissionBriefingScreenLevelOne
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.Screen import Screen
+from ScreenClasses.ShopKeeper import ShopKeeper
 from ScreenClasses.TextBox import TextBox
 from ScreenClasses.TitleScreen import TitleScreen
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen

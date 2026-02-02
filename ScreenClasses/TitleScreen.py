@@ -15,8 +15,8 @@ class TitleScreen:
         self.font_title = pygame.font.SysFont("arial", 72, bold=True)
         self.font_menu = pygame.font.SysFont("arial", 32)
 
-        # levels 1–10, 11 = LOAD
-        self.levels = list(range(1, 12))
+        # levels 1–10, 12 = SHOP, 11 = LOAD
+        self.levels = list(range(1, 11)) + [12, 11]
         self.selected_index = 0
 
         self.bg_color = (0, 0, 0)
@@ -52,6 +52,15 @@ class TitleScreen:
         # FIRE (F)
         if self.controls.main_weapon_button:
             selected_level = self.levels[self.selected_index]
+
+            # -------------------------
+            # SHOP KEEPER (LEVEL 12)
+            # -------------------------
+            if selected_level == 12:
+                from ScreenClasses.ShopKeeper import ShopKeeper
+                state.currentScreen = ShopKeeper(state.textbox)
+                state.currentScreen.start(state)
+                return
 
             # -------------------------
             # LOAD GAME (LEVEL 11)
@@ -145,7 +154,12 @@ class TitleScreen:
         self.screen.blit(up_arrow, up_arrow.get_rect(center=(cx, cy - 50)))
 
         current = self.levels[self.selected_index]
-        label = "LOAD GAME" if current == 11 else f"LEVEL {current}"
+        if current == 11:
+            label = "LOAD GAME"
+        elif current == 12:
+            label = "SHOP KEEPER"
+        else:
+            label = f"LEVEL {current}"
         level_surf = self.font_menu.render(label, True, self.highlight_color)
         self.screen.blit(level_surf, level_surf.get_rect(center=(cx, cy)))
 
