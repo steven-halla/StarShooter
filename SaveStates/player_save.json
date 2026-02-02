@@ -4,11 +4,11 @@
     "shipHealth": 150,
     "shipHealthMax": 150,
     "equipped_magic": [
-      "Energy Ball",
+      "Metal Shield",
       null
     ],
     "magic_inventory": [
-      "Energy Ball"
+      "Metal Shield"
     ],
     "current_level": 2
   },

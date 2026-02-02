@@ -9,6 +9,7 @@ from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.TriSpitter import TriSpitter
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
+from ShipEngine.Shield import Shield
 
 class LevelTwo(VerticalBattleScreen):
     def __init__(self, textbox):
@@ -30,8 +31,9 @@ class LevelTwo(VerticalBattleScreen):
         self.level_complete = False
         self.side_rect_width = 16
         self.side_rect_height = 16
-        self.side_rect_hp = 50
-        self.side_rect_max_hp = 50
+        self.side_rect_shield = Shield(100, 0.05, 3000)
+        self.side_rect_shield.owner = self
+        self.shipHealth = 100 # for shield overflow
         self.side_rect_hitbox = pygame.Rect(0, 0, 0, 0)
         self.game_over: bool = False
 
@@ -47,9 +49,9 @@ class LevelTwo(VerticalBattleScreen):
                 player_x = obj.x
                 player_y = obj.y
                 break
-        if "Energy Ball" not in state.starship.magic_inventory:
-            state.starship.magic_inventory.append("Energy Ball")
-        state.starship.equipped_magic = ["Energy Ball", None]
+        if "Metal Shield" not in state.starship.magic_inventory:
+            state.starship.magic_inventory.append("Metal Shield")
+        state.starship.equipped_magic = ["Metal Shield", None]
         self.starship.x = player_x
         self.starship.y = player_y
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
@@ -60,7 +62,7 @@ class LevelTwo(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
-        self.update_side_rect_invincibility()
+        self.side_rect_shield.update()
         self.update_side_ship()
         self.update_enemy_helper(state)
         self.update_complete_level(state)
@@ -96,7 +98,7 @@ class LevelTwo(VerticalBattleScreen):
             self.side_rect_height
         )
         hazard_layer = self.tiled_map.get_layer_by_name("hazard")
-        if self.side_rect_hp > 0 and not self.side_rect_invincible:
+        if self.side_rect_shield.current_shield_points > 0:
             for x, y, gid in hazard_layer:
                 if gid == 0:
                     continue
@@ -109,21 +111,9 @@ class LevelTwo(VerticalBattleScreen):
                 )
 
                 if self.side_rect_hitbox.colliderect(tile_rect):
-                    self.side_rect_hp -= 1
-                    self.side_rect_invincible = True
-                    self.side_rect_invincible_start_time = pygame.time.get_ticks()
-                    print("⚠️ Side rect took hazard damage:", self.side_rect_hp)
+                    self.side_rect_shield.take_damage(1)
+                    print("⚠️ Side rect took hazard damage:", self.side_rect_shield.current_shield_points)
                     break
-
-    def update_side_rect_invincibility(self) -> None:
-        if not hasattr(self, "side_rect_invincible"):
-            self.side_rect_invincible = False
-            self.side_rect_invincible_start_time = 0
-            return
-
-        if self.side_rect_invincible:
-            if pygame.time.get_ticks() - self.side_rect_invincible_start_time >= 1000:
-                self.side_rect_invincible = False
 
     def update_enemy_helper(self, state):
         now = pygame.time.get_ticks()
@@ -133,11 +123,8 @@ class LevelTwo(VerticalBattleScreen):
         # SIDE RECT vs ENEMIES
         for enemy in state.enemies:
             if enemy.hitbox.colliderect(self.side_rect_hitbox):
-                if not self.side_rect_invincible:
-                    self.side_rect_hp -= 10
-                    self.side_rect_invincible = True
-                    self.side_rect_invincible_start_time = now
-                    print("⚠️ SIDE RECT TOOK CONTACT DAMAGE:", self.side_rect_hp)
+                self.side_rect_shield.take_damage(10)
+                print("⚠️ SIDE RECT TOOK CONTACT DAMAGE:", self.side_rect_shield.current_shield_points)
 
         # SIDE RECT vs ENEMY BULLETS
         for bullet in list(state.enemy_bullets):
@@ -149,11 +136,8 @@ class LevelTwo(VerticalBattleScreen):
             )
 
             if bullet_rect.colliderect(self.side_rect_hitbox):
-                if not self.side_rect_invincible:
-                    self.side_rect_hp -= bullet.damage
-                    self.side_rect_invincible = True
-                    self.side_rect_invincible_start_time = now
-                    print("⚠️ SIDE RECT HIT:", self.side_rect_hp)
+                self.side_rect_shield.take_damage(bullet.damage)
+                print("⚠️ SIDE RECT HIT:", self.side_rect_shield.current_shield_points)
 
                 state.enemy_bullets.remove(bullet)
 
@@ -189,7 +173,7 @@ class LevelTwo(VerticalBattleScreen):
         side_screen_y = self.camera.world_to_screen_y(self.side_rect_hitbox.y)
         side_w = int(self.side_rect_hitbox.width * zoom)
         side_h = int(self.side_rect_hitbox.height * zoom)
-        hp_ratio = max(0, self.side_rect_hp / self.side_rect_max_hp)
+        hp_ratio = max(0, self.side_rect_shield.current_shield_points / self.side_rect_shield.max_shield_points)
         hp_width = int(side_w * hp_ratio)
         # background
         pygame.draw.rect(
@@ -210,6 +194,9 @@ class LevelTwo(VerticalBattleScreen):
             (side_screen_x, side_screen_y, side_w, side_h),
             1
         )
+        if self.shipHealth < 100:
+             # Just an example of what to do if it's "destroyed" (overflow damage taken)
+             pass
 
     def load_enemy_into_list(self, state):
         state.enemies.clear()

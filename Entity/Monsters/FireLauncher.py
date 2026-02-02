@@ -39,7 +39,7 @@ class FireLauncher(Enemy):
 
         # ranged attack
         self.bulletColor = GlobalConstants.SKYBLUE
-        self.attack_timer = Timer(3.0)
+        self.attack_timer = Timer(4.0)
 
         # touch damage
         self.touch_damage: int = 10
@@ -58,7 +58,7 @@ class FireLauncher(Enemy):
 
         if self.attack_timer.is_ready():
             self.shoot_spores(
-                bullet_speed=2.5,
+                bullet_speed=1.5,
                 bullet_width=5,
                 bullet_height=5,
                 bullet_color=self.bulletColor,
