@@ -13,6 +13,10 @@ class ShopKeeper:
         self.num_rows = 5
         self.num_cols = 5
 
+        # purchase holding timer
+        self.fill_timer = 0.0
+        self.fill_target_time = 2000.0  # 2 seconds in milliseconds
+
         # top-left anchor for the vertical stack
         self.start_x = 60
         self.start_y = 90
@@ -172,17 +176,24 @@ class ShopKeeper:
                 self.textbox.show(self.item_descriptions[self.current_selected_chip])
             self.controls.isRightPressed = False
 
+        if self.controls.main_weapon_button:
+            self.fill_timer += state.delta
+            if self.fill_timer >= self.fill_target_time:
+                price = self.item_prices[self.current_selected_chip]
+                chip_id = self.item_chips[self.current_selected_chip]
+                if chip_id not in state.starship.upgrade_chips:
+                    if state.starship.money >= price:
+                        state.starship.money -= price
+                        state.starship.upgrade_chips.append(chip_id)
+                        state.starship.apply_upgrades()
+                        print(f"Purchased chip: {chip_id} for {price}")
+                    else:
+                        print(f"Not enough money for {chip_id}. Need {price}, have {state.starship.money}")
+                self.fill_timer = 0.0 # reset after purchase
+        else:
+            self.fill_timer = 0.0
+
         if self.controls.qJustPressed:
-            price = self.item_prices[self.current_selected_chip]
-            chip_id = self.item_chips[self.current_selected_chip]
-            if chip_id not in state.starship.upgrade_chips:
-                if state.starship.money >= price:
-                    state.starship.money -= price
-                    state.starship.upgrade_chips.append(chip_id)
-                    state.starship.apply_upgrades()
-                    print(f"Purchased chip: {chip_id} for {price}")
-                else:
-                    print(f"Not enough money for {chip_id}. Need {price}, have {state.starship.money}")
             self.controls.qJustPressed = False
 
     def build_boxes(self) -> None:
@@ -229,6 +240,15 @@ class ShopKeeper:
                 border_color = self.selected_box_color
 
             pygame.draw.rect(display, self.box_color, rect)
+
+            # draw fill if selected
+            if i == self.current_selected_chip and self.fill_timer > 0:
+                fill_height = int((self.fill_timer / self.fill_target_time) * self.box_size)
+                if fill_height > self.box_size:
+                    fill_height = self.box_size
+                fill_rect = pygame.Rect(rect.x, rect.y, rect.width, fill_height)
+                pygame.draw.rect(display, (0, 255, 0), fill_rect)
+
             pygame.draw.rect(display, border_color, rect, 2)
 
     def draw_connecting_lines(self, display: pygame.Surface) -> None:

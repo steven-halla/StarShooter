@@ -70,6 +70,8 @@ class GameState:
 
         self.save_state = SaveState()
 
+        self.delta: int = 0
+
 
 
         # --------------------------------------------------
