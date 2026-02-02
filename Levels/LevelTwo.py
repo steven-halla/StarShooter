@@ -22,7 +22,7 @@ class LevelTwo(VerticalBattleScreen):
         self.camera_y = self.WORLD_HEIGHT - window_height
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
-        self.map_scroll_speed_per_frame: float = 0
+        self.map_scroll_speed_per_frame: float = 0.4
         self.prev_enemy_count: int = None
         self.enemies_killed: int = 0
         self.level_start_time = pygame.time.get_ticks()

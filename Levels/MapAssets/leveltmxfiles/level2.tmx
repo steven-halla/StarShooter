@@ -250,7 +250,7 @@
  </layer>
  <objectgroup id="5" name="enemies">
   <object id="16" name="fire_launcher" x="92.7575" y="3245.09" width="16" height="16"/>
-  <object id="116" name="fire_launcher" x="112.736" y="2884.05" width="16" height="16"/>
+  <object id="116" name="fire_launcher" x="118.644" y="3554.99" width="16" height="16"/>
   <object id="114" name="fire_launcher" x="135.914" y="2450.99" width="16" height="16"/>
   <object id="110" name="fire_launcher" x="215.483" y="2868.35" width="16" height="16"/>
   <object id="115" name="fire_launcher" x="157.688" y="3245.81" width="16" height="16"/>
@@ -272,7 +272,7 @@
   <object id="107" name="bile_spitter" x="38.0362" y="307.699" width="16" height="16"/>
   <object id="103" name="bile_spitter" x="151.267" y="3470.57" width="16" height="16"/>
   <object id="105" name="bile_spitter" x="246.264" y="316.124" width="16" height="16"/>
-  <object id="117" name="tri_spitter" x="16.8791" y="3112.5" width="16" height="16"/>
+  <object id="117" name="tri_spitter" x="222.804" y="3331.93" width="16" height="16"/>
   <object id="124" name="tri_spitter" x="104.65" y="1775.68" width="16" height="16"/>
   <object id="142" name="tri_spitter" x="84.3953" y="1226.26" width="16" height="16"/>
   <object id="122" name="tri_spitter" x="102.962" y="2633.98" width="16" height="16"/>
@@ -286,7 +286,7 @@
   <object id="132" name="blade_spinner" x="159.507" y="3093.93" width="16" height="16"/>
   <object id="135" name="blade_spinner" x="236.307" y="3094.78" width="16" height="16"/>
   <object id="130" name="blade_spinner" x="62.4525" y="1503.08" width="16" height="16"/>
-  <object id="133" name="blade_spinner" x="178.074" y="2854.25" width="16" height="16"/>
+  <object id="133" name="blade_spinner" x="206.769" y="3595.24" width="16" height="16"/>
   <object id="137" name="blade_spinner" x="219.428" y="652.376" width="16" height="16"/>
   <object id="128" name="blade_spinner" x="138.408" y="1543.59" width="16" height="16"/>
   <object id="131" name="blade_spinner" x="178.074" y="3093.93" width="16" height="16"/>
@@ -294,7 +294,6 @@
   <object id="129" name="blade_spinner" x="170.479" y="1513.21" width="16" height="16"/>
   <object id="134" name="blade_spinner" x="132.501" y="751.118" width="16" height="16"/>
   <object id="138" name="blade_spinner" x="212.676" y="2443.24" width="16" height="16"/>
-  <object id="145" name="level_2_boss" x="153.599" y="3723.52" width="40" height="30"/>
  </objectgroup>
  <layer id="6" name="background" width="25" height="240">
   <data encoding="csv">
