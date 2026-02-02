@@ -151,31 +151,33 @@ class TextBox:
     # PAGE BUILDING (ONE TIME)
     # ─────────────────────────────
     def _build_pages(self, text: str) -> list[list[str]]:
-        words = text.split(" ")
+        input_lines = text.split("\n")
         space_width = self.font.size(" ")[0]
         max_width = self.rect.width - self.padding * 2
 
-        lines: list[str] = []
-        current_line = ""
-        current_width = 0
+        wrapped_lines: list[str] = []
+        for input_line in input_lines:
+            words = input_line.split(" ")
+            current_line = ""
+            current_width = 0
 
-        for word in words:
-            word_width = self.font.size(word)[0]
+            for word in words:
+                word_width = self.font.size(word)[0]
 
-            if current_width + word_width <= max_width:
-                current_line += word + " "
-                current_width += word_width + space_width
-            else:
-                lines.append(current_line.rstrip())
-                current_line = word + " "
-                current_width = word_width + space_width
+                if current_width + word_width <= max_width:
+                    current_line += word + " "
+                    current_width += word_width + space_width
+                else:
+                    wrapped_lines.append(current_line.rstrip())
+                    current_line = word + " "
+                    current_width = word_width + space_width
 
-        if current_line:
-            lines.append(current_line.rstrip())
+            if current_line:
+                wrapped_lines.append(current_line.rstrip())
 
         pages: list[list[str]] = []
-        for i in range(0, len(lines), self.MAX_LINES_PER_PAGE):
-            pages.append(lines[i:i + self.MAX_LINES_PER_PAGE])
+        for i in range(0, len(wrapped_lines), self.MAX_LINES_PER_PAGE):
+            pages.append(wrapped_lines[i:i + self.MAX_LINES_PER_PAGE])
 
         return pages
 

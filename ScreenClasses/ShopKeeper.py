@@ -61,9 +61,9 @@ class ShopKeeper:
             "Rate Charge +",
             "Shields+ 50",
             "Ki + 25",
-            "Wpm Chip +",
-            "Wpm Chip +",
-            "Wpm Chip +",
+            "Wpn Chip ",
+            "Wpn Chip ",
+            "Wpn Chip ",
             "Ki Max + 25"
         ]
 
@@ -142,7 +142,12 @@ class ShopKeeper:
 
     def start(self, state):
         # Always show current selected item description
-        self.textbox.show(self.item_descriptions[self.current_selected_chip])
+        self.textbox.show(self._get_description(state, self.current_selected_chip))
+
+    def _get_description(self, state, index):
+        money_line = f"Money: {state.starship.money}"
+        desc = self.item_descriptions[index]
+        return f"{money_line}\n \n{desc}"
 
     def update(self, state):
         self.controls.update()
@@ -155,25 +160,25 @@ class ShopKeeper:
         if self.controls.up_button:
             if row > 0:
                 self.current_selected_chip -= 1
-                self.textbox.show(self.item_descriptions[self.current_selected_chip])
+                self.textbox.show(self._get_description(state, self.current_selected_chip))
             self.controls.isUpPressed = False
 
         if self.controls.down_button:
             if row < self.num_rows - 1:
                 self.current_selected_chip += 1
-                self.textbox.show(self.item_descriptions[self.current_selected_chip])
+                self.textbox.show(self._get_description(state, self.current_selected_chip))
             self.controls.isDownPressed = False
 
         if self.controls.left_button:
             if col > 0:
                 self.current_selected_chip -= self.num_rows
-                self.textbox.show(self.item_descriptions[self.current_selected_chip])
+                self.textbox.show(self._get_description(state, self.current_selected_chip))
             self.controls.isLeftPressed = False
 
         if self.controls.right_button:
             if col < self.num_cols - 1:
                 self.current_selected_chip += self.num_rows
-                self.textbox.show(self.item_descriptions[self.current_selected_chip])
+                self.textbox.show(self._get_description(state, self.current_selected_chip))
             self.controls.isRightPressed = False
 
         if self.controls.main_weapon_button:
@@ -187,6 +192,8 @@ class ShopKeeper:
                         state.starship.upgrade_chips.append(chip_id)
                         state.starship.apply_upgrades()
                         print(f"Purchased chip: {chip_id} for {price}")
+                        # Refresh textbox to show updated money
+                        self.textbox.show(self._get_description(state, self.current_selected_chip))
                     else:
                         print(f"Not enough money for {chip_id}. Need {price}, have {state.starship.money}")
                 self.fill_timer = 0.0 # reset after purchase
@@ -214,10 +221,15 @@ class ShopKeeper:
     def draw(self, state) -> None:
         state.DISPLAY.fill((0, 0, 0))
 
-        # Draw top bar
-        pygame.draw.rect(state.DISPLAY, (0, 0, 0), (0, 0, state.DISPLAY.get_width(), 40))
-        money_text = self.font.render(f"Money: {state.starship.money}", True, (255, 255, 255))
-        state.DISPLAY.blit(money_text, (10, 10))
+        # Draw money bar at top
+        money_bar_height = 40
+        pygame.draw.rect(state.DISPLAY, (0, 0, 0), (0, 0, state.DISPLAY.get_width(), money_bar_height))
+        
+        # Render and draw player money
+        money_text = f"Money: ${state.starship.money}"
+        money_surf = self.font.render(money_text, True, (255, 255, 255))
+        money_rect = money_surf.get_rect(midleft=(20, money_bar_height // 2))
+        state.DISPLAY.blit(money_surf, money_rect)
 
         self.draw_boxes(state.DISPLAY)
         self.draw_connecting_lines(state.DISPLAY)
@@ -246,7 +258,7 @@ class ShopKeeper:
                 fill_height = int((self.fill_timer / self.fill_target_time) * self.box_size)
                 if fill_height > self.box_size:
                     fill_height = self.box_size
-                fill_rect = pygame.Rect(rect.x, rect.y, rect.width, fill_height)
+                fill_rect = pygame.Rect(rect.x, rect.y + rect.height - fill_height, rect.width, fill_height)
                 pygame.draw.rect(display, (0, 255, 0), fill_rect)
 
             pygame.draw.rect(display, border_color, rect, 2)
@@ -281,10 +293,9 @@ class ShopKeeper:
             for r in range(self.num_rows):
                 idx = c * self.num_rows + r
                 rect = self.boxes[idx]
-                price = self.item_prices[idx]
 
                 # Render name
-                text_content = f"{self.item_names[idx]} ({price})"
+                text_content = f"{self.item_names[idx]}"
                 text_surf = self.font.render(
                     text_content,
                     True,
