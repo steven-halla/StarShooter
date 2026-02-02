@@ -14,7 +14,7 @@ class ShopKeeper:
         self.num_cols = 5
 
         # top-left anchor for the vertical stack
-        self.start_x = 40
+        self.start_x = 60
         self.start_y = 90
 
         # spacing between columns
@@ -62,6 +62,16 @@ class ShopKeeper:
             "Wpm Chip +",
             "Ki Max + 25"
         ]
+
+        # Calculate prices based on tier (row)
+        # Bottom tier (row 4) is 1000, then 3000 for tier 2 (row 3)...
+        # Pattern: 1000, 3000, 5000, 7000, 9000
+        # Tiers are rows from bottom to top: 0=9000, 1=7000, 2=5000, 3=3000, 4=1000
+        self.item_prices = []
+        for c in range(self.num_cols):
+            for r in range(self.num_rows):
+                price = 1000 + (4 - r) * 2000
+                self.item_prices.append(price)
 
         self.current_selected_chip = 0
 
@@ -163,11 +173,16 @@ class ShopKeeper:
             self.controls.isRightPressed = False
 
         if self.controls.qJustPressed:
+            price = self.item_prices[self.current_selected_chip]
             chip_id = self.item_chips[self.current_selected_chip]
             if chip_id not in state.starship.upgrade_chips:
-                state.starship.upgrade_chips.append(chip_id)
-                state.starship.apply_upgrades()
-                print(f"Purchased chip: {chip_id}")
+                if state.starship.money >= price:
+                    state.starship.money -= price
+                    state.starship.upgrade_chips.append(chip_id)
+                    state.starship.apply_upgrades()
+                    print(f"Purchased chip: {chip_id} for {price}")
+                else:
+                    print(f"Not enough money for {chip_id}. Need {price}, have {state.starship.money}")
             self.controls.qJustPressed = False
 
     def build_boxes(self) -> None:
@@ -187,6 +202,11 @@ class ShopKeeper:
 
     def draw(self, state) -> None:
         state.DISPLAY.fill((0, 0, 0))
+
+        # Draw top bar
+        pygame.draw.rect(state.DISPLAY, (0, 0, 0), (0, 0, state.DISPLAY.get_width(), 40))
+        money_text = self.font.render(f"Money: {state.starship.money}", True, (255, 255, 255))
+        state.DISPLAY.blit(money_text, (10, 10))
 
         self.draw_boxes(state.DISPLAY)
         self.draw_connecting_lines(state.DISPLAY)
@@ -241,10 +261,12 @@ class ShopKeeper:
             for r in range(self.num_rows):
                 idx = c * self.num_rows + r
                 rect = self.boxes[idx]
+                price = self.item_prices[idx]
 
                 # Render name
+                text_content = f"{self.item_names[idx]} ({price})"
                 text_surf = self.font.render(
-                    self.item_names[idx],
+                    text_content,
                     True,
                     self.text_color
                 )

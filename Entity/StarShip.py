@@ -25,7 +25,7 @@ class StarShip:
         self.x: int = 0
         self.y: int = 0
         self.moveStarShip: MoveRectangle = MoveRectangle()
-        self.money: int = 0
+        self.money: int = 10000
 
         self.camera = None
         self.equipped_magic: list = ["", None]
