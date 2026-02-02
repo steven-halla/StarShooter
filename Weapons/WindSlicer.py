@@ -13,7 +13,7 @@ class WindSlicer(Bullet):
         self.width: int = 12
         self.height: int = 6
         self.bullet_count: int = 8
-        self.wind_slicer_timer_cooldown_seconds: float = 0.4
+        self.wind_slicer_timer_cooldown_seconds: float = 1.4
 
         self.wind_slicer_timer: Timer = Timer(self.wind_slicer_timer_cooldown_seconds)
 
