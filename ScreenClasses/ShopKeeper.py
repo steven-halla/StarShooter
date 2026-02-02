@@ -11,14 +11,14 @@ class ShopKeeper:
         self.box_size = 32
         self.box_spacing = 40
         self.num_rows = 5
-        self.num_cols = 4
+        self.num_cols = 5
 
         # top-left anchor for the vertical stack
-        self.start_x = 80
+        self.start_x = 40
         self.start_y = 90
 
         # spacing between columns
-        self.column_spacing = 150
+        self.column_spacing = 155
 
         # text layout
         # self.text_offset_x is no longer used for item names as they are centered on lines
@@ -36,26 +36,31 @@ class ShopKeeper:
         # item names (RIGHT of boxes)
         # Organized as [Column 1 items, Column 2 items]
         self.item_names = [
-            "Double Barrel",
-            "Faster Bullet",
-            "Damage + Level 2",
-            "Fire Rate Up",
-            "Damage + Level 1",
-            "Faster Recharge",
-            "More Missiles + 2",
-            "Faster Missile",
-            "Damage + 100",
-            "More Missiles + 1",
-            "Post Hit Invincibility",
-            "Ship Speed + 1",
-            "Ship HP + 25",
-            "Ship Speed + 1",
-            "Ship HP + 25",
-            "Faster Rate Charge + 1",
-            "Shields Max + 50",
-            "Faster Recharge Timer + 1",
-            "Faster Rate Charge + 1",
-            "Shields Max + 50"
+            "DBL Barrel",
+            "Quick Shot",
+            "Atk Up +2",
+            "ROF UP",
+            "Atk Up +1",
+            "Quick Charge",
+            "Count +2",
+            "Spd Boosters",
+            "+100 damage",
+            "Count +1",
+            "Post Hit +",
+            "Mv Speed +1",
+            "HP + 25",
+            "Mv Speed + 1",
+            "HP + 25",
+            "Quick Charge",
+            "Shield + 50",
+            "Rech Time +",
+            "Rate Charge +",
+            "Shields+ 50",
+            "Ki + 25",
+            "Wpm Chip +",
+            "Wpm Chip +",
+            "Wpm Chip +",
+            "Ki Max + 25"
         ]
 
         self.current_selected_chip = 0
@@ -81,7 +86,12 @@ class ShopKeeper:
             "Increases maximum shield by 50.\nAbsorb more damage.",
             "Decreases shield recharge delay by 1.\nShield starts recovering sooner.",
             "Further increases shield charge rate by 1.\nRapid shield recovery.",
-            "Further increases maximum shield by 50.\nMaximum shield capacity."
+            "Further increases maximum shield by 50.\nMaximum shield capacity.",
+            "Increases your maximum Ki points by 25.\nAllows for more special moves.",
+            "Unlock a new weapon chip for your sub-weapons.\nExpand your arsenal.",
+            "Unlock another weapon chip.\nMore power for your weapons.",
+            "Unlock yet another weapon chip.\nMaximum versatility.",
+            "Further increases your max Ki by 25.\nPeak energy capacity."
         ]
 
         self.item_chips = [
@@ -104,7 +114,12 @@ class ShopKeeper:
             "shield_max_plus_fifty",
             "shield_recharge_timer_plus_one",
             "shield_charge_rate_plus_one",
-            "shield_max_plus_fifty"
+            "shield_max_plus_fifty",
+            "ki_max_plus_twenty_five",
+            "weapon_chip_upgrade",
+            "weapon_chip_upgrade",
+            "weapon_chip_upgrade",
+            "ki_max_plus_twenty_five"
         ]
 
         # precompute box rects
@@ -212,7 +227,17 @@ class ShopKeeper:
                 )
 
     def draw_item_names(self, display: pygame.Surface) -> None:
+        # Define column headers
+        headers = ["Gun", "Missile", "Ship", "Shield", "Ki"]
+
         for c in range(self.num_cols):
+            # Draw Column Header
+            if c < len(headers):
+                header_surf = self.font.render(headers[c], True, (255, 255, 100))
+                first_rect = self.boxes[c * self.num_rows]
+                header_rect = header_surf.get_rect(center=(first_rect.centerx, first_rect.top - 40))
+                display.blit(header_surf, header_rect)
+
             for r in range(self.num_rows):
                 idx = c * self.num_rows + r
                 rect = self.boxes[idx]

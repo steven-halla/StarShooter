@@ -25,6 +25,7 @@ class StarShip:
         self.x: int = 0
         self.y: int = 0
         self.moveStarShip: MoveRectangle = MoveRectangle()
+        self.money: int = 0
 
         self.camera = None
         self.equipped_magic: list = ["", None]
@@ -346,7 +347,7 @@ class StarShip:
         self.shipHealthMax = 150
         self.post_hit_invincibility_duration = 2.0
         self.invincibility_timer.interval = 2.0
-        
+
         # Reset shield base stats
         self.shield_system.max_shield_points = 100
         self.shield_system.recharge_rate_shield = 0.2
@@ -470,6 +471,23 @@ class StarShip:
                 setattr(self, "shipHealthMax", self.shipHealthMax + 25),
                 setattr(self, "shipHealth", self.shipHealth + 25)
             ),
+
+            "ki_max_plus_twenty_five": lambda: (
+                setattr(self, "player_max_ki", self.player_max_ki + 25),
+                setattr(self, "player_ki", self.player_ki + 25)
+            ),
+
+            "heat_max_plus_thirty": lambda: (
+                setattr(self, "max_heat", self.max_heat + 30)
+            ),
+
+            "heat_max_plus_fifty": lambda: (
+                setattr(self, "max_heat", self.max_heat + 50)
+            ),
+
+            "heat_cooldown_plus_one": lambda: None,
+
+            "heat_cooldown_plus_two": lambda: None,
         }
 
         # -------------------------

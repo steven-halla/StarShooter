@@ -227,11 +227,20 @@ faster rate charge + 1
 Shields Max + 50
 
 Ki:
-ki max + 25
-weapon chip upgrade
-weapon chip upgrade
-weapon chip upgrade
-ki max + 25
+ki max + 25 - Increases your maximum Ki points by 25
+weapon chip upgrade - Unlock a new weapon chip for your sub-weapons
+weapon chip upgrade - Unlock a new weapon chip for your sub-weapons
+weapon chip upgrade - Unlock a new weapon chip for your sub-weapons
+ki max + 25 - Increases your maximum Ki points by 25
+ki max + 25 - Increases your maximum Ki points by 25
+
+Heat:
+Heat Max + 30 - Increases your maximum heat capacity by 30
+Heat max + 50 - Increases your maximum heat capacity by 50
+heat max + 50 - Increases your maximum heat capacity by 50
+Heat Cooldown + 1 - Increases the rate at which heat dissipates
+Heat cooldown + 2 - Greatly increases the rate at which heat dissipates
+Heat Max + 50 - Increases your maximum heat capacity by 50
 
 
 
