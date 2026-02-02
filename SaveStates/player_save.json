@@ -1,16 +1,14 @@
 {
   "version": 1,
   "player": {
-    "shipHealth": 150,
+    "shipHealth": 144,
     "shipHealthMax": 150,
     "equipped_magic": [
-      "Wind Slicer",
+      "",
       null
     ],
-    "magic_inventory": [
-      "Wind Slicer"
-    ],
-    "current_level": 3
+    "magic_inventory": [],
+    "current_level": 1
   },
   "weapons": {
     "machine_gun": {

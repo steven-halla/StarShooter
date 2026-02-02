@@ -10,14 +10,18 @@ class ShopKeeper:
         # layout config
         self.box_size = 32
         self.box_spacing = 40
-        self.num_boxes = 5
+        self.num_rows = 5
+        self.num_cols = 2
 
         # top-left anchor for the vertical stack
-        self.start_x = 100
-        self.start_y = 120
+        self.start_x = 50
+        self.start_y = 90
+
+        # spacing between columns
+        self.column_spacing = 150
 
         # text layout
-        self.text_offset_x = 60  # space to the right of the box
+        # self.text_offset_x is no longer used for item names as they are centered on lines
 
         # colors
         self.box_color = (60, 60, 60)
@@ -30,15 +34,21 @@ class ShopKeeper:
         self.font = pygame.font.Font(None, 24)
 
         # item names (RIGHT of boxes)
+        # Organized as [Column 1 items, Column 2 items]
         self.item_names = [
             "Double Barrel",
             "Faster Bullet",
             "Damage + Level 2",
             "Fire Rate Up",
             "Damage + Level 1",
+            "Faster Recharge",
+            "More Missiles + 2",
+            "Faster Missile",
+            "Damage + 100",
+            "More Missiles + 1"
         ]
 
-        self.current_selected_chip = len(self.item_names) - 1
+        self.current_selected_chip = 0
 
         # dummy descriptions for textbox
         self.item_descriptions = [
@@ -47,6 +57,11 @@ class ShopKeeper:
             "Increases weapon damage by 2 levels.",
             "Improves fire rate.\nShoot more often.",
             "Minor damage increase.\nCheap but effective.",
+            "Decreases missile reload time.\nFire more frequently.",
+            "Increases missile count by 2.\nLaunch a bigger volley.",
+            "Increases missile flight speed.\nTargets have less time to react.",
+            "Massive damage boost for missiles.\nDestroys heavy targets.",
+            "Increases missile count by 1.\nSlightly larger volley."
         ]
 
         # precompute box rects
@@ -62,36 +77,54 @@ class ShopKeeper:
         if self.controls.isExitPressed:
             state.isRunning = False
 
+        row = self.current_selected_chip % self.num_rows
+        col = self.current_selected_chip // self.num_rows
+
         if self.controls.isUpPressed:
-            if self.current_selected_chip > 0:
+            if row > 0:
                 self.current_selected_chip -= 1
                 self.textbox.show(self.item_descriptions[self.current_selected_chip])
             self.controls.isUpPressed = False
 
         if self.controls.isDownPressed:
-            if self.current_selected_chip < len(self.boxes) - 1:
+            if row < self.num_rows - 1:
                 self.current_selected_chip += 1
                 self.textbox.show(self.item_descriptions[self.current_selected_chip])
             self.controls.isDownPressed = False
 
+        if self.controls.isLeftPressed:
+            if col > 0:
+                self.current_selected_chip -= self.num_rows
+                self.textbox.show(self.item_descriptions[self.current_selected_chip])
+            self.controls.isLeftPressed = False
+
+        if self.controls.isRightPressed:
+            if col < self.num_cols - 1:
+                self.current_selected_chip += self.num_rows
+                self.textbox.show(self.item_descriptions[self.current_selected_chip])
+            self.controls.isRightPressed = False
+
     def build_boxes(self) -> None:
         self.boxes.clear()
 
-        for i in range(self.num_boxes):
-            y = self.start_y + i * (self.box_size + self.box_spacing)
-            rect = pygame.Rect(
-                self.start_x,
-                y,
-                self.box_size,
-                self.box_size
-            )
-            self.boxes.append(rect)
+        for c in range(self.num_cols):
+            for r in range(self.num_rows):
+                x = self.start_x + c * self.column_spacing
+                y = self.start_y + r * (self.box_size + self.box_spacing)
+                rect = pygame.Rect(
+                    x,
+                    y,
+                    self.box_size,
+                    self.box_size
+                )
+                self.boxes.append(rect)
 
     def draw(self, state) -> None:
         state.DISPLAY.fill((0, 0, 0))
 
         self.draw_boxes(state.DISPLAY)
         self.draw_connecting_lines(state.DISPLAY)
+        # Names are now drawn by draw_connecting_lines or a modified draw_item_names
         self.draw_item_names(state.DISPLAY)
 
         if self.textbox.is_visible():
@@ -113,26 +146,40 @@ class ShopKeeper:
             pygame.draw.rect(display, self.box_border_color, rect, 2)
 
     def draw_connecting_lines(self, display: pygame.Surface) -> None:
-        for i in range(len(self.boxes) - 1):
-            top_rect = self.boxes[i]
-            bottom_rect = self.boxes[i + 1]
+        for c in range(self.num_cols):
+            for r in range(self.num_rows - 1):
+                idx = c * self.num_rows + r
+                top_rect = self.boxes[idx]
+                bottom_rect = self.boxes[idx + 1]
 
-            pygame.draw.line(
-                display,
-                self.line_color,
-                (top_rect.centerx, top_rect.bottom),
-                (bottom_rect.centerx, bottom_rect.top),
-                2
-            )
+                pygame.draw.line(
+                    display,
+                    self.line_color,
+                    (top_rect.centerx, top_rect.bottom),
+                    (bottom_rect.centerx, bottom_rect.top),
+                    2
+                )
 
     def draw_item_names(self, display: pygame.Surface) -> None:
-        for i, rect in enumerate(self.boxes):
-            text_surf = self.font.render(
-                self.item_names[i],
-                True,
-                self.text_color
-            )
-            display.blit(
-                text_surf,
-                (rect.right + self.text_offset_x, rect.centery - text_surf.get_height() // 2)
-            )
+        for c in range(self.num_cols):
+            for r in range(self.num_rows):
+                idx = c * self.num_rows + r
+                rect = self.boxes[idx]
+
+                # Render name
+                text_surf = self.font.render(
+                    self.item_names[idx],
+                    True,
+                    self.text_color
+                )
+
+                if r == 0:
+                    # For the first item in each column, put it ABOVE the box
+                    text_rect = text_surf.get_rect(center=(rect.centerx, rect.top - 20))
+                else:
+                    # For subsequent items, put them on the line ABOVE them (between r-1 and r)
+                    prev_rect = self.boxes[idx - 1]
+                    mid_y = (prev_rect.bottom + rect.top) // 2
+                    text_rect = text_surf.get_rect(center=(rect.centerx, mid_y))
+
+                display.blit(text_surf, text_rect)
