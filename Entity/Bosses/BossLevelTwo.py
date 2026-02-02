@@ -36,7 +36,7 @@ class BossLevelTwo(Enemy):
 
         # ranged attack
         self.bulletColor = GlobalConstants.SKYBLUE
-        self.attack_timer = Timer(3.0)
+        self.napalm_attack_timer = Timer(3.0)
 
         # touch damage
         self.touch_damage: int = 10
@@ -53,7 +53,7 @@ class BossLevelTwo(Enemy):
         self.moveAI()
         self.update_hitbox()
 
-        if self.attack_timer.is_ready():
+        if self.napalm_attack_timer.is_ready():
             self.shoot_napalm(
                 bullet_speed=3.5,
                 bullet_width=20,
@@ -65,7 +65,7 @@ class BossLevelTwo(Enemy):
                 aoe_size=(80, 80),
                 state=state
             )
-            self.attack_timer.reset()
+            self.napalm_attack_timer.reset()
 
         # 🔑 CALL TOUCH DAMAGE HANDLER
         self.player_collide_damage(state.starship)

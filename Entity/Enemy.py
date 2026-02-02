@@ -6,98 +6,6 @@ from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
 
 
-class EnemyNapalmBullet(Bullet):
-    def __init__(self, x: float, y: float, travel_time: float, explosion_time: float, aoe_size: tuple[int, int], color: tuple[int, int, int], damage: int):
-        super().__init__(x, y)
-        self.color = color
-        self.damage = damage
-        
-        # Phases logic similar to NapalmSpread
-        self.travel_timer = Timer(travel_time)
-        self.travel_timer.reset()
-        
-        self.explosion_timer = Timer(explosion_time)
-        self.has_exploded = False
-        
-        self.aoe_width, self.aoe_height = aoe_size
-        self.aoe_rect = pygame.Rect(0, 0, 0, 0)
-
-    def update(self) -> None:
-        if not self.has_exploded:
-            if not self.travel_timer.is_ready():
-                super().update()
-            else:
-                self.trigger_explosion()
-        else:
-            if self.explosion_timer.is_ready():
-                self.is_active = False
-
-    def trigger_explosion(self) -> None:
-        if self.has_exploded:
-            return
-        self.has_exploded = True
-        self.vx = 0.0
-        self.vy = 0.0
-        self.explosion_timer.reset()
-        
-        # Center AOE on current position
-        cx = self.x + self.width // 2
-        cy = self.y + self.height // 2
-        self.aoe_rect = pygame.Rect(
-            cx - self.aoe_width // 2,
-            cy - self.aoe_height // 2,
-            self.aoe_width,
-            self.aoe_height
-        )
-        # Update main rect to AOE rect for collision detection in game loop
-        self.rect = self.aoe_rect
-
-    def collide_with_rect(self, other: pygame.Rect) -> bool:
-        if self.rect.colliderect(other):
-            if not self.has_exploded:
-                self.trigger_explosion()
-                return True # Direct hit triggers explosion
-            return True # In AOE
-        return False
-
-    def draw(self, surface: pygame.Surface, camera) -> None:
-        if not self.is_active:
-            return
-
-        screen_x = camera.world_to_screen_x(self.x)
-        screen_y = camera.world_to_screen_y(self.y)
-
-        if not self.has_exploded:
-            pygame.draw.rect(
-                surface,
-                self.color,
-                pygame.Rect(
-                    screen_x,
-                    screen_y,
-                    int(self.width * camera.zoom),
-                    int(self.height * camera.zoom),
-                ),
-            )
-        else:
-            # Draw AOE
-            aoe_screen_x = camera.world_to_screen_x(self.aoe_rect.x)
-            aoe_screen_y = camera.world_to_screen_y(self.aoe_rect.y)
-            pygame.draw.rect(
-                surface,
-                self.color,
-                pygame.Rect(
-                    aoe_screen_x,
-                    aoe_screen_y,
-                    int(self.aoe_width * camera.zoom),
-                    int(self.aoe_height * camera.zoom),
-                ),
-                2 # Outline for AOE
-            )
-
-#####
-# new mellee : Grabber, grabs player so they have to shoot to get out.
-# new melle: hook shot, grab player and put them in new position
-####
 
 
 class Enemy:
@@ -1293,3 +1201,98 @@ class Enemy:
             #     y_offset=0,
             #     state=state
             # )
+
+
+class EnemyNapalmBullet(Bullet):
+    def __init__(self, x: float, y: float, travel_time: float, explosion_time: float, aoe_size: tuple[int, int],
+                 color: tuple[int, int, int], damage: int):
+        super().__init__(x, y)
+        self.color = color
+        self.damage = damage
+
+        # Phases logic similar to NapalmSpread
+        self.travel_timer = Timer(travel_time)
+        self.travel_timer.reset()
+
+        self.explosion_timer = Timer(explosion_time)
+        self.has_exploded = False
+
+        self.aoe_width, self.aoe_height = aoe_size
+        self.aoe_rect = pygame.Rect(0, 0, 0, 0)
+
+    def update(self) -> None:
+        if not self.has_exploded:
+            if not self.travel_timer.is_ready():
+                super().update()
+            else:
+                self.trigger_explosion()
+        else:
+            if self.explosion_timer.is_ready():
+                self.is_active = False
+
+    def trigger_explosion(self) -> None:
+        if self.has_exploded:
+            return
+        self.has_exploded = True
+        self.vx = 0.0
+        self.vy = 0.0
+        self.explosion_timer.reset()
+
+        # Center AOE on current position
+        cx = self.x + self.width // 2
+        cy = self.y + self.height // 2
+        self.aoe_rect = pygame.Rect(
+            cx - self.aoe_width // 2,
+            cy - self.aoe_height // 2,
+            self.aoe_width,
+            self.aoe_height
+        )
+        # Update main rect to AOE rect for collision detection in game loop
+        self.rect = self.aoe_rect
+
+    def collide_with_rect(self, other: pygame.Rect) -> bool:
+        if self.rect.colliderect(other):
+            if not self.has_exploded:
+                self.trigger_explosion()
+                return True  # Direct hit triggers explosion
+            return True  # In AOE
+        return False
+
+    def draw(self, surface: pygame.Surface, camera) -> None:
+        if not self.is_active:
+            return
+
+        screen_x = camera.world_to_screen_x(self.x)
+        screen_y = camera.world_to_screen_y(self.y)
+
+        if not self.has_exploded:
+            pygame.draw.rect(
+                surface,
+                self.color,
+                pygame.Rect(
+                    screen_x,
+                    screen_y,
+                    int(self.width * camera.zoom),
+                    int(self.height * camera.zoom),
+                ),
+            )
+        else:
+            # Draw AOE
+            aoe_screen_x = camera.world_to_screen_x(self.aoe_rect.x)
+            aoe_screen_y = camera.world_to_screen_y(self.aoe_rect.y)
+            pygame.draw.rect(
+                surface,
+                self.color,
+                pygame.Rect(
+                    aoe_screen_x,
+                    aoe_screen_y,
+                    int(self.aoe_width * camera.zoom),
+                    int(self.aoe_height * camera.zoom),
+                ),
+                2  # Outline for AOE
+            )
+
+#####
+# new mellee : Grabber, grabs player so they have to shoot to get out.
+# new melle: hook shot, grab player and put them in new position
+####
