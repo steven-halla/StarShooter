@@ -64,7 +64,7 @@ class TriSpitter(Enemy):
                 bullet_width=10,
                 bullet_height=50,
                 bullet_color=self.bulletColor,
-                bullet_damage=25,
+                bullet_damage=20,
                 bullet_count=3,
                 bullet_spread=44,
                 state = state

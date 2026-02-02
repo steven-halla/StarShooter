@@ -59,7 +59,7 @@ class BileSpitter(Enemy):
                 bullet_width=20,
                 bullet_height=20,
                 bullet_color=self.bulletColor,
-                bullet_damage=50,
+                bullet_damage=40,
                 state=state
             )
             self.attack_timer.reset()
