@@ -316,9 +316,15 @@ class VerticalBattleScreen:
 
                 for enemy in list(state.enemies):
                     if shield_rect.colliderect(enemy.hitbox):
-                        enemy.enemyHealth -= bullet.damage
+                        damage_to_deal = bullet.apply_damage()
+                        enemy.enemyHealth -= damage_to_deal
                         if enemy.enemyHealth <= 0:
                             self.remove_enemy_if_dead(enemy, state)
+                        
+                        if not bullet.is_active:
+                            if bullet in self.player_bullets:
+                                self.player_bullets.remove(bullet)
+                            break # Shield is gone
                 continue
 
             # -------------------------

@@ -15,7 +15,7 @@ class MetalShield(Bullet):
         self.METAL_SHIELD: str = "Metal Shield"
 
         # stats
-        self.damage: int = 10            # shield does not deal damage
+        self.damage: int = 20            # shield does not deal damage
         self.rate_of_fire: float = 0.0  # not applicable, but consistent
         self.bullet_speed: float = 0.0  # does not translate
 
@@ -27,8 +27,29 @@ class MetalShield(Bullet):
         # state
         self.is_active: bool = True
         self.has_blocked: bool = False
+        self.hit_count: int = 0
+        self.max_hits: int = 3
+        self.damage_cooldown_ms: int = 500  # 0.5 second cooldown
+        self.last_damage_time: int = 0
 
         self.update_rect()
+
+    def can_damage(self) -> bool:
+        """Checks if the shield can deal damage based on cooldown."""
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_damage_time >= self.damage_cooldown_ms:
+            return True
+        return False
+
+    def apply_damage(self) -> int:
+        """Updates damage state and returns the damage to deal."""
+        if self.can_damage():
+            self.last_damage_time = pygame.time.get_ticks()
+            self.hit_count += 1
+            if self.hit_count >= self.max_hits:
+                self.is_active = False
+            return self.damage
+        return 0
 
     def update_orbit(self, center_x: float, center_y: float) -> None:
         if not self.is_active:
