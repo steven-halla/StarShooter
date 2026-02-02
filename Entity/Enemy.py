@@ -1,4 +1,5 @@
 import math
+import random
 import pygame
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
@@ -350,6 +351,52 @@ class Enemy:
             #     bullet_color=self.bulletColor,
             #     bullet_damage=10
             # )
+
+    def splatter_cannon(
+            self,
+            bullet_speed: float,
+            bullet_width: int,
+            bullet_height: int,
+            bullet_color: tuple[int, int, int],
+            bullet_damage: int,
+            low_rand_range: float,
+            high_rand_range: float,
+            bullet_count: int,
+            state
+    ) -> None:
+        if self.target_player is None:
+            return
+
+        cx = self.x + self.width // 2
+        cy = self.y + self.height // 2
+
+        px = self.target_player.hitbox.centerx
+        py = self.target_player.hitbox.centery
+
+        dx = px - cx
+        dy = py - cy
+        dist = math.hypot(dx, dy)
+
+        if dist == 0:
+            return
+
+        base_vx = dx / dist
+        base_vy = dy / dist
+
+        for _ in range(bullet_count):
+            b = Bullet(cx, cy)
+            b.width = bullet_width
+            b.height = bullet_height
+            b.color = bullet_color
+            b.damage = bullet_damage
+
+            # Add randomness to the base aimed vector
+            b.vx = base_vx + random.uniform(low_rand_range, high_rand_range)
+            b.vy = base_vy + random.uniform(low_rand_range, high_rand_range)
+            b.bullet_speed = bullet_speed
+
+            b.update_rect()
+            state.enemy_bullets.append(b)
 
     def shoot_single_bullet_aimed_at_player(
             self,

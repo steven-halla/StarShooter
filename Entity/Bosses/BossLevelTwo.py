@@ -36,7 +36,8 @@ class BossLevelTwo(Enemy):
 
         # ranged attack
         self.bulletColor = GlobalConstants.SKYBLUE
-        self.napalm_attack_timer = Timer(3.0)
+        self.napalm_attack_timer = Timer(7.0)
+        self.splatter_cannon_attack_timer = Timer(3.0)
 
         # touch damage
         self.touch_damage: int = 10
@@ -65,7 +66,22 @@ class BossLevelTwo(Enemy):
                 aoe_size=(80, 80),
                 state=state
             )
+            self.splatter_cannon_attack_timer.reset()
             self.napalm_attack_timer.reset()
+
+        if self.splatter_cannon_attack_timer.is_ready():
+            self.splatter_cannon(
+                bullet_speed=5.0,
+                bullet_width=10,
+                bullet_height=10,
+                bullet_color=self.bulletColor,
+                bullet_damage=15,
+                low_rand_range=-0.2,
+                high_rand_range=0.2,
+                bullet_count=10,
+                state=state
+            )
+            self.splatter_cannon_attack_timer.reset()
 
         # 🔑 CALL TOUCH DAMAGE HANDLER
         self.player_collide_damage(state.starship)
