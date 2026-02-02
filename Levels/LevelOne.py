@@ -240,14 +240,7 @@ class LevelOne(VerticalBattleScreen):
             enemy.target_player = self.starship
 
             # 🔑 CRITICAL FIX: ensure health is initialized
-            if hasattr(enemy, "maxHealth"):
-                enemy.enemyHealth = enemy.maxHealth
-            elif isinstance(enemy, TriSpitter):
-                enemy.enemyHealth = state.enemies.enemyHealth  # TriSpitter default health
-            elif isinstance(enemy, BladeSpinner):
-                enemy.enemyHealth = state.enemies.enemyHealth  # BladeSpinner default health
-            else:
-                enemy.enemyHealth = 1  # safe fallback
+
             enemy.update_hitbox()
 
             state.enemies.append(enemy)

@@ -243,17 +243,7 @@ class LevelTwo(VerticalBattleScreen):
             enemy.camera = self.camera
             enemy.target_player = self.starship
 
-            # 🔑 CRITICAL FIX: ensure health is initialized
-            if obj.name == "blade_spinner":
-                enemy.enemyHealth = 40
-            elif obj.name == "tri_spitter":
-                enemy.enemyHealth = 35
-            elif obj.name == "fire_launcher":
-                enemy.enemyHealth = 40
-            elif hasattr(enemy, "maxHealth"):
-                enemy.enemyHealth = enemy.maxHealth
-            else:
-                enemy.enemyHealth = 30  # safe fallback for bile_spitter and others
+
 
             enemy.update_hitbox()
 
