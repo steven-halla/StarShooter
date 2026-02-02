@@ -22,7 +22,9 @@ class BladeSpinner(Enemy):
         self.speed: float = 1.0
 
         # gameplay stats
-        self.enemyHealth: int = 40
+        self.enemyHealth: int = 12
+        self.maxHealth: float = 12.0
+
         self.exp: int = 1
         self.credits: int = 5
 
@@ -53,7 +55,7 @@ class BladeSpinner(Enemy):
                     bullet_damage= 30,
                     state = state
                 )
-                
+
                 # Check if bullet hit the player to start cooldown
                 if hasattr(self, "_melee_bullet") and self._melee_bullet in state.enemy_bullets:
                     if self._melee_bullet.rect.colliderect(self.target_player.hitbox):
@@ -63,7 +65,7 @@ class BladeSpinner(Enemy):
                 if hasattr(self, "_melee_bullet") and self._melee_bullet in state.enemy_bullets:
                     state.enemy_bullets.remove(self._melee_bullet)
                     self._melee_bullet = None
-        
+
         self.update_hitbox()
 
         # check if visible first
