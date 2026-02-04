@@ -1,7 +1,8 @@
-import pygame
 import random
+import pygame
 
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Enemy import Enemy
 from Movement.MoveRectangle import MoveRectangle
 
@@ -10,36 +11,41 @@ class KamikazeDrone(Enemy):
     def __init__(self) -> None:
         super().__init__()
 
-        # movement helper
+        # movement
         self.mover: MoveRectangle = MoveRectangle()
-        self.camera = None
-
-        # appearance
-        self.width: int = 16
-        self.height: int = 16
-        self.color: tuple[int, int, int] = GlobalConstants.RED
-
-        # movement stats
+        self.move_direction: int = random.choice([-1, 1])
         self.speed: float = 2.0
 
-        # gameplay stats
-        self.enemyHealth: int = 30
-        self.maxHealth: int = 30
-        self.exp: int = 1
-        self.credits: int = 5
+        self.edge_padding: int = 0
 
-        # kamikaze-specific
-        self.target_player = None     # will be assigned externally
-        self.is_exploding = False     # state toggle for explosion
-        self.explosion_damage: int = 20  # huge damage on hit
+        # identity / visuals
+        self.name: str = "kamikaze_drone"
+        self.width: int = 40
+        self.height: int = 40
+        self.color = GlobalConstants.RED
 
         self.kamikaze_drone_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
-        self.enemy_image = self.kamikaze_drone_image  # 🔑 REQUIRED
+        self.enemy_image = self.kamikaze_drone_image
 
-        self.is_on_screen = False
+        # stats
+        self.enemyHealth: float = 5.0
+        self.maxHealth: float = 5.0
+        self.exp: int = 1
+        self.credits: int = 5
 
+        # ranged attack
+        self.bulletColor = GlobalConstants.SKYBLUE
+        self.attack_timer = Timer(3.0)
+
+        # touch damage
+        self.touch_damage: int = 70
+        self.touch_timer = Timer(0.75)
+
+    # -------------------------------------------------
+    # UPDATE
+    # -------------------------------------------------
     def update(self, state):
         super().update(state)
 
@@ -71,6 +77,16 @@ class KamikazeDrone(Enemy):
         # explosion check
         if self.hitbox.colliderect(self.target_player.hitbox):
             self.on_hit_player()
+    # -------------------------------------------------
+    # TOUCH DAMAGE (STANDALONE FUNCTION)
+    # -------------------------------------------------
+
+    # -------------------------------------------------
+
+
+    # -------------------------------------------------
+    # DRAW
+    # -------------------------------------------------
 
 
     def draw(self, surface: pygame.Surface, camera):
@@ -102,6 +118,9 @@ class KamikazeDrone(Enemy):
         hb_h = int(self.hitbox.height * camera.zoom)
 
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
+
+    def clamp_vertical(self) -> None:
+        pass
 
     def on_hit_player(self):
 

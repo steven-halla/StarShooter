@@ -6,7 +6,10 @@ import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelThree import BossLevelThree
 from Entity.Monsters.BileSpitter import BileSpitter
+from Entity.Monsters.BladeSpinners import BladeSpinner
+from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
+from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.SpaceStation import SpaceStation
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
@@ -78,6 +81,7 @@ class LevelThree(VerticalBattleScreen):
         self.update_deflect_hitbox()
         self.update_boss_helper(state)
         self.update_enemy_helper(state)
+        self.clamp_enemy_to_world(state.enemies)
 
     def draw(self, state):
         super().draw(state)
@@ -354,10 +358,18 @@ class LevelThree(VerticalBattleScreen):
         for obj in self.tiled_map.objects:
 
 
-            if obj.name == "kamikazi_drone":
-                enemy = KamikazeDrone()
-            elif obj.name == "bile_spitter":
-                enemy = BileSpitter()
+            if obj.name == "tri_spitter":
+                enemy = TriSpitter()
+            # elif obj.name == "bile_spitter":
+            #     enemy = BileSpitter()
+            # elif obj.name == "blade_spinner":
+            #     enemy = BladeSpinner()
+            # elif obj.name == "fire_launcher":
+            #     enemy = FireLauncher()
+            # elif obj.name == "kamikaze_drone":
+            #     enemy = KamikazeDrone()
+            elif obj.name == "level_3_boss":
+                enemy = BossLevelThree()
             else:
                 continue
 
@@ -415,3 +427,27 @@ class LevelThree(VerticalBattleScreen):
 
             self.space_station.update_hitbox(state)
             break
+
+    def clamp_enemy_to_world(self, enemy) -> None:
+        # 🔒 SAFETY: handle list input
+        if isinstance(enemy, list):
+            for e in enemy:
+                self.clamp_enemy_to_world(e)
+            return
+
+        world_left = 0
+        world_right = self.window_width / self.camera.zoom
+        world_top = self.camera.y
+        world_bottom = world_top + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
+
+        if enemy.x < world_left:
+            enemy.x = world_left
+        elif enemy.x + enemy.width > world_right:
+            enemy.x = world_right - enemy.width
+
+        if enemy.y < world_top:
+            enemy.y = world_top
+        elif enemy.y + enemy.height > world_bottom:
+            enemy.y = world_bottom - enemy.height
+
+        enemy.update_hitbox()
