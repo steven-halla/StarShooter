@@ -70,6 +70,7 @@ class LevelThree(VerticalBattleScreen):
         self.save_state.capture_player(self.starship)
         self.save_state.save_to_file("player_save.json")
 
+
     def move_map_y_axis(self):
         pass
 
@@ -81,7 +82,8 @@ class LevelThree(VerticalBattleScreen):
         self.update_deflect_hitbox()
         self.update_boss_helper(state)
         self.update_enemy_helper(state)
-        self.clamp_enemy_to_world(state.enemies)
+        # print(state.enemies)
+        # print(len(state.enemies))
 
     def draw(self, state):
         super().draw(state)
@@ -89,20 +91,51 @@ class LevelThree(VerticalBattleScreen):
         self.draw_ui_panel(state.DISPLAY)
         pygame.display.flip()
 
-
-
     def update_boss_helper(self, state):
+        # boss-specific damage logic (if boss already exists)
         for enemy in state.enemies:
             if getattr(enemy, "name", None) == "level_3_boss":
                 enemy.check_arm_damage(self.starship)
 
-        if not self.boss_spawned and self.has_no_enemies(state):
+        # already spawned → nothing else to do
+        if self.boss_spawned:
+            return
 
+        # spawn boss ONLY when exactly one enemy remains
+        if len(state.enemies) == 1:
+            # print("boss incoming")
+            # print(len(state.enemies))
+
+            remaining = state.enemies[0]
+
+            # do not respawn if that enemy is already the boss
+            if getattr(remaining, "name", None) == "level_3_boss":
+                return
+
+            # start / check spawn delay timer
             if self.boss_spawn_time is None:
                 self.boss_spawn_time = pygame.time.get_ticks()
+                return
 
-            elif pygame.time.get_ticks() - self.boss_spawn_time >= self.boss_spawn_delay_ms:
-                self.spawn_level_3_boss(state)
+            if pygame.time.get_ticks() - self.boss_spawn_time < self.boss_spawn_delay_ms:
+                return
+
+            # remove the last enemy and spawn the boss
+            state.enemies.remove(remaining)
+            self.spawn_level_3_boss(state)
+
+    # def update_boss_helper(self, state):
+    #     for enemy in state.enemies:
+    #         if getattr(enemy, "name", None) == "level_3_boss":
+    #             enemy.check_arm_damage(self.starship)
+    #
+    #     if not self.boss_spawned and self.has_no_enemies(state):
+    #
+    #         if self.boss_spawn_time is None:
+    #             self.boss_spawn_time = pygame.time.get_ticks()
+    #
+    #         elif pygame.time.get_ticks() - self.boss_spawn_time >= self.boss_spawn_delay_ms:
+    #             self.spawn_level_3_boss(state)
 
     def update_deflect_hitbox(self):
         # 4️⃣ MELEE HITBOX (post-movement, post-collision)
@@ -173,6 +206,10 @@ class LevelThree(VerticalBattleScreen):
 
         for enemy in list(state.enemies):
             enemy.update(state)
+            if not enemy.is_active:
+                continue
+
+            self.clamp_enemy_to_world(enemy)
 
             if hasattr(enemy, "update_hitbox"):
                 enemy.update_hitbox()
@@ -326,7 +363,7 @@ class LevelThree(VerticalBattleScreen):
         enemy_pool = self.build_enemy_pool(state)
 
         if not enemy_pool:
-            print("[WAVE] No inactive enemies left")
+            # print("[WAVE] No inactive enemies left")
             return
 
         random.shuffle(enemy_pool)
@@ -342,7 +379,7 @@ class LevelThree(VerticalBattleScreen):
             enemy.is_active = True
             enemy.update_hitbox()
 
-            print(f"[RESPAWN] {enemy.__class__.__name__}")
+            # print(f"[RESPAWN] {enemy.__class__.__name__}")
 
     def draw_player_and_enemies_and_space_station(self, state):
         if not self.playerDead:

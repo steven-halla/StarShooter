@@ -105,7 +105,7 @@ class Ravager(Enemy):
         self.pending_napalm = napalm
         napalm.damage = self.napalm_damage  # ← THIS WAS MISSING
 
-        print("NAPALM SPAWNED", cx, cy)
+        # print("NAPALM SPAWNED", cx, cy)
 
     def update(self, state) -> None:
         # ⛔ DO NOTHING unless player is on screen
@@ -196,13 +196,13 @@ class Ravager(Enemy):
                         bullet.speed = 0
                         bullet.has_stopped = True
                         bullet.stop_time = now
-                        print("NAPALM STOPPED at", bullet.x, bullet.y)
+                        # print("NAPALM STOPPED at", bullet.x, bullet.y)
                     else:
                         bullet.update()
 
                 else:
                     if now - bullet.stop_time >= 3000:
-                        print("NAPALM EXPIRED")
+                        # print("NAPALM EXPIRED")
                         self.enemyBullets.remove(bullet)
 
                 continue

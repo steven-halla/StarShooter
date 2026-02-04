@@ -20,6 +20,7 @@ class BossLevelThree(Enemy):
         self.height = 20
         self.color = GlobalConstants.RED
         self.enemyHealth = 1000
+        self.maxHealth = 1000
         # -------------------------
         # BILE ATTACK TIMER
         # -------------------------
@@ -271,6 +272,6 @@ class BossLevelThree(Enemy):
         # print("ARM RECT:", arm_rect)
 
         if player.melee_hitbox.colliderect(arm_rect):
-            print("ARM HIT (FULL ARM)")
+            # print("ARM HIT (FULL ARM)")
             player.shipHealth -= 10
             player.on_hit()

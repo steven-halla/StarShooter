@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="239">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="255">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="background" width="25" height="50">
   <data encoding="csv">
@@ -116,86 +116,15 @@
   <object id="1" name="player" x="241.757" y="704.473" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="4" name="enemies">
-  <object id="69" name="tri_spitter" x="9.86848" y="54.28" width="16" height="16"/>
-  <object id="186" name="tri_spitter" x="57.7536" y="65.8885" width="16" height="16"/>
-  <object id="180" name="tri_spitter" x="9.86848" y="78.2225" width="16" height="16"/>
-  <object id="184" name="tri_spitter" x="57.7536" y="89.831" width="16" height="16"/>
-  <object id="177" name="tri_spitter" x="31.6344" y="57.9077" width="16" height="16"/>
-  <object id="185" name="tri_spitter" x="79.5195" y="69.5162" width="16" height="16"/>
-  <object id="179" name="tri_spitter" x="31.6344" y="81.8502" width="16" height="16"/>
-  <object id="183" name="tri_spitter" x="79.5195" y="93.4587" width="16" height="16"/>
-  <object id="68" name="kamikaze_drone" x="355.516" y="43.8209" width="16" height="16"/>
-  <object id="171" name="kamikaze_drone" x="362.771" y="96.7847" width="16" height="16"/>
-  <object id="165" name="kamikaze_drone" x="192.997" y="35.8401" width="16" height="16"/>
-  <object id="173" name="kamikaze_drone" x="200.252" y="88.8039" width="16" height="16"/>
-  <object id="64" name="kamikaze_drone" x="327.539" y="65.4999" width="16" height="16"/>
-  <object id="163" name="kamikaze_drone" x="236.847" y="76.3829" width="16" height="16"/>
-  <object id="71" name="tri_spitter" x="55.6834" y="22.682" width="16" height="16"/>
-  <object id="190" name="tri_spitter" x="103.568" y="34.2905" width="16" height="16"/>
-  <object id="182" name="tri_spitter" x="55.6834" y="46.6245" width="16" height="16"/>
-  <object id="188" name="tri_spitter" x="103.568" y="58.233" width="16" height="16"/>
-  <object id="178" name="tri_spitter" x="77.4493" y="26.3097" width="16" height="16"/>
-  <object id="189" name="tri_spitter" x="125.334" y="37.9182" width="16" height="16"/>
-  <object id="181" name="tri_spitter" x="77.4493" y="50.2522" width="16" height="16"/>
-  <object id="187" name="tri_spitter" x="125.334" y="61.8607" width="16" height="16"/>
-  <object id="70" name="kamikaze_drone" x="313.542" y="19.4782" width="16" height="16"/>
-  <object id="174" name="kamikaze_drone" x="320.797" y="72.442" width="16" height="16"/>
-  <object id="166" name="kamikaze_drone" x="207.614" y="0.614399" width="16" height="16"/>
-  <object id="176" name="kamikaze_drone" x="214.869" y="53.5782" width="16" height="16"/>
-  <object id="66" name="kamikaze_drone" x="276.858" y="82.5125" width="16" height="16"/>
-  <object id="162" name="kamikaze_drone" x="203.579" y="79.6103" width="16" height="16"/>
-  <object id="168" name="fire_launcher" x="140.458" y="162.321" width="16" height="16"/>
-  <object id="238" name="fire_launcher" x="154.968" y="163.046" width="16" height="16"/>
-  <object id="230" name="fire_launcher" x="140.458" y="202.225" width="16" height="16"/>
-  <object id="233" name="fire_launcher" x="154.968" y="202.951" width="16" height="16"/>
-  <object id="226" name="fire_launcher" x="140.458" y="162.321" width="16" height="16"/>
-  <object id="237" name="fire_launcher" x="154.968" y="163.046" width="16" height="16"/>
-  <object id="229" name="fire_launcher" x="140.458" y="202.225" width="16" height="16"/>
-  <object id="234" name="fire_launcher" x="154.968" y="202.951" width="16" height="16"/>
-  <object id="224" name="fire_launcher" x="160.773" y="165.949" width="16" height="16"/>
-  <object id="236" name="fire_launcher" x="175.283" y="166.674" width="16" height="16"/>
-  <object id="228" name="fire_launcher" x="160.773" y="205.853" width="16" height="16"/>
-  <object id="231" name="fire_launcher" x="175.283" y="206.578" width="16" height="16"/>
-  <object id="225" name="fire_launcher" x="160.773" y="165.949" width="16" height="16"/>
-  <object id="235" name="fire_launcher" x="175.283" y="166.674" width="16" height="16"/>
-  <object id="227" name="fire_launcher" x="160.773" y="205.853" width="16" height="16"/>
-  <object id="232" name="fire_launcher" x="175.283" y="206.578" width="16" height="16"/>
-  <object id="62" name="kamikaze_drone" x="359.704" y="3.35321" width="16" height="16"/>
-  <object id="175" name="kamikaze_drone" x="366.96" y="56.317" width="16" height="16"/>
-  <object id="164" name="kamikaze_drone" x="237.089" y="38.9043" width="16" height="16"/>
-  <object id="172" name="kamikaze_drone" x="244.345" y="91.868" width="16" height="16"/>
-  <object id="11" name="level_3_boss" x="42.6312" y="149.726" width="44.25" height="88.38"/>
-  <object id="191" name="bile_spitter" x="289.487" y="216.208"/>
-  <object id="207" name="bile_spitter" x="261.917" y="215.483"/>
-  <object id="199" name="bile_spitter" x="293.115" y="269.172"/>
-  <object id="202" name="bile_spitter" x="265.545" y="268.447"/>
-  <object id="195" name="bile_spitter" x="289.487" y="240.151"/>
-  <object id="204" name="bile_spitter" x="261.917" y="239.425"/>
-  <object id="196" name="bile_spitter" x="293.115" y="293.115"/>
-  <object id="200" name="bile_spitter" x="265.545" y="292.389"/>
-  <object id="193" name="bile_spitter" x="338.823" y="216.208" width="16" height="16"/>
-  <object id="206" name="bile_spitter" x="311.253" y="215.483" width="16" height="16"/>
-  <object id="198" name="bile_spitter" x="342.451" y="269.172" width="16" height="16"/>
-  <object id="203" name="bile_spitter" x="314.881" y="268.447" width="16" height="16"/>
-  <object id="194" name="bile_spitter" x="338.823" y="240.151" width="16" height="16"/>
-  <object id="205" name="bile_spitter" x="311.253" y="239.425" width="16" height="16"/>
-  <object id="197" name="bile_spitter" x="342.451" y="293.115" width="16" height="16"/>
-  <object id="201" name="bile_spitter" x="314.881" y="292.389" width="16" height="16"/>
-  <object id="208" name="blade_spinner" x="136.4" y="276.427" width="16" height="16"/>
-  <object id="223" name="blade_spinner" x="136.4" y="269.898" width="16" height="16"/>
-  <object id="215" name="blade_spinner" x="142.204" y="303.998" width="16" height="16"/>
-  <object id="218" name="blade_spinner" x="157.44" y="303.998" width="16" height="16"/>
-  <object id="211" name="blade_spinner" x="135.674" y="298.193" width="16" height="16"/>
-  <object id="220" name="blade_spinner" x="135.674" y="298.193" width="16" height="16"/>
-  <object id="212" name="blade_spinner" x="163.604" y="631.707" width="16" height="16"/>
-  <object id="216" name="blade_spinner" x="158.891" y="325.764" width="16" height="16"/>
-  <object id="209" name="blade_spinner" x="112.457" y="276.427" width="16" height="16"/>
-  <object id="222" name="blade_spinner" x="89.2404" y="276.427" width="16" height="16"/>
-  <object id="214" name="blade_spinner" x="118.262" y="303.998" width="16" height="16"/>
-  <object id="219" name="blade_spinner" x="99.3978" y="302.547" width="16" height="16"/>
-  <object id="210" name="blade_spinner" x="111.732" y="298.193" width="16" height="16"/>
-  <object id="221" name="blade_spinner" x="111.732" y="298.193" width="16" height="16"/>
-  <object id="213" name="blade_spinner" x="117.536" y="325.764" width="16" height="16"/>
-  <object id="217" name="blade_spinner" x="89.9659" y="323.587" width="16" height="16"/>
+  <object id="180" name="tri_spitter" x="5.29077" y="125.526" width="16" height="16"/>
+  <object id="251" name="tri_spitter" x="57.1714" y="205.635" width="16" height="16"/>
+  <object id="249" name="tri_spitter" x="51.0678" y="79.7484" width="16" height="16"/>
+  <object id="253" name="tri_spitter" x="102.949" y="159.858" width="16" height="16"/>
+  <object id="247" name="tri_spitter" x="57.9344" y="130.866" width="16" height="16"/>
+  <object id="250" name="tri_spitter" x="109.815" y="210.976" width="16" height="16"/>
+  <object id="248" name="tri_spitter" x="103.711" y="85.0891" width="16" height="16"/>
+  <object id="254" name="tri_spitter" x="103.711" y="85.0891" width="16" height="16"/>
+  <object id="252" name="tri_spitter" x="155.592" y="165.199" width="16" height="16"/>
+  <object id="11" name="level_3_boss" x="304.323" y="137.519" width="44.25" height="88.38"/>
  </objectgroup>
 </map>

@@ -63,10 +63,10 @@ class SpaceStation:
             ship.height
         )
 
-        print(f"[CHECK] Station={self.hitbox} Ship={actual_ship_rect}")
+        # print(f"[CHECK] Station={self.hitbox} Ship={actual_ship_rect}")
 
         if self.hitbox.colliderect(ship_rect):
-            print("🔥 SPACE STATION COLLISION DETECTED 🔥")
+            # print("🔥 SPACE STATION COLLISION DETECTED 🔥")
             self.block_player(state)
     # PLAYER COLLISION + BLOCK
     # =========================
@@ -79,7 +79,7 @@ class SpaceStation:
         if not ship_rect.colliderect(station_rect):
             return
 
-        print("!!!!! STARSHIP COLLIDED WITH SPACE STATION !!!!!")
+        # print("!!!!! STARSHIP COLLIDED WITH SPACE STATION !!!!!")
 
         overlap_left = ship_rect.right - station_rect.left
         overlap_right = station_rect.right - ship_rect.left
