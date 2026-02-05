@@ -50,7 +50,7 @@ class BileSpitter(Enemy):
         if not self.is_active:
             return
 
-        self.moveAI()
+
         self.update_hitbox()
 
         if self.attack_timer.is_ready():
@@ -66,6 +66,8 @@ class BileSpitter(Enemy):
 
         # 🔑 CALL TOUCH DAMAGE HANDLER
         self.player_collide_damage(state.starship)
+        # self.moveAI()
+
 
     # -------------------------------------------------
     # TOUCH DAMAGE (STANDALONE FUNCTION)

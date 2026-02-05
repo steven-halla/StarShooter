@@ -26,13 +26,13 @@ class LevelThree(VerticalBattleScreen):
         self.camera_y = self.WORLD_HEIGHT - window_height
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
-        self.map_scroll_speed_per_frame: float = .4  # move speed of camera
+        self.map_scroll_speed_per_frame: float = 0   # move speed of camera
         self.space_station: Optional[SpaceStation] = None
         self.prev_enemy_count: int = None
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
-        self.enemy_wave_interval_ms = 10000
+        self.enemy_wave_interval_ms = 8000
         self.last_enemy_wave_time = pygame.time.get_ticks()
         self.initial_wave_delay_ms = 3000
         self.initial_wave_start_time = pygame.time.get_ticks()
@@ -50,6 +50,8 @@ class LevelThree(VerticalBattleScreen):
 
 
     def start(self, state) -> None:
+        self.map_scroll_speed_per_frame: float = 0   # move speed of camera
+
         self.load_space_station_object(state)
         self.starship = state.starship
         player_x = None
@@ -86,13 +88,35 @@ class LevelThree(VerticalBattleScreen):
         self.update_deflect_hitbox()
         # self.update_boss_helper(state)
         self.update_enemy_helper(state)
-        on_screen = [
-            f"{e.__class__.__name__}(x={e.x:.1f}, y={e.y:.1f}, active={e.is_active})"
-            for e in state.enemies
-            if e.is_on_screen
-        ]
+        on_screen = []
 
-        print(f"[BOSS CHECK] Enemies on screen with player: {on_screen}")
+        view_left = self.camera.x
+        view_right = self.camera.x + (self.window_width / self.camera.zoom)
+        view_top = self.camera.y
+        view_bottom = self.camera.y + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
+
+        for e in state.enemies:
+            if (
+                    e.x + e.width >= view_left
+                    and e.x <= view_right
+                    and e.y + e.height >= view_top
+                    and e.y <= view_bottom
+            ):
+                on_screen.append(
+                    f"{e.__class__.__name__}"
+                    f"(x={e.x:.1f}, y={e.y:.1f}, "
+                    f"screen_y={e.y - self.camera.y:.1f}, "
+                    f"active={e.is_active})"
+                )
+
+        print(f"[BOSS CHECK] Enemies ACTUALLY on screen: {on_screen}")
+        # on_screen = [
+        #     f"{e.__class__.__name__}(x={e.x:.1f}, y={e.y:.1f}, active={e.is_active})"
+        #     for e in state.enemies
+        #     if e.is_on_screen
+        # ]
+        #
+        # print(f"[BOSS CHECK] Enemies on screen with player: {on_screen}")
         # print(state.enemies)
         # print(len(state.enemies))
         if self.trigger_boss3_countdown and not self.boss_spawned:
@@ -174,109 +198,69 @@ class LevelThree(VerticalBattleScreen):
 
                 self.starship.update_hitbox()
 
-    # def update_enemy_helper(self, state):
-    #     self.enemy_waves_timer(state)
-    #     self.deflect_helper(state)
-    #
-    #     now = pygame.time.get_ticks()
-    #
-    #     for enemy in list(state.enemies):
-    #
-    #         # ⏱ SPAWN GRACE WINDOW
-    #         # Enemy is visible and can take damage,
-    #         # but cannot move or attack yet.
-    #         if hasattr(enemy, "spawn_time"):
-    #             if now - enemy.spawn_time < enemy.spawn_grace_ms:
-    #                 if hasattr(enemy, "update_hitbox"):
-    #                     enemy.update_hitbox()
-    #                 continue
-    #
-    #         enemy.update(state)
-    #
-    #         if not enemy.is_active:
-    #             continue
-    #
-    #         self.clamp_enemy_to_world(enemy)
-    #
-    #         if hasattr(enemy, "update_hitbox"):
-    #             enemy.update_hitbox()
-    #
-    #         if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
-    #             state.enemy_bullets.extend(enemy.enemyBullets)
-    #             enemy.enemyBullets.clear()
-    #
-    #         if hasattr(enemy, "enemyHealth") and enemy.enemyHealth <= 0:
-    #             state.enemies.remove(enemy)
-    #
-    #     if not self.starship.invincible:
-    #         player_rect = self.starship.melee_hitbox
-    #
-    #         enemies = list(state.enemies)
-    #
-    #         for enemy in enemies:
-    #             enemy_rect = pygame.Rect(
-    #                 enemy.x,
-    #                 enemy.y,
-    #                 enemy.width,
-    #                 enemy.height
-    #             )
-    #
-    #             if player_rect.colliderect(enemy_rect):
-    #                 if getattr(enemy, "name", None) == "kamikaze_drone":
-    #                     self.starship.shipHealth -= 20
-    #                     self.starship.on_hit()
-    #                     state.enemies.remove(enemy)
-    #                 else:
-    #                     self.starship.shipHealth -= 10
-    #                     self.starship.on_hit()
-    #                 break
+    def clamp_enemy_to_player_view(self, enemy) -> None:
+        # ❌ NEVER pull enemies onto the screen
+        if not enemy.is_on_screen:
+            return
 
-    # def update_enemy_helper(self, state):
-    #     self.enemy_waves_timer(state)
-    #     self.deflect_helper(state)
-    #
-    #     for enemy in list(state.enemies):
-    #         enemy.update(state)
-    #         if not enemy.is_active:
-    #             continue
-    #
-    #         self.clamp_enemy_to_world(enemy)
-    #
-    #         if hasattr(enemy, "update_hitbox"):
-    #             enemy.update_hitbox()
-    #
-    #         if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
-    #             state.enemy_bullets.extend(enemy.enemyBullets)
-    #             enemy.enemyBullets.clear()
-    #
-    #         if hasattr(enemy, "enemyHealth") and enemy.enemyHealth <= 0:
-    #             state.enemies.remove(enemy)
-    #
-    #     if not self.starship.invincible:
-    #         player_rect = self.starship.melee_hitbox  # ← USE MELEE HITBOX
-    #
-    #         enemies = (
-    #                 list(state.enemies)
-    #
-    #         )
-    #
-    #         for enemy in enemies:
-    #             enemy_rect = pygame.Rect(
-    #                 enemy.x,
-    #                 enemy.y,
-    #                 enemy.width,
-    #                 enemy.height
-    #             )
-    #
-    #             if player_rect.colliderect(enemy_rect):
-    #                 if getattr(enemy, "name", None) == "kamikaze_drone":
-    #                     self.starship.shipHealth -= 20
-    #                     self.starship.on_hit()
-    #                     state.enemies.remove(enemy)
-    #                 else:
-    #                     self.starship.shipHealth -= 10
-    #                     self.starship.on_hit()
-    #                 break
+        # CAMERA VIEW (WORLD SPACE)
+        view_left = self.camera.x
+        view_right = self.camera.x + (self.window_width / self.camera.zoom)
+        view_top = self.camera.y
+        view_bottom = self.camera.y + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
+
+        # HORIZONTAL CLAMP
+        if enemy.x < view_left:
+            enemy.x = view_left
+        elif enemy.x + enemy.width > view_right:
+            enemy.x = view_right - enemy.width
+
+        # VERTICAL CLAMP
+        if enemy.y < view_top:
+            enemy.y = view_top
+        elif enemy.y + enemy.height > view_bottom:
+            enemy.y = view_bottom - enemy.height
+
+        enemy.update_hitbox()
+
+    def update_enemy_helper(self, state):
+        self.enemy_waves_timer(state)
+        self.deflect_helper(state)
+
+        for enemy in list(state.enemies):
+
+            # ✅ FIRST: let the enemy decide is_on_screen / is_active
+            enemy.update(state)
+
+            # ❌ If enemy decided it is inactive, STOP
+            if not enemy.is_active:
+                continue
+
+            # ✅ NOW clamp, using CORRECT is_on_screen
+            self.clamp_enemy_to_player_view(enemy)
+
+            # 🔫 collect bullets
+            if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
+                state.enemy_bullets.extend(enemy.enemyBullets)
+                enemy.enemyBullets.clear()
+
+            # ☠️ death
+            if hasattr(enemy, "enemyHealth") and enemy.enemyHealth <= 0:
+                state.enemies.remove(enemy)
+
+        # Player collision
+        if not self.starship.invincible:
+            player_rect = self.starship.melee_hitbox
+
+            for enemy in list(state.enemies):
+                enemy_rect = pygame.Rect(
+                    enemy.x, enemy.y, enemy.width, enemy.height
+                )
+                if player_rect.colliderect(enemy_rect):
+                    self.starship.shipHealth -= 10
+                    self.starship.on_hit()
+                    break
+
 
     def deflect_helper(self, state):
         for bullet in list(state.enemy_bullets):
@@ -390,9 +374,8 @@ class LevelThree(VerticalBattleScreen):
         return pool
 
     def spawn_enemy_wave(self, state):
-        for group in (
-                state.enemies,
-        ):
+        # Remove invalid entries and bosses
+        for group in (state.enemies,):
             group[:] = [
                 e for e in group
                 if not isinstance(e, tuple)
@@ -400,28 +383,48 @@ class LevelThree(VerticalBattleScreen):
             ]
 
         enemy_pool = self.build_enemy_pool(state)
-
         if not enemy_pool:
-            # print("[WAVE] No inactive enemies left")
             return
 
         random.shuffle(enemy_pool)
         spawn_count = min(random.randint(4, 8), len(enemy_pool))
-        screen_right = int(self.window_width / self.camera.zoom)
-        spawn_y = int(self.camera.y) + 5
+
+        # CAMERA VIEW (WORLD SPACE)
+        view_left = self.camera.x
+        view_right = self.camera.x + (self.window_width / self.camera.zoom)
+
+        # SPAWN Y: 300 ABOVE SPACE STATION (fallback to player)
+        if self.space_station is not None:
+            spawn_y = self.space_station.y - 600
+        else:
+            spawn_y = self.starship.x + 40
 
         for i in range(spawn_count):
             enemy = enemy_pool[i]
 
-            enemy.x = random.randint(20, screen_right - 20)
+            enemy.x = random.randint(
+                int(view_left + 20),
+                int(view_right - enemy.width - 20)
+            )
             enemy.y = spawn_y
             enemy.is_active = True
 
+            # SPAWN GRACE
             enemy.spawn_time = pygame.time.get_ticks()
             enemy.spawn_grace_ms = 1000
 
+            # ONE-TIME SAFETY CLAMP
             enemy.update_hitbox()
-    #
+
+            view_top = self.camera.y
+            view_bottom = self.camera.y + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
+
+            if enemy.y < view_top:
+                enemy.y = view_top + 20
+            elif enemy.y + enemy.height > view_bottom:
+                enemy.y = view_bottom - enemy.height - 20
+
+            enemy.update_hitbox()
     # def spawn_enemy_wave(self, state):
     #     for group in (
     #             state.enemies,
@@ -534,26 +537,3 @@ class LevelThree(VerticalBattleScreen):
             self.space_station.update_hitbox(state)
             break
 
-    def clamp_enemy_to_world(self, enemy) -> None:
-        # 🔒 SAFETY: handle list input
-        if isinstance(enemy, list):
-            for e in enemy:
-                self.clamp_enemy_to_world(e)
-            return
-
-        world_left = 0
-        world_right = self.window_width / self.camera.zoom
-        world_top = self.camera.y
-        world_bottom = world_top + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
-
-        if enemy.x < world_left:
-            enemy.x = world_left
-        elif enemy.x + enemy.width > world_right:
-            enemy.x = world_right - enemy.width
-
-        if enemy.y < world_top:
-            enemy.y = world_top
-        elif enemy.y + enemy.height > world_bottom:
-            enemy.y = world_bottom - enemy.height
-
-        enemy.update_hitbox()
