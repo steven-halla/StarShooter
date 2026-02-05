@@ -99,6 +99,8 @@ class Enemy:
         #     player.on_hit()
         if self.hitbox.colliderect(player.hitbox):
             damage = self.touch_damage
+            print("damaged")
+
 
             # --- SHIELD FIRST ---
             if hasattr(player, "shield") and player.shield is not None:

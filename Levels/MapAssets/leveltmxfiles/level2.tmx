@@ -284,7 +284,7 @@
   <object id="125" name="tri_spitter" x="217.74" y="1776.52" width="16" height="16"/>
   <object id="127" name="blade_spinner" x="216.052" y="1178.16" width="16" height="16"/>
   <object id="132" name="blade_spinner" x="159.507" y="3093.93" width="16" height="16"/>
-  <object id="135" name="blade_spinner" x="236.307" y="3094.78" width="16" height="16"/>
+  <object id="135" name="blade_spinner" x="159.507" y="3721.83" width="16" height="16"/>
   <object id="130" name="blade_spinner" x="62.4525" y="1503.08" width="16" height="16"/>
   <object id="133" name="blade_spinner" x="35.446" y="3351.34" width="16" height="16"/>
   <object id="137" name="blade_spinner" x="219.428" y="652.376" width="16" height="16"/>

@@ -2,6 +2,7 @@
 import pygame
 from Constants.GlobalConstants import GlobalConstants
 from Controller.KeyBoardControls import KeyBoardControls
+from Levels import levelThree
 from Levels.levelThree import LevelThree
 
 

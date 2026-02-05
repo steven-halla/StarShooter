@@ -257,9 +257,12 @@ class LevelThree(VerticalBattleScreen):
                     enemy.x, enemy.y, enemy.width, enemy.height
                 )
                 if player_rect.colliderect(enemy_rect):
-                    self.starship.shipHealth -= 10
-                    self.starship.on_hit()
-                    break
+                    if hasattr(enemy, "touch_damage"):
+                        old_health = self.starship.shipHealth
+                        self.starship.shield_system.take_damage(enemy.touch_damage)
+                        if self.starship.shipHealth < old_health:
+                            self.starship.on_hit()
+                        break  # Only take damage from one enemy per frame
 
 
     def deflect_helper(self, state):
@@ -469,10 +472,10 @@ class LevelThree(VerticalBattleScreen):
 
             if obj.name == "tri_spitter":
                 enemy = TriSpitter()
-            elif obj.name == "bile_spitter":
-                enemy = BileSpitter()
-            # elif obj.name == "blade_spinner":
-            #     enemy = BladeSpinner()
+            # elif obj.name == "bile_spitter":
+            #     enemy = BileSpitter()
+            elif obj.name == "blade_spinner":
+                enemy = BladeSpinner()
             # elif obj.name == "fire_launcher":
             #     enemy = FireLauncher()
             # elif obj.name == "kamikaze_drone":

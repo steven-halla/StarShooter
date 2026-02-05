@@ -198,7 +198,7 @@ class LevelFive(VerticalBattleScreen):
             if self.starship.hitbox.colliderect(enemy.hitbox):
                 enemy.color = (135, 206, 235)
                 if not self.starship.invincible:
-                    self.starship.shipHealth -= getattr(enemy, "contact_damage", 10)
+                    self.starship.shipHealth -= enemy.touch_damage
                     self.starship.on_hit()
             else:
                 enemy.color = GlobalConstants.RED
