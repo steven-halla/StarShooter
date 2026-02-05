@@ -14,14 +14,6 @@ from Entity.SpaceStation import SpaceStation
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
-
-
-
-
-# strip out all the boss stuff
-# have a print statment light out when enemy list is empty and nothing on screen with player
-# have boss only come out when print statemetn fires
-
 class LevelThree(VerticalBattleScreen):
     def __init__(self, textbox):
         super().__init__(textbox)
@@ -53,6 +45,8 @@ class LevelThree(VerticalBattleScreen):
         self.disable_player_bullet_damage = True
         self.any_enemy_has_been_active = False
         self.trigger_boss3_countdown: bool = False
+
+
 
 
     def start(self, state) -> None:
@@ -117,20 +111,6 @@ class LevelThree(VerticalBattleScreen):
         pygame.display.flip()
 
 
-
-    # def update_boss_helper(self, state):
-    #     for enemy in state.enemies:
-    #         if getattr(enemy, "name", None) == "level_3_boss":
-    #             enemy.check_arm_damage(self.starship)
-    #
-    #     if not self.boss_spawned and self.has_no_enemies(state):
-    #
-    #         if self.boss_spawn_time is None:
-    #             self.boss_spawn_time = pygame.time.get_ticks()
-    #
-    #         elif pygame.time.get_ticks() - self.boss_spawn_time >= self.boss_spawn_delay_ms:
-    #             self.spawn_level_3_boss(state)
-
     def update_deflect_hitbox(self):
         # 4️⃣ MELEE HITBOX (post-movement, post-collision)
         self.starship.melee_hitbox = pygame.Rect(
@@ -194,52 +174,109 @@ class LevelThree(VerticalBattleScreen):
 
                 self.starship.update_hitbox()
 
-    def update_enemy_helper(self, state):
-        self.enemy_waves_timer(state)
-        self.deflect_helper(state)
+    # def update_enemy_helper(self, state):
+    #     self.enemy_waves_timer(state)
+    #     self.deflect_helper(state)
+    #
+    #     now = pygame.time.get_ticks()
+    #
+    #     for enemy in list(state.enemies):
+    #
+    #         # ⏱ SPAWN GRACE WINDOW
+    #         # Enemy is visible and can take damage,
+    #         # but cannot move or attack yet.
+    #         if hasattr(enemy, "spawn_time"):
+    #             if now - enemy.spawn_time < enemy.spawn_grace_ms:
+    #                 if hasattr(enemy, "update_hitbox"):
+    #                     enemy.update_hitbox()
+    #                 continue
+    #
+    #         enemy.update(state)
+    #
+    #         if not enemy.is_active:
+    #             continue
+    #
+    #         self.clamp_enemy_to_world(enemy)
+    #
+    #         if hasattr(enemy, "update_hitbox"):
+    #             enemy.update_hitbox()
+    #
+    #         if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
+    #             state.enemy_bullets.extend(enemy.enemyBullets)
+    #             enemy.enemyBullets.clear()
+    #
+    #         if hasattr(enemy, "enemyHealth") and enemy.enemyHealth <= 0:
+    #             state.enemies.remove(enemy)
+    #
+    #     if not self.starship.invincible:
+    #         player_rect = self.starship.melee_hitbox
+    #
+    #         enemies = list(state.enemies)
+    #
+    #         for enemy in enemies:
+    #             enemy_rect = pygame.Rect(
+    #                 enemy.x,
+    #                 enemy.y,
+    #                 enemy.width,
+    #                 enemy.height
+    #             )
+    #
+    #             if player_rect.colliderect(enemy_rect):
+    #                 if getattr(enemy, "name", None) == "kamikaze_drone":
+    #                     self.starship.shipHealth -= 20
+    #                     self.starship.on_hit()
+    #                     state.enemies.remove(enemy)
+    #                 else:
+    #                     self.starship.shipHealth -= 10
+    #                     self.starship.on_hit()
+    #                 break
 
-        for enemy in list(state.enemies):
-            enemy.update(state)
-            if not enemy.is_active:
-                continue
-
-            self.clamp_enemy_to_world(enemy)
-
-            if hasattr(enemy, "update_hitbox"):
-                enemy.update_hitbox()
-
-            if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
-                state.enemy_bullets.extend(enemy.enemyBullets)
-                enemy.enemyBullets.clear()
-
-            if hasattr(enemy, "enemyHealth") and enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)
-
-        if not self.starship.invincible:
-            player_rect = self.starship.melee_hitbox  # ← USE MELEE HITBOX
-
-            enemies = (
-                    list(state.enemies)
-
-            )
-
-            for enemy in enemies:
-                enemy_rect = pygame.Rect(
-                    enemy.x,
-                    enemy.y,
-                    enemy.width,
-                    enemy.height
-                )
-
-                if player_rect.colliderect(enemy_rect):
-                    if getattr(enemy, "name", None) == "kamikaze_drone":
-                        self.starship.shipHealth -= 20
-                        self.starship.on_hit()
-                        state.enemies.remove(enemy)
-                    else:
-                        self.starship.shipHealth -= 10
-                        self.starship.on_hit()
-                    break
+    # def update_enemy_helper(self, state):
+    #     self.enemy_waves_timer(state)
+    #     self.deflect_helper(state)
+    #
+    #     for enemy in list(state.enemies):
+    #         enemy.update(state)
+    #         if not enemy.is_active:
+    #             continue
+    #
+    #         self.clamp_enemy_to_world(enemy)
+    #
+    #         if hasattr(enemy, "update_hitbox"):
+    #             enemy.update_hitbox()
+    #
+    #         if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
+    #             state.enemy_bullets.extend(enemy.enemyBullets)
+    #             enemy.enemyBullets.clear()
+    #
+    #         if hasattr(enemy, "enemyHealth") and enemy.enemyHealth <= 0:
+    #             state.enemies.remove(enemy)
+    #
+    #     if not self.starship.invincible:
+    #         player_rect = self.starship.melee_hitbox  # ← USE MELEE HITBOX
+    #
+    #         enemies = (
+    #                 list(state.enemies)
+    #
+    #         )
+    #
+    #         for enemy in enemies:
+    #             enemy_rect = pygame.Rect(
+    #                 enemy.x,
+    #                 enemy.y,
+    #                 enemy.width,
+    #                 enemy.height
+    #             )
+    #
+    #             if player_rect.colliderect(enemy_rect):
+    #                 if getattr(enemy, "name", None) == "kamikaze_drone":
+    #                     self.starship.shipHealth -= 20
+    #                     self.starship.on_hit()
+    #                     state.enemies.remove(enemy)
+    #                 else:
+    #                     self.starship.shipHealth -= 10
+    #                     self.starship.on_hit()
+    #                 break
 
     def deflect_helper(self, state):
         for bullet in list(state.enemy_bullets):
@@ -295,7 +332,7 @@ class LevelThree(VerticalBattleScreen):
     def reflect_bullet(self, bullet):
         target = self.get_nearest_enemy(bullet)
 
-        speed = abs(getattr(bullet, "bullet_speed", 4)) * 6
+        speed = abs(getattr(bullet, "bullet_speed", 4))
 
         if target is None:
             bullet.vx = 0
@@ -379,6 +416,10 @@ class LevelThree(VerticalBattleScreen):
             enemy.x = random.randint(20, screen_right - 20)
             enemy.y = spawn_y
             enemy.is_active = True
+
+            enemy.spawn_time = pygame.time.get_ticks()
+            enemy.spawn_grace_ms = 1000
+
             enemy.update_hitbox()
     #
     # def spawn_enemy_wave(self, state):
@@ -425,8 +466,8 @@ class LevelThree(VerticalBattleScreen):
 
             if obj.name == "tri_spitter":
                 enemy = TriSpitter()
-            # elif obj.name == "bile_spitter":
-            #     enemy = BileSpitter()
+            elif obj.name == "bile_spitter":
+                enemy = BileSpitter()
             # elif obj.name == "blade_spinner":
             #     enemy = BladeSpinner()
             # elif obj.name == "fire_launcher":

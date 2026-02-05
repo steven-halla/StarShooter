@@ -117,15 +117,22 @@
  </objectgroup>
  <objectgroup id="4" name="enemies">
   <object id="180" name="tri_spitter" x="5.29077" y="125.526" width="16" height="16"/>
-  <object id="251" name="tri_spitter" x="57.1714" y="205.635" width="16" height="16"/>
-  <object id="249" name="tri_spitter" x="51.0678" y="79.7484" width="16" height="16"/>
-  <object id="253" name="tri_spitter" x="102.949" y="159.858" width="16" height="16"/>
-  <object id="247" name="tri_spitter" x="57.9344" y="130.866" width="16" height="16"/>
-  <object id="250" name="tri_spitter" x="109.815" y="210.976" width="16" height="16"/>
-  <object id="248" name="tri_spitter" x="103.711" y="85.0891" width="16" height="16"/>
-  <object id="254" name="tri_spitter" x="103.711" y="85.0891" width="16" height="16"/>
-  <object id="252" name="tri_spitter" x="155.592" y="165.199" width="16" height="16"/>
-  <object id="255" name="tri_spitter" x="155.592" y="107.978" width="16" height="16"/>
-  <object id="11" name="level_3_boss" x="304.323" y="137.519" width="44.25" height="88.38"/>
+  <object id="11" name="level_3_boss" x="84.5935" y="145.148" width="44.25" height="88.38"/>
+  <object id="191" name="bile_spitter" x="289.487" y="216.208"/>
+  <object id="207" name="bile_spitter" x="261.917" y="215.483"/>
+  <object id="199" name="bile_spitter" x="293.115" y="269.172"/>
+  <object id="202" name="bile_spitter" x="265.545" y="268.447"/>
+  <object id="195" name="bile_spitter" x="289.487" y="240.151"/>
+  <object id="204" name="bile_spitter" x="261.917" y="239.425"/>
+  <object id="196" name="bile_spitter" x="293.115" y="293.115"/>
+  <object id="200" name="bile_spitter" x="265.545" y="292.389"/>
+  <object id="193" name="bile_spitter" x="338.823" y="216.208" width="16" height="16"/>
+  <object id="206" name="bile_spitter" x="311.253" y="215.483" width="16" height="16"/>
+  <object id="198" name="bile_spitter" x="342.451" y="269.172" width="16" height="16"/>
+  <object id="203" name="bile_spitter" x="314.881" y="268.447" width="16" height="16"/>
+  <object id="194" name="bile_spitter" x="338.823" y="240.151" width="16" height="16"/>
+  <object id="205" name="bile_spitter" x="311.253" y="239.425" width="16" height="16"/>
+  <object id="197" name="bile_spitter" x="342.451" y="293.115" width="16" height="16"/>
+  <object id="201" name="bile_spitter" x="314.881" y="292.389" width="16" height="16"/>
  </objectgroup>
 </map>
