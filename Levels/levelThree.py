@@ -32,7 +32,7 @@ class LevelThree(VerticalBattleScreen):
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
-        self.enemy_wave_interval_ms = 8000
+        self.enemy_wave_interval_ms = 5000
         self.last_enemy_wave_time = pygame.time.get_ticks()
         self.initial_wave_delay_ms = 3000
         self.initial_wave_start_time = pygame.time.get_ticks()
@@ -88,6 +88,7 @@ class LevelThree(VerticalBattleScreen):
         self.update_deflect_hitbox()
         # self.update_boss_helper(state)
         self.update_enemy_helper(state)
+
         on_screen = []
 
         view_left = self.camera.x
@@ -227,34 +228,47 @@ class LevelThree(VerticalBattleScreen):
         self.enemy_waves_timer(state)
         self.deflect_helper(state)
 
+        now = pygame.time.get_ticks()
+
         for enemy in list(state.enemies):
 
-            # ✅ FIRST: let the enemy decide is_on_screen / is_active
+            # 🧊 SPAWN FREEZE (1 second, ONE-TIME)
+            if hasattr(enemy, "spawn_time"):
+                if now - enemy.spawn_time < enemy.spawn_grace_ms:
+                    # keep hitbox valid but DO NOT early-exit forever
+                    enemy.update_hitbox()
+                    continue
+                else:
+                    # 🔑 IMPORTANT: clear spawn freeze so enemy resumes normal life
+                    del enemy.spawn_time
+                    del enemy.spawn_grace_ms
+
+            # ✅ NORMAL UPDATE AFTER FREEZE
             enemy.update(state)
 
-            # ❌ If enemy decided it is inactive, STOP
             if not enemy.is_active:
                 continue
 
-            # ✅ NOW clamp, using CORRECT is_on_screen
+            # self.clamp_enemy_to_world(enemy)
             self.clamp_enemy_to_player_view(enemy)
 
-            # 🔫 collect bullets
             if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
                 state.enemy_bullets.extend(enemy.enemyBullets)
                 enemy.enemyBullets.clear()
 
-            # ☠️ death
             if hasattr(enemy, "enemyHealth") and enemy.enemyHealth <= 0:
                 state.enemies.remove(enemy)
 
-        # Player collision
+        # PLAYER CONTACT DAMAGE
         if not self.starship.invincible:
             player_rect = self.starship.melee_hitbox
 
             for enemy in list(state.enemies):
                 enemy_rect = pygame.Rect(
-                    enemy.x, enemy.y, enemy.width, enemy.height
+                    enemy.x,
+                    enemy.y,
+                    enemy.width,
+                    enemy.height
                 )
                 if player_rect.colliderect(enemy_rect):
                     if hasattr(enemy, "touch_damage"):
@@ -262,8 +276,7 @@ class LevelThree(VerticalBattleScreen):
                         self.starship.shield_system.take_damage(enemy.touch_damage)
                         if self.starship.shipHealth < old_health:
                             self.starship.on_hit()
-                        break  # Only take damage from one enemy per frame
-
+                    break
 
     def deflect_helper(self, state):
         for bullet in list(state.enemy_bullets):
@@ -414,7 +427,7 @@ class LevelThree(VerticalBattleScreen):
 
             # SPAWN GRACE
             enemy.spawn_time = pygame.time.get_ticks()
-            enemy.spawn_grace_ms = 1000
+            enemy.spawn_grace_ms = 2000
 
             # ONE-TIME SAFETY CLAMP
             enemy.update_hitbox()

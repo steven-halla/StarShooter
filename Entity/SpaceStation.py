@@ -9,7 +9,7 @@ class SpaceStation:
         y: float,
         width: int,
         height: int,
-        max_hp: int = 200
+        max_hp: int = 500
     ) -> None:
         self.x = x
         self.y = y
