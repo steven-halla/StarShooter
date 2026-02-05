@@ -12,6 +12,7 @@ class BossLevelThree(Enemy):
     def __init__(self) -> None:
         super().__init__()
         self.mover: MoveRectangle = MoveRectangle()
+        self.name: str = "level_3_boss"
 
         # -------------------------
         # BODY
@@ -126,7 +127,7 @@ class BossLevelThree(Enemy):
     # =====================================================
     def update(self, state) -> None:
         super().update(state)
-        print(self.enemyHealth)
+        # print(self.enemyHealth)
         if not self.is_active or self.camera is None:
             return
 

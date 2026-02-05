@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="255">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="256">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="background" width="25" height="50">
   <data encoding="csv">
@@ -125,6 +125,7 @@
   <object id="248" name="tri_spitter" x="103.711" y="85.0891" width="16" height="16"/>
   <object id="254" name="tri_spitter" x="103.711" y="85.0891" width="16" height="16"/>
   <object id="252" name="tri_spitter" x="155.592" y="165.199" width="16" height="16"/>
+  <object id="255" name="tri_spitter" x="155.592" y="107.978" width="16" height="16"/>
   <object id="11" name="level_3_boss" x="304.323" y="137.519" width="44.25" height="88.38"/>
  </objectgroup>
 </map>

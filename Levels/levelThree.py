@@ -14,6 +14,14 @@ from Entity.SpaceStation import SpaceStation
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
+
+
+
+
+# strip out all the boss stuff
+# have a print statment light out when enemy list is empty and nothing on screen with player
+# have boss only come out when print statemetn fires
+
 class LevelThree(VerticalBattleScreen):
     def __init__(self, textbox):
         super().__init__(textbox)
@@ -32,17 +40,19 @@ class LevelThree(VerticalBattleScreen):
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
-        self.enemy_wave_interval_ms = 15000
+        self.enemy_wave_interval_ms = 10000
         self.last_enemy_wave_time = pygame.time.get_ticks()
         self.initial_wave_delay_ms = 3000
         self.initial_wave_start_time = pygame.time.get_ticks()
         self.intial_wave = True
         self.boss_spawned = False
-        self.boss_spawn_delay_ms = 1000
+        self.boss_spawn_delay_ms = 7000
         self.boss_spawn_time = None
         self.level_start = True
         self.game_over: bool = False
         self.disable_player_bullet_damage = True
+        self.any_enemy_has_been_active = False
+        self.trigger_boss3_countdown: bool = False
 
 
     def start(self, state) -> None:
@@ -80,10 +90,25 @@ class LevelThree(VerticalBattleScreen):
         super().update(state)
         self.update_space_station_collision(state)
         self.update_deflect_hitbox()
-        self.update_boss_helper(state)
+        # self.update_boss_helper(state)
         self.update_enemy_helper(state)
+        on_screen = [
+            f"{e.__class__.__name__}(x={e.x:.1f}, y={e.y:.1f}, active={e.is_active})"
+            for e in state.enemies
+            if e.is_on_screen
+        ]
+
+        print(f"[BOSS CHECK] Enemies on screen with player: {on_screen}")
         # print(state.enemies)
         # print(len(state.enemies))
+        if self.trigger_boss3_countdown and not self.boss_spawned:
+
+            if self.boss_spawn_time is None:
+                self.boss_spawn_time = pygame.time.get_ticks()
+
+            elif pygame.time.get_ticks() - self.boss_spawn_time >= self.boss_spawn_delay_ms:
+                self.spawn_level_3_boss(state)
+
 
     def draw(self, state):
         super().draw(state)
@@ -91,38 +116,7 @@ class LevelThree(VerticalBattleScreen):
         self.draw_ui_panel(state.DISPLAY)
         pygame.display.flip()
 
-    def update_boss_helper(self, state):
-        # boss-specific damage logic (if boss already exists)
-        for enemy in state.enemies:
-            if getattr(enemy, "name", None) == "level_3_boss":
-                enemy.check_arm_damage(self.starship)
 
-        # already spawned → nothing else to do
-        if self.boss_spawned:
-            return
-
-        # spawn boss ONLY when exactly one enemy remains
-        if len(state.enemies) == 1:
-            # print("boss incoming")
-            # print(len(state.enemies))
-
-            remaining = state.enemies[0]
-
-            # do not respawn if that enemy is already the boss
-            if getattr(remaining, "name", None) == "level_3_boss":
-                return
-
-            # start / check spawn delay timer
-            if self.boss_spawn_time is None:
-                self.boss_spawn_time = pygame.time.get_ticks()
-                return
-
-            if pygame.time.get_ticks() - self.boss_spawn_time < self.boss_spawn_delay_ms:
-                return
-
-            # remove the last enemy and spawn the boss
-            state.enemies.remove(remaining)
-            self.spawn_level_3_boss(state)
 
     # def update_boss_helper(self, state):
     #     for enemy in state.enemies:
@@ -340,25 +334,33 @@ class LevelThree(VerticalBattleScreen):
             self.spawn_enemy_wave(state)
             self.last_enemy_wave_time = now
 
-
     def build_enemy_pool(self, state):
         pool = []
 
         for group in (
                 state.enemies,
-
         ):
             for enemy in group:
-                if not isinstance(enemy, tuple):
-                    pool.append(enemy)
+                if isinstance(enemy, tuple):
+                    continue
+                if isinstance(enemy, BossLevelThree):
+                    continue
+                pool.append(enemy)
+
+        if not pool:
+            self.trigger_boss3_countdown = True
+
         return pool
 
     def spawn_enemy_wave(self, state):
         for group in (
                 state.enemies,
-
         ):
-            group[:] = [e for e in group if not isinstance(e, tuple)]
+            group[:] = [
+                e for e in group
+                if not isinstance(e, tuple)
+                   and not isinstance(e, BossLevelThree)
+            ]
 
         enemy_pool = self.build_enemy_pool(state)
 
@@ -372,12 +374,38 @@ class LevelThree(VerticalBattleScreen):
         spawn_y = int(self.camera.y) + 5
 
         for i in range(spawn_count):
-            enemy = enemy_pool[i]  # ← RANDOM ASSORTMENT
+            enemy = enemy_pool[i]
 
             enemy.x = random.randint(20, screen_right - 20)
             enemy.y = spawn_y
             enemy.is_active = True
             enemy.update_hitbox()
+    #
+    # def spawn_enemy_wave(self, state):
+    #     for group in (
+    #             state.enemies,
+    #
+    #     ):
+    #         group[:] = [e for e in group if not isinstance(e, tuple)]
+    #
+    #     enemy_pool = self.build_enemy_pool(state)
+    #
+    #     if not enemy_pool:
+    #         # print("[WAVE] No inactive enemies left")
+    #         return
+    #
+    #     random.shuffle(enemy_pool)
+    #     spawn_count = min(random.randint(4, 8), len(enemy_pool))
+    #     screen_right = int(self.window_width / self.camera.zoom)
+    #     spawn_y = int(self.camera.y) + 5
+    #
+    #     for i in range(spawn_count):
+    #         enemy = enemy_pool[i]  # ← RANDOM ASSORTMENT
+    #
+    #         enemy.x = random.randint(20, screen_right - 20)
+    #         enemy.y = spawn_y
+    #         enemy.is_active = True
+    #         enemy.update_hitbox()
 
             # print(f"[RESPAWN] {enemy.__class__.__name__}")
 
