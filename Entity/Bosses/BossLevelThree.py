@@ -57,14 +57,31 @@ class BossLevelThree(Enemy):
         self.update_hitbox()
 
         # ROPE ATTACK
-        self.rope_grab(
-            rope_length=160,
-            rope_width=4,
-            rope_speed=3.0,
-            rope_color=(180, 180, 180),
-            state=state
-        )
+        # spawn rope every 3s
+        if not hasattr(self, "_rope_last_time"):
+            self._rope_last_time = 0
 
+        now = pygame.time.get_ticks()
+
+        if self._rope is None and now - self._rope_last_time >= 3000:
+            self.rope_grab(
+                rope_length=160,
+                rope_width=4,
+                rope_speed=3.0,
+                rope_color=(180, 180, 180),
+                state=state
+            )
+            self._rope_last_time = now
+
+        # 🔑 KEEP UPDATING ROPE EVERY FRAME
+        if self._rope is not None:
+            self.rope_grab(
+                rope_length=160,
+                rope_width=4,
+                rope_speed=3.0,
+                rope_color=(180, 180, 180),
+                state=state
+            )
         self.shoot_single_down_vertical_y(
             bullet_speed=4.0,
             bullet_width=20,

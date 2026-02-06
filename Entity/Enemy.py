@@ -1253,7 +1253,6 @@ class Enemy:
             #     state=state
             # )
 ####
-
     def rope_grab(
             self,
             rope_length: int,
@@ -1265,11 +1264,15 @@ class Enemy:
         if self.target_player is None or self.camera is None:
             return
 
+        now = pygame.time.get_ticks()
+        ROPE_DURATION_MS = 3000  # 🔒 fixed 3 seconds
+
         # lazy init (NO __init__ edits)
         if not hasattr(self, "_rope"):
             self._rope = None
 
         rope = self._rope
+        print("called")
 
         # ---------------------------------
         # CREATE rope bullet if missing
@@ -1284,7 +1287,8 @@ class Enemy:
             rope.start = pygame.Vector2(0, 0)
             rope.end = pygame.Vector2(0, 0)
 
-            rope.current_length = 0.0  # 🔑 starts retracted
+            rope.current_length = 0.0
+            rope.end_time = now + ROPE_DURATION_MS
 
             rope.vx = 0
             rope.vy = 0
@@ -1293,6 +1297,16 @@ class Enemy:
             rope.update_rect()
             state.enemy_bullets.append(rope)
             self._rope = rope
+
+        # ---------------------------------
+        # DESPAWN AFTER 3 SECONDS
+        # ---------------------------------
+        if now >= rope.end_time:
+            if rope in state.enemy_bullets:
+                state.enemy_bullets.remove(rope)
+            self._rope = None
+            self.player_caught = False
+            return
 
         # ---------------------------------
         # AIM AT PLAYER
@@ -1329,7 +1343,7 @@ class Enemy:
         rope.end.y = end_y
 
         # ---------------------------------
-        # LOGIC RECT (midpoint, minimal)
+        # LOGIC RECT (midpoint only)
         # ---------------------------------
         mid_x = (bx + end_x) / 2
         mid_y = (by + end_y) / 2
