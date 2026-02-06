@@ -32,13 +32,13 @@ class LevelThree(VerticalBattleScreen):
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
-        self.enemy_wave_interval_ms = 8000
+        self.enemy_wave_interval_ms = 3000
         self.last_enemy_wave_time = pygame.time.get_ticks()
         self.initial_wave_delay_ms = 3000
         self.initial_wave_start_time = pygame.time.get_ticks()
         self.intial_wave = True
         self.boss_spawned = False
-        self.boss_spawn_delay_ms = 6000
+        self.boss_spawn_delay_ms = 2000
         self.boss_spawn_time = None
         self.level_start = True
         self.game_over: bool = False
@@ -537,8 +537,8 @@ class LevelThree(VerticalBattleScreen):
         for obj in self.tiled_map.objects:
 
 
-            if obj.name == "tri_spitter":
-                enemy = TriSpitter()
+            # if obj.name == "tri_spitter":
+            #     enemy = TriSpitter()
             # elif obj.name == "bile_spitter":
             #     enemy = BileSpitter()
             # elif obj.name == "blade_spinner":
@@ -547,7 +547,7 @@ class LevelThree(VerticalBattleScreen):
             #     enemy = FireLauncher()
             # elif obj.name == "kamikaze_drone":
             #     enemy = KamikazeDrone()
-            elif obj.name == "level_3_boss":
+            if obj.name == "level_3_boss":
                 enemy = BossLevelThree()
             else:
                 continue

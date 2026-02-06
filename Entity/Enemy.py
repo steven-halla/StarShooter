@@ -264,6 +264,7 @@ class Enemy:
         #     bullet_damage=10
         # )
 
+
     def shoot_multiple_down_vertical_y(
             self,
             bullet_speed: float,
@@ -1250,6 +1251,131 @@ class Enemy:
             #     y_offset=0,
             #     state=state
             # )
+####
+
+    def rope_grab(
+            self,
+            rope_length: int,
+            rope_width: int,
+            rope_color: tuple[int, int, int],
+            state
+    ) -> None:
+        if self.target_player is None or self.camera is None:
+            return
+
+        # lazy init (NO __init__ edits)
+        if not hasattr(self, "_rope"):
+            self._rope = None
+
+        rope = self._rope
+
+        # CREATE rope bullet if missing
+        if rope is None or rope not in state.enemy_bullets:
+            rope = Bullet(0, 0)
+            rope.width = rope_width
+            rope.height = rope_width
+            rope.color = rope_color
+            rope.damage = 0  # 🔒 DAMAGE = 0
+
+            rope.start = pygame.Vector2(0, 0)
+            rope.end = pygame.Vector2(0, 0)
+
+            rope.vx = 0
+            rope.vy = 0
+            rope.bullet_speed = 0
+
+            rope.update_rect()
+            state.enemy_bullets.append(rope)
+            self._rope = rope
+
+        # -------------------------
+        # COPY OF ARM AIM LOGIC
+        # -------------------------
+        bx = self.x + self.width / 2
+        by = self.y + self.height / 2
+
+        px = self.target_player.x + self.target_player.width / 2
+        py = self.target_player.y + self.target_player.height / 2
+
+        dx = px - bx
+        dy = py - by
+        dist = math.hypot(dx, dy)
+        if dist == 0:
+            return
+
+        dx /= dist
+        dy /= dist
+
+        end_x = bx + dx * rope_length
+        end_y = by + dy * rope_length
+
+        rope.start.x = bx
+        rope.start.y = by
+        rope.end.x = end_x
+        rope.end.y = end_y
+
+        # rect kept valid (midpoint)
+        mid_x = (bx + end_x) / 2
+        mid_y = (by + end_y) / 2
+        rope.x = mid_x - rope.width // 2
+        rope.y = mid_y - rope.height // 2
+        rope.update_rect()
+
+    def draw_rope(self, surface: pygame.Surface, camera) -> None:
+        if not hasattr(self, "_rope") or self._rope is None:
+            return
+
+        rope = self._rope
+
+        # 🔑 KILL VISUAL RECT (logic rect still exists elsewhere)
+        rope.width = 0
+        rope.height = 0
+        rope.rect.width = 0
+        rope.rect.height = 0
+
+        pygame.draw.line(
+            surface,
+            rope.color,
+            (
+                camera.world_to_screen_x(rope.start.x),
+                camera.world_to_screen_y(rope.start.y),
+            ),
+            (
+                camera.world_to_screen_x(rope.end.x),
+                camera.world_to_screen_y(rope.end.y),
+            ),
+            max(1, int(rope.original_width * camera.zoom))
+            if hasattr(rope, "original_width")
+            else max(1, int(4 * camera.zoom)),
+        )
+
+    # how to call (update)
+    # self.rope_grab(
+    #     rope_length=160,
+    #     rope_width=6,
+    #     rope_color=(180, 180, 180),
+    #     state=state
+    # )
+
+    # how to call (draw)
+    # self.draw_rope(surface, camera)
+    def check_rope_collision(self, player) -> bool:
+        """Check if rope bullet collides with player and print message"""
+        if not hasattr(self, "_rope") or self._rope is None:
+            return False
+
+        rope_rect = pygame.Rect(
+            self._rope.x,
+            self._rope.y,
+            self._rope.width,
+            self._rope.height
+        )
+
+        if rope_rect.colliderect(player.hitbox):
+            print("🔴 ROPE HIT PLAYER!")
+            return True
+
+        return False
 
 
 class EnemyNapalmBullet(Bullet):
@@ -1344,4 +1470,3 @@ class EnemyNapalmBullet(Bullet):
 #####
 # new mellee : Grabber, grabs player so they have to shoot to get out.
 # new melle: hook shot, grab player and put them in new position
-####

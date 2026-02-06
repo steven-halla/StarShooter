@@ -1,3 +1,4 @@
+import math
 import random
 import pygame
 
@@ -41,33 +42,29 @@ class BossLevelThree(Enemy):
         # touch damage
         self.touch_damage: int = 10
         self.touch_timer = Timer(0.75)
+        self._rope = None
 
     # -------------------------------------------------
     # UPDATE
     # -------------------------------------------------
     def update(self, state) -> None:
         super().update(state)
-        # print(self.enemyHealth)
-        if not self.is_active:
-            return
 
+        if not self.is_active or self.camera is None:
+            return
 
         self.update_hitbox()
 
-        if self.attack_timer.is_ready():
-            self.shoot_single_bullet_aimed_at_player(
-                bullet_speed=2.5,
-                bullet_width=20,
-                bullet_height=20,
-                bullet_color=self.bulletColor,
-                bullet_damage=40,
-                state=state
-            )
-            self.attack_timer.reset()
+        # ROPE ATTACK
+        self.rope_grab(
+            rope_length=160,
+            rope_width=4,
+            rope_color=(180, 180, 180),
+            state=state
+        )
 
-        # 🔑 CALL TOUCH DAMAGE HANDLER
-        self.player_collide_damage(state.starship)
-        self.moveAI()
+        # Check rope collision with player
+        self.check_rope_collision(self.target_player)
 
 
     # -------------------------------------------------
@@ -97,6 +94,7 @@ class BossLevelThree(Enemy):
             self.move_direction *= -1
 
         self._last_x = self.x
+        self.check_rope_collision(self.target_player)
 
     # -------------------------------------------------
     # DRAW
@@ -104,6 +102,8 @@ class BossLevelThree(Enemy):
     def draw(self, surface: pygame.Surface, camera):
         if not self.is_active:
             return
+
+        self.draw_rope(surface, camera)
 
         super().draw(surface, camera)
 
@@ -126,3 +126,25 @@ class BossLevelThree(Enemy):
 
     def clamp_vertical(self) -> None:
         pass
+
+    def check_rope_collision(self, player) -> None:
+        if player is None or self._rope is None:
+            return
+
+        rope = self._rope
+
+        thickness = rope.width
+
+        x1, y1 = rope.start.x, rope.start.y
+        x2, y2 = rope.end.x, rope.end.y
+
+        rope_rect = pygame.Rect(
+            min(x1, x2) - thickness,
+            min(y1, y2) - thickness,
+            abs(x2 - x1) + thickness * 2,
+            abs(y2 - y1) + thickness * 2
+        )
+
+        # 🔑 USE MELEE HITBOX (ACTIVE PLAYER RECT)
+        if rope_rect.colliderect(player.melee_hitbox):
+            print("ROPE HIT PLAYER")
