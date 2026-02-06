@@ -1252,12 +1252,13 @@ class Enemy:
             #     y_offset=0,
             #     state=state
             # )
-####
+
     def rope_grab(
             self,
             rope_length: int,
             rope_width: int,
             rope_speed: float,
+            rope_duration_ms: int,  # ✅ PASSED IN
             rope_color: tuple[int, int, int],
             state
     ) -> None:
@@ -1265,14 +1266,12 @@ class Enemy:
             return
 
         now = pygame.time.get_ticks()
-        ROPE_DURATION_MS = 3000  # 🔒 fixed 3 seconds
 
         # lazy init (NO __init__ edits)
         if not hasattr(self, "_rope"):
             self._rope = None
 
         rope = self._rope
-        print("called")
 
         # ---------------------------------
         # CREATE rope bullet if missing
@@ -1288,7 +1287,8 @@ class Enemy:
             rope.end = pygame.Vector2(0, 0)
 
             rope.current_length = 0.0
-            rope.end_time = now + ROPE_DURATION_MS
+            rope.end_time = now + rope_duration_ms  # ✅ USE PARAM
+            rope.extend_lock = False
 
             rope.vx = 0
             rope.vy = 0
@@ -1299,7 +1299,7 @@ class Enemy:
             self._rope = rope
 
         # ---------------------------------
-        # DESPAWN AFTER 3 SECONDS
+        # DESPAWN AFTER TIME
         # ---------------------------------
         if now >= rope.end_time:
             if rope in state.enemy_bullets:
@@ -1327,7 +1327,7 @@ class Enemy:
         dy /= dist
 
         # ---------------------------------
-        # EXTEND ROPE BY SPEED
+        # EXTEND ROPE
         # ---------------------------------
         rope.current_length = min(
             rope_length,
@@ -1343,7 +1343,7 @@ class Enemy:
         rope.end.y = end_y
 
         # ---------------------------------
-        # LOGIC RECT (midpoint only)
+        # LOGIC RECT (midpoint)
         # ---------------------------------
         mid_x = (bx + end_x) / 2
         mid_y = (by + end_y) / 2
@@ -1351,6 +1351,35 @@ class Enemy:
         rope.x = mid_x - rope.width // 2
         rope.y = mid_y - rope.height // 2
         rope.update_rect()
+
+        # ---------------------------------
+        # COLLISION → EXTEND DURATION
+        # ---------------------------------
+        thickness = rope.width
+        rope_rect = pygame.Rect(
+            min(rope.start.x, rope.end.x) - thickness,
+            min(rope.start.y, rope.end.y) - thickness,
+            abs(rope.end.x - rope.start.x) + thickness * 2,
+            abs(rope.end.y - rope.start.y) + thickness * 2
+        )
+
+        if rope_rect.colliderect(self.target_player.melee_hitbox):
+            self.player_caught = True
+            if not rope.extend_lock:
+                rope.end_time += rope_duration_ms  # ✅ SAME PARAM
+                rope.extend_lock = True
+        else:
+            rope.extend_lock = False
+            self.player_caught = False
+        #
+        # self.rope_grab(
+        #     rope_length=160,
+        #     rope_width=4,
+        #     rope_speed=3.0,
+        #     rope_duration_ms=3000,
+        #     rope_color=(180, 180, 180),
+        #     state=state
+        # )
 
     def draw_rope(self, surface: pygame.Surface, camera) -> None:
         if not hasattr(self, "_rope") or self._rope is None:

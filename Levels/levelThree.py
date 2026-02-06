@@ -32,13 +32,13 @@ class LevelThree(VerticalBattleScreen):
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
-        self.enemy_wave_interval_ms = 2000
+        self.enemy_wave_interval_ms = 555
         self.last_enemy_wave_time = pygame.time.get_ticks()
-        self.initial_wave_delay_ms = 1000
+        self.initial_wave_delay_ms = 555
         self.initial_wave_start_time = pygame.time.get_ticks()
         self.intial_wave = True
         self.boss_spawned = False
-        self.boss_spawn_delay_ms = 1000
+        self.boss_spawn_delay_ms = 300
         self.boss_spawn_time = None
         self.level_start = True
         self.game_over: bool = False

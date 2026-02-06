@@ -58,38 +58,73 @@ class BossLevelThree(Enemy):
 
         # ROPE ATTACK
         # spawn rope every 3s
-        if not hasattr(self, "_rope_last_time"):
-            self._rope_last_time = 0
+        # =============================
+        # LEVEL 3 ROPE CONTROL (FIXED)
+        # =============================
 
         now = pygame.time.get_ticks()
 
-        if self._rope is None and now - self._rope_last_time >= 3000:
+        # local init only (NO __init__ edits)
+        if not hasattr(self, "_rope_was_active"):
+            self._rope_was_active = False
+
+        if not hasattr(self, "_rope_next_allowed_time"):
+            self._rope_next_allowed_time = 0
+
+        ROPE_DURATION_MS = 3000
+        ROPE_COOLDOWN_MS = 4000
+
+        # -----------------------------
+        # START ROPE (only if allowed)
+        # -----------------------------
+        if self._rope is None and now >= self._rope_next_allowed_time:
             self.rope_grab(
                 rope_length=160,
                 rope_width=4,
                 rope_speed=3.0,
+                rope_duration_ms=ROPE_DURATION_MS,
                 rope_color=(180, 180, 180),
                 state=state
             )
-            self._rope_last_time = now
 
-        # 🔑 KEEP UPDATING ROPE EVERY FRAME
+        # -----------------------------
+        # UPDATE ROPE (every frame)
+        # -----------------------------
         if self._rope is not None:
             self.rope_grab(
                 rope_length=160,
                 rope_width=4,
                 rope_speed=3.0,
+                rope_duration_ms=ROPE_DURATION_MS,
                 rope_color=(180, 180, 180),
                 state=state
             )
-        self.shoot_single_down_vertical_y(
-            bullet_speed=4.0,
-            bullet_width=20,
-            bullet_height=20,
-            bullet_color=self.bulletColor,
-            bullet_damage=10,
-            state = state
-        )
+            self._rope_was_active = True
+
+        # -----------------------------
+        # ROPE JUST ENDED → START COOLDOWN
+        # -----------------------------
+        if self._rope is None and self._rope_was_active:
+            self._rope_next_allowed_time = now + ROPE_COOLDOWN_MS
+            self._rope_was_active = False
+
+
+        # LOCAL fire-rate gate (NO __init__ fields)
+        now = pygame.time.get_ticks()
+
+        if not hasattr(self, "_phase1_shoot_next_time"):
+            self._phase1_shoot_next_time = 0
+
+        if now >= self._phase1_shoot_next_time:
+            self.shoot_single_down_vertical_y(
+                bullet_speed=4.0,
+                bullet_width=20,
+                bullet_height=20,
+                bullet_color=self.bulletColor,
+                bullet_damage=10,
+                state=state
+            )
+            self._phase1_shoot_next_time = now + 2000  # 2 seconds
 
 
 
