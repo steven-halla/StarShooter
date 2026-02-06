@@ -28,14 +28,32 @@ class SpaceStation:
 
         self.color = GlobalConstants.SKYBLUE
         self.border_color = GlobalConstants.WHITE
+        self.invincible = False
+        self.invincible_start_time = 0
+        self.invincible_duration_ms = 1000  # 1 second
+        self.last_damage_tick = -1
 
     # =========================
     # DAMAGE
     # =========================
+    # def take_damage(self, damage: int) -> None:
+    #     if self.hp <= 0:
+    #         return
+    #     self.hp = max(0, self.hp - damage)
+    #
     def take_damage(self, damage: int) -> None:
         if self.hp <= 0:
             return
+
+        now = pygame.time.get_ticks()
+
+        # 🔒 SAME-FRAME DAMAGE GUARD
+        if now == self.last_damage_tick:
+            return
+
+        # apply damage ONCE per frame
         self.hp = max(0, self.hp - damage)
+        self.last_damage_tick = now
 
     def is_destroyed(self) -> bool:
         return self.hp <= 0

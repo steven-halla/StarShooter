@@ -32,13 +32,13 @@ class LevelThree(VerticalBattleScreen):
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
-        self.enemy_wave_interval_ms = 5000
+        self.enemy_wave_interval_ms = 8000
         self.last_enemy_wave_time = pygame.time.get_ticks()
         self.initial_wave_delay_ms = 3000
         self.initial_wave_start_time = pygame.time.get_ticks()
         self.intial_wave = True
         self.boss_spawned = False
-        self.boss_spawn_delay_ms = 7000
+        self.boss_spawn_delay_ms = 6000
         self.boss_spawn_time = None
         self.level_start = True
         self.game_over: bool = False
@@ -110,7 +110,7 @@ class LevelThree(VerticalBattleScreen):
                     f"active={e.is_active})"
                 )
 
-        print(f"[BOSS CHECK] Enemies ACTUALLY on screen: {on_screen}")
+        # print(f"[BOSS CHECK] Enemies ACTUALLY on screen: {on_screen}")
         # on_screen = [
         #     f"{e.__class__.__name__}(x={e.x:.1f}, y={e.y:.1f}, active={e.is_active})"
         #     for e in state.enemies
@@ -287,25 +287,36 @@ class LevelThree(VerticalBattleScreen):
                 bullet.width,
                 bullet.height
             )
+
+            # ─────────────────────────────
+            # DEFLECT CHECK
+            # ─────────────────────────────
             if bullet_rect.colliderect(self.deflect_hitbox):
                 if not hasattr(bullet, "is_reflected"):
                     target = self.get_nearest_enemy(bullet)
 
+                    speed = abs(getattr(bullet, "bullet_speed", 4)) * 6
+
                     if target is None:
-                        speed = abs(getattr(bullet, "bullet_speed", 4)) * 6
                         bullet.vx = 0
-                        bullet.vy = -speed  # 🔺 FORCE UP
-                        bullet.is_reflected = True
+                        bullet.vy = -speed
                         bullet.damage = 0
-                        bullet.update_rect()
                     else:
                         self.reflect_bullet(bullet)
+
+                    bullet.is_reflected = True
+                    bullet.has_hit_enemy = False  # 🔑 reset hit guard
+                    bullet.update_rect()
+
                 continue
 
-            if hasattr(bullet, "is_reflected"):
+            # ─────────────────────────────
+            # REFLECTED BULLET DAMAGE
+            # ─────────────────────────────
+            if hasattr(bullet, "is_reflected") and not getattr(bullet, "has_hit_enemy", False):
 
-                enemies = list(state.enemies)
-                for enemy in enemies:
+                for enemy in list(state.enemies):
+
                     enemy_rect = pygame.Rect(
                         enemy.x,
                         enemy.y,
@@ -316,18 +327,40 @@ class LevelThree(VerticalBattleScreen):
                     if bullet_rect.colliderect(enemy_rect):
                         enemy.enemyHealth -= bullet.damage
 
+                        bullet.has_hit_enemy = True  # 🔒 ONE HIT ONLY
+
                         if bullet in state.enemy_bullets:
                             state.enemy_bullets.remove(bullet)
 
-                            if enemy.enemyHealth <= 0:
-                                state.enemies.remove(enemy)
+                        if enemy.enemyHealth <= 0:
+                            state.enemies.remove(enemy)
+
+                        break  # 🚫 stop checking other enemies
+
+            # ─────────────────────────────
+            # SPACE STATION HIT
+            # ─────────────────────────────
+            # ⏱️ function-local static storage (correct attachment point)
+            if not hasattr(LevelThree.deflect_helper, "_station_last_hit_time"):
+                LevelThree.deflect_helper._station_last_hit_time = 0
 
             if self.space_station is not None:
                 if bullet_rect.colliderect(self.space_station.hitbox):
-                    self.space_station.hp -= bullet.damage
+
+                    now = pygame.time.get_ticks()
+
+                    # damage only if outside 1-second window
+                    if now - LevelThree.deflect_helper._station_last_hit_time >= 1000:
+                        self.space_station.hp -= bullet.damage
+                        LevelThree.deflect_helper._station_last_hit_time = now
+                    else:
+                        # collision still blocks, damage suppressed
+                        pass
+
+                    # ALL colliding bullets are removed
                     if bullet in state.enemy_bullets:
                         state.enemy_bullets.remove(bullet)
-                    continue
+
 
     def reflect_bullet(self, bullet):
         target = self.get_nearest_enemy(bullet)
@@ -367,23 +400,45 @@ class LevelThree(VerticalBattleScreen):
         if self.intial_wave and now - self.initial_wave_start_time >= self.initial_wave_delay_ms:
             self.spawn_enemy_wave(state)
             self.intial_wave = False
+            print("Called")
+
         if now - self.last_enemy_wave_time >= self.enemy_wave_interval_ms:
             self.spawn_enemy_wave(state)
             self.last_enemy_wave_time = now
-
+            print("Walled")
+    #
+    # def build_enemy_pool(self, state):
+    #     pool = []
+    #
+    #     for group in (
+    #             state.enemies,
+    #     ):
+    #         for enemy in group:
+    #             if isinstance(enemy, tuple):
+    #                 continue
+    #             if isinstance(enemy, BossLevelThree):
+    #                 continue
+    #             pool.append(enemy)
+    #
+    #     if not pool:
+    #         self.trigger_boss3_countdown = True
+    #
+    #     return pool
     def build_enemy_pool(self, state):
         pool = []
 
-        for group in (
-                state.enemies,
-        ):
-            for enemy in group:
-                if isinstance(enemy, tuple):
-                    continue
-                if isinstance(enemy, BossLevelThree):
-                    continue
-                pool.append(enemy)
+        for enemy in state.enemies:
+            # never touch bosses
+            if isinstance(enemy, BossLevelThree):
+                continue
 
+            # 🔑 DO NOT reuse active enemies (prevents teleporting)
+            if enemy.is_active:
+                continue
+
+            pool.append(enemy)
+
+        # no enemies left → boss countdown
         if not pool:
             self.trigger_boss3_countdown = True
 
@@ -395,7 +450,6 @@ class LevelThree(VerticalBattleScreen):
             group[:] = [
                 e for e in group
                 if not isinstance(e, tuple)
-                   and not isinstance(e, BossLevelThree)
             ]
 
         enemy_pool = self.build_enemy_pool(state)
@@ -485,14 +539,14 @@ class LevelThree(VerticalBattleScreen):
 
             if obj.name == "tri_spitter":
                 enemy = TriSpitter()
-            elif obj.name == "bile_spitter":
-                enemy = BileSpitter()
-            elif obj.name == "blade_spinner":
-                enemy = BladeSpinner()
-            elif obj.name == "fire_launcher":
-                enemy = FireLauncher()
-            elif obj.name == "kamikaze_drone":
-                enemy = KamikazeDrone()
+            # elif obj.name == "bile_spitter":
+            #     enemy = BileSpitter()
+            # elif obj.name == "blade_spinner":
+            #     enemy = BladeSpinner()
+            # elif obj.name == "fire_launcher":
+            #     enemy = FireLauncher()
+            # elif obj.name == "kamikaze_drone":
+            #     enemy = KamikazeDrone()
             elif obj.name == "level_3_boss":
                 enemy = BossLevelThree()
             else:

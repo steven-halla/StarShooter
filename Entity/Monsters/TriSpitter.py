@@ -58,18 +58,33 @@ class TriSpitter(Enemy):
 
         # Always update the blade position in every frame
             # update
-        if self.is_active and self.attack_timer.is_ready():
-            self.shoot_multiple_down_vertical_y(
-                bullet_speed=4.0,
-                bullet_width=10,
-                bullet_height=50,
-                bullet_color=self.bulletColor,
-                bullet_damage=20,
-                bullet_count=3,
-                bullet_spread=44,
-                state = state
-            )
-            self.attack_timer.reset()
+        if state.starship.current_level != 3:
+            if self.is_active and self.attack_timer.is_ready():
+                self.shoot_multiple_down_vertical_y(
+                    bullet_speed=4.0,
+                    bullet_width=10,
+                    bullet_height=50,
+                    bullet_color=self.bulletColor,
+                    bullet_damage=20,
+                    bullet_count=3,
+                    bullet_spread=44,
+                    state = state
+                )
+                self.attack_timer.reset()
+        else:
+            if self.is_active and self.attack_timer.is_ready():
+                self.shoot_multiple_down_vertical_y(
+                    bullet_speed=2.0,
+                    bullet_width=10,
+                    bullet_height=50,
+                    bullet_color=self.bulletColor,
+                    bullet_damage=20,
+                    bullet_count=3,
+                    bullet_spread=44,
+                    state=state
+                )
+                self.attack_timer.reset()
+
 
         now = pygame.time.get_ticks()
 

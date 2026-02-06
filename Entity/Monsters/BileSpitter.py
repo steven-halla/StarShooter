@@ -66,7 +66,7 @@ class BileSpitter(Enemy):
 
         # 🔑 CALL TOUCH DAMAGE HANDLER
         self.player_collide_damage(state.starship)
-        # self.moveAI()
+        self.moveAI()
 
 
     # -------------------------------------------------
