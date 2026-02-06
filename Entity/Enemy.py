@@ -1375,23 +1375,50 @@ class Enemy:
 
     # how to call (draw)
     # self.draw_rope(surface, camera)
-    def check_rope_collision(self, player) -> bool:
-        """Check if rope bullet collides with player and print message"""
-        if not hasattr(self, "_rope") or self._rope is None:
-            return False
+    # def check_rope_collision(self, player) -> bool:
+    #     """Check if rope bullet collides with player and print message"""
+    #     if not hasattr(self, "_rope") or self._rope is None:
+    #         return False
+    #
+    #     rope_rect = pygame.Rect(
+    #         self._rope.x,
+    #         self._rope.y,
+    #         self._rope.width,
+    #         self._rope.height
+    #     )
+    #
+    #     if rope_rect.colliderect(player.hitbox):
+    #         print("🔴 ROPE HIT PLAYER!")
+    #         return True
+    #
+    #     return False
+    def check_rope_collision(self, player) -> None:
+        if player is None or self._rope is None or self.camera is None:
+            return
+
+        rope = self._rope
+
+        thickness = rope.width
+
+        x1, y1 = rope.start.x, rope.start.y
+        x2, y2 = rope.end.x, rope.end.y
 
         rope_rect = pygame.Rect(
-            self._rope.x,
-            self._rope.y,
-            self._rope.width,
-            self._rope.height
+            min(x1, x2) - thickness,
+            min(y1, y2) - thickness,
+            abs(x2 - x1) + thickness * 2,
+            abs(y2 - y1) + thickness * 2
         )
 
         if rope_rect.colliderect(player.hitbox):
-            print("🔴 ROPE HIT PLAYER!")
-            return True
+            print("ROPE SLAM ACTIVE")
 
-        return False
+            # 🔒 FORCE player to top-left EVERY FRAME
+            player.x = self.camera.x
+            player.y = self.camera.y
+
+            # keep hitbox in sync
+            player.update_hitbox()
 
 
 class EnemyNapalmBullet(Bullet):

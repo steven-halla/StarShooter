@@ -43,6 +43,7 @@ class BossLevelThree(Enemy):
         self.touch_damage: int = 10
         self.touch_timer = Timer(0.75)
         self._rope = None
+        self.player_caught: bool = False
 
     # -------------------------------------------------
     # UPDATE
@@ -149,3 +150,6 @@ class BossLevelThree(Enemy):
         # 🔑 USE MELEE HITBOX (ACTIVE PLAYER RECT)
         if rope_rect.colliderect(player.melee_hitbox):
             print("ROPE HIT PLAYER")
+            self.player_caught = True
+        else:
+            self.player_caught = False

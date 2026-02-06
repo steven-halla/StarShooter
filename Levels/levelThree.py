@@ -32,23 +32,27 @@ class LevelThree(VerticalBattleScreen):
         self.level_start_time = pygame.time.get_ticks()
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.time_up = False
-        self.enemy_wave_interval_ms = 3000
+        self.enemy_wave_interval_ms = 2000
         self.last_enemy_wave_time = pygame.time.get_ticks()
-        self.initial_wave_delay_ms = 3000
+        self.initial_wave_delay_ms = 1000
         self.initial_wave_start_time = pygame.time.get_ticks()
         self.intial_wave = True
         self.boss_spawned = False
-        self.boss_spawn_delay_ms = 2000
+        self.boss_spawn_delay_ms = 1000
         self.boss_spawn_time = None
         self.level_start = True
         self.game_over: bool = False
         self.disable_player_bullet_damage = True
         self.any_enemy_has_been_active = False
         self.trigger_boss3_countdown: bool = False
+        self.force_player_slam = False
+        self.slam_x = 0
+        self.slam_y = 0
 
-
-
-
+    def slam_player_to_corner(self, state) -> None:
+        self.force_player_slam = True
+        self.slam_x = self.camera.world_x
+        self.slam_y = self.camera.world_y
     def start(self, state) -> None:
         self.map_scroll_speed_per_frame: float = 0   # move speed of camera
 
@@ -89,6 +93,41 @@ class LevelThree(VerticalBattleScreen):
         # self.update_boss_helper(state)
         self.update_enemy_helper(state)
 
+        for enemy in state.enemies:
+            if isinstance(enemy, BossLevelThree) and enemy.player_caught:
+
+                # TARGET = top-left of camera (world space)
+                target_x = self.camera.x
+                target_y = self.camera.y
+
+                # CURRENT player position
+                px = state.starship.x
+                py = state.starship.y
+
+                # VECTOR toward corner
+                dx = target_x - px
+                dy = target_y - py
+
+                # distance to target
+                dist = (dx * dx + dy * dy) ** 0.5
+
+                # how fast the slam pulls (tweak this)
+                slam_speed = 10.0
+
+                if dist > slam_speed:
+                    # normalize and move smoothly
+                    dx /= dist
+                    dy /= dist
+                    state.starship.x += dx * slam_speed
+                    state.starship.y += dy * slam_speed
+                else:
+                    # close enough → snap + finish
+                    state.starship.x = target_x
+                    state.starship.y = target_y
+                    enemy.player_caught = False  # stop pulling
+
+                state.starship.update_hitbox()
+                break
         on_screen = []
 
         view_left = self.camera.x
@@ -127,6 +166,8 @@ class LevelThree(VerticalBattleScreen):
 
             elif pygame.time.get_ticks() - self.boss_spawn_time >= self.boss_spawn_delay_ms:
                 self.spawn_level_3_boss(state)
+
+
 
 
     def draw(self, state):
