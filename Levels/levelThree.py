@@ -322,90 +322,60 @@ class LevelThree(VerticalBattleScreen):
     def deflect_helper(self, state):
         for bullet in list(state.enemy_bullets):
 
-            bullet_rect = pygame.Rect(
-                bullet.x,
-                bullet.y,
-                bullet.width,
-                bullet.height
-            )
+            # =============================
+            # 🔑 BOMB LOGIC (IMMEDIATE + EXPLOSION)
+            # =============================
+            if hasattr(bullet, "explosion_radius"):
+                bullet_rect = pygame.Rect(
+                    bullet.x,
+                    bullet.y,
+                    bullet.width,
+                    bullet.height
+                )
 
-            # ─────────────────────────────
-            # DEFLECT CHECK
-            # ─────────────────────────────
-            if bullet_rect.colliderect(self.deflect_hitbox):
-                if not hasattr(bullet, "is_reflected"):
-                    target = self.get_nearest_enemy(bullet)
+                now = pygame.time.get_ticks()
 
-                    speed = abs(getattr(bullet, "bullet_speed", 4)) * 6
+                # ── IMMEDIATE CONTACT DAMAGE ──
+                if bullet_rect.colliderect(self.starship.melee_hitbox):
+                    self.starship.shield_system.take_damage(bullet.damage)
+                    self.starship.on_hit()
 
-                    if target is None:
-                        bullet.vx = 0
-                        bullet.vy = -speed
-                        bullet.damage = 0
-                    else:
-                        self.reflect_bullet(bullet)
+                    # trigger explosion immediately
+                    bullet.exploded = True
+                    bullet.explode_time = now
 
-                    bullet.is_reflected = True
-                    bullet.has_hit_enemy = False  # 🔑 reset hit guard
-                    bullet.update_rect()
+                # ── TIMED / FORCED EXPLOSION ──
+                if not getattr(bullet, "exploded", False) and now >= bullet.explode_time:
+                    bullet.exploded = True
 
-                continue
-
-            # ─────────────────────────────
-            # REFLECTED BULLET DAMAGE
-            # ─────────────────────────────
-            if hasattr(bullet, "is_reflected") and not getattr(bullet, "has_hit_enemy", False):
-
-                for enemy in list(state.enemies):
-
-                    enemy_rect = pygame.Rect(
-                        enemy.x,
-                        enemy.y,
-                        enemy.width,
-                        enemy.height
+                if getattr(bullet, "exploded", False):
+                    explosion_rect = pygame.Rect(
+                        bullet.x - bullet.explosion_radius,
+                        bullet.y - bullet.explosion_radius,
+                        bullet.explosion_radius * 2,
+                        bullet.explosion_radius * 2
                     )
 
-                    if bullet_rect.colliderect(enemy_rect):
-                        enemy.enemyHealth -= bullet.damage
+                    if explosion_rect.colliderect(self.starship.melee_hitbox):
+                        self.starship.shield_system.take_damage(bullet.damage)
+                        self.starship.on_hit()
 
-                        bullet.has_hit_enemy = True  # 🔒 ONE HIT ONLY
-
-                        if bullet in state.enemy_bullets:
-                            state.enemy_bullets.remove(bullet)
-
-                        if enemy.enemyHealth <= 0:
-                            state.enemies.remove(enemy)
-
-                        break  # 🚫 stop checking other enemies
-
-            # ─────────────────────────────
-            # SPACE STATION HIT
-            # ─────────────────────────────
-            # ⏱️ function-local static storage (correct attachment point)
-            if not hasattr(LevelThree.deflect_helper, "_station_last_hit_time"):
-                LevelThree.deflect_helper._station_last_hit_time = 0
-
-            if self.space_station is not None:
-                if bullet_rect.colliderect(self.space_station.hitbox):
-
-                    now = pygame.time.get_ticks()
-
-                    # damage only if outside 1-second window
-                    if now - LevelThree.deflect_helper._station_last_hit_time >= 1000:
-                        self.space_station.hp -= bullet.damage
-                        LevelThree.deflect_helper._station_last_hit_time = now
-                    else:
-                        # collision still blocks, damage suppressed
-                        pass
-
-                    # ALL colliding bullets are removed
                     if bullet in state.enemy_bullets:
                         state.enemy_bullets.remove(bullet)
 
+                continue  # bombs never deflect
+
+            # =============================
+            # NORMAL BULLET
 
     def reflect_bullet(self, bullet):
-        target = self.get_nearest_enemy(bullet)
+        # =============================
+        # 🔑 NEVER REFLECT BOMBS
+        # =============================
+        if hasattr(bullet, "explosion_radius"):
+            return
 
+        target = self.get_nearest_enemy(bullet)
         speed = abs(getattr(bullet, "bullet_speed", 4))
 
         if target is None:
@@ -417,7 +387,6 @@ class LevelThree(VerticalBattleScreen):
 
         bx = bullet.x + bullet.width / 2
         by = bullet.y + bullet.height / 2
-
         ex = target.x + target.width / 2
         ey = target.y + target.height / 2
 
@@ -435,7 +404,6 @@ class LevelThree(VerticalBattleScreen):
         bullet.is_reflected = True
         bullet.damage = 100
         bullet.update_rect()
-
     def enemy_waves_timer(self, state):
         now = pygame.time.get_ticks()
         if self.intial_wave and now - self.initial_wave_start_time >= self.initial_wave_delay_ms:

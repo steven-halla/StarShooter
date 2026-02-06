@@ -15,7 +15,7 @@ class BossLevelThree(Enemy):
         # movement
         self.mover: MoveRectangle = MoveRectangle()
         self.move_direction: int = random.choice([-1, 1])
-        self.moveSpeed: float = 2.2
+        self.moveSpeed: float = 0.8
         self.edge_padding: int = 0
 
         # identity / visuals
@@ -55,81 +55,119 @@ class BossLevelThree(Enemy):
             return
 
         self.update_hitbox()
-
-        # ROPE ATTACK
-        # spawn rope every 3s
-        # =============================
-        # LEVEL 3 ROPE CONTROL (FIXED)
-        # =============================
-
         now = pygame.time.get_ticks()
 
-        # local init only (NO __init__ edits)
-        if not hasattr(self, "_rope_was_active"):
-            self._rope_was_active = False
+        # -------------------------
+        # PHASE SELECTION (EXPLICIT)
+        # -------------------------
+        if self.enemyHealth > 1900:
+            self.phase = 1
+        elif self.enemyHealth > 700:
+            self.phase = 2
+        else:
+            self.phase = 3
 
-        if not hasattr(self, "_rope_next_allowed_time"):
-            self._rope_next_allowed_time = 0
+        # -------------------------
+        # PHASE 1 — ROPE + SHOOT
+        # -------------------------
+        if self.phase == 1:
+            # rope control (uses your working timing block)
+            if not hasattr(self, "_rope_was_active"):
+                self._rope_was_active = False
+            if not hasattr(self, "_rope_next_allowed_time"):
+                self._rope_next_allowed_time = 0
 
-        ROPE_DURATION_MS = 3000
-        ROPE_COOLDOWN_MS = 4000
+            ROPE_DURATION_MS = 3000
+            ROPE_COOLDOWN_MS = 4000
 
-        # -----------------------------
-        # START ROPE (only if allowed)
-        # -----------------------------
-        if self._rope is None and now >= self._rope_next_allowed_time:
-            self.rope_grab(
-                rope_length=160,
-                rope_width=4,
-                rope_speed=3.0,
-                rope_duration_ms=ROPE_DURATION_MS,
-                rope_color=(180, 180, 180),
-                state=state
-            )
+            if self._rope is None and now >= self._rope_next_allowed_time:
+                self.rope_grab(
+                    rope_length=160,
+                    rope_width=4,
+                    rope_speed=3.0,
+                    rope_duration_ms=ROPE_DURATION_MS,
+                    rope_color=(180, 180, 180),
+                    state=state
+                )
 
-        # -----------------------------
-        # UPDATE ROPE (every frame)
-        # -----------------------------
-        if self._rope is not None:
-            self.rope_grab(
-                rope_length=160,
-                rope_width=4,
-                rope_speed=3.0,
-                rope_duration_ms=ROPE_DURATION_MS,
-                rope_color=(180, 180, 180),
-                state=state
-            )
-            self._rope_was_active = True
+            if self._rope is not None:
+                self.rope_grab(
+                    rope_length=160,
+                    rope_width=4,
+                    rope_speed=3.0,
+                    rope_duration_ms=ROPE_DURATION_MS,
+                    rope_color=(180, 180, 180),
+                    state=state
+                )
+                self._rope_was_active = True
 
-        # -----------------------------
-        # ROPE JUST ENDED → START COOLDOWN
-        # -----------------------------
-        if self._rope is None and self._rope_was_active:
-            self._rope_next_allowed_time = now + ROPE_COOLDOWN_MS
-            self._rope_was_active = False
+            if self._rope is None and self._rope_was_active:
+                self._rope_next_allowed_time = now + ROPE_COOLDOWN_MS
+                self._rope_was_active = False
 
+            # shooting every 2 seconds
+            if not hasattr(self, "_shoot_last_time"):
+                self._shoot_last_time = 0
 
-        # LOCAL fire-rate gate (NO __init__ fields)
-        now = pygame.time.get_ticks()
+            if now - self._shoot_last_time >= 2000:
+                self.shoot_single_down_vertical_y(
+                    bullet_speed=4.0,
+                    bullet_width=20,
+                    bullet_height=20,
+                    bullet_color=self.bulletColor,
+                    bullet_damage=10,
+                    state=state
+                )
+                self._shoot_last_time = now
 
-        if not hasattr(self, "_phase1_shoot_next_time"):
-            self._phase1_shoot_next_time = 0
+        # -------------------------
+        # PHASE 2 — CHASE PLAYER
+        # -------------------------
+        # elif self.phase == 2:
+        #     self.phase_two_ai(self.target_player)
 
-        if now >= self._phase1_shoot_next_time:
-            self.shoot_single_down_vertical_y(
-                bullet_speed=4.0,
-                bullet_width=20,
-                bullet_height=20,
-                bullet_color=self.bulletColor,
-                bullet_damage=10,
-                state=state
-            )
-            self._phase1_shoot_next_time = now + 2000  # 2 seconds
+        # =========================
+        # PHASE 2 — BOMB ATTACK
+        # =========================
+        elif self.phase == 2:
+            if self._rope is not None:
+                if self._rope in state.enemy_bullets:
+                    state.enemy_bullets.remove(self._rope)
+                self._rope = None
+                self.player_caught = False
+            # movement: chase player
+            self.phase_two_ai(self.target_player)
 
+            now = pygame.time.get_ticks()
 
+            # local init (NO __init__ edits)
+            if not hasattr(self, "_phase2_bomb_last_time"):
+                self._phase2_bomb_last_time = 0
 
-        # Check rope collision with player
+            PHASE2_BOMB_INTERVAL_MS = 3000  # drop bomb every 3s
+
+            if now - self._phase2_bomb_last_time >= PHASE2_BOMB_INTERVAL_MS:
+                self.lay_bomb(
+                    width=20,
+                    height=20,
+                    explosion_timer_ms=20000,
+                    explosion_radius=10,
+                    damage=40,
+                    distance=0,
+                    speed=4.0,
+                    state=state
+                )
+                self._phase2_bomb_last_time = now
+
+        # -------------------------
+        # PHASE 3 — PLACEHOLDER
+        # -------------------------
+        elif self.phase == 3:
+            pass
+
         self.check_rope_collision(self.target_player)
+
+
 
 
     # -------------------------------------------------
@@ -139,27 +177,34 @@ class BossLevelThree(Enemy):
     # -------------------------------------------------
     # MOVEMENT
     # -------------------------------------------------
-    def moveAI(self) -> None:
-        window_width = GlobalConstants.BASE_WINDOW_WIDTH
+    def phase_two_ai(self, player) -> None:
+        if player is None:
+            return
 
-        if not hasattr(self, "_last_x"):
-            self._last_x = self.x
+        # enemy center
+        ex = self.x + self.width / 2
+        ey = self.y + self.height / 2
 
-        if self.move_direction > 0:
-            self.mover.enemy_move_right(self)
-        else:
-            self.mover.enemy_move_left(self)
+        # player center
+        px = player.x + player.width / 2
+        py = player.y + player.height / 2
 
-        if self.x < self.edge_padding:
-            self.x = self.edge_padding
-        elif self.x + self.width > window_width - self.edge_padding:
-            self.x = window_width - self.edge_padding - self.width
+        dx = px - ex
+        dy = py - ey
+        dist = math.hypot(dx, dy)
 
-        if self.x == self._last_x:
-            self.move_direction *= -1
+        if dist == 0:
+            return
 
-        self._last_x = self.x
-        self.check_rope_collision(self.target_player)
+        # normalize
+        dx /= dist
+        dy /= dist
+
+        # move toward player using enemy move speed
+        self.x += dx * self.moveSpeed
+        self.y += dy * self.moveSpeed
+
+        self.update_hitbox()
 
     # -------------------------------------------------
     # DRAW
