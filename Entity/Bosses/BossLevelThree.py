@@ -62,7 +62,7 @@ class BossLevelThree(Enemy):
         # -------------------------
         if self.enemyHealth > 1900:
             self.phase = 1
-        elif self.enemyHealth > 700:
+        elif self.enemyHealth > 1700:
             self.phase = 2
         else:
             self.phase = 3
@@ -163,7 +163,25 @@ class BossLevelThree(Enemy):
         # PHASE 3 — PLACEHOLDER
         # -------------------------
         elif self.phase == 3:
-            pass
+            if self._rope is not None:
+                if self._rope in state.enemy_bullets:
+                    state.enemy_bullets.remove(self._rope)
+                self._rope = None
+                self.player_caught = False
+
+            if not hasattr(self, "_shoot_last_time"):
+                self._shoot_last_time = 0
+
+            if now - self._shoot_last_time >= 2000:
+                self.shoot_single_down_vertical_y(
+                    bullet_speed=4.0,
+                    bullet_width=50,
+                    bullet_height=70,
+                    bullet_color=self.bulletColor,
+                    bullet_damage=50,
+                    state=state
+                )
+                self._shoot_last_time = now
 
         self.check_rope_collision(self.target_player)
 

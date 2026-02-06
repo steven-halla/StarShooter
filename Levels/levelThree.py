@@ -322,29 +322,27 @@ class LevelThree(VerticalBattleScreen):
     def deflect_helper(self, state):
         for bullet in list(state.enemy_bullets):
 
+            bullet_rect = pygame.Rect(
+                bullet.x,
+                bullet.y,
+                bullet.width,
+                bullet.height
+            )
+
+            now = pygame.time.get_ticks()
+
             # =============================
-            # 🔑 BOMB LOGIC (IMMEDIATE + EXPLOSION)
+            # 💣 BOMB / EXPLOSION DAMAGE
             # =============================
             if hasattr(bullet, "explosion_radius"):
-                bullet_rect = pygame.Rect(
-                    bullet.x,
-                    bullet.y,
-                    bullet.width,
-                    bullet.height
-                )
-
-                now = pygame.time.get_ticks()
-
-                # ── IMMEDIATE CONTACT DAMAGE ──
+                # immediate contact damage
                 if bullet_rect.colliderect(self.starship.melee_hitbox):
                     self.starship.shield_system.take_damage(bullet.damage)
                     self.starship.on_hit()
-
-                    # trigger explosion immediately
                     bullet.exploded = True
                     bullet.explode_time = now
 
-                # ── TIMED / FORCED EXPLOSION ──
+                # timed explosion
                 if not getattr(bullet, "exploded", False) and now >= bullet.explode_time:
                     bullet.exploded = True
 
@@ -363,7 +361,98 @@ class LevelThree(VerticalBattleScreen):
                     if bullet in state.enemy_bullets:
                         state.enemy_bullets.remove(bullet)
 
-                continue  # bombs never deflect
+                continue  # 🚫 bombs NEVER deflect
+
+            # =============================
+            # 🔑 DEFLECTABLE BULLETS ONLY
+            # =============================
+            if getattr(bullet, "can_deflect", True) is False:
+                continue
+
+            # ─────────────────────────────
+            # DEFLECT CHECK
+            # ─────────────────────────────
+            if bullet_rect.colliderect(self.deflect_hitbox):
+                if not hasattr(bullet, "is_reflected"):
+                    target = self.get_nearest_enemy(bullet)
+                    speed = abs(getattr(bullet, "bullet_speed", 4)) * 6
+
+                    if target is None:
+                        bullet.vx = 0
+                        bullet.vy = -speed
+                        bullet.damage = 0
+                    else:
+                        self.reflect_bullet(bullet)
+
+                    bullet.is_reflected = True
+                    bullet.has_hit_enemy = False
+                    bullet.update_rect()
+
+                continue
+
+            # ─────────────────────────────
+            # REFLECTED BULLET → ENEMY
+            # ─────────────────────────────
+            if hasattr(bullet, "is_reflected") and not getattr(bullet, "has_hit_enemy", False):
+                for enemy in list(state.enemies):
+                    enemy_rect = pygame.Rect(enemy.x, enemy.y, enemy.width, enemy.height)
+
+                    if bullet_rect.colliderect(enemy_rect):
+                        enemy.enemyHealth -= bullet.damage
+                        bullet.has_hit_enemy = True
+
+                        if bullet in state.enemy_bullets:
+                            state.enemy_bullets.remove(bullet)
+
+                        if enemy.enemyHealth <= 0:
+                            state.enemies.remove(enemy)
+
+                        break
+    # def deflect_helper(self, state):
+    #     for bullet in list(state.enemy_bullets):
+    #
+    #         # =============================
+    #         # 🔑 BOMB LOGIC (IMMEDIATE + EXPLOSION)
+    #         # =============================
+    #         if hasattr(bullet, "explosion_radius"):
+    #             bullet_rect = pygame.Rect(
+    #                 bullet.x,
+    #                 bullet.y,
+    #                 bullet.width,
+    #                 bullet.height
+    #             )
+    #
+    #             now = pygame.time.get_ticks()
+    #
+    #             # ── IMMEDIATE CONTACT DAMAGE ──
+    #             if bullet_rect.colliderect(self.starship.melee_hitbox):
+    #                 self.starship.shield_system.take_damage(bullet.damage)
+    #                 self.starship.on_hit()
+    #
+    #                 # trigger explosion immediately
+    #                 bullet.exploded = True
+    #                 bullet.explode_time = now
+    #
+    #             # ── TIMED / FORCED EXPLOSION ──
+    #             if not getattr(bullet, "exploded", False) and now >= bullet.explode_time:
+    #                 bullet.exploded = True
+    #
+    #             if getattr(bullet, "exploded", False):
+    #                 explosion_rect = pygame.Rect(
+    #                     bullet.x - bullet.explosion_radius,
+    #                     bullet.y - bullet.explosion_radius,
+    #                     bullet.explosion_radius * 2,
+    #                     bullet.explosion_radius * 2
+    #                 )
+    #
+    #                 if explosion_rect.colliderect(self.starship.melee_hitbox):
+    #                     self.starship.shield_system.take_damage(bullet.damage)
+    #                     self.starship.on_hit()
+    #
+    #                 if bullet in state.enemy_bullets:
+    #                     state.enemy_bullets.remove(bullet)
+    #
+    #             continue  # bombs never deflect
 
             # =============================
             # NORMAL BULLET
