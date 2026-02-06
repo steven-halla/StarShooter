@@ -30,8 +30,8 @@ class BossLevelThree(Enemy):
         self.enemy_image = self.bile_spitter_image
 
         # stats
-        self.enemyHealth: float = 1000.0
-        self.maxHealth: float = 1000.0
+        self.enemyHealth: float = 2000.0
+        self.maxHealth: float = 2000.0
         self.exp: int = 1
         self.credits: int = 5
 
@@ -64,6 +64,8 @@ class BossLevelThree(Enemy):
             rope_color=(180, 180, 180),
             state=state
         )
+
+
 
         # Check rope collision with player
         self.check_rope_collision(self.target_player)

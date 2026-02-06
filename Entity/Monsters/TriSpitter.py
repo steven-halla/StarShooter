@@ -76,11 +76,11 @@ class TriSpitter(Enemy):
                 self.shoot_multiple_down_vertical_y(
                     bullet_speed=2.0,
                     bullet_width=10,
-                    bullet_height=50,
+                    bullet_height=40,
                     bullet_color=self.bulletColor,
-                    bullet_damage=20,
-                    bullet_count=3,
-                    bullet_spread=44,
+                    bullet_damage=30,
+                    bullet_count=2,
+                    bullet_spread=22,
                     state=state
                 )
                 self.attack_timer.reset()
