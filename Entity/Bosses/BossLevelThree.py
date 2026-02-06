@@ -59,6 +59,7 @@ class BossLevelThree(Enemy):
         self.rope_grab(
             rope_length=160,
             rope_width=4,
+            rope_speed=3.0,
             rope_color=(180, 180, 180),
             state=state
         )

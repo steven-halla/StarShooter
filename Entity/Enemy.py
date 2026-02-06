@@ -1257,6 +1257,7 @@ class Enemy:
             self,
             rope_length: int,
             rope_width: int,
+            rope_speed: float,
             rope_color: tuple[int, int, int],
             state
     ) -> None:
@@ -1269,16 +1270,20 @@ class Enemy:
 
         rope = self._rope
 
+        # ---------------------------------
         # CREATE rope bullet if missing
+        # ---------------------------------
         if rope is None or rope not in state.enemy_bullets:
             rope = Bullet(0, 0)
             rope.width = rope_width
             rope.height = rope_width
             rope.color = rope_color
-            rope.damage = 0  # 🔒 DAMAGE = 0
+            rope.damage = 0
 
             rope.start = pygame.Vector2(0, 0)
             rope.end = pygame.Vector2(0, 0)
+
+            rope.current_length = 0.0  # 🔑 starts retracted
 
             rope.vx = 0
             rope.vy = 0
@@ -1288,9 +1293,9 @@ class Enemy:
             state.enemy_bullets.append(rope)
             self._rope = rope
 
-        # -------------------------
-        # COPY OF ARM AIM LOGIC
-        # -------------------------
+        # ---------------------------------
+        # AIM AT PLAYER
+        # ---------------------------------
         bx = self.x + self.width / 2
         by = self.y + self.height / 2
 
@@ -1306,17 +1311,28 @@ class Enemy:
         dx /= dist
         dy /= dist
 
-        end_x = bx + dx * rope_length
-        end_y = by + dy * rope_length
+        # ---------------------------------
+        # EXTEND ROPE BY SPEED
+        # ---------------------------------
+        rope.current_length = min(
+            rope_length,
+            rope.current_length + rope_speed
+        )
+
+        end_x = bx + dx * rope.current_length
+        end_y = by + dy * rope.current_length
 
         rope.start.x = bx
         rope.start.y = by
         rope.end.x = end_x
         rope.end.y = end_y
 
-        # rect kept valid (midpoint)
+        # ---------------------------------
+        # LOGIC RECT (midpoint, minimal)
+        # ---------------------------------
         mid_x = (bx + end_x) / 2
         mid_y = (by + end_y) / 2
+
         rope.x = mid_x - rope.width // 2
         rope.y = mid_y - rope.height // 2
         rope.update_rect()
