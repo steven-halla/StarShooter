@@ -60,12 +60,13 @@ class BossLevelThree(Enemy):
         # -------------------------
         # PHASE SELECTION (EXPLICIT)
         # -------------------------
-        if self.enemyHealth > 1900:
-            self.phase = 1
-        elif self.enemyHealth > 1700:
-            self.phase = 2
-        else:
-            self.phase = 3
+        # if self.enemyHealth > 1900:
+        #     self.phase = 1
+        # elif self.enemyHealth > 1700:
+        #     self.phase = 2
+        # else:
+        #     self.phase = 3
+        self.phase = 3
 
         # -------------------------
         # PHASE 1 — ROPE + SHOOT
@@ -136,7 +137,7 @@ class BossLevelThree(Enemy):
                 self._rope = None
                 self.player_caught = False
             # movement: chase player
-            self.phase_two_ai(self.target_player)
+            self.phase_two_move_ai(self.target_player)
 
             now = pygame.time.get_ticks()
 
@@ -163,25 +164,74 @@ class BossLevelThree(Enemy):
         # PHASE 3 — PLACEHOLDER
         # -------------------------
         elif self.phase == 3:
+            self.moveSpeed = 2
             if self._rope is not None:
                 if self._rope in state.enemy_bullets:
                     state.enemy_bullets.remove(self._rope)
                 self._rope = None
                 self.player_caught = False
 
-            if not hasattr(self, "_shoot_last_time"):
-                self._shoot_last_time = 0
+            # ─────────────────────────────
+            # PHASE 3 – MELEE STRIKE (4s TIMER)
+            # ─────────────────────────────
+            now = pygame.time.get_ticks()
 
-            if now - self._shoot_last_time >= 2000:
-                self.shoot_single_down_vertical_y(
-                    bullet_speed=4.0,
-                    bullet_width=50,
-                    bullet_height=70,
-                    bullet_color=self.bulletColor,
-                    bullet_damage=50,
+            # local init only
+            # local init (NO __init__)
+            if not hasattr(self, "_melee_last_time"):
+                self._melee_last_time = 0
+
+            now = pygame.time.get_ticks()
+
+            # bottom boundary: space station occupies bottom 100px
+            SAFE_Y_MAX = GlobalConstants.BASE_WINDOW_HEIGHT - 100
+
+            # ─────────────────────────────
+            # START MELEE (every 4s)
+            # ─────────────────────────────
+            if not getattr(self, "_melee_active", False):
+                if now - self._melee_last_time >= 4000:
+
+                    # 🔑 TEMP CLAMP ONLY FOR DIRECTION CALC
+                    # DO NOT MOVE PLAYER, DO NOT MOVE ENEMY Y DIRECTLY
+                    tx = self.target_player.x
+                    ty = min(self.target_player.y, SAFE_Y_MAX)
+
+                    # compute dash direction manually
+                    dx = tx - self.x
+                    dy = ty - self.y
+                    dist = math.hypot(dx, dy)
+                    if dist != 0:
+                        self._melee_dx = dx / dist
+                        self._melee_dy = dy / dist
+
+                    self.melee_strike(
+                        dash_speed=5.0,
+                        dash_duration_ms=1500,
+                        melee_width=55,
+                        melee_height=55,
+                        melee_color=(255, 0, 0),
+                        damage=115,
+                        cooldown_ms=0,
+                        state=state
+                    )
+
+                    self._melee_last_time = now
+
+            # ─────────────────────────────
+            # CONTINUE MELEE (NO RETARGET)
+            # ─────────────────────────────
+            elif self._melee_active:
+                self.melee_strike(
+                    dash_speed=3.0,
+                    dash_duration_ms=3000,
+                    melee_width=55,
+                    melee_height=55,
+                    melee_color=(255, 0, 0),
+                    damage=115,
+                    cooldown_ms=0,
                     state=state
                 )
-                self._shoot_last_time = now
 
         self.check_rope_collision(self.target_player)
 
@@ -195,7 +245,7 @@ class BossLevelThree(Enemy):
     # -------------------------------------------------
     # MOVEMENT
     # -------------------------------------------------
-    def phase_two_ai(self, player) -> None:
+    def phase_two_move_ai(self, player) -> None:
         if player is None:
             return
 

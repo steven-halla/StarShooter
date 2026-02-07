@@ -193,7 +193,50 @@ class LevelThree(VerticalBattleScreen):
             17
         )
 
+
     def update_space_station_collision(self, state):
+
+        # ─────────────────────────────
+        # BOSS ↔ SPACE STATION COLLISION
+        # (same rule as player)
+        # ─────────────────────────────
+        if self.space_station is not None:
+            station_rect = self.space_station.hitbox
+
+            for enemy in state.enemies:
+                if not isinstance(enemy, BossLevelThree):
+                    continue
+
+                enemy_rect = pygame.Rect(
+                    enemy.x,
+                    enemy.y,
+                    enemy.width,
+                    enemy.height
+                )
+
+                if enemy_rect.colliderect(station_rect):
+                    overlap_left = enemy_rect.right - station_rect.left
+                    overlap_right = station_rect.right - enemy_rect.left
+                    overlap_top = enemy_rect.bottom - station_rect.top
+                    overlap_bottom = station_rect.bottom - enemy_rect.top
+
+                    min_overlap = min(
+                        overlap_left,
+                        overlap_right,
+                        overlap_top,
+                        overlap_bottom
+                    )
+
+                    if min_overlap == overlap_top:
+                        enemy.y -= min_overlap
+                    elif min_overlap == overlap_bottom:
+                        enemy.y += min_overlap
+                    elif min_overlap == overlap_left:
+                        enemy.x -= min_overlap
+                    elif min_overlap == overlap_right:
+                        enemy.x += min_overlap
+
+                    enemy.update_hitbox()
         if self.space_station is not None:
             self.space_station.update_hitbox(state)
 
