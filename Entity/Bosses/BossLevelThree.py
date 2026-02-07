@@ -176,12 +176,9 @@ class BossLevelThree(Enemy):
             # ─────────────────────────────
             now = pygame.time.get_ticks()
 
-            # local init only
             # local init (NO __init__)
             if not hasattr(self, "_melee_last_time"):
                 self._melee_last_time = 0
-
-            now = pygame.time.get_ticks()
 
             # bottom boundary: space station occupies bottom 100px
             SAFE_Y_MAX = GlobalConstants.BASE_WINDOW_HEIGHT - 100
@@ -192,12 +189,10 @@ class BossLevelThree(Enemy):
             if not getattr(self, "_melee_active", False):
                 if now - self._melee_last_time >= 4000:
 
-                    # 🔑 TEMP CLAMP ONLY FOR DIRECTION CALC
-                    # DO NOT MOVE PLAYER, DO NOT MOVE ENEMY Y DIRECTLY
+                    # TEMP CLAMP ONLY FOR DIRECTION CALC
                     tx = self.target_player.x
                     ty = min(self.target_player.y, SAFE_Y_MAX)
 
-                    # compute dash direction manually
                     dx = tx - self.x
                     dy = ty - self.y
                     dist = math.hypot(dx, dy)
@@ -216,15 +211,21 @@ class BossLevelThree(Enemy):
                         state=state
                     )
 
-                    self._melee_last_time = now
+                    # APPLY DAMAGE TO PLAYER IF HIT
+                    if self.target_player.melee_hitbox.colliderect(self.melee_hitbox):
+                        self.target_player.shield_system.take_damage(self.touch_damage)
+                        self.target_player.on_hit()
+                        print("player hit")
+                        self._melee_active = False
+                        self._melee_last_time = now
 
             # ─────────────────────────────
             # CONTINUE MELEE (NO RETARGET)
             # ─────────────────────────────
             elif self._melee_active:
                 self.melee_strike(
-                    dash_speed=3.0,
-                    dash_duration_ms=3000,
+                    dash_speed=4.0,
+                    dash_duration_ms=2000,
                     melee_width=55,
                     melee_height=55,
                     melee_color=(255, 0, 0),
@@ -233,6 +234,13 @@ class BossLevelThree(Enemy):
                     state=state
                 )
 
+                # APPLY DAMAGE TO PLAYER IF HIT
+                if self.target_player.melee_hitbox.colliderect(self.melee_hitbox):
+                    self.target_player.shield_system.take_damage(self.touch_damage)
+                    self.target_player.on_hit()
+                    print("player hit")
+                    self._melee_active = False
+                    self._melee_last_time = now
         self.check_rope_collision(self.target_player)
 
 

@@ -669,6 +669,7 @@ class Enemy:
             cooldown_ms: int,
             state
     ) -> None:
+
         if self.target_player is None or self.camera is None:
             return
 
@@ -763,7 +764,7 @@ class Enemy:
 
         bullet.update_rect()
 
-        bullet.update_rect()
+
         # how to call
         # self.melee_strike(
         #     dash_speed=1.0,
