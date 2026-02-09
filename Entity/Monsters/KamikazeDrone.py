@@ -40,7 +40,9 @@ class KamikazeDrone(Enemy):
         self.attack_timer = Timer(3.0)
 
         # touch damage
+        # touch / explosion damage
         self.touch_damage: int = 70
+        self.explosion_damage: int = 70
         self.touch_timer = Timer(0.75)
 
     # -------------------------------------------------

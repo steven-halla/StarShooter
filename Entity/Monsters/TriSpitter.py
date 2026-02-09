@@ -71,6 +71,7 @@ class TriSpitter(Enemy):
                     state = state
                 )
                 self.attack_timer.reset()
+
         else:
             if self.is_active and self.attack_timer.is_ready():
                 self.shoot_multiple_down_vertical_y(
