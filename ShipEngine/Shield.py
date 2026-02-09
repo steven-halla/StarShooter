@@ -17,7 +17,7 @@ class Shield:
         self._last_damage_time: int = 0
         self._is_depleted: bool = False
 
-        self.courtesy_invincibility_duration: int = 500  # 0.5 seconds
+        self.courtesy_invincibility_duration: int = 2000  # 0.5 seconds
         self._last_hit_time: int = -500
     # -------------------------
     # DAMAGE HANDLING
@@ -27,6 +27,7 @@ class Shield:
         Applies damage to shield.
         Any overflow damage is applied to owner.shipHealth.
         """
+        print("taking damage")
         now = pygame.time.get_ticks()
 
         # Courtesy invincibility check

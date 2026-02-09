@@ -62,13 +62,13 @@ class BossLevelThree(Enemy):
         # -------------------------
         # PHASE SELECTION (EXPLICIT)
         # -------------------------
-        if self.enemyHealth > 1600:
-            self.phase = 1
-        elif self.enemyHealth > 900:
-            self.phase = 2
-        else:
-            self.phase = 3
-        # self.phase = 3
+        # if self.enemyHealth > 1600:
+        #     self.phase = 1
+        # elif self.enemyHealth > 900:
+        #     self.phase = 2
+        # else:
+        #     self.phase = 3
+        self.phase = 2
 
         # -------------------------
         # PHASE 1 — ROPE + SHOOT
