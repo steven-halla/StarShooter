@@ -630,16 +630,16 @@ class LevelThree(VerticalBattleScreen):
         for obj in self.tiled_map.objects:
 
 
-            # if obj.name == "tri_spitter":
-            #     enemy = TriSpitter()
-            # elif obj.name == "bile_spitter":
-            #     enemy = BileSpitter()
-            # elif obj.name == "blade_spinner":
-            #     enemy = BladeSpinner()
-            # elif obj.name == "fire_launcher":
-            #     enemy = FireLauncher()
-            # elif obj.name == "kamikaze_drone":
-            #     enemy = KamikazeDrone()
+            if obj.name == "tri_spitter":
+                enemy = TriSpitter()
+            elif obj.name == "bile_spitter":
+                enemy = BileSpitter()
+            elif obj.name == "blade_spinner":
+                enemy = BladeSpinner()
+            elif obj.name == "fire_launcher":
+                enemy = FireLauncher()
+            elif obj.name == "kamikaze_drone":
+                enemy = KamikazeDrone()
             if obj.name == "level_3_boss":
                 enemy = BossLevelThree()
             else:
