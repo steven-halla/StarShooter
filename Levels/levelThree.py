@@ -263,17 +263,26 @@ class LevelThree(VerticalBattleScreen):
                 )
 
                 if enemy_rect.colliderect(station_rect):
+                    print("ship hit")
+
+
+                    enemy._stop_rush_start_time = pygame.time.get_ticks()
+                    enemy._stop_rush_delay_ms = 5000
+                    enemy._stop_rush_pending = True
+                    if enemy._stop_rush_pending:
+                        now = pygame.time.get_ticks()
+                        if now - enemy._stop_rush_start_time >= enemy._stop_rush_delay_ms:
+                            enemy.stop_rush()
+                            enemy._stop_rush_pending = False
+
+
+                    # push boss out of station
                     overlap_left = enemy_rect.right - station_rect.left
                     overlap_right = station_rect.right - enemy_rect.left
                     overlap_top = enemy_rect.bottom - station_rect.top
                     overlap_bottom = station_rect.bottom - enemy_rect.top
 
-                    min_overlap = min(
-                        overlap_left,
-                        overlap_right,
-                        overlap_top,
-                        overlap_bottom
-                    )
+                    min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
 
                     if min_overlap == overlap_top:
                         enemy.y -= min_overlap
@@ -285,6 +294,10 @@ class LevelThree(VerticalBattleScreen):
                         enemy.x += min_overlap
 
                     enemy.update_hitbox()
+
+
+
+
             # ... push-out logic ...
 
     def update_enemy_helper(self, state):
