@@ -53,16 +53,31 @@ class BileSpitter(Enemy):
 
         self.update_hitbox()
 
-        if self.attack_timer.is_ready():
-            self.shoot_single_bullet_aimed_at_player(
-                bullet_speed=3.5,
-                bullet_width=20,
-                bullet_height=20,
-                bullet_color=self.bulletColor,
-                bullet_damage=40,
-                state=state
-            )
-            self.attack_timer.reset()
+
+
+        if state.starship.current_level != 3:
+            if self.is_active and self.attack_timer.is_ready():
+                self.shoot_single_bullet_aimed_at_player(
+                    bullet_speed=3.5,
+                    bullet_width=20,
+                    bullet_height=20,
+                    bullet_color=self.bulletColor,
+                    bullet_damage=40,
+                    state=state
+                )
+                self.attack_timer.reset()
+
+        else:
+            if self.is_active and self.attack_timer.is_ready():
+                self.shoot_single_bullet_aimed_at_player(
+                    bullet_speed=2.5,
+                    bullet_width=20,
+                    bullet_height=20,
+                    bullet_color=self.bulletColor,
+                    bullet_damage=40,
+                    state=state
+                )
+                self.attack_timer.reset()
 
         # 🔑 CALL TOUCH DAMAGE HANDLER
         self.player_collide_damage(state.starship)

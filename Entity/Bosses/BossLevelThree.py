@@ -186,7 +186,7 @@ class BossLevelThree(Enemy):
             if not hasattr(self, "_summon_swarm_last_time"):
                 self._summon_swarm_last_time = 0
 
-            if now - self._summon_swarm_last_time >= 5000:
+            if now - self._summon_swarm_last_time >= 12000:
                 self.summon_swarm(state)
                 self._summon_swarm_last_time = now
                 print("yupper")

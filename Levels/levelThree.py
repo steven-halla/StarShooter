@@ -123,6 +123,8 @@ class LevelThree(VerticalBattleScreen):
             if abs(dy) > 0.5:
                 self.starship.y += dy * pull_speed * 0.1
 
+
+
     # def update(self, state) -> None:
     #     self.starship.hitbox = pygame.Rect(0, 0, 0, 0)
     #     self.starship.update()
@@ -264,7 +266,17 @@ class LevelThree(VerticalBattleScreen):
 
                 if enemy_rect.colliderect(station_rect):
                     print("ship hit")
+                    # self.space_station.hp -= 100
+                    now = pygame.time.get_ticks()
 
+                    if not hasattr(self, "_station_last_melee_time"):
+                        self._station_last_melee_time = 0
+
+                    if now - self._station_last_melee_time >= 3000:
+                        self.space_station.hp -= 50
+                        self._station_last_melee_time = now
+
+                    # enemy.stop_rush()
 
                     enemy._stop_rush_start_time = pygame.time.get_ticks()
                     enemy._stop_rush_delay_ms = 5000
@@ -273,6 +285,7 @@ class LevelThree(VerticalBattleScreen):
                         now = pygame.time.get_ticks()
                         if now - enemy._stop_rush_start_time >= enemy._stop_rush_delay_ms:
                             enemy.stop_rush()
+
                             enemy._stop_rush_pending = False
 
 
@@ -334,6 +347,7 @@ class LevelThree(VerticalBattleScreen):
                     enemy.height
                 )
 
+
                 if player_rect.colliderect(enemy_rect):
                     if getattr(enemy, "name", None) == "kamikaze_drone":
                         self.starship.shield_system.take_damage(enemy.touch_damage)
@@ -343,6 +357,7 @@ class LevelThree(VerticalBattleScreen):
                         self.starship.shield_system.take_damage(enemy.touch_damage)
                         self.starship.on_hit()
                     break
+
 
     def deflect_helper(self, state):
         for bullet in list(state.enemy_bullets):
@@ -455,6 +470,7 @@ class LevelThree(VerticalBattleScreen):
                     LevelThree.deflect_helper._station_last_hit_time = now
                 if bullet in state.enemy_bullets:
                     state.enemy_bullets.remove(bullet)
+
 
 
     # def deflect_helper(self, state):
