@@ -43,6 +43,7 @@ class LevelThree(VerticalBattleScreen):
         self.level_start = True
         self.game_over: bool = False
         self.disable_player_bullet_damage = True
+        self.player_roped:bool = False
 
 
     def start(self, state) -> None:
@@ -74,6 +75,14 @@ class LevelThree(VerticalBattleScreen):
         pass
 
     def update(self, state) -> None:
+        # Create melee_hitbox FIRST (before enemies update)
+        self.starship.melee_hitbox = pygame.Rect(
+            int(self.starship.x),
+            int(self.starship.y),
+            self.starship.width,
+            self.starship.height
+        )
+
         self.starship.hitbox = pygame.Rect(0, 0, 0, 0)
         self.starship.update()
         super().update(state)
@@ -81,6 +90,48 @@ class LevelThree(VerticalBattleScreen):
         self.update_deflect_hitbox()
         self.update_boss_helper(state)
         self.update_enemy_helper(state)
+
+        # Check if player is caught by rope
+        for enemy in state.enemies:
+            if enemy.name == "BossLevelThree":
+                if getattr(enemy, "player_caught", False):
+                    self.player_roped = True
+                    print("LEVEL 3: ROPE IS TOUCHING PLAYER")
+                else:
+                    self.player_roped = False
+
+        # Pull player towards screen corner if roped
+        if self.player_roped:
+            target_x = self.camera.x
+            target_y = self.camera.y
+
+            pull_speed = 2.0  # Adjust this for faster/slower pull
+
+            dx = target_x - self.starship.x
+            dy = target_y - self.starship.y
+
+            # Move towards target
+            if abs(dx) > 0.5:
+                self.starship.x += dx * pull_speed * 0.1
+            if abs(dy) > 0.5:
+                self.starship.y += dy * pull_speed * 0.1
+
+    # def update(self, state) -> None:
+    #     self.starship.hitbox = pygame.Rect(0, 0, 0, 0)
+    #     self.starship.update()
+    #     super().update(state)
+    #     self.update_space_station_collision(state)
+    #     self.update_deflect_hitbox()
+    #     self.update_boss_helper(state)
+    #     self.update_enemy_helper(state)
+    #     for enemy in state.enemies:
+    #         if enemy.name == "BossLevelThree":
+    #             rope = enemy._rope
+    #             print(rope)
+    #     for enemy in state.enemies:
+    #         if enemy.name == "BossLevelThree":
+    #             if getattr(enemy, "player_caught", False):
+    #                 print("LEVEL 3: ROPE IS TOUCHING PLAYER")
 
     def draw(self, state):
         super().draw(state)
@@ -102,6 +153,8 @@ class LevelThree(VerticalBattleScreen):
 
             elif pygame.time.get_ticks() - self.boss_spawn_time >= self.boss_spawn_delay_ms:
                 self.spawn_level_3_boss(state)
+
+
 
     def update_deflect_hitbox(self):
         # 4️⃣ MELEE HITBOX (post-movement, post-collision)
