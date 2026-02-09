@@ -17,7 +17,7 @@ class Shield:
         self._last_damage_time: int = 0
         self._is_depleted: bool = False
 
-        self.courtesy_invincibility_duration: int = 2000  # 0.5 seconds
+        self.courtesy_invincibility_duration: int = 1000  # 0.5 seconds
         self._last_hit_time: int = -500
     # -------------------------
     # DAMAGE HANDLING
