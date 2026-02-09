@@ -1250,10 +1250,12 @@ class Enemy:
         if rope_rect.colliderect(self.target_player.melee_hitbox):
             self.player_caught = True
             if not rope.extend_lock:
-                rope.end_time += rope_duration_ms  # ✅ SAME PARAM
+                rope.end_time = now + rope_duration_ms  # SET to 3 seconds from NOW, don't ADD
                 rope.extend_lock = True
         else:
-            rope.extend_lock = False
+            # DON'T reset extend_lock here - keep it locked once caught
+            if not self.player_caught:
+                rope.extend_lock = False
             self.player_caught = False
         #
         # self.rope_grab(

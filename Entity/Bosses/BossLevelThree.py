@@ -79,9 +79,12 @@ class BossLevelThree(Enemy):
                 self._rope_was_active = False
             if not hasattr(self, "_rope_next_allowed_time"):
                 self._rope_next_allowed_time = 0
+            if not hasattr(self, "_rope_caught_player"):
+                self._rope_caught_player = False
 
             ROPE_DURATION_MS = 3000
             ROPE_COOLDOWN_MS = 4000
+            ROPE_CATCH_EXTENSION_MS = 3000  # Add 3 seconds when catching player
 
             if self._rope is None and now >= self._rope_next_allowed_time:
                 self.rope_grab(
@@ -92,8 +95,14 @@ class BossLevelThree(Enemy):
                     rope_color=(180, 180, 180),
                     state=state
                 )
+                self._rope_caught_player = False  # Reset catch flag
 
             if self._rope is not None:
+                # Check if player just got caught (transition from False to True)
+                if self.player_caught and not self._rope_caught_player:
+                    self._rope.end_time = now + ROPE_CATCH_EXTENSION_MS  # Extend by 3 seconds from NOW
+                    self._rope_caught_player = True  # Mark that we caught them
+
                 self.rope_grab(
                     rope_length=160,
                     rope_width=4,
@@ -107,6 +116,7 @@ class BossLevelThree(Enemy):
             if self._rope is None and self._rope_was_active:
                 self._rope_next_allowed_time = now + ROPE_COOLDOWN_MS
                 self._rope_was_active = False
+                self._rope_caught_player = False  # Reset for next rope
 
             # shooting every 2 seconds
             if not hasattr(self, "_shoot_last_time"):
