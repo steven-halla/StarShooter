@@ -233,7 +233,7 @@ class BossLevelThree(Enemy):
                 int(self.camera.x + 40),
                 int(self.camera.x + (GlobalConstants.BASE_WINDOW_WIDTH / self.camera.zoom) - 40)
             )
-            enemy.y = self.camera.y - 60
+            enemy.y = self.camera.y
 
             enemy.camera = self.camera
             enemy.target_player = state.starship
