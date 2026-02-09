@@ -262,9 +262,11 @@ class LevelThree(VerticalBattleScreen):
                     continue
 
     def reflect_bullet(self, bullet):
+        if getattr(bullet, "is_bomb", False):
+            return
         target = self.get_nearest_enemy(bullet)
 
-        speed = abs(getattr(bullet, "bullet_speed", 4)) * 6
+        speed = abs(getattr(bullet, "bullet_speed", 4)) * 4
 
         if target is None:
             bullet.vx = 0
@@ -360,14 +362,14 @@ class LevelThree(VerticalBattleScreen):
 
             if obj.name == "tri_spitter":
                 enemy = TriSpitter()
-            elif obj.name == "bile_spitter":
-                enemy = BileSpitter()
-            elif obj.name == "blade_spinner":
-                enemy = BladeSpinner()
-            elif obj.name == "fire_launcher":
-                enemy = FireLauncher()
-            elif obj.name == "kamikaze_drone":
-                enemy = KamikazeDrone()
+            # elif obj.name == "bile_spitter":
+            #     enemy = BileSpitter()
+            # elif obj.name == "blade_spinner":
+            #     enemy = BladeSpinner()
+            # elif obj.name == "fire_launcher":
+            #     enemy = FireLauncher()
+            # elif obj.name == "kamikaze_drone":
+            #     enemy = KamikazeDrone()
             elif obj.name == "level_3_boss":
                 enemy = BossLevelThree()
             else:
