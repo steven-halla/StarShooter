@@ -117,6 +117,7 @@ class LevelThree(VerticalBattleScreen):
             int(self.starship.y - 0.5),
             17,
             17
+
         )
 
     def update_space_station_collision(self, state):
