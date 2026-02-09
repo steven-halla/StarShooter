@@ -254,13 +254,20 @@ class LevelThree(VerticalBattleScreen):
                             if enemy.enemyHealth <= 0:
                                 state.enemies.remove(enemy)
 
-            if self.space_station is not None:
-                if bullet_rect.colliderect(self.space_station.hitbox):
-                    self.space_station.hp -= bullet.damage
-                    if bullet in state.enemy_bullets:
-                        state.enemy_bullets.remove(bullet)
-                    continue
+            if not hasattr(LevelThree.deflect_helper, "_station_last_hit_time"):
+                LevelThree.deflect_helper._station_last_hit_time = 0
+            if not hasattr(LevelThree.deflect_helper, "_station_last_melee_time"):
+                LevelThree.deflect_helper._station_last_melee_time = 0
 
+            now = pygame.time.get_ticks()
+
+            # ─── BULLET DAMAGE ───
+            if self.space_station is not None and bullet_rect.colliderect(self.space_station.hitbox):
+                if now - LevelThree.deflect_helper._station_last_hit_time >= 3000:
+                    self.space_station.hp -= bullet.damage
+                    LevelThree.deflect_helper._station_last_hit_time = now
+                if bullet in state.enemy_bullets:
+                    state.enemy_bullets.remove(bullet)
     def reflect_bullet(self, bullet):
         if getattr(bullet, "is_bomb", False):
             return
