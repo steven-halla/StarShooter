@@ -44,7 +44,7 @@ class LevelThree(VerticalBattleScreen):
         self.game_over: bool = False
         self.disable_player_bullet_damage = True
         self.player_roped:bool = False
-
+        self.trigger_boss3_countdown: bool = False
 
     def start(self, state) -> None:
         self.load_space_station_object(state)
@@ -90,6 +90,13 @@ class LevelThree(VerticalBattleScreen):
         self.update_deflect_hitbox()
         self.update_boss_helper(state)
         self.update_enemy_helper(state)
+        if self.trigger_boss3_countdown and not self.boss_spawned:
+
+            if self.boss_spawn_time is None:
+                self.boss_spawn_time = pygame.time.get_ticks()
+
+            elif pygame.time.get_ticks() - self.boss_spawn_time >= self.boss_spawn_delay_ms:
+                self.spawn_level_3_boss(state)
 
         # Check if player is caught by rope
         for enemy in state.enemies:
@@ -139,7 +146,28 @@ class LevelThree(VerticalBattleScreen):
         self.draw_ui_panel(state.DISPLAY)
         pygame.display.flip()
 
+    def clamp_enemy_to_player_view(self, enemy) -> None:
+        # ❌ NEVER pull enemies onto the screen
+        if not enemy.is_on_screen:
+            return
 
+        # CAMERA VIEW (WORLD SPACE)
+        view_left = self.camera.x
+        view_right = self.camera.x + (self.window_width / self.camera.zoom)
+        view_top = self.camera.y
+        view_bottom = self.camera.y + (GlobalConstants.GAMEPLAY_HEIGHT / self.camera.zoom)
+
+        # HORIZONTAL CLAMP
+        if enemy.x < view_left:
+            enemy.x = view_left
+        elif enemy.x + enemy.width > view_right:
+            enemy.x = view_right - enemy.width
+
+        # VERTICAL CLAMP
+        if enemy.y < view_top:
+            enemy.y = view_top
+        elif enemy.y + enemy.height > view_bottom:
+            enemy.y = view_bottom - enemy.height
 
     def update_boss_helper(self, state):
         for enemy in state.enemies:
@@ -226,6 +254,7 @@ class LevelThree(VerticalBattleScreen):
 
         for enemy in list(state.enemies):
             enemy.update(state)
+            self.clamp_enemy_to_player_view(enemy)  # <-- here
 
             if hasattr(enemy, "update_hitbox"):
                 enemy.update_hitbox()
@@ -357,6 +386,9 @@ class LevelThree(VerticalBattleScreen):
         bullet.update_rect()
 
     def enemy_waves_timer(self, state):
+        if self.boss_spawned or getattr(self, "trigger_boss3_countdown", False):
+            return
+
         now = pygame.time.get_ticks()
         if self.intial_wave and now - self.initial_wave_start_time >= self.initial_wave_delay_ms:
             self.spawn_enemy_wave(state)
@@ -365,26 +397,31 @@ class LevelThree(VerticalBattleScreen):
             self.spawn_enemy_wave(state)
             self.last_enemy_wave_time = now
 
+    # def enemy_waves_timer(self, state):
+    #     now = pygame.time.get_ticks()
+    #     if self.intial_wave and now - self.initial_wave_start_time >= self.initial_wave_delay_ms:
+    #         self.spawn_enemy_wave(state)
+    #         self.intial_wave = False
+    #     if now - self.last_enemy_wave_time >= self.enemy_wave_interval_ms:
+    #         self.spawn_enemy_wave(state)
+    #         self.last_enemy_wave_time = now
 
     def build_enemy_pool(self, state):
         pool = []
 
-        for group in (
-                state.enemies,
+        for enemy in state.enemies:
+            if isinstance(enemy, BossLevelThree):
+                continue
+            if enemy.is_active:
+                continue
+            pool.append(enemy)
 
-        ):
-            for enemy in group:
-                if not isinstance(enemy, tuple):
-                    pool.append(enemy)
+        if not pool:
+            self.trigger_boss3_countdown = True
+
         return pool
 
     def spawn_enemy_wave(self, state):
-        for group in (
-                state.enemies,
-
-        ):
-            group[:] = [e for e in group if not isinstance(e, tuple)]
-
         enemy_pool = self.build_enemy_pool(state)
 
         if not enemy_pool:
@@ -397,7 +434,7 @@ class LevelThree(VerticalBattleScreen):
         spawn_y = int(self.camera.y) + 5
 
         for i in range(spawn_count):
-            enemy = enemy_pool[i]  # ← RANDOM ASSORTMENT
+            enemy = enemy_pool[i]
 
             enemy.x = random.randint(20, screen_right - 20)
             enemy.y = spawn_y
