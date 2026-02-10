@@ -250,63 +250,189 @@ class LevelThree(VerticalBattleScreen):
 
                 self.starship.update_hitbox()
 
-        if self.space_station is not None:
-            station_rect = self.space_station.hitbox
+            if self.space_station is not None:
+                station_rect = self.space_station.hitbox
 
-            for enemy in state.enemies:
-                if not isinstance(enemy, BossLevelThree):
-                    continue
+                for enemy in state.enemies:
+                    if not isinstance(enemy, BossLevelThree):
+                        continue
 
-                enemy_rect = pygame.Rect(
-                    enemy.x,
-                    enemy.y,
-                    enemy.width,
-                    enemy.height
-                )
+                    enemy_rect = pygame.Rect(
+                        enemy.x,
+                        enemy.y,
+                        enemy.width,
+                        enemy.height
+                    )
 
-                if enemy_rect.colliderect(station_rect):
-                    print("ship hit")
-                    # self.space_station.hp -= 100
-                    now = pygame.time.get_ticks()
+                    if enemy_rect.colliderect(station_rect):
+                        print("ship hit")
 
-                    if not hasattr(self, "_station_last_melee_time"):
-                        self._station_last_melee_time = 0
-
-                    if now - self._station_last_melee_time >= 3000:
-                        self.space_station.hp -= 50
-                        self._station_last_melee_time = now
-
-                    # enemy.stop_rush()
-
-                    enemy._stop_rush_start_time = pygame.time.get_ticks()
-                    enemy._stop_rush_delay_ms = 5000
-                    enemy._stop_rush_pending = True
-                    if enemy._stop_rush_pending:
                         now = pygame.time.get_ticks()
-                        if now - enemy._stop_rush_start_time >= enemy._stop_rush_delay_ms:
-                            enemy.stop_rush()
 
-                            enemy._stop_rush_pending = False
+                        if not hasattr(self, "_station_last_melee_time"):
+                            self._station_last_melee_time = 0
 
+                        if now - self._station_last_melee_time >= 3000:
+                            self.space_station.hp -= 50
+                            self._station_last_melee_time = now
 
-                    # push boss out of station
-                    overlap_left = enemy_rect.right - station_rect.left
-                    overlap_right = station_rect.right - enemy_rect.left
-                    overlap_top = enemy_rect.bottom - station_rect.top
-                    overlap_bottom = station_rect.bottom - enemy_rect.top
+                        enemy.stop_rush()
 
-                    min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
+                        if not hasattr(enemy, "_station_pushback_active"):
+                            enemy._station_pushback_active = False
 
-                    if min_overlap == overlap_top:
-                        enemy.y -= min_overlap
-                    elif min_overlap == overlap_bottom:
-                        enemy.y += min_overlap
-                    elif min_overlap == overlap_left:
-                        enemy.x -= min_overlap
-                    elif min_overlap == overlap_right:
-                        enemy.x += min_overlap
+                        if not enemy._station_pushback_active:
+                            enemy._station_pushback_active = True
+                            enemy._station_pushback_steps_remaining = 4
+                            enemy._station_pushback_pixels_per_step = 5
+                            enemy._station_pushback_interval_ms = 500
+                            enemy._station_pushback_last_step_time = now
 
-                    enemy.update_hitbox()
+                        if enemy._station_pushback_active and enemy._station_pushback_steps_remaining > 0:
+                            if now - enemy._station_pushback_last_step_time >= enemy._station_pushback_interval_ms:
+                                enemy.y -= enemy._station_pushback_pixels_per_step
+                                enemy._station_pushback_steps_remaining -= 1
+                                enemy._station_pushback_last_step_time = now
+                                enemy.update_hitbox()
+
+                        if hasattr(enemy,
+                                   "_station_pushback_steps_remaining") and enemy._station_pushback_steps_remaining <= 0:
+                            enemy._station_pushback_active = False
+
+                        enemy.update_hitbox()
+
+            # if self.space_station is not None:
+            #     station_rect = self.space_station.hitbox
+            #
+            #     for enemy in state.enemies:
+            #         if not isinstance(enemy, BossLevelThree):
+            #             continue
+            #
+            #         enemy_rect = pygame.Rect(
+            #             enemy.x,
+            #             enemy.y,
+            #             enemy.width,
+            #             enemy.height
+            #         )
+            #
+            #         if enemy_rect.colliderect(station_rect):
+            #             print("ship hit")
+            #
+            #             now = pygame.time.get_ticks()
+            #
+            #             if not hasattr(self, "_station_last_melee_time"):
+            #                 self._station_last_melee_time = 0
+            #
+            #             if now - self._station_last_melee_time >= 3000:
+            #                 self.space_station.hp -= 50
+            #                 self._station_last_melee_time = now
+            #
+            #             enemy.stop_rush()
+            #             enemy.y -= 20
+            #             enemy.update_hitbox()
+            #
+            # if self.space_station is not None:
+            #     station_rect = self.space_station.hitbox
+            #
+            #     for enemy in state.enemies:
+            #         if not isinstance(enemy, BossLevelThree):
+            #             continue
+            #
+            #         enemy_rect = pygame.Rect(
+            #             enemy.x,
+            #             enemy.y,
+            #             enemy.width,
+            #             enemy.height
+            #         )
+            #
+            #         if enemy_rect.colliderect(station_rect):
+            #             print("ship hit")
+            #
+            #             now = pygame.time.get_ticks()
+            #
+            #             if not hasattr(self, "_station_last_melee_time"):
+            #                 self._station_last_melee_time = 0
+            #
+            #             if now - self._station_last_melee_time >= 3000:
+            #                 self.space_station.hp -= 50
+            #                 self._station_last_melee_time = now
+            #
+            #             enemy.stop_rush()
+            #
+            #             overlap_left = enemy_rect.right - station_rect.left
+            #             overlap_right = station_rect.right - enemy_rect.left
+            #             overlap_top = enemy_rect.bottom - station_rect.top
+            #             overlap_bottom = station_rect.bottom - enemy_rect.top
+            #             min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
+            #
+            #             if min_overlap == overlap_top:
+            #                 enemy.y -= 0.5
+            #             elif min_overlap == overlap_bottom:
+            #                 enemy.y += 0.5
+            #             elif min_overlap == overlap_left:
+            #                 enemy.x -= 0.5
+            #             elif min_overlap == overlap_right:
+            #                 enemy.x += 0.5
+            #
+            #             enemy.update_hitbox()
+
+        # if self.space_station is not None:
+        #     station_rect = self.space_station.hitbox
+        #
+        #     for enemy in state.enemies:
+        #         if not isinstance(enemy, BossLevelThree):
+        #             continue
+        #
+        #         enemy_rect = pygame.Rect(
+        #             enemy.x,
+        #             enemy.y,
+        #             enemy.width,
+        #             enemy.height
+        #         )
+        #
+        #         if enemy_rect.colliderect(station_rect):
+        #             print("ship hit")
+        #             # self.space_station.hp -= 100
+        #             now = pygame.time.get_ticks()
+        #
+        #             if not hasattr(self, "_station_last_melee_time"):
+        #                 self._station_last_melee_time = 0
+        #
+        #             if now - self._station_last_melee_time >= 3000:
+        #                 self.space_station.hp -= 50
+        #                 self._station_last_melee_time = now
+        #
+        #             # enemy.stop_rush()
+        #
+        #             enemy._stop_rush_start_time = pygame.time.get_ticks()
+        #             enemy._stop_rush_delay_ms = 5000
+        #             enemy._stop_rush_pending = True
+        #             if enemy._stop_rush_pending:
+        #                 now = pygame.time.get_ticks()
+        #                 if now - enemy._stop_rush_start_time >= enemy._stop_rush_delay_ms:
+        #                     enemy.stop_rush()
+        #
+        #                     enemy._stop_rush_pending = False
+        #
+        #
+        #             # push boss out of station
+        #             overlap_left = enemy_rect.right - station_rect.left
+        #             overlap_right = station_rect.right - enemy_rect.left
+        #             overlap_top = enemy_rect.bottom - station_rect.top
+        #             overlap_bottom = station_rect.bottom - enemy_rect.top
+        #
+        #             min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
+        #
+        #             if min_overlap == overlap_top:
+        #                 enemy.y -= min_overlap
+        #             elif min_overlap == overlap_bottom:
+        #                 enemy.y += min_overlap
+        #             elif min_overlap == overlap_left:
+        #                 enemy.x -= min_overlap
+        #             elif min_overlap == overlap_right:
+        #                 enemy.x += min_overlap
+        #
+        #             enemy.update_hitbox()
 
 
 
