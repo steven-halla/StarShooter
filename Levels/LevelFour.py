@@ -79,6 +79,31 @@ class LevelFour(VerticalBattleScreen):
         self.draw_ui_panel(state.DISPLAY)
         pygame.display.flip()
 
+    def slaver_player_in_vicinity(self, slaver) -> bool:
+        if slaver.camera is None or self.starship is None:
+            return False
+
+        # ---- WORLD DISTANCE CHECK ----
+        dx = abs(slaver.x - self.starship.x)
+        dy = abs(slaver.y - self.starship.y)
+        in_range = dx <= 400 and dy <= 300
+
+        # ---- SCREEN VISIBILITY CHECK ----
+        slaver_screen_y = self.camera.world_to_screen_y(slaver.y)
+        player_screen_y = self.camera.world_to_screen_y(self.starship.y)
+
+        slaver_visible = (
+                slaver_screen_y + slaver.height >= 0 and
+                slaver_screen_y <= self.camera.window_height
+        )
+
+        player_visible = (
+                player_screen_y + self.starship.height >= 0 and
+                player_screen_y <= self.camera.window_height
+        )
+
+        return in_range and slaver_visible and player_visible
+
     def update_enemy_helper(self, state):
 
         for enemy in list(state.enemies):
@@ -99,12 +124,20 @@ class LevelFour(VerticalBattleScreen):
                 )
 
             if isinstance(enemy, Slaver):
-                if enemy.player_in_vicinity():
+                if self.slaver_player_in_vicinity(enemy):
                     enemy.attack_player = True
                     print("SLAVER ATTACKING PLAYER")
                 else:
                     enemy.attack_player = False
                     print("SLAVER NOT ATTACKING PLAYER")
+
+            # if isinstance(enemy, Slaver):
+            #     if enemy.player_in_vicinity():
+            #         enemy.attack_player = True
+            #         print("SLAVER ATTACKING PLAYER")
+            #     else:
+            #         enemy.attack_player = False
+            #         print("SLAVER NOT ATTACKING PLAYER")
             #
             # if enemy_type == "Slaver":
             #     if enemy.player_in_vicinity():
