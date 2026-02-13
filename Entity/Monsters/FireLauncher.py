@@ -18,7 +18,6 @@ class FireLauncher(Enemy):
         self.edge_padding: int = 0
         self.is_retreating = False
 
-
         # identity / visuals
         self.name: str = "FireLauncher"
         self.width: int = 40
@@ -33,7 +32,6 @@ class FireLauncher(Enemy):
         # stats
         self.enemyHealth: float = 10.0
         self.maxHealth: float = 10.0
-
         self.exp: int = 1
         self.credits: int = 5
 
@@ -50,11 +48,14 @@ class FireLauncher(Enemy):
     # -------------------------------------------------
     def update(self, state) -> None:
         super().update(state)
+
         if not self.is_active:
             return
 
-        self.moveAI()
+        # match BileSpitter ordering
         self.update_hitbox()
+
+        self.moveAI()
 
         if self.attack_timer.is_ready():
             self.shoot_spores(
@@ -67,71 +68,49 @@ class FireLauncher(Enemy):
             )
             self.attack_timer.reset()
 
-        # 🔑 CALL TOUCH DAMAGE HANDLER
+        # 🔑 DO NOT REMOVE
         self.player_collide_damage(state.starship)
-
-    # -------------------------------------------------
-    # TOUCH DAMAGE (STANDALONE FUNCTION)
-    # -------------------------------------------------
 
     # -------------------------------------------------
     # MOVEMENT
     # -------------------------------------------------
-    # -------------------------
-    # AI MOVEMENT (UNCHANGED)
-    # -------------------------
     def moveAI(self) -> None:
         if not self.mover.enemy_on_screen(self, self.camera):
             return
 
-        # One-time init
         if not hasattr(self, "base_y"):
             self.base_y = self.y
             self.move_direction_y = 1
 
         screen_bottom_world = (
-                self.camera.y
-                + (self.camera.window_height / self.camera.zoom)
+            self.camera.y
+            + (self.camera.window_height / self.camera.zoom)
         )
 
-        # -------------------------
-        # START RETREAT
-        # -------------------------
         if (
-                not self.is_retreating
-                and self.y + self.height >= screen_bottom_world - 50
+            not self.is_retreating
+            and self.y + self.height >= screen_bottom_world - 50
         ):
             self.is_retreating = True
             self.retreat_start_y = self.y
-            print(f"[RETREAT START] y={self.y:.2f}")
 
-        # -------------------------
-        # RETREAT MOVEMENT (UP 200px)
-        # -------------------------
         if self.is_retreating:
             self.mover.enemy_move_up(self)
-
             moved = self.retreat_start_y - self.y
-            print(f"[RETREAT MOVE] y={self.y:.2f} moved={moved:.2f}")
 
-            # Stop retreat after 200px
             if moved >= 200:
                 self.is_retreating = False
-                self.base_y = self.y  # reset patrol center
-                print("[RETREAT END]")
+                self.base_y = self.y
             return
 
-        # -------------------------
-        # NORMAL PATROL (UNCHANGED)
-        # -------------------------
         desired_top = self.base_y - 100
         desired_bottom = self.base_y + 100
 
         cam_top = self.camera.y
         cam_bottom = (
-                self.camera.y
-                + (self.camera.window_height / self.camera.zoom)
-                - self.height
+            self.camera.y
+            + (self.camera.window_height / self.camera.zoom)
+            - self.height
         )
 
         patrol_top = max(desired_top, cam_top)
@@ -174,4 +153,3 @@ class FireLauncher(Enemy):
                 camera.world_to_screen_y(self.y),
             )
         )
-

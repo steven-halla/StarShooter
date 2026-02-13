@@ -675,7 +675,7 @@
  <objectgroup id="4" name="enemies">
   <object id="28" name="transport_worm" x="295.732" y="2974.03" width="32" height="32"/>
   <object id="29" name="transport_worm" x="174.135" y="2946.96" width="32" height="32"/>
-  <object id="31" name="transport_worm" x="191.721" y="4539.36" width="32" height="32"/>
+  <object id="31" name="transport_worm" x="290.731" y="4974.3" width="32" height="32"/>
   <object id="24" name="transport_worm" x="27.3929" y="1474.15" width="32" height="32"/>
   <object id="25" name="transport_worm" x="193.695" y="1476.98" width="32" height="32"/>
   <object id="26" name="transport_worm" x="261.622" y="1481.8" width="32" height="32"/>
@@ -685,7 +685,7 @@
   <object id="23" name="transport_worm" x="249.536" y="489.668" width="32" height="32"/>
   <object id="4" name="bile_spitter" x="350.03" y="2065.1" width="16" height="16"/>
   <object id="74" name="bile_spitter" x="162.928" y="3509.07" width="16" height="16"/>
-  <object id="79" name="bile_spitter" x="100.726" y="4385.69" width="16" height="16"/>
+  <object id="79" name="bile_spitter" x="160.839" y="5115.89" width="16" height="16"/>
   <object id="66" name="bile_spitter" x="319.437" y="2140.34" width="16" height="16"/>
   <object id="73" name="bile_spitter" x="204.443" y="3509.07" width="16" height="16"/>
   <object id="80" name="bile_spitter" x="142.241" y="4385.69" width="16" height="16"/>
@@ -707,7 +707,7 @@
   <object id="83" name="tri_spitter" x="193.738" y="1715.39" width="16" height="16"/>
   <object id="67" name="fire_launcher" x="346.538" y="2196.85" width="16" height="16"/>
   <object id="75" name="fire_launcher" x="322.681" y="4478.57" width="16" height="16"/>
-  <object id="77" name="fire_launcher" x="74.1653" y="4454.93" width="16" height="16"/>
+  <object id="77" name="fire_launcher" x="123.671" y="4545.1" width="16" height="16"/>
   <object id="68" name="fire_launcher" x="55.6542" y="2192.67" width="16" height="16"/>
   <object id="85" name="fire_launcher" x="288.698" y="3860.21" width="16" height="16"/>
   <object id="78" name="fire_launcher" x="205.054" y="4417.45" width="16" height="16"/>
@@ -741,7 +741,7 @@
   <object id="115" name="level_4_boss" x="226.441" y="98.5993" width="16" height="16"/>
   <object id="111" name="level_4_boss" x="208.553" y="42.1062" width="16" height="16"/>
   <object id="113" name="level_4_boss" x="152.74" y="93.201" width="16" height="16"/>
-  <object id="125" name="slaver" x="121.156" y="5132.81" width="16" height="16"/>
+  <object id="125" name="slaver" x="27.4502" y="4938.33" width="16" height="16"/>
  </objectgroup>
  <layer id="5" name="creep" width="25" height="330">
   <data encoding="csv">

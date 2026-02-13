@@ -185,7 +185,7 @@ class VerticalBattleScreen:
 
         self.bullet_collision_helper_remover(state)
         self.collision_tile_helper(state)
-        self.enemy_player_collision(state)
+        # self.enemy_player_collision(state)
         self.rect_helper(state)
         UI_KILL_PADDING = 12  # pixels ABOVE the UI panel (tweak this)
 
