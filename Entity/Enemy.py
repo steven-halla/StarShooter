@@ -91,6 +91,7 @@ class Enemy:
         Apply touch damage to the player if colliding.
         Player handles invincibility / cooldown.
         """
+        print("I am called")
         if not self.is_active:
             return
 
