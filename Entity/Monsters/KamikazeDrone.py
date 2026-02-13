@@ -130,13 +130,38 @@ class KamikazeDrone(Enemy):
         if self.target_player is None:
             return
 
-        # Player target
+        # ==============================
+        # PLAYER TARGET (WITH SHIELD)
+        # ==============================
         if hasattr(self.target_player, "shipHealth"):
-            self.target_player.shipHealth -= self.explosion_damage
+
+            damage = self.explosion_damage
+
+            # ---- SHIELD CHECK FIRST ----
+            if hasattr(self.target_player, "shield") and self.target_player.shield is not None:
+
+                # If shield has strength remaining
+                if self.target_player.shield.current > 0:
+
+                    remaining_damage = self.target_player.shield.take_damage(damage)
+
+                    # If shield breaks and damage spills over
+                    if remaining_damage > 0:
+                        self.target_player.shipHealth -= remaining_damage
+                else:
+                    # No shield left
+                    self.target_player.shipHealth -= damage
+            else:
+                # No shield system present
+                self.target_player.shipHealth -= damage
+
+            # Trigger player hit animation if available
             if hasattr(self.target_player, "on_hit"):
                 self.target_player.on_hit()
 
-        # Non-player target (e.g., SpaceStation)
+        # ==============================
+        # NON-PLAYER TARGET (Station)
+        # ==============================
         elif hasattr(self.target_player, "hp"):
             self.target_player.hp -= self.explosion_damage
 

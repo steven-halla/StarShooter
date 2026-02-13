@@ -280,7 +280,6 @@ class LevelFour(VerticalBattleScreen):
 
     def update_enemy_bullet_helper(self, state):
         for enemy in list(state.enemies):
-            enemy.update(state)
 
             if hasattr(enemy, "update_hitbox"):
                 enemy.update_hitbox()

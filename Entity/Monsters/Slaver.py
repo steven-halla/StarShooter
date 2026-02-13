@@ -77,6 +77,8 @@ class Slaver(Enemy):
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
         self.enemy_image = self.bile_spitter_image  # 🔑 REQUIRED
+        self.touch_damage: int = 10
+
 
 
 
@@ -86,77 +88,83 @@ class Slaver(Enemy):
     # -------------------------
     def update(self, state) -> None:
         super().update(state)
-        # print(self.attack_player)
 
         if not self.is_active:
             return
 
         self.update_hitbox()
 
+        # 🔒 TOUCH DAMAGE — USE SAME PATTERN AS BILESPITTER
+
         now = pygame.time.get_ticks()
 
         # ======================================
-        # IF ATTACK PLAYER MODE
+        # ATTACK PLAYER MODE
         # ======================================
-        if self.attack_player:
-
-            # stop targeting worms
-            self.target_worm = None
-
-            # fire splatter cannon using your burst timer logic
-            if (
-                    not self.is_bile_bursting
-                    and now - self.last_burst_time >= self.burst_cooldown_ms
-            ):
-                self.is_bile_bursting = True
-                self.bile_burst_count = 0
-                self.last_bile_shot_time = now
-                self.last_burst_time = now
-
-            if self.is_bile_bursting:
-
-                if (
-                        self.bile_burst_count < self.bile_burst_max
-                        and now - self.last_bile_shot_time >= self.bile_burst_delay_ms
-                ):
-                    self.splatter_cannon(
-                        bullet_speed=3.5,
-                        bullet_width=10,
-                        bullet_height=10,
-                        bullet_color=(255, 50, 50),
-                        bullet_damage=25,
-                        low_rand_range=-0.2,
-                        high_rand_range=0.2,
-                        bullet_count=5,
-                        state=state
-                    )
-
-                    self.bile_burst_count += 1
-                    self.last_bile_shot_time = now
-
-                if self.bile_burst_count >= self.bile_burst_max:
-                    self.is_bile_bursting = False
-
-            return  # IMPORTANT: stop worm logic when attacking player
+        # if self.attack_player:
+        #
+        #     self.target_worm = None
+        #
+        #     if (
+        #             not self.is_bile_bursting
+        #             and now - self.last_burst_time >= self.burst_cooldown_ms
+        #     ):
+        #         self.is_bile_bursting = True
+        #         self.bile_burst_count = 0
+        #         self.last_bile_shot_time = now
+        #         self.last_burst_time = now
+            #
+            # if self.is_bile_bursting:
+            #
+            #     if (
+            #             self.bile_burst_count < self.bile_burst_max
+            #             and now - self.last_bile_shot_time >= self.bile_burst_delay_ms
+            #     ):
+            #         self.splatter_cannon(
+            #             bullet_speed=3.5,
+            #             bullet_width=10,
+            #             bullet_height=10,
+            #             bullet_color=(255, 50, 50),
+            #             bullet_damage=25,
+            #             low_rand_range=-0.2,
+            #             high_rand_range=0.2,
+            #             bullet_count=5,
+            #             state=state
+            #         )
+            #
+            #         self.bile_burst_count += 1
+            #         self.last_bile_shot_time = now
+            #
+            #     if self.bile_burst_count >= self.bile_burst_max:
+            #         self.is_bile_bursting = False
+            #
+            # return
 
         # ======================================
-        # NORMAL WORM TARGETING MODE
+        # WORM TARGET MODE
         # ======================================
 
         if self.target_worm is None or self.target_worm.enemyHealth <= 0:
-            if hasattr(self, 'transport_worms') and self.transport_worms:
+            if self.transport_worms:
                 self.find_nearest_transport_worm(self.transport_worms)
 
         if self.target_worm:
             self.move_toward_target_worm()
 
+        self.player_collide_damage(state.starship)
+
     def find_nearest_transport_worm(self, worms: list) -> None:
         nearest = None
         nearest_dist = float("inf")
 
+        print("SLAVER:", self.x, self.y)
+
         for worm in worms:
             dx = worm.x - self.x
             dy = worm.y - self.y
+            print("WORM:", worm.x, worm.y, "DIST^2:", dx * dx + dy * dy)
+
+
             dist_sq = dx * dx + dy * dy
 
             if dist_sq < nearest_dist:
