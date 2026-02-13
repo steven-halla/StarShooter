@@ -81,7 +81,6 @@ class LevelFour(VerticalBattleScreen):
 
     def update_enemy_helper(self, state):
 
-
         for enemy in list(state.enemies):
             enemy_type = getattr(enemy, "enemy_name", None)
             enemy.update(state)
@@ -99,11 +98,21 @@ class LevelFour(VerticalBattleScreen):
                     [(w.enemyHealth, w.x, w.y) for w in self.touched_worms]
                 )
 
-            if enemy_type == "slaver" and enemy.enemyHealth <= 0:
-                print("[LEVEL 4] Slaver removed after touching worm")
-
-            if enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)
+            if isinstance(enemy, Slaver):
+                if enemy.player_in_vicinity():
+                    enemy.attack_player = True
+                    print("SLAVER ATTACKING PLAYER")
+                else:
+                    enemy.attack_player = False
+                    print("SLAVER NOT ATTACKING PLAYER")
+            #
+            # if enemy_type == "Slaver":
+            #     if enemy.player_in_vicinity():
+            #         enemy.attack_player = True
+            #         print("SLAVER ATTACKING PLAYER")
+            #     else:
+            #         enemy.attack_player = False
+            #         print("SLAVER NOT ATTACKING PLAYER")
 
     def update_worm_helper(self, state):
         PADDING = 100
