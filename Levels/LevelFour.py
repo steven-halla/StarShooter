@@ -79,9 +79,18 @@ class LevelFour(VerticalBattleScreen):
         self.draw_ui_panel(state.DISPLAY)
         pygame.display.flip()
 
-    def slaver_player_in_vicinity(self, slaver) -> bool:
+    def slaver_player_in_vicinity(self, slaver, state) -> bool:
         if slaver.camera is None or self.starship is None:
-            return False
+            return
+
+        # ---- WORM VICINITY CHECK FIRST ----
+        for e in state.enemies:
+            if isinstance(e, TransportWorm):
+                dx_w = abs(e.x - self.starship.x)
+                dy_w = abs(e.y - self.starship.y)
+
+                if dx_w <= 400 and dy_w <= 300:
+                    return  # <-- exits immediately
 
         # ---- WORLD DISTANCE CHECK ----
         dx = abs(slaver.x - self.starship.x)
@@ -124,7 +133,7 @@ class LevelFour(VerticalBattleScreen):
                 )
 
             if isinstance(enemy, Slaver):
-                if self.slaver_player_in_vicinity(enemy):
+                if self.slaver_player_in_vicinity(enemy, state):
                     enemy.attack_player = True
                     print("SLAVER ATTACKING PLAYER")
                 else:
