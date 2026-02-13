@@ -18,7 +18,7 @@ class NapalmSpread(Bullet):
         self.height: int = 11
 
         self.damage: int = 75
-        self.rate_of_fire: float = 1.0
+        self.rate_of_fire: float = 3.5  # slightly slower fire rate
         self.bullet_speed: float = 3.5
 
         self.napalm_timer: Timer = Timer(self.rate_of_fire)
@@ -44,7 +44,6 @@ class NapalmSpread(Bullet):
         self.is_active: bool = True
         self.has_exploded: bool = False
         self.aoe_applied: bool = False
-
         self.explosion_unlock_processed: bool = False
 
         self.update_rect()
@@ -54,47 +53,54 @@ class NapalmSpread(Bullet):
     # --------------------------------------------------
     def update(self) -> None:
 
-        # -----------------------
+        # -----------------------------
         # TRAVEL PHASE
-        # -----------------------
+        # -----------------------------
         if not self.has_exploded:
+
             if not self.travel_timer.is_ready():
                 super().update()
-            else:
-                print("[UPDATE] Trigger explosion")
-                self.trigger_explosion()
+                self.update_rect()
+                return
+
+            self.trigger_explosion()
             return
 
-        # -----------------------
+        # -----------------------------
         # EXPLOSION PHASE
-        # -----------------------
-        if self.explosion_timer.is_ready() and not self.explosion_unlock_processed:
+        # -----------------------------
+        if self.has_exploded:
 
-            print("[UPDATE] Explosion finished — unlocking napalm")
+            if self.explosion_timer.is_ready():
 
-            self.is_active = False
+                if not self.explosion_unlock_processed:
+
+                    print("[UPDATE] Explosion finished — unlocking napalm")
+
+                    self.is_active = False
+                    NapalmSpread.napalm_active = False
+                    self.napalm_timer.reset()
+
+                    self.explosion_unlock_processed = True
+
+        # -----------------------------
+        # SAFETY UNLOCK (FIXES OFFSCREEN ISSUE)
+        # -----------------------------
+        if not self.is_active and NapalmSpread.napalm_active:
             NapalmSpread.napalm_active = False
-            print("[UPDATE] napalm_active:", NapalmSpread.napalm_active)
-
-            self.napalm_timer.reset()
-            print("[UPDATE] Cooldown reset")
-
-            self.explosion_unlock_processed = True
 
     # --------------------------------------------------
-    # FIRE METHOD (STAYS IN CLASS)
+    # FIRE METHOD
     # --------------------------------------------------
     def fire_napalm_spread(self):
 
         print("[FIRE] napalm_active:", NapalmSpread.napalm_active)
         print("[FIRE] cooldown ready:", self.napalm_timer.is_ready())
 
-        # HARD LOCK
         if NapalmSpread.napalm_active:
             print("[BLOCKED] Napalm already active")
             return None
 
-        # COOLDOWN CHECK
         if not self.napalm_timer.is_ready():
             print("[BLOCKED] Cooldown not ready")
             return None

@@ -685,7 +685,7 @@
   <object id="23" name="transport_worm" x="249.536" y="489.668" width="32" height="32"/>
   <object id="4" name="bile_spitter" x="350.03" y="2065.1" width="16" height="16"/>
   <object id="74" name="bile_spitter" x="162.928" y="3509.07" width="16" height="16"/>
-  <object id="79" name="bile_spitter" x="160.839" y="5115.89" width="16" height="16"/>
+  <object id="79" name="bile_spitter" x="183.824" y="4831.23" width="16" height="16"/>
   <object id="66" name="bile_spitter" x="319.437" y="2140.34" width="16" height="16"/>
   <object id="73" name="bile_spitter" x="204.443" y="3509.07" width="16" height="16"/>
   <object id="80" name="bile_spitter" x="142.241" y="4385.69" width="16" height="16"/>

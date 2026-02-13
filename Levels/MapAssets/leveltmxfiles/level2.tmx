@@ -251,7 +251,7 @@
  <objectgroup id="5" name="enemies">
   <object id="16" name="fire_launcher" x="92.7575" y="3245.09" width="16" height="16"/>
   <object id="116" name="fire_launcher" x="35.0924" y="2703.45" width="16" height="16"/>
-  <object id="114" name="fire_launcher" x="154.481" y="3552.35" width="16" height="16"/>
+  <object id="114" name="fire_launcher" x="132.538" y="3435.89" width="16" height="16"/>
   <object id="110" name="fire_launcher" x="215.483" y="2868.35" width="16" height="16"/>
   <object id="115" name="fire_launcher" x="157.688" y="3245.81" width="16" height="16"/>
   <object id="112" name="fire_launcher" x="24.1717" y="454.522" width="16" height="16"/>
@@ -270,7 +270,7 @@
   <object id="104" name="bile_spitter" x="63.5034" y="2891.9" width="16" height="16"/>
   <object id="101" name="bile_spitter" x="314.563" y="3204.96" width="16" height="16"/>
   <object id="107" name="bile_spitter" x="38.0362" y="289.132" width="16" height="16"/>
-  <object id="103" name="bile_spitter" x="206.124" y="3744.85" width="16" height="16"/>
+  <object id="103" name="bile_spitter" x="184.181" y="3628.39" width="16" height="16"/>
   <object id="105" name="bile_spitter" x="246.264" y="297.557" width="16" height="16"/>
   <object id="117" name="tri_spitter" x="259.094" y="3039.92" width="16" height="16"/>
   <object id="124" name="tri_spitter" x="104.65" y="1775.68" width="16" height="16"/>

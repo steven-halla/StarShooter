@@ -4,13 +4,13 @@
     "shipHealth": 150,
     "shipHealthMax": 150,
     "equipped_magic": [
-      "Metal Shield",
+      "Napalm Spread",
       null
     ],
     "magic_inventory": [
-      "Metal Shield"
+      "Napalm Spread"
     ],
-    "current_level": 2
+    "current_level": 4
   },
   "weapons": {
     "machine_gun": {
