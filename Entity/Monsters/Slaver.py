@@ -52,7 +52,7 @@ class Slaver(Enemy):
         # -------------------------
         # GAMEPLAY STATS
         # -------------------------
-        self.speed: float = 1.2
+        self.speed: float = .8
         self.enemyHealth: int = 150
         self.maxHealth: int = 150
         self.exp: int = 1

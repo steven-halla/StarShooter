@@ -1,31 +1,47 @@
-import random
 import math
+import random
 import pygame
 
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Enemy import Enemy
+from Movement.MoveRectangle import MoveRectangle
 
 
 class TransportWorm(Enemy):
     def __init__(self) -> None:
         super().__init__()
 
-        # -------------------------
-        # APPEARANCE
-        # -------------------------
-        self.width: int = 16
-        self.height: int = 16
-        self.color: tuple[int, int, int] = GlobalConstants.RED
+        # movement
+        self.mover: MoveRectangle = MoveRectangle()
+        self.move_direction: int = random.choice([-1, 1])
+        self.moveSpeed: float = 2.2
+        self.edge_padding: int = 0
 
-        self.sprite_sheet = pygame.image.load(
+        # identity / visuals
+        self.name: str = "Transport Worm"
+        self.width: int = 40
+        self.height: int = 40
+        self.color = GlobalConstants.RED
+
+        self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
-        self.enemy_image = self.sprite_sheet  # 🔑 REQUIRED
+        self.enemy_image = self.bile_spitter_image
 
-        # -------------------------
-        # GAMEPLAY
-        # -------------------------
-        self.enemyHealth: int = 700
+        # stats
+        self.enemyHealth: float = 222.0
+        self.maxHealth: float = 222.0
+        self.exp: int = 1
+        self.credits: int = 5
+
+        # ranged attack
+        self.bulletColor = GlobalConstants.SKYBLUE
+        self.attack_timer = Timer(3.0)
+
+        # touch damage
+        self.touch_damage: int = 10
+        self.touch_timer = Timer(0.75)
 
         # -------------------------
         # SUMMONING
@@ -34,26 +50,10 @@ class TransportWorm(Enemy):
         self.last_summon_time: int = pygame.time.get_ticks()
 
         self.summon_level: int = 0
-        self.burning: bool = False   # Napalm disables summoning
+        self.burning: bool = False  # Napalm disables summoning
         self.about_to_summon: bool = False
         self.is_active = False
 
-    # -------------------------------------------------
-    # UPDATE
-    # -------------------------------------------------
-    def update(self, state) -> None:
-        super().update(state)
-        if not self.is_active:
-            return
-
-        self.update_hitbox()
-
-
-        self.update_hitbox()
-
-
-
-    # -------------------------------------------------
     # SUMMON LOGIC
     # -------------------------------------------------
     def summon_enemy(
@@ -105,13 +105,36 @@ class TransportWorm(Enemy):
         self.summon_level += 1
 
     # -------------------------------------------------
+    # UPDATE
+    # -------------------------------------------------
+    def update(self, state) -> None:
+        super().update(state)
+        if not self.is_active:
+            return
+
+
+        self.update_hitbox()
+
+
+        # 🔑 CALL TOUCH DAMAGE HANDLER
+        self.player_collide_damage(state.starship)
+
+
+
+
+
+
+    # -------------------------------------------------
     # DRAW
     # -------------------------------------------------
-    def draw(self, surface: pygame.Surface, camera) -> None:
-        super().draw(surface, camera)  # 🔑 REQUIRED
+    def draw(self, surface: pygame.Surface, camera):
+        if not self.is_active:
+            return
+
+        super().draw(surface, camera)
 
         sprite_rect = pygame.Rect(0, 344, 32, 32)
-        sprite = self.sprite_sheet.subsurface(sprite_rect)
+        sprite = self.bile_spitter_image.subsurface(sprite_rect)
 
         scale = camera.zoom
         scaled_sprite = pygame.transform.scale(
@@ -119,14 +142,13 @@ class TransportWorm(Enemy):
             (int(self.width * scale), int(self.height * scale))
         )
 
-        screen_x = camera.world_to_screen_x(self.x)
-        screen_y = camera.world_to_screen_y(self.y)
-        surface.blit(scaled_sprite, (screen_x, screen_y))
+        surface.blit(
+            scaled_sprite,
+            (
+                camera.world_to_screen_x(self.x),
+                camera.world_to_screen_y(self.y),
+            )
+        )
 
-        # Hitbox debug
-        hb_x = camera.world_to_screen_x(self.hitbox.x)
-        hb_y = camera.world_to_screen_y(self.hitbox.y)
-        hb_w = int(self.hitbox.width * scale)
-        hb_h = int(self.hitbox.height * scale)
-
-        pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
+    def clamp_vertical(self) -> None:
+        pass

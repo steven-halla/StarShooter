@@ -4,13 +4,13 @@
     "shipHealth": 150,
     "shipHealthMax": 150,
     "equipped_magic": [
-      "Wind Slicer",
+      "Napalm Spread",
       null
     ],
     "magic_inventory": [
-      "Wind Slicer"
+      "Napalm Spread"
     ],
-    "current_level": 3
+    "current_level": 4
   },
   "weapons": {
     "machine_gun": {

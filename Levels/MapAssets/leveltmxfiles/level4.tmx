@@ -706,7 +706,7 @@
   <object id="35" name="tri_spitter" x="193.738" y="1865.88" width="16" height="16"/>
   <object id="83" name="tri_spitter" x="193.738" y="1715.39" width="16" height="16"/>
   <object id="67" name="fire_launcher" x="346.538" y="2196.85" width="16" height="16"/>
-  <object id="75" name="fire_launcher" x="322.681" y="4478.57" width="16" height="16"/>
+  <object id="75" name="fire_launcher" x="188.711" y="4643.99" width="16" height="16"/>
   <object id="77" name="fire_launcher" x="74.1653" y="4454.93" width="16" height="16"/>
   <object id="68" name="fire_launcher" x="55.6542" y="2192.67" width="16" height="16"/>
   <object id="85" name="fire_launcher" x="288.698" y="3860.21" width="16" height="16"/>

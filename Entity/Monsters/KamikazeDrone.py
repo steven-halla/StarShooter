@@ -14,7 +14,7 @@ class KamikazeDrone(Enemy):
         # movement
         self.mover: MoveRectangle = MoveRectangle()
         self.move_direction: int = random.choice([-1, 1])
-        self.speed: float = 2.0
+        self.speed: float = 1.5
 
         self.edge_padding: int = 0
 
