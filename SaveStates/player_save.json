@@ -1,14 +1,16 @@
 {
   "version": 1,
   "player": {
-    "shipHealth": 144,
+    "shipHealth": 150,
     "shipHealthMax": 150,
     "equipped_magic": [
-      "",
+      "Metal Shield",
       null
     ],
-    "magic_inventory": [],
-    "current_level": 1
+    "magic_inventory": [
+      "Metal Shield"
+    ],
+    "current_level": 2
   },
   "weapons": {
     "machine_gun": {

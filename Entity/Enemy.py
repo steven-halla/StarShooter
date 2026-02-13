@@ -87,31 +87,24 @@ class Enemy:
                 self.is_flashing = False
 
     def player_collide_damage(self, player) -> None:
-        """
-        Apply touch damage to the player if colliding.
-        Player handles invincibility / cooldown.
-        """
-        print("I am called")
         if not self.is_active:
             return
 
-        # if self.hitbox.colliderect(player.hitbox):
-        #     player.shipHealth -= self.touch_damage
-        #     player.on_hit()
         if self.hitbox.colliderect(player.hitbox):
+
+            if player.invincible:
+                return
+
             damage = self.touch_damage
-            print("damaged")
+            old_health = player.shipHealth
 
-
-            # --- SHIELD FIRST ---
-            if hasattr(player, "shield") and player.shield is not None:
-                damage = player.shield.take_damage(damage)
-
-            # --- REMAINDER TO HULL ---
-            if damage > 0:
-                player.shipHealth -= damage
-
+            # Shield system handles shield → hull logic internally
+            player.shield_system.take_damage(damage)
             player.on_hit()
+
+            # Only trigger spark if hull was actually damaged
+            if player.shipHealth < old_health:
+                player.on_hit()
 
     # --------------------------------------------------
     # DAMAGE

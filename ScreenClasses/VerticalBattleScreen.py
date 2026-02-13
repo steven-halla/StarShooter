@@ -297,13 +297,7 @@ class VerticalBattleScreen:
             pygame.Rect(px, py, pw, ph),
             2
         )
-        # for enemy in state.enemies:
-        #     enemy.update()
-        #
-        #     if getattr(enemy, "has_barrage", False):
-        #         # ONLY BossLevelSix has these methods
-        #         enemy.draw_barrage(state.DISPLAY, self.camera)
-        #         enemy.apply_barrage_damage(self.starship)
+
 
     def bullet_helper(self, state):
         for bullet in list(self.player_bullets):
