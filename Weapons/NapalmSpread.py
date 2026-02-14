@@ -17,11 +17,11 @@ class NapalmSpread(Bullet):
         self.width: int = 11
         self.height: int = 11
 
-        self.damage: int = 75
+        self.damage: int = 50
         self.rate_of_fire: float = 3.5  # slightly slower fire rate
         self.bullet_speed: float = 3.5
 
-        self.napalm_timer: Timer = Timer(self.rate_of_fire)
+        self.napalm_timer: Timer = Timer(self.rate_of_fire - 1)
 
         self.vx: float = 0.0
         self.vy: float = -1.0
