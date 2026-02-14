@@ -21,8 +21,8 @@ class LevelFour(VerticalBattleScreen):
         self.map_height_tiles: int = self.tiled_map.height
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
-        # self.camera_y = self.WORLD_HEIGHT - window_height
-        self.camera_y = 100
+        self.camera_y = self.WORLD_HEIGHT - window_height
+        # self.camera_y = 100  # this put it at boss
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
         self.map_scroll_speed_per_frame: float = .4
