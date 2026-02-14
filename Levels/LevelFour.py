@@ -69,6 +69,14 @@ class LevelFour(VerticalBattleScreen):
         super().update(state)
         active_worms, creep_found_on_screen, now, screen_left, screen_top = self.update_worm_helper(state)
         self.update_creep_helper(active_worms, creep_found_on_screen, now, screen_left, screen_top, state)
+
+        if self.map_scroll_speed_per_frame == 0:
+            for worm in active_worms:
+                worm.update(state)
+                # Ensure worms that were newly added to touched_worms are tracked
+                if worm.is_active and worm not in self.touched_worms:
+                    self.touched_worms.append(worm)
+
         self.update_summon_enemies(active_worms, now, state)
         self.update_enemy_bullet_helper(state)
         self.update_enemy_helper(state)
@@ -116,7 +124,20 @@ class LevelFour(VerticalBattleScreen):
     def update_enemy_helper(self, state):
 
         for enemy in list(state.enemies):
-            enemy_type = getattr(enemy, "enemy_name", None)
+            # Transport worms are updated in the main update loop if map_scroll_speed_per_frame == 0
+            if isinstance(enemy, TransportWorm):
+                if self.map_scroll_speed_per_frame == 0:
+                    if hasattr(enemy, "update_hitbox"):
+                        enemy.update_hitbox()
+
+                    if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
+                        state.enemy_bullets.extend(enemy.enemyBullets)
+                        enemy.enemyBullets.clear()
+
+                    if enemy.enemyHealth <= 0:
+                        state.enemies.remove(enemy)
+                continue
+
             enemy.update(state)
 
             if hasattr(enemy, "update_hitbox"):
@@ -125,12 +146,6 @@ class LevelFour(VerticalBattleScreen):
             if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
                 state.enemy_bullets.extend(enemy.enemyBullets)
                 enemy.enemyBullets.clear()
-
-            if enemy_type == "transport_worm":
-                print(
-                    "[LEVEL 4] Touched worms:",
-                    [(w.enemyHealth, w.x, w.y) for w in self.touched_worms]
-                )
 
             if isinstance(enemy, Slaver):
                 if self.slaver_player_in_vicinity(enemy, state):
@@ -340,6 +355,9 @@ class LevelFour(VerticalBattleScreen):
             self.creep_last_spawn_time = now
 
     def update_summon_enemies(self, active_worms, now, state):
+        if self.map_scroll_speed_per_frame != 0:
+            return
+
         for worm in active_worms:
             if now - worm.last_summon_time >= worm.summon_interval_ms:
                 worm.summon_enemy(
@@ -376,6 +394,10 @@ class LevelFour(VerticalBattleScreen):
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
         for enemy in state.enemies:
+            if isinstance(enemy, TransportWorm):
+                if self.map_scroll_speed_per_frame == 0:
+                    enemy.draw(state.DISPLAY, self.camera)
+                continue
             enemy.draw(state.DISPLAY, self.camera)
 
     def load_enemy_into_list(self,state):
