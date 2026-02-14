@@ -21,7 +21,8 @@ class LevelFour(VerticalBattleScreen):
         self.map_height_tiles: int = self.tiled_map.height
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
         window_width, window_height = GlobalConstants.WINDOWS_SIZE
-        self.camera_y = self.WORLD_HEIGHT - window_height
+        # self.camera_y = self.WORLD_HEIGHT - window_height
+        self.camera_y = 100
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
         self.map_scroll_speed_per_frame: float = .4
@@ -322,12 +323,12 @@ class LevelFour(VerticalBattleScreen):
         # --------------------------------------------------
         # DEBUG PRINT (YOU ASKED FOR THIS)
         # --------------------------------------------------
-        print(
-            "player_visible:", player_visible,
-            "worm_visible:", worm_visible,
-            "creep_found_on_screen:", creep_found_on_screen,
-            "creep_near_bottom:", creep_near_bottom
-        )
+        # print(
+        #     "player_visible:", player_visible,
+        #     "worm_visible:", worm_visible,
+        #     "creep_found_on_screen:", creep_found_on_screen,
+        #     "creep_near_bottom:", creep_near_bottom
+        # )
 
         # --------------------------------------------------
         # SCROLL CONTROL (CREEP DECIDES)

@@ -670,13 +670,12 @@
 </data>
  </layer>
  <objectgroup id="3" name="player">
-  <object id="9" name="player" x="142.097" y="5262.99" width="16" height="16"/>
+  <object id="9" name="player" x="267.466" y="403.044" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="4" name="enemies">
   <object id="28" name="transport_worm" x="295.732" y="2974.03" width="32" height="32"/>
   <object id="29" name="transport_worm" x="174.135" y="2946.96" width="32" height="32"/>
   <object id="31" name="transport_worm" x="290.731" y="4974.3" width="32" height="32"/>
-  <object id="128" name="transport_worm" x="149.512" y="4985.49" width="32" height="32"/>
   <object id="24" name="transport_worm" x="27.3929" y="1474.15" width="32" height="32"/>
   <object id="25" name="transport_worm" x="193.695" y="1476.98" width="32" height="32"/>
   <object id="26" name="transport_worm" x="261.622" y="1481.8" width="32" height="32"/>
