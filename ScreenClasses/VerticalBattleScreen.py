@@ -300,7 +300,9 @@ class VerticalBattleScreen:
 
 
     def bullet_helper(self, state):
+
         for bullet in list(self.player_bullets):
+
 
             # -------------------------
             # METAL SHIELD (uses rect, not hitbox)
@@ -337,7 +339,17 @@ class VerticalBattleScreen:
                 if not bullet_rect.colliderect(enemy.hitbox):
                     continue
 
-                enemy.enemyHealth -= getattr(bullet, "damage", 0)
+                # 🔥 Napalm damage tick handling
+                if bullet.weapon_name == "Napalm Spread" and getattr(bullet, "has_exploded", False):
+
+                    if bullet.damage_timer.is_ready():
+                        enemy.enemyHealth -= bullet.damage
+                        bullet.damage_timer.reset()
+
+                else:
+                    enemy.enemyHealth -= getattr(bullet, "damage", 0)
+
+                # enemy.enemyHealth -= getattr(bullet, "damage", 0)
 
                 if hasattr(bullet, "trigger_explosion"):
                     bullet.trigger_explosion()
