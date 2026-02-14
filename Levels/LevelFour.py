@@ -135,10 +135,10 @@ class LevelFour(VerticalBattleScreen):
             if isinstance(enemy, Slaver):
                 if self.slaver_player_in_vicinity(enemy, state):
                     enemy.attack_player = True
-                    print("SLAVER ATTACKING PLAYER")
+                    # print("SLAVER ATTACKING PLAYER")
                 else:
                     enemy.attack_player = False
-                    print("SLAVER NOT ATTACKING PLAYER")
+                    # print("SLAVER NOT ATTACKING PLAYER")
 
 
     def update_worm_helper(self, state):
@@ -177,14 +177,14 @@ class LevelFour(VerticalBattleScreen):
         # FIXED SCROLL CONTROL LOGIC
         # ===============================
 
-        if player_visible and active_worms:
-            print(">>> PLAYER AND WORM ON SCREEN <<<")
-            self.map_scroll_speed_per_frame = 0.0
-            self.camera.scroll_speed_per_frame = 0.0
-        else:
-            # restore scrolling when no worms visible
-            self.map_scroll_speed_per_frame = 0.4
-            self.camera.scroll_speed_per_frame = 0.4
+        # if player_visible and active_worms:
+        #     print(">>> PLAYER AND WORM ON SCREEN <<<")
+        #     self.map_scroll_speed_per_frame = 0.0
+        #     self.camera.scroll_speed_per_frame = 0.0
+        # else:
+        #     # restore scrolling when no worms visible
+        #     self.map_scroll_speed_per_frame = 0.4
+        #     self.camera.scroll_speed_per_frame = 0.4
 
         # ===============================
 
@@ -228,7 +228,102 @@ class LevelFour(VerticalBattleScreen):
 
         return active_worms, creep_found_on_screen, now, screen_left, screen_top
 
-    def update_creep_helper(self, active_worms, creep_found_on_screen, now, screen_left, screen_top, state):
+    def update_creep_helper(
+            self,
+            active_worms,
+            creep_found_on_screen,
+            now,
+            screen_left,
+            screen_top,
+            state
+    ):
+
+        # --------------------------------------------------
+        # VISIBILITY CHECKS
+        # --------------------------------------------------
+        player_screen_y = self.camera.world_to_screen_y(self.starship.y)
+        player_screen_bottom = player_screen_y + self.starship.height
+
+        player_visible = (
+                player_screen_bottom >= 0 and
+                player_screen_y <= self.camera.window_height
+        )
+
+        worm_visible = len(active_worms) > 0
+
+        # --------------------------------------------------
+        # CREEP DETECTION (RECALCULATED HERE)
+        # --------------------------------------------------
+        creep_found_on_screen = False
+        creep_near_bottom = False
+
+        try:
+            creep_layer = self.tiled_map.get_layer_by_name("creep")
+        except ValueError:
+            creep_layer = None
+
+        if creep_layer is not None:
+
+            tile_w = self.tiled_map.tilewidth
+            tile_h = self.tiled_map.tileheight
+
+            screen_right = screen_left + (self.camera.window_width / self.camera.zoom)
+            screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
+
+            start_x = int(screen_left // tile_w)
+            end_x = int(screen_right // tile_w)
+            start_y = int(screen_top // tile_h)
+            end_y = int(screen_bottom // tile_h)
+
+            for ty in range(start_y, end_y + 1):
+                if ty < 0 or ty >= len(creep_layer.data):
+                    continue
+
+                for tx in range(start_x, end_x + 1):
+                    if tx < 0 or tx >= len(creep_layer.data[ty]):
+                        continue
+
+                    if creep_layer.data[ty][tx] != 0:
+
+                        creep_found_on_screen = True
+
+                        # Convert tile Y to world Y
+                        creep_world_y = ty * tile_h
+                        creep_screen_y = self.camera.world_to_screen_y(creep_world_y)
+
+                        # Check if creep is within 100px of bottom
+                        if creep_screen_y >= self.camera.window_height - 400:
+                            creep_near_bottom = True
+
+                        break
+
+                if creep_found_on_screen:
+                    break
+
+        # --------------------------------------------------
+        # DEBUG PRINT (YOU ASKED FOR THIS)
+        # --------------------------------------------------
+        print(
+            "player_visible:", player_visible,
+            "worm_visible:", worm_visible,
+            "creep_found_on_screen:", creep_found_on_screen,
+            "creep_near_bottom:", creep_near_bottom
+        )
+
+        # --------------------------------------------------
+        # SCROLL CONTROL (CREEP DECIDES)
+        # --------------------------------------------------
+        if player_visible and worm_visible and creep_found_on_screen and creep_near_bottom:
+            print(">>> CREEP PAUSE TRIGGERED <<<")
+            self.map_scroll_speed_per_frame = 0.0
+            self.camera.scroll_speed_per_frame = 0.0
+        else:
+            self.map_scroll_speed_per_frame = 0.4
+            self.camera.scroll_speed_per_frame = 0.4
+
+        # --------------------------------------------------
+        # SPAWN SLAVER IF NEEDED
+        # --------------------------------------------------
         if creep_found_on_screen and now - self.creep_last_spawn_time >= 5500:
             slaver = Slaver()
             slaver.x = screen_left
@@ -238,8 +333,9 @@ class LevelFour(VerticalBattleScreen):
             slaver.camera = self.camera
             slaver.target_player = self.starship
             slaver.touched_worms = self.touched_worms
-            slaver.transport_worms = active_worms  # Set the transport_worms list
+            slaver.transport_worms = active_worms
             slaver.update_hitbox()
+
             state.enemies.append(slaver)
             self.creep_last_spawn_time = now
 

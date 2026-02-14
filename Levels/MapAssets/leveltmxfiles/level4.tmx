@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="330" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="127">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="330" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="128">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="background" width="25" height="330">
   <data encoding="csv">
@@ -676,6 +676,7 @@
   <object id="28" name="transport_worm" x="295.732" y="2974.03" width="32" height="32"/>
   <object id="29" name="transport_worm" x="174.135" y="2946.96" width="32" height="32"/>
   <object id="31" name="transport_worm" x="290.731" y="4974.3" width="32" height="32"/>
+  <object id="127" name="transport_worm" x="152.308" y="4985.49" width="32" height="32"/>
   <object id="24" name="transport_worm" x="27.3929" y="1474.15" width="32" height="32"/>
   <object id="25" name="transport_worm" x="193.695" y="1476.98" width="32" height="32"/>
   <object id="26" name="transport_worm" x="261.622" y="1481.8" width="32" height="32"/>
@@ -1056,7 +1057,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,61,61,61,61,61,61,61,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,61,61,61,61,61,61,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,61,61,61,0,61,61,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,61,61,61,61,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,61,61,61,61,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,61,61,61,61,0,0,0,0,
