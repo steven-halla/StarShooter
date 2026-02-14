@@ -77,6 +77,10 @@ class LevelFour(VerticalBattleScreen):
                 if worm.is_active and worm not in self.touched_worms:
                     self.touched_worms.append(worm)
 
+            for enemy in state.enemies:
+                if isinstance(enemy, Slaver):
+                    enemy.update(state)
+
         self.update_summon_enemies(active_worms, now, state)
         self.update_enemy_bullet_helper(state)
         self.update_enemy_helper(state)
@@ -125,7 +129,7 @@ class LevelFour(VerticalBattleScreen):
 
         for enemy in list(state.enemies):
             # Transport worms are updated in the main update loop if map_scroll_speed_per_frame == 0
-            if isinstance(enemy, TransportWorm):
+            if isinstance(enemy, TransportWorm) or isinstance(enemy, Slaver):
                 if self.map_scroll_speed_per_frame == 0:
                     if hasattr(enemy, "update_hitbox"):
                         enemy.update_hitbox()
@@ -339,7 +343,7 @@ class LevelFour(VerticalBattleScreen):
         # --------------------------------------------------
         # SPAWN SLAVER IF NEEDED
         # --------------------------------------------------
-        if creep_found_on_screen and now - self.creep_last_spawn_time >= 5500:
+        if self.map_scroll_speed_per_frame == 0 and creep_found_on_screen and now - self.creep_last_spawn_time >= 5500:
             slaver = Slaver()
             slaver.x = screen_left
             slaver.y = screen_top
@@ -395,6 +399,10 @@ class LevelFour(VerticalBattleScreen):
             self.starship.draw(state.DISPLAY, self.camera)
         for enemy in state.enemies:
             if isinstance(enemy, TransportWorm):
+                if self.map_scroll_speed_per_frame == 0:
+                    enemy.draw(state.DISPLAY, self.camera)
+                continue
+            if isinstance(enemy, Slaver):
                 if self.map_scroll_speed_per_frame == 0:
                     enemy.draw(state.DISPLAY, self.camera)
                 continue
