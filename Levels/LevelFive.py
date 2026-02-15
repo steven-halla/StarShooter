@@ -26,8 +26,9 @@ class LevelFive(VerticalBattleScreen):
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400 # y position of map
         window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
         self.camera_y = self.WORLD_HEIGHT - window_height # look at bottom of map
+        self.camera_y = 100
         self.camera.world_height = self.WORLD_HEIGHT
-        self.camera.y = float(self.camera_y)
+        # self.camera.y = float(self.camera_y)
         self.rescue_pods = []
         self.rescue_pod_destroyed = 0
         self.flame_image = pygame.image.load(
