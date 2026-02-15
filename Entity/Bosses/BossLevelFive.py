@@ -70,38 +70,7 @@ class BossLevelFive(Enemy):
     # =====================================================
 
 
-    # =====================================================
-    # barrage FIRE — SHOOTS AT PLAYER LAST POSITION
-    # =====================================================
-    def shoot_barrage(self) -> None:
-        bullet_count = 15
 
-        base_y = self.y + self.height
-
-        # ⬅️➡️ extend 10px beyond boss width
-        left_x = self.x - 40
-        right_x = self.x + self.width + 40
-
-        spacing = (right_x - left_x) / (bullet_count - 1)
-
-        for i in range(bullet_count):
-            bx = left_x + i * spacing
-
-            # stagger Y so bullets don't align
-            by = base_y + random.randint(-60, 60)
-
-            bullet = Bullet(bx, by)
-            bullet.dx = 0  # straight down
-            bullet.speed = self.weapon_speed
-            bullet.width = self.bulletWidth
-            bullet.height = self.bulletHeight
-            bullet.color = self.bulletColor
-            bullet.damage = 10
-
-            bullet.rect.width = bullet.width
-            bullet.rect.height = bullet.height
-
-            self.enemyBullets.append(bullet)
 
     # =====================================================
     # UPDATE
@@ -125,7 +94,18 @@ class BossLevelFive(Enemy):
 
         # TRIPLE FIRE
         if now - self.last_triple_shot_time >= self.triple_fire_interval_ms:
-            self.shoot_barrage()
+            self.splatter_cannon(
+                bullet_speed=2.3,
+                bullet_width=21,
+                bullet_height=21,
+                bullet_color=self.bulletColor,
+                bullet_damage=40,
+                low_rand_range=-0.55,
+                high_rand_range=0.66,
+                bullet_count=10,
+                state=state
+            )
+
             self.last_triple_shot_time = now
 
         for bullet in self.enemyBullets:
