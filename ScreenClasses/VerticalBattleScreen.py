@@ -1074,7 +1074,9 @@ class VerticalBattleScreen:
             if player_rect.colliderect(tile_rect):
                 if not self.starship.invincible:
                     old_health = self.starship.shipHealth
-                    self.starship.shield_system.take_damage(1)
+                    self.starship.shield_system.take_damage(10)
+                    self.starship.on_hit()
+
                     if self.starship.shipHealth < old_health:
                         self.starship.on_hit()
                     print("⚠️ Player took hazard damage! Health =", self.starship.shipHealth)
