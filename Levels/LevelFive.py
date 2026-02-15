@@ -4,10 +4,12 @@ from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelFive import BossLevelFive
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
+from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.Ravager import Ravager
 from Entity.Monsters.RescuePod import RescuePod
 from Entity.Monsters.SpinalRaptor import SpinalRaptor
 from Entity.Monsters.SpineLauncher import SpineLauncher
+from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from SaveStates.SaveState import SaveState
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
@@ -53,6 +55,9 @@ class LevelFive(VerticalBattleScreen):
                 player_x = obj.x
                 player_y = obj.y
                 break
+        if "Buster Cannon" not in state.starship.magic_inventory:
+            state.starship.magic_inventory.append("Buster Cannon")
+        state.starship.equipped_magic = ["Buster Cannon", None]
 
         self.starship = state.starship
         self.starship.x = player_x
@@ -247,11 +252,9 @@ class LevelFive(VerticalBattleScreen):
                 enemy = SpinalRaptor()
                 enemy.rescue_pod_group = self.rescue_pods
 
-            elif obj.name == "wasp_stinger":
-                enemy = WaspStinger()
 
-            elif obj.name == "ravager":
-                enemy = Ravager()
+            elif obj.name == "kamikaze_drone":
+                enemy = KamikazeDrone()
 
             elif obj.name == "bile_spitter":
                 enemy = BileSpitter()
@@ -259,8 +262,8 @@ class LevelFive(VerticalBattleScreen):
             elif obj.name == "acid_launcher":
                 enemy = AcidLauncher()
 
-            elif obj.name == "spine_launcher":
-                enemy = SpineLauncher()
+            elif obj.name == "tri_spitter":
+                enemy = TriSpitter()
 
             if enemy is None:
                 continue
