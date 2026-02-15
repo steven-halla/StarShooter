@@ -636,7 +636,7 @@ class Enemy:
         # ---------------------------------
         speed = self.moveSpeed
         if self._pounce_active:
-            speed = self.moveSpeed * 4
+            speed = self.moveSpeed * 3
 
         # ---------------------------------
         # MOVE

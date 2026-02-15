@@ -5,6 +5,7 @@ from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Entity.Enemy import Enemy
 from Movement.MoveRectangle import MoveRectangle
+from Entity.Monsters.RescuePod import RescuePod
 
 
 class SpinalRaptor(Enemy):
@@ -14,7 +15,7 @@ class SpinalRaptor(Enemy):
         # movement
         self.mover: MoveRectangle = MoveRectangle()
         self.move_direction: int = random.choice([-1, 1])
-        self.moveSpeed: float = 2.2
+        self.moveSpeed: float = 1.0
         self.edge_padding: int = 0
 
         # identity / visuals
@@ -36,7 +37,7 @@ class SpinalRaptor(Enemy):
 
         # ranged attack
         self.bulletColor = GlobalConstants.SKYBLUE
-        self.attack_timer = Timer(3.0)
+        self.attack_timer = Timer(5.0)
 
         # touch damage
         self.touch_damage: int = 10
@@ -53,34 +54,30 @@ class SpinalRaptor(Enemy):
 
         self.update_hitbox()
 
-        if state.starship.current_level != 3:
-            if self.is_active and self.attack_timer.is_ready():
-                self.shoot_single_bullet_aimed_at_player(
-                    bullet_speed=3.5,
-                    bullet_width=20,
-                    bullet_height=20,
-                    bullet_color=self.bulletColor,
-                    bullet_damage=40,
-                    state=state
-                )
-                self.attack_timer.reset()
 
-        else:
-            if self.is_active and self.attack_timer.is_ready():
-                self.shoot_single_bullet_aimed_at_player(
-                    bullet_speed=2.5,
-                    bullet_width=20,
-                    bullet_height=20,
-                    bullet_color=self.bulletColor,
-                    bullet_damage=40,
-                    state=state
-                )
-                self.attack_timer.reset()
+        if self.is_active and self.attack_timer.is_ready():
+            self.shoot_single_bullet_aimed_at_player(
+                bullet_speed=2.5,
+                bullet_width=20,
+                bullet_height=20,
+                bullet_color=self.bulletColor,
+                bullet_damage=40,
+                state=state
+            )
+            self.attack_timer.reset()
 
         # 🔑 CALL TOUCH DAMAGE HANDLER
         self.player_collide_damage(state.starship)
+
+        # Reset attack timer if player is close (pounce distance)
+        dx = state.starship.x - self.x
+        dy = state.starship.y - self.y
+        dist = (dx * dx + dy * dy) ** 0.5
+        if dist <= 100:
+            self.attack_timer.reset()
+
         self.moveAI(state)
-        self.pounce()
+        # self.pounce() # moveAI now handles movement
 
 
     # -------------------------------------------------
@@ -91,54 +88,59 @@ class SpinalRaptor(Enemy):
     # MOVEMENT
     # -------------------------------------------------
     def moveAI(self, state) -> None:
-        window_width = GlobalConstants.BASE_WINDOW_WIDTH
+        # 1) Look for a RescuePod that is on screen
+        target_pod = None
 
-        # 1) IF RESCUE POD AND PLAYER ON SCREEN -> HUNT NPC
-        from Entity.Monsters.RescuePod import RescuePod
+        # Check state.enemies
+        for enemy in state.enemies:
+            if isinstance(enemy, RescuePod):
+                if self.mover.enemy_on_screen(enemy, self.camera):
+                    target_pod = enemy
+                    break
 
-        # Check if player is on screen
-        player_on_screen = self.mover.enemy_on_screen(state.starship, self.camera)
+        # Also check self.rescue_pod_group if it exists
+        if not target_pod and hasattr(self, "rescue_pod_group") and self.rescue_pod_group:
+            for pod in self.rescue_pod_group:
+                if self.mover.enemy_on_screen(pod, self.camera):
+                    target_pod = pod
+                    break
 
-        if player_on_screen:
-            # Look for a RescuePod that is also on screen
-            target_pod = None
-
-            # Check state.enemies
-            for enemy in state.enemies:
-                if isinstance(enemy, RescuePod):
-                    if self.mover.enemy_on_screen(enemy, self.camera):
-                        target_pod = enemy
-                        break
-
-            # Also check self.rescue_pod_group if it exists (some levels keep them separate)
-            if not target_pod and hasattr(self, "rescue_pod_group") and self.rescue_pod_group:
-                for pod in self.rescue_pod_group:
-                    if self.mover.enemy_on_screen(pod, self.camera):
-                        target_pod = pod
-                        break
-
-            if target_pod:
-                self.Hunt_NPC(target_pod, state)
-                return
-
-        # 2) DEFAULT MOVEMENT (Horizontal Pacing)
-        if not hasattr(self, "_last_x"):
-            self._last_x = self.x
-
-        if self.move_direction > 0:
-            self.mover.enemy_move_right(self)
+        if target_pod:
+            self.Hunt_NPC(target_pod, state)
         else:
-            self.mover.enemy_move_left(self)
+            # 2) If no pod, move towards player
+            dx = state.starship.x - self.x
+            dy = state.starship.y - self.y
+            dist = (dx * dx + dy * dy) ** 0.5
+            if dist > 0:
+                # Check for pounce speed boost
+                now = pygame.time.get_ticks()
+                if not hasattr(self, "_pounce_active"):
+                    self._pounce_active = False
+                    self._pounce_start_time = 0
+                    self._pounce_cooldown_until = 0
 
-        if self.x < self.edge_padding:
-            self.x = self.edge_padding
-        elif self.x + self.width > window_width - self.edge_padding:
-            self.x = window_width - self.edge_padding - self.width
+                # ENTER POUNCE
+                if (
+                    not self._pounce_active
+                    and dist <= 100
+                    and now >= self._pounce_cooldown_until
+                ):
+                    self._pounce_active = True
+                    self._pounce_start_time = now
 
-        if self.x == self._last_x:
-            self.move_direction *= -1
+                # EXIT POUNCE AFTER 1s
+                if self._pounce_active and now - self._pounce_start_time >= 1000:
+                    self._pounce_active = False
+                    self._pounce_cooldown_until = now + 5000  # 5s cooldown
 
-        self._last_x = self.x
+                speed = self.moveSpeed
+                if self._pounce_active:
+                    speed = self.moveSpeed * 3
+
+                self.x += (dx / dist) * speed
+                self.y += (dy / dist) * speed
+                self.update_hitbox()
 
     # -------------------------------------------------
     # DRAW
