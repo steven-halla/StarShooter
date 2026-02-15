@@ -51,6 +51,7 @@ class BossLevelFive(Enemy):
         # STATS
         # -------------------------
         self.enemyHealth = 400
+        self.maxHealth = 400
         self.exp = 5
         self.credits = 50
 
@@ -95,13 +96,13 @@ class BossLevelFive(Enemy):
         # TRIPLE FIRE
         if now - self.last_triple_shot_time >= self.triple_fire_interval_ms:
             self.splatter_cannon(
-                bullet_speed=2.3,
+                bullet_speed=1.3,
                 bullet_width=21,
                 bullet_height=21,
                 bullet_color=self.bulletColor,
                 bullet_damage=40,
-                low_rand_range=-0.55,
-                high_rand_range=0.66,
+                low_rand_range=-0.40,
+                high_rand_range=0.80,
                 bullet_count=10,
                 state=state
             )
