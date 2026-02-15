@@ -1,6 +1,5 @@
-import pygame
 import random
-import math
+import pygame
 
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
@@ -8,347 +7,162 @@ from Entity.Enemy import Enemy
 from Movement.MoveRectangle import MoveRectangle
 
 
-class RectangleAttack:
-    def __init__(self, start_x, start_y, target_x, target_y, width=20, height=10, speed=5.0, damage=15):
-        # Position
-        self.x = start_x
-        self.y = start_y
-        self.start_x = start_x
-        self.start_y = start_y
-
-        # Size
-        self.width = width
-        self.height = height
-
-        # Damage
-        self.damage = damage
-
-        # Direction
-        dx = target_x - start_x
-        dy = target_y - start_y
-        dist = max(1, math.hypot(dx, dy))
-        self.dx = (dx / dist) * speed
-        self.dy = (dy / dist) * speed
-
-        # Hitbox
-        self.hitbox = pygame.Rect(self.x, self.y, self.width, self.height)
-
-        # State
-        self.is_active = True
-
-    def update(self):
-        if not self.is_active:
-            return
-
-        self.x += self.dx
-        self.y += self.dy
-
-        # Update hitbox
-        self.hitbox.x = self.x
-        self.hitbox.y = self.y
-
-    def draw(self, surface, camera):
-        if not self.is_active:
-            return
-
-        screen_x = camera.world_to_screen_x(self.x)
-        screen_y = camera.world_to_screen_y(self.y)
-
-        rect_width = int(self.width * camera.zoom)
-        rect_height = int(self.height * camera.zoom)
-
-        pygame.draw.rect(surface, (255, 0, 0), (screen_x, screen_y, rect_width, rect_height))
-
-
 class SpinalRaptor(Enemy):
     def __init__(self) -> None:
         super().__init__()
 
-        # movement helper
+        # movement
         self.mover: MoveRectangle = MoveRectangle()
-        self.camera = None
+        self.move_direction: int = random.choice([-1, 1])
+        self.moveSpeed: float = 2.2
+        self.edge_padding: int = 0
 
-        # appearance
-        self.width: int = 16
-        self.height: int = 16
-        self.color: tuple[int, int, int] = GlobalConstants.RED
+        # identity / visuals
+        self.name: str = "SpinalRaptor"
+        self.width: int = 40
+        self.height: int = 40
+        self.color = GlobalConstants.RED
 
-        # movement stats
-        self.speed: float = .9
+        self.bile_spitter_image = pygame.image.load(
+            "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
+        ).convert_alpha()
+        self.enemy_image = self.bile_spitter_image
 
-        # gameplay stats
-        self.enemyHealth: int = 10
+        # stats
+        self.enemyHealth: float = 25.0
+        self.maxHealth: float = 25.0
         self.exp: int = 1
         self.credits: int = 5
 
-        # kamikaze-specific
-        self.target_player = None     # will be assigned externally
-        self.rescue_pod_group = None  # will be assigned externally
-        self.is_exploding = False     # state toggle for explosion
-        self.explosion_damage: int = 20  # huge damage on hit
+        # ranged attack
+        self.bulletColor = GlobalConstants.SKYBLUE
+        self.attack_timer = Timer(3.0)
 
-        self.kamikaze_drone_image = pygame.image.load(
-            "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
-        ).convert_alpha()
-        self.enemy_image = self.kamikaze_drone_image  # 🔑 REQUIRED
+        # touch damage
+        self.touch_damage: int = 10
+        self.touch_timer = Timer(0.75)
 
-        self.is_on_screen = False
-
-        # Pounce and freeze mechanics
-        self.has_pounced = False
-        self.post_pounce_timer = Timer(3)  # 3-second timer after pouncing
-        self.freeze_timer = Timer(3)       # 3-second freeze duration
-        self.is_frozen = False             # Flag to indicate if raptor is frozen
-
-        # Player damage tracking
-        self.has_damaged_player = False    # Flag to track if raptor has damaged player
-
-        # Rectangle attack mechanics
-        self.rectangle_attacks = []
-        self.rectangle_attack_timer = Timer(10)  # 10-second cooldown between attacks
-        self.rectangle_attack_distance = 150  # Distance in feet to trigger attack
-
-    def shoot_rectangle(self):
-        """Shoot a rectangle attack at the target (rescue pod or player)"""
-        # Get the center positions
-        start_x = self.x + self.width / 2
-        start_y = self.y + self.height / 2
-
-        # Default target coordinates
-        target_x = None
-        target_y = None
-        target_width = 0
-        target_height = 0
-
-        # PRIORITY: rescue pods
-        if self.rescue_pod_group:
-            for pod in self.rescue_pod_group:
-                if self.mover.enemy_on_screen(pod, self.camera):
-                    target_x = pod.x
-                    target_y = pod.y
-                    target_width = pod.width
-                    target_height = pod.height
-                    break
-
-        # FALLBACK: player
-        if target_x is None and self.target_player:
-            target_x = self.target_player.x
-            target_y = self.target_player.y
-            target_width = self.target_player.width
-            target_height = self.target_player.height
-
-        # NO TARGET → DO NOTHING
-        if target_x is None:
-            return
-
-        # Adjust to center of target
-        target_x += target_width / 2
-        target_y += target_height / 2
-
-        # Create the rectangle attack
-        rect_attack = RectangleAttack(
-            start_x=start_x,
-            start_y=start_y,
-            target_x=target_x,
-            target_y=target_y
-        )
-
-        # Add to the list of active rectangle attacks
-        self.rectangle_attacks.append(rect_attack)
-
-        # Reset the timer
-        self.rectangle_attack_timer.reset()
-
-        # print("SpinalRaptor shot a rectangle attack!")
-
-    def update(self, state):
+    # -------------------------------------------------
+    # UPDATE
+    # -------------------------------------------------
+    def update(self, state) -> None:
         super().update(state)
+        if not self.is_active:
+            return
+
 
         self.update_hitbox()
 
-        # check if visible first
-        self.is_on_screen = self.mover.enemy_on_screen(self, self.camera)
+        if state.starship.current_level != 3:
+            if self.is_active and self.attack_timer.is_ready():
+                self.shoot_single_bullet_aimed_at_player(
+                    bullet_speed=3.5,
+                    bullet_width=20,
+                    bullet_height=20,
+                    bullet_color=self.bulletColor,
+                    bullet_damage=40,
+                    state=state
+                )
+                self.attack_timer.reset()
 
-        # do NOT track if drone is not yet visible
-        if not self.is_on_screen:
-            return
+        else:
+            if self.is_active and self.attack_timer.is_ready():
+                self.shoot_single_bullet_aimed_at_player(
+                    bullet_speed=2.5,
+                    bullet_width=20,
+                    bullet_height=20,
+                    bullet_color=self.bulletColor,
+                    bullet_damage=40,
+                    state=state
+                )
+                self.attack_timer.reset()
 
-        target_x = None
-        target_y = None
-
-        # PRIORITY: rescue pods
-        if self.rescue_pod_group:
-            for pod in self.rescue_pod_group:
-                if self.mover.enemy_on_screen(pod, self.camera):
-                    target_x = pod.x
-                    target_y = pod.y
-                    break
-
-        # FALLBACK: player
-        if target_x is None and self.target_player:
-            target_x = self.target_player.x
-            target_y = self.target_player.y
-
-        # NO TARGET → DO NOTHING
-        if target_x is None:
-            return
-
-        # Calculate direction vector toward target (either rescue pod or player)
-        dx = target_x - self.x
-        dy = target_y - self.y
-        dist = max(1, (dx * dx + dy * dy) ** 0.5)
-
-        # Check if target is within rectangle attack range and timer is ready
-        if dist <= self.rectangle_attack_distance and self.rectangle_attack_timer.is_ready():
-            self.shoot_rectangle()
-
-        # Move toward target
-        self.x += (dx / dist) * self.speed
-        self.y += (dy / dist) * self.speed
-
-        self.update_hitbox()
-
-        # Update all active rectangle attacks
-        for attack in list(self.rectangle_attacks):
-            attack.update()
-
-            # Check if the attack hit the target
-            if attack.is_active:
-                # Check for collision with player
-                if self.target_player and attack.hitbox.colliderect(self.target_player.hitbox):
-                    # Apply damage to player
-                    if hasattr(self.target_player, "take_damage"):
-                        self.target_player.take_damage(attack.damage)
-                    # Deactivate the attack
-                    attack.is_active = False
-
-                # Check for collision with rescue pods
-                elif self.rescue_pod_group:
-                    for pod in self.rescue_pod_group:
-                        if attack.hitbox.colliderect(pod.hitbox):
-                            # Apply damage to rescue pod
-                            if hasattr(pod, "take_damage"):
-                                pod.take_damage(attack.damage)
-                            # Deactivate the attack
-                            attack.is_active = False
-                            break
-
-            # Remove inactive attacks
-            if not attack.is_active:
-                self.rectangle_attacks.remove(attack)
-        #
-        # # Check for collision with player
-        # if self.target_player and not self.has_damaged_player:
-        #     player_rect = self.target_player.hitbox
-        #     if self.hitbox.colliderect(player_rect):
-        #         # Raptor has collided with player, set flag and freeze
-        #         self.has_damaged_player = True
-        #         self.is_frozen = True
-        #         self.freeze_timer.reset()
-        #         # print("raptor hit player, freezing for 3 seconds")
-        #         return  # Don't move after hitting player
-        #
-        # # Handle freeze state
-        # if self.is_frozen:
-        #     # Check if freeze period is over
-        #     if self.freeze_timer.is_ready():
-        #         self.is_frozen = False
-        #         self.has_pounced = False  # Reset pounce flag to allow pouncing again
-        #         self.has_damaged_player = False  # Reset damage flag to allow freezing again
-        #         # print("raptor unfrozen, can pounce again")
-        #     return  # Don't move while frozen
-        #
-        # # Handle post-pounce timer
-        # if self.has_pounced and not self.is_frozen:
-        #     if self.post_pounce_timer.is_ready():
-        #         # After 3 seconds, freeze the raptor
-        #         self.is_frozen = True
-        #         self.freeze_timer.reset()
-        #         # print("raptor frozen")
-        #         return  # Don't move when just frozen
-        #
-        # # Check if there are any rescue pods on screen to target
-        # target_x = self.target_player.x
-        # target_y = self.target_player.y
-        #
-        # # Default to targeting player
-        # target_rescue_pod = False
-        #
-        # # If we have access to rescue pods, check if any are on screen
-        # if self.rescue_pod_group is not None and len(self.rescue_pod_group) > 0:
-        #     for pod in self.rescue_pod_group:
-        #         # Check if pod is on screen
-        #         if self.mover.enemy_on_screen(pod, self.camera):
-        #             # Found a rescue pod on screen, target it instead of player
-        #             target_x = pod.x
-        #             target_y = pod.y
-        #             target_rescue_pod = True
-        #             break
-        #
-        # # If no rescue pods on screen, target player (already set as default)
-        #
-        # # Calculate direction vector toward target (either rescue pod or player)
-        # dx = target_x - self.x
-        # dy = target_y - self.y
-        # dist = max(1, (dx * dx + dy * dy) ** 0.5)
-        #
-        # # Check if player is within rectangle attack range (150 feet) and timer is ready
-        # if dist <= self.rectangle_attack_distance and self.rectangle_attack_timer.is_ready() and not target_rescue_pod:
-        #     self.shoot_rectangle()
-        #
-        # # Implement pounce move: triple speed when 100 pixels from target
-        # current_speed = self.speed
-        # if dist <= 100 and not self.has_pounced:
-        #     # print("raptor nomming time")
-        #     # Pounce! Triple the speed when close to target
-        #     current_speed = self.speed * 3
-        #     # Set pounce flag and start the post-pounce timer
-        #     self.has_pounced = True
-        #     self.post_pounce_timer.reset()
-        #     # print("raptor pounced, timer started")
-        # elif self.has_pounced and not self.is_frozen:
-        #     # Continue using triple speed during the post-pounce period
-        #     current_speed = self.speed * 3
-        #     # print("raptor still in pounce mode")
-        #
-        # self.x += (dx / dist) * current_speed
-        # self.y += (dy / dist) * current_speed
-        #
-        # self.update_hitbox()
+        # 🔑 CALL TOUCH DAMAGE HANDLER
+        self.player_collide_damage(state.starship)
+        self.moveAI(state)
 
 
+    # -------------------------------------------------
+    # TOUCH DAMAGE (STANDALONE FUNCTION)
+    # -------------------------------------------------
 
+    # -------------------------------------------------
+    # MOVEMENT
+    # -------------------------------------------------
+    def moveAI(self, state) -> None:
+        window_width = GlobalConstants.BASE_WINDOW_WIDTH
 
+        # 1) IF RESCUE POD AND PLAYER ON SCREEN -> HUNT NPC
+        from Entity.Monsters.RescuePod import RescuePod
+        
+        # Check if player is on screen
+        player_on_screen = self.mover.enemy_on_screen(state.starship, self.camera)
+        
+        if player_on_screen:
+            # Look for a RescuePod that is also on screen
+            target_pod = None
+            
+            # Check state.enemies
+            for enemy in state.enemies:
+                if isinstance(enemy, RescuePod):
+                    if self.mover.enemy_on_screen(enemy, self.camera):
+                        target_pod = enemy
+                        break
+            
+            # Also check self.rescue_pod_group if it exists (some levels keep them separate)
+            if not target_pod and hasattr(self, "rescue_pod_group") and self.rescue_pod_group:
+                for pod in self.rescue_pod_group:
+                    if self.mover.enemy_on_screen(pod, self.camera):
+                        target_pod = pod
+                        break
+            
+            if target_pod:
+                self.Hunt_NPC(target_pod, state)
+                return
+
+        # 2) DEFAULT MOVEMENT (Horizontal Pacing)
+        if not hasattr(self, "_last_x"):
+            self._last_x = self.x
+
+        if self.move_direction > 0:
+            self.mover.enemy_move_right(self)
+        else:
+            self.mover.enemy_move_left(self)
+
+        if self.x < self.edge_padding:
+            self.x = self.edge_padding
+        elif self.x + self.width > window_width - self.edge_padding:
+            self.x = window_width - self.edge_padding - self.width
+
+        if self.x == self._last_x:
+            self.move_direction *= -1
+
+        self._last_x = self.x
+
+    # -------------------------------------------------
+    # DRAW
+    # -------------------------------------------------
     def draw(self, surface: pygame.Surface, camera):
-        super().draw(surface, camera)  # 🔑 REQUIRED
+        if not self.is_active:
+            return
 
-        # Draw all active rectangle attacks
-        for attack in self.rectangle_attacks:
-            attack.draw(surface, camera)
+        super().draw(surface, camera)
 
-        sprite_rect = pygame.Rect(10, 425, 32, 32)
-        sprite = self.kamikaze_drone_image.subsurface(sprite_rect)
+        sprite_rect = pygame.Rect(0, 344, 32, 32)
+        sprite = self.bile_spitter_image.subsurface(sprite_rect)
 
-        # scale ship with zoom
         scale = camera.zoom
         scaled_sprite = pygame.transform.scale(
             sprite,
             (int(self.width * scale), int(self.height * scale))
         )
 
-        # convert world → screen
-        screen_x = camera.world_to_screen_x(self.x)
-        screen_y = camera.world_to_screen_y(self.y)
+        surface.blit(
+            scaled_sprite,
+            (
+                camera.world_to_screen_x(self.x),
+                camera.world_to_screen_y(self.y),
+            )
+        )
 
-        # draw ship
-        surface.blit(scaled_sprite, (screen_x, screen_y))
 
-        # ================================
-        #  DRAW PLAYER HITBOX (DEBUG)
-        # ================================
-        hb_x = camera.world_to_screen_x(self.hitbox.x)
-        hb_y = camera.world_to_screen_y(self.hitbox.y)
-        hb_w = int(self.hitbox.width * camera.zoom)
-        hb_h = int(self.hitbox.height * camera.zoom)
-
-        pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
