@@ -169,6 +169,7 @@ class VerticalBattleScreen:
         self.move_map_y_axis()
 
         self.move_player_x_y()
+        # self.update_collision_tiles(state)
         self.starship.update()
         self.clamp_starship_to_screen()
         self.fire_all_weapons(state)
@@ -591,67 +592,78 @@ class VerticalBattleScreen:
     def update_collision_tiles(self, state, damage: int = 5) -> None:
         layer = self.tiled_map.get_layer_by_name("collision")
         tile_size = self.tile_size
-        KNOCKBACK = 60
+        KNOCKBACK = 6
 
         # ---------- PLAYER (PURE VECTOR vx / vy) ----------
         player = self.starship
-        player_rect = player.hitbox
 
-        player_center_x = player_rect.centerx
-        player_center_y = player_rect.centery
+        # We need to check for collisions multiple times to ensure we don't phase through
+        # Especially if the player is moving fast or multiple tiles are involved
+        for _ in range(3): # Run multiple times to handle corner cases better
+            player_rect = player.hitbox
+            player_center_x = player_rect.centerx
+            player_center_y = player_rect.centery
 
-        for col, row, image in layer.tiles():
-            if image is None:
-                continue
+            collision_occurred = False
 
-            tile_rect = pygame.Rect(
-                col * tile_size,
-                row * tile_size,
-                tile_size,
-                tile_size
-            )
+            for col, row, image in layer.tiles():
+                if image is None:
+                    continue
 
-            if player_rect.colliderect(tile_rect):
-                if not player.invincible:
-                    player.shipHealth -= damage
-                    player.on_hit()
+                tile_rect = pygame.Rect(
+                    col * tile_size,
+                    row * tile_size,
+                    tile_size,
+                    tile_size
+                )
 
-                tile_center_x = tile_rect.centerx
-                tile_center_y = tile_rect.centery
+                if player_rect.colliderect(tile_rect):
+                    collision_occurred = True
+                    if not player.invincible:
+                        player.shipHealth -= damage
+                        player.on_hit()
 
-                # vector from tile → player
-                vx = player_center_x - tile_center_x
-                vy = player_center_y - tile_center_y
+                    tile_center_x = tile_rect.centerx
+                    tile_center_y = tile_rect.centery
 
-                length = math.hypot(vx, vy)
-                if length != 0:
-                    vx /= length
-                    vy /= length
+                    # prevent player from entering collision tiles by adjusting position
+                    # calculate the minimum distance needed to move the player out of the tile
+                    overlap_x = (player_rect.width + tile_rect.width) / 2 - abs(player_center_x - tile_center_x)
+                    overlap_y = (player_rect.height + tile_rect.height) / 2 - abs(player_center_y - tile_center_y)
 
-                # apply knockback via vector velocity only
-                player.vx = vx * KNOCKBACK
-                player.vy = vy * KNOCKBACK
-
-                # prevent player from entering collision tiles by adjusting position
-                # calculate the minimum distance needed to move the player out of the tile
-                overlap_x = (player_rect.width + tile_rect.width) / 2 - abs(player_center_x - tile_center_x)
-                overlap_y = (player_rect.height + tile_rect.height) / 2 - abs(player_center_y - tile_center_y)
-
-                # move the player in the direction of least resistance
-                if overlap_x < overlap_y:
-                    if player_center_x < tile_center_x:
-                        player.x -= overlap_x
+                    # move the player in the direction of least resistance
+                    if overlap_x < overlap_y:
+                        if player_center_x < tile_center_x:
+                            player.x -= overlap_x
+                        else:
+                            player.x += overlap_x
                     else:
-                        player.x += overlap_x
-                else:
-                    if player_center_y < tile_center_y:
-                        player.y -= overlap_y
-                    else:
-                        player.y += overlap_y
+                        if player_center_y < tile_center_y:
+                            player.y -= overlap_y
+                        else:
+                            player.y += overlap_y
 
-                # update the hitbox to reflect the new position
-                player.update_hitbox()
+                    # vector from tile → player (for knockback)
+                    vx = player_center_x - tile_center_x
+                    vy = player_center_y - tile_center_y
 
+                    length = math.hypot(vx, vy)
+                    if length != 0:
+                        vx /= length
+                        vy /= length
+
+                    # apply knockback via vector velocity only
+                    player.vx = vx * KNOCKBACK
+                    player.vy = vy * KNOCKBACK
+
+                    # update the hitbox to reflect the new position
+                    player.update_hitbox()
+                    # Refresh local rect for next tile in same pass
+                    player_rect = player.hitbox
+                    player_center_x = player_rect.centerx
+                    player_center_y = player_rect.centery
+
+            if not collision_occurred:
                 break
 
         # ---------- ENEMIES (PURE VECTOR vx / vy, WITH PENETRATION PREVENTION) ----------

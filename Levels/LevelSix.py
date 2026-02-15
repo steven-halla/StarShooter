@@ -60,11 +60,12 @@ class LevelSix(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
+        self.update_collision_tiles(state, damage=5)
+
         self.update_check_player_touching_collision_bottom()
         self.update_assign_single_barrage_owner(state)
         self.update_player_touches_coin(state)
         self.update_enemy_helper(state)
-        self.update_collision_tiles(state, damage=5)
 
     def draw(self, state):
         state.DISPLAY.fill((0, 0, 0))
