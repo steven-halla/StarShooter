@@ -125,7 +125,14 @@ class LevelFive(VerticalBattleScreen):
 
                 if rect.colliderect(player_screen_rect):
                     if not self.starship.invincible:
-                        self.starship.shipHealth -= damage
+                        # ✅ APPLY TO SHIELDS FIRST (fallback to shipHealth if no shields)
+                        if hasattr(self.starship, "shields") and self.starship.shields > 0:
+                            self.starship.shields = max(0, self.starship.shields - damage)
+                        elif hasattr(self.starship, "shield") and self.starship.shield > 0:
+                            self.starship.shield = max(0, self.starship.shield - damage)
+                        else:
+                            self.starship.shipHealth -= damage
+
                         self.starship.on_hit()
                     return
 
@@ -137,7 +144,14 @@ class LevelFive(VerticalBattleScreen):
 
                 if rect.colliderect(player_screen_rect):
                     if not self.starship.invincible:
-                        self.starship.shipHealth -= damage
+                        # ✅ APPLY TO SHIELDS FIRST (fallback to shipHealth if no shields)
+                        if hasattr(self.starship, "shields") and self.starship.shields > 0:
+                            self.starship.shields = max(0, self.starship.shields - damage)
+                        elif hasattr(self.starship, "shield") and self.starship.shield > 0:
+                            self.starship.shield = max(0, self.starship.shield - damage)
+                        else:
+                            self.starship.shipHealth -= damage
+
                         self.starship.on_hit()
                     return
 
@@ -198,7 +212,14 @@ class LevelFive(VerticalBattleScreen):
             if self.starship.hitbox.colliderect(enemy.hitbox):
                 enemy.color = (135, 206, 235)
                 if not self.starship.invincible:
-                    self.starship.shipHealth -= enemy.touch_damage
+                    # ✅ APPLY TO SHIELDS FIRST (fallback to shipHealth if no shields)
+                    if hasattr(self.starship, "shields") and self.starship.shields > 0:
+                        self.starship.shields = max(0, self.starship.shields - enemy.touch_damage)
+                    elif hasattr(self.starship, "shield") and self.starship.shield > 0:
+                        self.starship.shield = max(0, self.starship.shield - enemy.touch_damage)
+                    else:
+                        self.starship.shipHealth -= enemy.touch_damage
+
                     self.starship.on_hit()
             else:
                 enemy.color = GlobalConstants.RED

@@ -30,8 +30,8 @@ class SpinalRaptor(Enemy):
         self.enemy_image = self.bile_spitter_image
 
         # stats
-        self.enemyHealth: float = 25.0
-        self.maxHealth: float = 25.0
+        self.enemyHealth: float = 100.0
+        self.maxHealth: float = 100.0
         self.exp: int = 1
         self.credits: int = 5
 
