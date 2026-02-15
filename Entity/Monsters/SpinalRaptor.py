@@ -80,6 +80,7 @@ class SpinalRaptor(Enemy):
         # 🔑 CALL TOUCH DAMAGE HANDLER
         self.player_collide_damage(state.starship)
         self.moveAI(state)
+        self.pounce()
 
 
     # -------------------------------------------------
@@ -94,28 +95,28 @@ class SpinalRaptor(Enemy):
 
         # 1) IF RESCUE POD AND PLAYER ON SCREEN -> HUNT NPC
         from Entity.Monsters.RescuePod import RescuePod
-        
+
         # Check if player is on screen
         player_on_screen = self.mover.enemy_on_screen(state.starship, self.camera)
-        
+
         if player_on_screen:
             # Look for a RescuePod that is also on screen
             target_pod = None
-            
+
             # Check state.enemies
             for enemy in state.enemies:
                 if isinstance(enemy, RescuePod):
                     if self.mover.enemy_on_screen(enemy, self.camera):
                         target_pod = enemy
                         break
-            
+
             # Also check self.rescue_pod_group if it exists (some levels keep them separate)
             if not target_pod and hasattr(self, "rescue_pod_group") and self.rescue_pod_group:
                 for pod in self.rescue_pod_group:
                     if self.mover.enemy_on_screen(pod, self.camera):
                         target_pod = pod
                         break
-            
+
             if target_pod:
                 self.Hunt_NPC(target_pod, state)
                 return
