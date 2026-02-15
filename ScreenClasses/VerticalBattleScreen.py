@@ -184,7 +184,7 @@ class VerticalBattleScreen:
                 enemy.enemyBullets.clear()
 
         self.bullet_collision_helper_remover(state)
-        self.collision_tile_helper(state)
+        self.hazard_tile_helper(state)
         # self.enemy_player_collision(state)
         self.rect_helper(state)
         UI_KILL_PADDING = 12  # pixels ABOVE the UI panel (tweak this)
@@ -591,7 +591,7 @@ class VerticalBattleScreen:
     def update_collision_tiles(self, state, damage: int = 5) -> None:
         layer = self.tiled_map.get_layer_by_name("collision")
         tile_size = self.tile_size
-        KNOCKBACK = 4
+        KNOCKBACK = 60
 
         # ---------- PLAYER (PURE VECTOR vx / vy) ----------
         player = self.starship
@@ -1058,7 +1058,7 @@ class VerticalBattleScreen:
 
 
 
-    def collision_tile_helper(self, state):
+    def hazard_tile_helper(self, state):
         hazard_layer = self.tiled_map.get_layer_by_name("hazard")
         player_rect = self.starship.hitbox  # already in WORLD coordinates
 

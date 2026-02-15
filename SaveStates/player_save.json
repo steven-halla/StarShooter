@@ -4,13 +4,11 @@
     "shipHealth": 150,
     "shipHealthMax": 150,
     "equipped_magic": [
-      "Buster Cannon",
+      "",
       null
     ],
-    "magic_inventory": [
-      "Buster Cannon"
-    ],
-    "current_level": 5
+    "magic_inventory": [],
+    "current_level": 6
   },
   "weapons": {
     "machine_gun": {
