@@ -37,7 +37,6 @@ class BossLevelSeven(Enemy):
         self.last_move_toggle: int = pygame.time.get_ticks()
         self.is_moving: bool = True
         # __init__
-        self.attack_timer = Timer(3.0)  # 3 seconds
 
         self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
@@ -55,8 +54,78 @@ class BossLevelSeven(Enemy):
         # __init__ (add this with your other timers)
         self.attack_choice_timer = Timer(5000)  # 5 seconds
 
+        # --- BossLevelSeven.__init__ (timers + 2 small state vars) ---
+        self.attack180_windup_timer = Timer(0.5)  # stop before swing
+        self.attack180_swing_timer = Timer(0.2)  # swing active window
+        self.attack180_cd_timer = Timer(1.0)  # cooldown between swings
+
+        self.attack180_state = 0  # 0=idle, 1=windup, 2=swing
+        self.attack180_dir = pygame.Vector2(0, 0)  # locked direction
+
     def update(self, state) -> None:
         super().update(state)
+        # --- BossLevelSeven.update (drop this near the top, BEFORE moveAI) ---
+        # NOTE: windup/swing stops movement by returning early.
+
+        # start attack if idle + cooldown ready
+        if self.attack180_state == 0:
+            if self.attack180_cd_timer.is_ready():
+                # lock direction ONCE (berserker swing)
+                ex = self.x + self.width / 2
+                ey = self.y + self.height / 2
+                px = state.starship.hitbox.centerx
+                py = state.starship.hitbox.centery
+
+                dx = px - ex
+                dy = py - ey
+                dist = (dx * dx + dy * dy) ** 0.5
+                if dist != 0:
+                    self.attack180_dir.x = dx / dist
+                    self.attack180_dir.y = dy / dist
+
+                self.attack180_windup_timer.reset()
+                self.attack180_state = 1
+                print("ATTACK180 WINDUP")
+                return  # stop movement during windup
+
+        # windup (0.5s frozen)
+        if self.attack180_state == 1:
+            if self.attack180_windup_timer.is_ready():
+                self.attack180_swing_timer.reset()
+                self.attack180_state = 2
+                print("ATTACK180 SWING")
+            return  # still frozen until swing starts
+
+        # swing active (0.2s)
+        if self.attack180_state == 2:
+            # wide arc hitbox 50px out, locked direction
+            arc_w = 120
+            arc_h = 40
+            extend = 50
+
+            ex = self.x + self.width / 2
+            ey = self.y + self.height / 2
+            tip_x = ex + self.attack180_dir.x * extend
+            tip_y = ey + self.attack180_dir.y * extend
+
+            arc_rect = pygame.Rect(
+                int(tip_x - arc_w / 2),
+                int(tip_y - arc_h / 2),
+                arc_w,
+                arc_h
+            )
+
+            # damage (uses your existing invincible/shield flow)
+            if arc_rect.colliderect(state.starship.hitbox) and not state.starship.invincible:
+                state.starship.shield_system.take_damage(25)
+                state.starship.on_hit()
+
+            if self.attack180_swing_timer.is_ready():
+                self.attack180_cd_timer.reset()
+                self.attack180_state = 0
+                print("ATTACK180 END")
+            return  # freeze movement during swing
+
         if not self.is_active:
             return
         # countdown (ms remaining until ready)
@@ -80,7 +149,7 @@ class BossLevelSeven(Enemy):
             # reset start time to "now" so the next 5s countdown begins
             self.attack_choice_timer.last_time_ms = now
 
-        self.moveAI()
+        # self.moveAI()
 
         # WORLD-SPACE hitbox
         self.update_hitbox()
@@ -92,45 +161,45 @@ class BossLevelSeven(Enemy):
         # FIRE / REST STATE MACHINE
         # -------------------------
 
-        if self.is_firing:
-            # FIRE PHASE
-            if self.machine_gun_timer.is_ready():
-                self.shoot_multiple_down_vertical_y(
-                    bullet_speed=-4.0,
-                    bullet_width=55,
-                    bullet_height=10,
-                    bullet_color=self.bulletColor,
-                    bullet_damage=10,
-                    bullet_count=1,
-                    bullet_spread=50,
-                    state=state
-                )
-                self.machine_gun_timer.reset()
-
-            # end FIRE phase → switch to REST
-            if self.fire_phase_timer.is_ready():
-
-                self.is_firing = False
-                self.rest_phase_timer.reset()
-
-        else:
-            # REST PHASE — aimed shot every 1 second
-            if self.aimed_shot_timer.is_ready():
-                self.shoot_single_bullet_aimed_at_player(
-                    bullet_speed=4.0,
-                    bullet_width=20,
-                    bullet_height=20,
-                    bullet_color=self.bulletColor,
-                    bullet_damage=10,
-                    state=state
-                )
-                self.aimed_shot_timer.reset()
-
-            # END REST → switch to FIRE
-            if self.rest_phase_timer.is_ready():
-                self.is_firing = True
-                self.fire_phase_timer.reset()
-                self.machine_gun_timer.reset()
+        # if self.is_firing:
+        #     # FIRE PHASE
+        #     if self.machine_gun_timer.is_ready():
+        #         self.shoot_multiple_down_vertical_y(
+        #             bullet_speed=-4.0,
+        #             bullet_width=55,
+        #             bullet_height=10,
+        #             bullet_color=self.bulletColor,
+        #             bullet_damage=10,
+        #             bullet_count=1,
+        #             bullet_spread=50,
+        #             state=state
+        #         )
+        #         self.machine_gun_timer.reset()
+        #
+        #     # end FIRE phase → switch to REST
+        #     if self.fire_phase_timer.is_ready():
+        #
+        #         self.is_firing = False
+        #         self.rest_phase_timer.reset()
+        #
+        # else:
+        #     # REST PHASE — aimed shot every 1 second
+        #     if self.aimed_shot_timer.is_ready():
+        #         self.shoot_single_bullet_aimed_at_player(
+        #             bullet_speed=4.0,
+        #             bullet_width=20,
+        #             bullet_height=20,
+        #             bullet_color=self.bulletColor,
+        #             bullet_damage=10,
+        #             state=state
+        #         )
+        #         self.aimed_shot_timer.reset()
+        #
+        #     # END REST → switch to FIRE
+        #     if self.rest_phase_timer.is_ready():
+        #         self.is_firing = True
+        #         self.fire_phase_timer.reset()
+        #         self.machine_gun_timer.reset()
 
         now = pygame.time.get_ticks()
 
@@ -169,6 +238,37 @@ class BossLevelSeven(Enemy):
 
 
         super().draw(surface, camera)
+        # --- BossLevelSeven.draw (add this at the end, before pygame.display.flip() call in LevelSeven, or inside boss draw) ---
+        # draws the ATTACK180 arc only while swinging
+
+        if getattr(self, "attack180_state", 0) == 2:
+            arc_w = 120
+            arc_h = 40
+            extend = 50
+
+            ex = self.x + self.width / 2
+            ey = self.y + self.height / 2
+            tip_x = ex + self.attack180_dir.x * extend
+            tip_y = ey + self.attack180_dir.y * extend
+
+            # WORLD rect
+            arc_world = pygame.Rect(
+                int(tip_x - arc_w / 2),
+                int(tip_y - arc_h / 2),
+                arc_w,
+                arc_h
+            )
+
+            # SCREEN rect
+            z = camera.zoom
+            arc_screen = pygame.Rect(
+                int(camera.world_to_screen_x(arc_world.x)),
+                int(camera.world_to_screen_y(arc_world.y)),
+                int(arc_world.width * z),
+                int(arc_world.height * z),
+            )
+
+            pygame.draw.rect(surface, (255, 0, 0), arc_screen, 2)
 
         if not self.is_active:
             return
