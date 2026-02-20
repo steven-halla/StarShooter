@@ -52,10 +52,27 @@ class BossLevelSeven(Enemy):
         self.machine_gun_timer = Timer(0.5)  # fire rate during FIRE
         self.aimed_shot_timer = Timer(1.0)  # 1 second
 
+        # __init__ (add this with your other timers)
+        self.attack_choice_timer = Timer(5000)  # 5 seconds
+
     def update(self, state) -> None:
         super().update(state)
         if not self.is_active:
             return
+            # -------------------------
+
+        # update (drop this where you want the roll logic to run)
+        if self.attack_choice_timer.is_ready():
+            attack_chooser_roll = random.randint(1, 100)
+
+            if attack_chooser_roll <= 50:
+                print("attack 1")  # 50%
+            elif attack_chooser_roll <= 80:
+                print("attack 2")  # 30% (51-80)
+            else:
+                print("attack 3")  # 20% (81-100)
+
+            self.attack_choice_timer.reset()
         self.moveAI()
 
         # WORLD-SPACE hitbox
@@ -72,12 +89,12 @@ class BossLevelSeven(Enemy):
             # FIRE PHASE
             if self.machine_gun_timer.is_ready():
                 self.shoot_multiple_down_vertical_y(
-                    bullet_speed=4.0,
-                    bullet_width=3,
+                    bullet_speed=-4.0,
+                    bullet_width=55,
                     bullet_height=10,
                     bullet_color=self.bulletColor,
                     bullet_damage=10,
-                    bullet_count=3,
+                    bullet_count=1,
                     bullet_spread=50,
                     state=state
                 )

@@ -40,7 +40,6 @@ class LevelSeven(VerticalBattleScreen):
         self.flame_base_world_y = None  # 🔒 STABLE WORLD ANCHOR
         self.boss_teleport_x = 2000
         self.boss_teleport_y = 500
-        self.boss_shift_done = True
         self.boss_shift_start_time = None
         self.start_loop: bool = False
         self.end_loop: bool = False
@@ -66,9 +65,9 @@ class LevelSeven(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
-        print(state.enemies)
+        # print(state.enemies)
         self.update_loop_level(state)
-        self.update_build_flame_row()
+        # self.update_build_flame_row()
         self.update_enemy_helper(state)
         self.update_repeat_map(state)
         self.update_debug_print_player_and_boss_visible(state)
@@ -76,7 +75,7 @@ class LevelSeven(VerticalBattleScreen):
     def draw(self, state):
         super().draw(state)
         self.draw_player_and_enemies(state)
-        self.draw_flames(state.DISPLAY, self.camera)
+        # self.draw_flames(state.DISPLAY, self.camera)
         self.draw_ui_panel(state.DISPLAY)
         pygame.display.flip()
 
@@ -204,7 +203,6 @@ class LevelSeven(VerticalBattleScreen):
             elapsed = now - self.boss_shift_start_time
 
             if elapsed >= 10000:
-                self.boss_shift_done = True
                 self.boss_shift_start_time = None
                 print("[BOSS SHIFT DISABLED]")
         else:
