@@ -97,34 +97,47 @@ class BossLevelSeven(Enemy):
             return  # still frozen until swing starts
 
         # swing active (0.2s)
+        # swing active (0.2s)
+        # ----------------------------
+        # UPDATE: build the swing box
+        # ----------------------------
+        # ATTACK180 SWING (ACTIVE)
+        # ----------------------------
         if self.attack180_state == 2:
-            # wide arc hitbox 50px out, locked direction
-            arc_w = 120
-            arc_h = 40
-            extend = 50
+            base = max(self.width , self.height )
+            side = int(base * 1.6)  # square, 40% bigger than enemy
 
             ex = self.x + self.width / 2
             ey = self.y + self.height / 2
-            tip_x = ex + self.attack180_dir.x * extend
-            tip_y = ey + self.attack180_dir.y * extend
 
-            arc_rect = pygame.Rect(
-                int(tip_x - arc_w / 2),
-                int(tip_y - arc_h / 2),
-                arc_w,
-                arc_h
+            push = side * 0.35
+            cx = ex + self.attack180_dir.x * push
+            cy = ey + self.attack180_dir.y * push
+
+            # square centered on (cx, cy)
+            self.attack180_rect = pygame.Rect(
+                int(cx - side / 2 ),
+                int(cy - side / 2 ),
+                side,
+                side
             )
 
-            # damage (uses your existing invincible/shield flow)
-            if arc_rect.colliderect(state.starship.hitbox) and not state.starship.invincible:
+            # collision uses the same rect you just built
+            if self.attack180_rect.colliderect(state.starship.hitbox) and not state.starship.invincible:
                 state.starship.shield_system.take_damage(25)
                 state.starship.on_hit()
 
+            # end swing
             if self.attack180_swing_timer.is_ready():
                 self.attack180_cd_timer.reset()
                 self.attack180_state = 0
+                self.attack180_rect = None
                 print("ATTACK180 END")
-            return  # freeze movement during swing
+
+            return
+
+        # not swinging
+        self.attack180_rect = None
 
         if not self.is_active:
             return
@@ -234,56 +247,37 @@ class BossLevelSeven(Enemy):
         self._last_x = self.x
 
     def draw(self, surface: pygame.Surface, camera):
-        # self.draw_bomb(surface, self.camera)
-
-
         super().draw(surface, camera)
-        # --- BossLevelSeven.draw (add this at the end, before pygame.display.flip() call in LevelSeven, or inside boss draw) ---
-        # draws the ATTACK180 arc only while swinging
-
-        if getattr(self, "attack180_state", 0) == 2:
-            arc_w = 120
-            arc_h = 40
-            extend = 50
-
-            ex = self.x + self.width / 2
-            ey = self.y + self.height / 2
-            tip_x = ex + self.attack180_dir.x * extend
-            tip_y = ey + self.attack180_dir.y * extend
-
-            # WORLD rect
-            arc_world = pygame.Rect(
-                int(tip_x - arc_w / 2),
-                int(tip_y - arc_h / 2),
-                arc_w,
-                arc_h
-            )
-
-            # SCREEN rect
-            z = camera.zoom
-            arc_screen = pygame.Rect(
-                int(camera.world_to_screen_x(arc_world.x)),
-                int(camera.world_to_screen_y(arc_world.y)),
-                int(arc_world.width * z),
-                int(arc_world.height * z),
-            )
-
-            pygame.draw.rect(surface, (255, 0, 0), arc_screen, 2)
 
         if not self.is_active:
             return
+
+        # SPRITE
         sprite_rect = pygame.Rect(0, 344, 32, 32)
         sprite = self.bile_spitter_image.subsurface(sprite_rect)
 
-        scale = camera.zoom
-        scaled_sprite = pygame.transform.scale(
+        z = camera.zoom
+        sprite = pygame.transform.scale(
             sprite,
-            (int(self.width * scale), int(self.height * scale))
+            (int(self.width * z), int(self.height * z))
         )
 
-        screen_x = camera.world_to_screen_x(self.x)
-        screen_y = camera.world_to_screen_y(self.y)
-        surface.blit(scaled_sprite, (screen_x, screen_y))
+        surface.blit(
+            sprite,
+            (camera.world_to_screen_x(self.x), camera.world_to_screen_y(self.y))
+        )
 
-    # def clamp_vertical(self) -> None:
-    #     pass
+        # ATTACK180 DEBUG DRAW (SQUARE)
+        if getattr(self, "attack180_state", 0) == 2 and getattr(self, "attack180_rect", None) is not None:
+            r = self.attack180_rect
+            pygame.draw.rect(
+                surface,
+                (255, 0, 0),
+                pygame.Rect(
+                    int(camera.world_to_screen_x(r.x)),
+                    int(camera.world_to_screen_y(r.y)),
+                    int(r.width * z),
+                    int(r.height * z),
+                ),
+                2
+            )
