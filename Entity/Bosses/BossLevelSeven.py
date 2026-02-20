@@ -66,27 +66,49 @@ class BossLevelSeven(Enemy):
 
     def barrage_360(self, state) -> None:
         """
-        Boss attack: shoots bullets in EVERY direction (360° burst).
-        Put this method INSIDE BossLevelSeven.
+        360 barrage with ROF (rate-of-fire) so bullets don't overlap.
+        Put this INSIDE BossLevelSeven.
         """
 
         if self.camera is None:
             return
 
-        # center of boss (world)
+        # ---------- local ROF gate (no __init__ required) ----------
+        rate_of_fire_ms = 350  # fire a burst step every 120ms (tune this)
+        now = pygame.time.get_ticks()
+
+        if not hasattr(self, "_barrage360_last_shot_ms"):
+            self._barrage360_last_shot_ms = 0
+
+        if now - self._barrage360_last_shot_ms < rate_of_fire_ms:
+            return
+
+        self._barrage360_last_shot_ms = now
+
+        # ---------- one "ring step" per ROF tick ----------
         cx = self.x + self.width / 2
         cy = self.y + self.height / 2
 
-        bullet_speed = 4.0
-        bullet_width = 22
-        bullet_height = 22
+        bullet_speed = 1.8
         bullet_damage = 12
         bullet_color = self.bulletColor
 
-        bullet_count = 8  # number of directions (increase for denser ring)
+        # keep these SMALL if you want less overlap visually
+        bullet_width = 6
+        bullet_height = 6
+
+        bullet_count = 4
+
+        # optional: rotate the 8 directions over time so it looks like a spinning spray
+        # (prevents repeated overlap on the exact same lines)
+        spin_step = 0.0
+        if not hasattr(self, "_barrage360_spin"):
+            self._barrage360_spin = 0.0
+        self._barrage360_spin += 0.10  # radians per tick (tune this)
+        spin_step = self._barrage360_spin
 
         for i in range(bullet_count):
-            angle = (i / bullet_count) * (2 * math.pi)
+            angle = (i / bullet_count) * (2 * math.pi) + spin_step
             vx = math.cos(angle)
             vy = math.sin(angle)
 
@@ -341,6 +363,27 @@ class BossLevelSeven(Enemy):
 
     def draw(self, surface: pygame.Surface, camera):
         super().draw(surface, camera)
+        if not getattr(self, "is_active", True):
+            return
+
+            # if this bullet is a beam bullet, draw as a beam and exit
+        if hasattr(self, "beam_length"):
+            self.draw_laser_beam(surface, camera)
+            return
+
+            # otherwise draw normal bullet (your existing logic)
+        screen_x = camera.world_to_screen_x(self.x)
+        screen_y = camera.world_to_screen_y(self.y)
+        pygame.draw.rect(
+            surface,
+            self.color,
+            pygame.Rect(
+                int(screen_x),
+                int(screen_y),
+                int(self.width * camera.zoom),
+                int(self.height * camera.zoom),
+            ),
+        )
 
         if not self.is_active:
             return
@@ -374,3 +417,40 @@ class BossLevelSeven(Enemy):
                 ),
                 2
             )
+
+    # Put this INSIDE Bullet (or wherever your Bullet.draw lives).
+    # This is NOT Bullet.draw. This is the helper you call FROM Bullet.draw.
+
+    def draw_laser_beam(self, surface: pygame.Surface, camera) -> None:
+        """
+        Draw a SINGLE rectangle "beam" (not a ring).
+        Uses fields set by barrage_360:
+          self.beam_origin_x, self.beam_origin_y, self.beam_length, self.beam_thick, self.beam_angle
+          plus self.vx/self.vy (unit direction) and self.color
+        """
+        if not hasattr(self, "beam_length"):
+            return
+
+        z = camera.zoom
+
+        # START point (SCREEN)
+        sx = camera.world_to_screen_x(self.beam_origin_x)
+        sy = camera.world_to_screen_y(self.beam_origin_y)
+
+        # LENGTH + THICKNESS (SCREEN)
+        beam_len_px = max(1, int(self.beam_length * z))
+        beam_thick_px = max(1, int(self.beam_thick * z))
+
+        # single rect surface, then rotate it
+        beam_surf = pygame.Surface((beam_len_px, beam_thick_px), pygame.SRCALPHA)
+        beam_surf.fill(self.color)
+
+        angle_deg = math.degrees(self.beam_angle)
+        rotated = pygame.transform.rotate(beam_surf, angle_deg)
+
+        # place so it STARTS at (sx, sy) and extends outward
+        mid_x = sx + (self.vx * (beam_len_px / 2))
+        mid_y = sy + (self.vy * (beam_len_px / 2))
+        r = rotated.get_rect(center=(mid_x, mid_y))
+
+        surface.blit(rotated, r)
