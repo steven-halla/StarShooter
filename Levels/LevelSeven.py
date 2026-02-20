@@ -204,10 +204,9 @@ class LevelSeven(VerticalBattleScreen):
             elapsed = now - self.boss_shift_start_time
 
             if elapsed >= 10000:
-                self.respawn_boss_at_random_tile(boss)
                 self.boss_shift_done = True
                 self.boss_shift_start_time = None
-                print("[BOSS VANISHED]")
+                print("[BOSS SHIFT DISABLED]")
         else:
             self.boss_shift_start_time = None
 
