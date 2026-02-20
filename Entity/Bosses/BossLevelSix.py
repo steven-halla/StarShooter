@@ -20,6 +20,8 @@ class BossLevelSix(Enemy):
 
         self.enemyBullets: list[Bullet] = []
         self.enemyHealth = 400
+        self.maxHealth = 400
+
 
         self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
@@ -56,6 +58,8 @@ class BossLevelSix(Enemy):
         self._barrage_built_this_cycle = False
         self._barrage_drawn_this_frame = False  # 🔑 HARD DRAW GUARD
         self.may_fire_barrage: bool = True
+        self.touch_damage: int = 10
+
 
 
     # =====================================================
@@ -231,9 +235,7 @@ class BossLevelSix(Enemy):
     # UPDATE
     # =====================================================
     def update(self, state, player=None) -> None:
-        print(f"\n=== BOSS UPDATE ===")
-        print(f"Boss active: {self.is_active}")
-        print(f"Camera available: {self.camera is not None}")
+
 
         super().update(state)
 
@@ -251,7 +253,6 @@ class BossLevelSix(Enemy):
 
         # Force initial grid building if needed
         if not self._grid_built and self.camera is not None:
-            print("Forcing initial grid building...")
             self.build_barrage_grid()
 
         self.update_barrage(player)
@@ -363,6 +364,6 @@ class BossLevelSix(Enemy):
                 print(f"Player hit by barrage! Damage applied: 30")
                 # player.shipHealth -= 30
 
-                self.starship.shield_system.take_damage(75)
+                player.shield_system.take_damage(75)
                 player.on_hit()
                 return
