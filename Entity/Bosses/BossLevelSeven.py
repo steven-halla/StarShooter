@@ -1,3 +1,4 @@
+import math
 import random
 import pygame
 from pygame import surface
@@ -62,6 +63,45 @@ class BossLevelSeven(Enemy):
         self.attack180_state = 0  # 0=idle, 1=windup, 2=swing
         self.attack180_dir = pygame.Vector2(0, 0)  # locked direction
         self.attack_swipe_counter: int = 0
+
+    def barrage_360(self, state) -> None:
+        """
+        Boss attack: shoots bullets in EVERY direction (360° burst).
+        Put this method INSIDE BossLevelSeven.
+        """
+
+        if self.camera is None:
+            return
+
+        # center of boss (world)
+        cx = self.x + self.width / 2
+        cy = self.y + self.height / 2
+
+        bullet_speed = 4.0
+        bullet_width = 22
+        bullet_height = 22
+        bullet_damage = 12
+        bullet_color = self.bulletColor
+
+        bullet_count = 8  # number of directions (increase for denser ring)
+
+        for i in range(bullet_count):
+            angle = (i / bullet_count) * (2 * math.pi)
+            vx = math.cos(angle)
+            vy = math.sin(angle)
+
+            b = Bullet(cx, cy)
+            b.width = bullet_width
+            b.height = bullet_height
+            b.color = bullet_color
+            b.damage = bullet_damage
+
+            b.vx = vx
+            b.vy = vy
+            b.bullet_speed = bullet_speed
+
+            b.update_rect()
+            state.enemy_bullets.append(b)
 
     def teleport_attack_swipes(self, state) -> None:
         # one-time flag (keeps dash from repeating during the same windup)
@@ -185,6 +225,7 @@ class BossLevelSeven(Enemy):
 
     def update(self, state) -> None:
         super().update(state)
+        self.barrage_360(state)
         # put this INSIDE BossLevelSeven.update(), replacing your current dash/windup/swing transition
         # (this is ONLY the "dash 50px before each swipe" flow)
 
@@ -297,7 +338,6 @@ class BossLevelSeven(Enemy):
         elif self.y > bottom:
             self.y = bottom
 
-        self.update_hitbox()
 
     def draw(self, surface: pygame.Surface, camera):
         super().draw(surface, camera)
