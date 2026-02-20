@@ -361,6 +361,8 @@ class BossLevelSix(Enemy):
 
             if collision:
                 print(f"Player hit by barrage! Damage applied: 30")
-                player.shipHealth -= 30
+                # player.shipHealth -= 30
+
+                self.starship.shield_system.take_damage(75)
                 player.on_hit()
                 return

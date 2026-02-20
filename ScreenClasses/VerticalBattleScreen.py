@@ -620,7 +620,9 @@ class VerticalBattleScreen:
                 if player_rect.colliderect(tile_rect):
                     collision_occurred = True
                     if not player.invincible:
-                        player.shipHealth -= damage
+                        # player.shipHealth -= damage
+
+                        self.starship.shield_system.take_damage(damage)
                         player.on_hit()
 
                     tile_center_x = tile_rect.centerx
