@@ -57,20 +57,23 @@ class BossLevelSeven(Enemy):
         # --- BossLevelSeven.__init__ (timers + 2 small state vars) ---
         self.attack180_windup_timer = Timer(0.5)  # stop before swing
         self.attack180_swing_timer = Timer(0.2)  # swing active window
-        self.attack180_cd_timer = Timer(1.0)  # cooldown between swings
+        self.attack180_cd_timer = Timer(.4)  # cooldown between swings
 
         self.attack180_state = 0  # 0=idle, 1=windup, 2=swing
         self.attack180_dir = pygame.Vector2(0, 0)  # locked direction
+        self.attack_swipe_counter: int = 0
 
-    def update(self, state) -> None:
-        super().update(state)
-        # --- BossLevelSeven.update (drop this near the top, BEFORE moveAI) ---
-        # NOTE: windup/swing stops movement by returning early.
+    def teleport_attack_swipes(self, state) -> None:
+        # one-time flag (keeps dash from repeating during the same windup)
+        if not hasattr(self, "attack180_dashed"):
+            self.attack180_dashed = False
 
-        # start attack if idle + cooldown ready
+        # ------------------------------------------------------------
+        # STATE 0 -> start windup (locks direction + resets dash flag)
+        # ------------------------------------------------------------
         if self.attack180_state == 0:
             if self.attack180_cd_timer.is_ready():
-                # lock direction ONCE (berserker swing)
+                # lock direction toward player ONCE
                 ex = self.x + self.width / 2
                 ey = self.y + self.height / 2
                 px = state.starship.hitbox.centerx
@@ -83,29 +86,48 @@ class BossLevelSeven(Enemy):
                     self.attack180_dir.x = dx / dist
                     self.attack180_dir.y = dy / dist
 
+                self.attack180_dashed = False
                 self.attack180_windup_timer.reset()
                 self.attack180_state = 1
-                print("ATTACK180 WINDUP")
-                return  # stop movement during windup
+                return  # freeze during windup
 
-        # windup (0.5s frozen)
+        # ------------------------------------------------------------
+        # STATE 1 -> WINDUP (dash once, then wait for windup to finish)
+        # ------------------------------------------------------------
         if self.attack180_state == 1:
+            # DASH 50px toward player ONCE at the start of windup
+            if not self.attack180_dashed and self.target_player is not None:
+                ex = self.x + self.width / 2
+                ey = self.y + self.height / 2
+                px = self.target_player.x + self.target_player.width / 2
+                py = self.target_player.y + self.target_player.height / 2
+
+                dx = px - ex
+                dy = py - ey
+                dist = (dx * dx + dy * dy) ** 0.5
+
+                if dist != 0:
+                    dash = 110.0
+                    step = min(dash, dist)  # don't overshoot past player
+                    self.x += (dx / dist) * step
+                    self.y += (dy / dist) * step
+                    self.update_hitbox()
+
+                self.attack180_dashed = True
+
+            # when windup finishes -> enter swing
             if self.attack180_windup_timer.is_ready():
                 self.attack180_swing_timer.reset()
                 self.attack180_state = 2
-                print("ATTACK180 SWING")
-            return  # still frozen until swing starts
 
-        # swing active (0.2s)
-        # swing active (0.2s)
-        # ----------------------------
-        # UPDATE: build the swing box
-        # ----------------------------
-        # ATTACK180 SWING (ACTIVE)
-        # ----------------------------
+            return  # still frozen during windup
+
+        # ------------------------------------------------------------
+        # STATE 2 -> SWING
+        # ------------------------------------------------------------
         if self.attack180_state == 2:
-            base = max(self.width , self.height )
-            side = int(base * 1.6)  # square, 40% bigger than enemy
+            base = max(self.width, self.height)
+            side = int(base * 1.6)  # square
 
             ex = self.x + self.width / 2
             ey = self.y + self.height / 2
@@ -116,19 +138,21 @@ class BossLevelSeven(Enemy):
 
             # square centered on (cx, cy)
             self.attack180_rect = pygame.Rect(
-                int(cx - side / 2 ),
-                int(cy - side / 2 ),
+                int(cx - side / 2),
+                int(cy - side / 2),
                 side,
                 side
             )
 
-            # collision uses the same rect you just built
             if self.attack180_rect.colliderect(state.starship.hitbox) and not state.starship.invincible:
                 state.starship.shield_system.take_damage(25)
                 state.starship.on_hit()
 
-            # end swing
             if self.attack180_swing_timer.is_ready():
+                self.attack_swipe_counter += 1
+                if self.attack_swipe_counter > 3:
+                    self.attack_swipe_counter = 0
+                print(self.attack_swipe_counter)
                 self.attack180_cd_timer.reset()
                 self.attack180_state = 0
                 self.attack180_rect = None
@@ -141,14 +165,12 @@ class BossLevelSeven(Enemy):
 
         if not self.is_active:
             return
-        # countdown (ms remaining until ready)
+
         now = pygame.time.get_ticks()
         time_left_ms = 5000 - (now - self.attack_choice_timer.last_time_ms)
         if time_left_ms < 0:
             time_left_ms = 0
-        # print(time_left_ms)
 
-        # fire when countdown hits 0, then reset
         if time_left_ms == 0:
             attack_chooser_roll = random.randint(1, 100)
 
@@ -159,10 +181,16 @@ class BossLevelSeven(Enemy):
             else:
                 print("attack 3")  # 20% (81-100)
 
-            # reset start time to "now" so the next 5s countdown begins
             self.attack_choice_timer.last_time_ms = now
 
-        # self.moveAI()
+    def update(self, state) -> None:
+        super().update(state)
+        # put this INSIDE BossLevelSeven.update(), replacing your current dash/windup/swing transition
+        # (this is ONLY the "dash 50px before each swipe" flow)
+
+        # in BossLevelSeven.update(self, state) put this near the top (after super().update(state)):
+        # self.teleport_attack_swipes(state)
+        self.moveAI()
 
         # WORLD-SPACE hitbox
         self.update_hitbox()
@@ -218,33 +246,58 @@ class BossLevelSeven(Enemy):
 
 
         self.last_shot_time = now
+
     def moveAI(self) -> None:
-        window_width = GlobalConstants.BASE_WINDOW_WIDTH
+        # Keep boss on-screen by steering toward the CENTER of the current camera view,
+        # then apply a small upward drift (-y = 1), and clamp to the visible window.
 
-        if not hasattr(self, "_last_x"):
-            self._last_x = self.x
+        if self.camera is None:
+            return
 
+        z = self.camera.zoom
 
-        if self.move_direction > 0:
-            self.mover.enemy_move_right(self)
-        else:
-            self.mover.enemy_move_left(self)
+        # visible viewport in WORLD units
+        view_w = self.camera.window_width / z
+        view_h = self.camera.window_height / z
 
-        if self.x < self.edge_padding:
-            self.x = self.edge_padding
-        elif self.x + self.width > window_width - self.edge_padding:
-            self.x = window_width - self.edge_padding - self.width
+        # CENTER of the current camera view (WORLD)
+        target_x = (view_w / 2) - (self.width / 2)  # camera.x is always 0 in your Camera
+        target_y = self.camera.y + (view_h / 2) - (self.height / 2)
 
-        if self.x == self._last_x:
-            self.move_direction *= -1
-            if self.move_direction > 0:
-                self.mover.enemy_move_right(self)
-            else:
-                self.mover.enemy_move_left(self)
+        # move toward target (simple steering, no extra state)
+        dx = target_x - self.x
+        dy = target_y - self.y
 
+        # horizontal step
+        if abs(dx) > 0:
+            step_x = min(self.moveSpeed, abs(dx))
+            self.x += step_x if dx > 0 else -step_x
 
+        # vertical step toward center (optional but keeps it synced with player/camera)
+        if abs(dy) > 0:
+            step_y = min(self.moveSpeed, abs(dy))
+            self.y += step_y if dy > 0 else -step_y
 
-        self._last_x = self.x
+        # requested drift upward
+        self.y -= 1
+
+        # clamp to visible camera window so it cannot leave the screen
+        left = 0.0
+        right = view_w - self.width
+        top = self.camera.y
+        bottom = self.camera.y + view_h - self.height
+
+        if self.x < left:
+            self.x = left
+        elif self.x > right:
+            self.x = right
+
+        if self.y < top:
+            self.y = top
+        elif self.y > bottom:
+            self.y = bottom
+
+        self.update_hitbox()
 
     def draw(self, surface: pygame.Surface, camera):
         super().draw(surface, camera)
