@@ -1,14 +1,14 @@
 {
   "version": 1,
   "player": {
-    "shipHealth": 150,
+    "shipHealth": 144,
     "shipHealthMax": 150,
     "equipped_magic": [
       "",
       null
     ],
     "magic_inventory": [],
-    "current_level": 7
+    "current_level": 8
   },
   "weapons": {
     "machine_gun": {
