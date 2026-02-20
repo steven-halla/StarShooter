@@ -63,6 +63,10 @@ class BossLevelSeven(Enemy):
         self.attack180_state = 0  # 0=idle, 1=windup, 2=swing
         self.attack180_dir = pygame.Vector2(0, 0)  # locked direction
         self.attack_swipe_counter: int = 0
+        self.attack_sequence_one: bool = False
+        self.attack_sequence_two: bool = False
+        self.attack_sequence_three: bool = False
+        self.sequence_one_direction: int = 1 # 1 for right, -1 for left
 
     def barrage_360(self, state) -> None:
         """
@@ -247,16 +251,71 @@ class BossLevelSeven(Enemy):
 
     def update(self, state) -> None:
         super().update(state)
-        self.barrage_360(state)
+        now = pygame.time.get_ticks()
+        time_left_ms = 5000 - (now - self.attack_choice_timer.last_time_ms)
+        if time_left_ms < 0:
+            time_left_ms = 0
+        # print(time_left_ms)
+
+        # fire when countdown hits 0, then reset
+        if time_left_ms == 0:
+            attack_chooser_roll = random.randint(1, 100)
+
+            # Reset sequences
+            self.attack_sequence_one = False
+            self.attack_sequence_two = False
+            self.attack_sequence_three = False
+
+            if attack_chooser_roll <= 50:
+                print("attack 1")  # 50%
+                self.attack_sequence_one = True
+                self.is_firing = True
+                self.fire_phase_timer.reset()
+            elif attack_chooser_roll <= 80:
+                print("attack 2")  # 30% (51-80)
+                self.attack_sequence_two = True
+            else:
+                print("attack 3")  # 20% (81-100)
+                self.attack_sequence_three = True
+
+            # reset start time to "now" so the next 5s countdown begins
+            self.attack_choice_timer.last_time_ms = now
+        # self.barrage_360(state)
         # put this INSIDE BossLevelSeven.update(), replacing your current dash/windup/swing transition
         # (this is ONLY the "dash 50px before each swipe" flow)
 
-        # in BossLevelSeven.update(self, state) put this near the top (after super().update(state)):
-        # self.teleport_attack_swipes(state)
+        if self.attack_sequence_one:
+            if self.is_firing:
+                # FIRE PHASE
+                if self.machine_gun_timer.is_ready():
+                    self.shoot_multiple_down_vertical_y(
+                        bullet_speed=-4.0,
+                        bullet_width=55,
+                        bullet_height=10,
+                        bullet_color=self.bulletColor,
+                        bullet_damage=10,
+                        bullet_count=1,
+                        bullet_spread=50,
+                        state=state
+                    )
+                    self.machine_gun_timer.reset()
+
+                # end FIRE phase → switch to REST
+                if self.fire_phase_timer.is_ready():
+                    self.is_firing = False
+                    self.rest_phase_timer.reset()
+
+        elif self.attack_sequence_two:
+            self.teleport_attack_swipes(state)
+        elif self.attack_sequence_three:
+            # Maybe some other attack here if needed, but for now just move to center
+            self.barrage_360(state)
+
         self.moveAI()
 
         # WORLD-SPACE hitbox
         self.update_hitbox()
+        now = pygame.time.get_ticks()
 
         # Always update the blade position in every frame
             # update
@@ -285,7 +344,7 @@ class BossLevelSeven(Enemy):
         #
         #         self.is_firing = False
         #         self.rest_phase_timer.reset()
-        #
+
         # else:
         #     # REST PHASE — aimed shot every 1 second
         #     if self.aimed_shot_timer.is_ready():
@@ -298,12 +357,12 @@ class BossLevelSeven(Enemy):
         #             state=state
         #         )
         #         self.aimed_shot_timer.reset()
-        #
-        #     # END REST → switch to FIRE
-        #     if self.rest_phase_timer.is_ready():
-        #         self.is_firing = True
-        #         self.fire_phase_timer.reset()
-        #         self.machine_gun_timer.reset()
+
+            # END REST → switch to FIRE
+            # if self.rest_phase_timer.is_ready():
+            #     self.is_firing = True
+            #     self.fire_phase_timer.reset()
+            #     self.machine_gun_timer.reset()
 
         now = pygame.time.get_ticks()
 
@@ -311,40 +370,74 @@ class BossLevelSeven(Enemy):
         self.last_shot_time = now
 
     def moveAI(self) -> None:
-        # Keep boss on-screen by steering toward the CENTER of the current camera view,
-        # then apply a small upward drift (-y = 1), and clamp to the visible window.
-
         if self.camera is None:
             return
 
         z = self.camera.zoom
-
-        # visible viewport in WORLD units
         view_w = self.camera.window_width / z
         view_h = self.camera.window_height / z
 
-        # CENTER of the current camera view (WORLD)
-        target_x = (view_w / 2) - (self.width / 2)  # camera.x is always 0 in your Camera
-        target_y = self.camera.y + (view_h / 2) - (self.height / 2)
+        if self.attack_sequence_one:
+            # Sequence one: enemy goes to bottom of screen and moves left to right
+            target_y = self.camera.y + view_h - self.height
 
-        # move toward target (simple steering, no extra state)
-        dx = target_x - self.x
-        dy = target_y - self.y
+            # Move to bottom first
+            dy = target_y - self.y
+            if abs(dy) > 0.5:
+                step_y = min(self.moveSpeed, abs(dy))
+                self.y += step_y if dy > 0 else -step_y
 
-        # horizontal step
-        if abs(dx) > 0:
-            step_x = min(self.moveSpeed, abs(dx))
-            self.x += step_x if dx > 0 else -step_x
+            # Move left to right (ping pong)
+            self.x += self.moveSpeed * self.sequence_one_direction
 
-        # vertical step toward center (optional but keeps it synced with player/camera)
-        if abs(dy) > 0:
-            step_y = min(self.moveSpeed, abs(dy))
-            self.y += step_y if dy > 0 else -step_y
+            # Bounce off edges
+            if self.x <= 0:
+                self.x = 0
+                self.sequence_one_direction = 1
+            elif self.x >= view_w - self.width:
+                self.x = view_w - self.width
+                self.sequence_one_direction = -1
 
-        # requested drift upward
-        self.y -= 1
+        elif self.attack_sequence_two:
+            # Sequence two: print("movement handled in attack")
+            print("movement handled in attack")
 
-        # clamp to visible camera window so it cannot leave the screen
+        elif self.attack_sequence_three:
+            # Sequence three: move enemy to center of screen
+            target_x = (view_w / 2) - (self.width / 2)
+            target_y = self.camera.y + (view_h / 2) - (self.height / 2)
+
+            dx = target_x - self.x
+            dy = target_y - self.y
+
+            if abs(dx) > 0.5:
+                step_x = min(self.moveSpeed, abs(dx))
+                self.x += step_x if dx > 0 else -step_x
+
+            if abs(dy) > 0.5:
+                step_y = min(self.moveSpeed, abs(dy))
+                self.y += step_y if dy > 0 else -step_y
+
+        else:
+            # Default behavior (from existing moveAI)
+            # CENTER of the current camera view (WORLD)
+            target_x = (view_w / 2) - (self.width / 2)
+            target_y = self.camera.y + (view_h / 2) - (self.height / 2)
+
+            dx = target_x - self.x
+            dy = target_y - self.y
+
+            if abs(dx) > 0:
+                step_x = min(self.moveSpeed, abs(dx))
+                self.x += step_x if dx > 0 else -step_x
+
+            if abs(dy) > 0:
+                step_y = min(self.moveSpeed, abs(dy))
+                self.y += step_y if dy > 0 else -step_y
+
+            self.y -= 1  # requested drift upward
+
+        # Clamp to visible camera window
         left = 0.0
         right = view_w - self.width
         top = self.camera.y
