@@ -67,6 +67,7 @@ class BossLevelSeven(Enemy):
         self.attack_sequence_two: bool = False
         self.attack_sequence_three: bool = False
         self.sequence_one_direction: int = 1 # 1 for right, -1 for left
+        self.attack_buffer_timer = Timer(2.0)  # 2 second buffer between attacks
 
     def barrage_360(self, state) -> None:
         """
@@ -278,38 +279,42 @@ class BossLevelSeven(Enemy):
                 print("attack 3")  # 20% (81-100)
                 self.attack_sequence_three = True
 
+            # Reset the buffer timer so there is a 2-second delay before the next attack begins
+            self.attack_buffer_timer.reset()
+
             # reset start time to "now" so the next 5s countdown begins
             self.attack_choice_timer.last_time_ms = now
         # self.barrage_360(state)
         # put this INSIDE BossLevelSeven.update(), replacing your current dash/windup/swing transition
         # (this is ONLY the "dash 50px before each swipe" flow)
 
-        if self.attack_sequence_one:
-            if self.is_firing:
-                # FIRE PHASE
-                if self.machine_gun_timer.is_ready():
-                    self.shoot_multiple_down_vertical_y(
-                        bullet_speed=-4.0,
-                        bullet_width=55,
-                        bullet_height=10,
-                        bullet_color=self.bulletColor,
-                        bullet_damage=10,
-                        bullet_count=1,
-                        bullet_spread=50,
-                        state=state
-                    )
-                    self.machine_gun_timer.reset()
+        if self.attack_buffer_timer.is_ready():
+            if self.attack_sequence_one:
+                if self.is_firing:
+                    # FIRE PHASE
+                    if self.machine_gun_timer.is_ready():
+                        self.shoot_multiple_down_vertical_y(
+                            bullet_speed=-4.0,
+                            bullet_width=55,
+                            bullet_height=10,
+                            bullet_color=self.bulletColor,
+                            bullet_damage=10,
+                            bullet_count=1,
+                            bullet_spread=50,
+                            state=state
+                        )
+                        self.machine_gun_timer.reset()
 
-                # end FIRE phase → switch to REST
-                if self.fire_phase_timer.is_ready():
-                    self.is_firing = False
-                    self.rest_phase_timer.reset()
+                    # end FIRE phase → switch to REST
+                    if self.fire_phase_timer.is_ready():
+                        self.is_firing = False
+                        self.rest_phase_timer.reset()
 
-        elif self.attack_sequence_two:
-            self.teleport_attack_swipes(state)
-        elif self.attack_sequence_three:
-            # Maybe some other attack here if needed, but for now just move to center
-            self.barrage_360(state)
+            elif self.attack_sequence_two:
+                self.teleport_attack_swipes(state)
+            elif self.attack_sequence_three:
+                # Maybe some other attack here if needed, but for now just move to center
+                self.barrage_360(state)
 
         self.moveAI()
 
