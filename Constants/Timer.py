@@ -11,6 +11,27 @@ class Timer:
     def reset(self) -> None:
         self.last_time_ms = pygame.time.get_ticks()
 
+    def reset_timer(self, timer_or_attr, new_last_time_ms: int) -> None:
+        print("reseting timer")
+
+        # If they passed a string, look up the timer on self
+        if isinstance(timer_or_attr, str):
+            t = getattr(self, timer_or_attr, None)
+            if t is None:
+                raise AttributeError(f"No timer found on self: '{timer_or_attr}'")
+        else:
+            # Otherwise assume they passed the timer object directly
+            t = timer_or_attr
+            if t is None:
+                raise AttributeError("Timer object passed in is None")
+
+        # Force-reset by setting the timer's stored timestamp to the int you provide
+        if hasattr(t, "last_time_ms"):
+            t.last_time_ms = int(new_last_time_ms)
+            return
+
+        raise AttributeError("Passed timer has no last_time_ms to set.")
+
     def is_ready(self) -> bool:
         now: int = pygame.time.get_ticks()
         return now - self.last_time_ms >= self.interval_ms

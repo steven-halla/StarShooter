@@ -59,10 +59,15 @@ class BossLevelSeven(Enemy):
         super().update(state)
         if not self.is_active:
             return
-            # -------------------------
+        # countdown (ms remaining until ready)
+        now = pygame.time.get_ticks()
+        time_left_ms = 5000 - (now - self.attack_choice_timer.last_time_ms)
+        if time_left_ms < 0:
+            time_left_ms = 0
+        # print(time_left_ms)
 
-        # update (drop this where you want the roll logic to run)
-        if self.attack_choice_timer.is_ready():
+        # fire when countdown hits 0, then reset
+        if time_left_ms == 0:
             attack_chooser_roll = random.randint(1, 100)
 
             if attack_chooser_roll <= 50:
@@ -72,7 +77,9 @@ class BossLevelSeven(Enemy):
             else:
                 print("attack 3")  # 20% (81-100)
 
-            self.attack_choice_timer.reset()
+            # reset start time to "now" so the next 5s countdown begins
+            self.attack_choice_timer.last_time_ms = now
+
         self.moveAI()
 
         # WORLD-SPACE hitbox
