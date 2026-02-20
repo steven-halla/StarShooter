@@ -32,16 +32,12 @@ class LevelSeven(VerticalBattleScreen):
         self.flame_rows: list[list[Bullet]] = []
         self.level_start_time = pygame.time.get_ticks()
         self.napalm_list: list = []
-        self.boss_shift_start_time: int | None = None
-        self.boss_shift_done: bool = False
         self.flame_rects: list[pygame.Rect] = []
         self.flame_rows_built = 0
         self.max_flame_rows = 8
         self.flame_row_interval_ms = 60000
         self.last_flame_row_time = pygame.time.get_ticks()
         self.flame_base_world_y = None  # 🔒 STABLE WORLD ANCHOR
-        self.boss_shift_start_time: int | None = None
-        self.boss_shift_done: bool = False
         self.boss_teleport_x = 2000
         self.boss_teleport_y = 500
         self.boss_shift_done = True
@@ -65,11 +61,12 @@ class LevelSeven(VerticalBattleScreen):
         self.starship.y = player_y
         self.load_enemy_into_list(state)
         self.build_flame_grid()
-        self.save_state.capture_player(self.starship, self.__class__.__name__)
+        self.save_state.capture_player(self.starship)
         self.save_state.save_to_file("player_save.json")
 
     def update(self, state) -> None:
         super().update(state)
+        print(state.enemies)
         self.update_loop_level(state)
         self.update_build_flame_row()
         self.update_enemy_helper(state)
@@ -313,6 +310,7 @@ class LevelSeven(VerticalBattleScreen):
         return True
 
     def teleport_boss_to_new_point(self) -> None:
+        print("Telepor boss to new point")
         coords: list[tuple[int, int]] = []
         for layer in self.tiled_map.layers:
             if isinstance(layer, pytmx.TiledTileLayer) and layer.name == "boss_appear_point":
@@ -378,6 +376,8 @@ class LevelSeven(VerticalBattleScreen):
                 self.flame_rects.append(pygame.Rect(x, row_y, SIZE, SIZE))
 
     def respawn_boss_at_random_tile(self, boss) -> None:
+        print("dklfj;lsajlfa")
+
         try:
             layer = self.tiled_map.get_layer_by_name("boss_appear_point")
         except ValueError:
