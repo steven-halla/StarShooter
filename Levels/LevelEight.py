@@ -57,11 +57,11 @@ class LevelEight(VerticalBattleScreen):
         self.starship = state.starship
         self.starship.x = player_x
         self.starship.y = player_y
-
         self.load_enemy_into_list(state)
         self.starship.shipHealth = 144
         self.save_state.capture_player(self.starship)
         self.save_state.save_to_file("player_save.json")
+
     def update(self, state) -> None:
         super().update(state)
         # print(self.missed_enemies)
