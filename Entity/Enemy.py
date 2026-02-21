@@ -462,6 +462,7 @@ class Enemy:
             life: int,
             max_life: int,
             number: int,
+            spread: float = 0
     ) -> None:
         """
         Spawns 'Acid Missiles' as enemy bullets that have HP (life/max_life).
@@ -476,7 +477,12 @@ class Enemy:
         cy = self.y + self.height / 2
 
         for i in range(max(1, number)):
-            b = Bullet(cx, cy)
+            # apply spread offset
+            offset = 0
+            if number > 1:
+                # spread missiles centered around cx
+                offset = (i - (number - 1) / 2) * spread
+            b = Bullet(cx + offset, cy)
             b.width = width
             b.height = height
             b.color = getattr(self, "bulletColor", GlobalConstants.SKYBLUE)

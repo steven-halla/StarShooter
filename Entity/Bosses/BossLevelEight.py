@@ -142,7 +142,8 @@ class BossLevelEight(Enemy):
                     power=20,
                     life=1,
                     max_life=1,
-                    number=3
+                    number=3,
+                    spread=100
                 )
                 self.acid_missiles_timer.reset()
         elif self.phase_3:
