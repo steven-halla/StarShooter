@@ -19,12 +19,12 @@ class LevelEight(VerticalBattleScreen):
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
-        # window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
-        # visible_height = window_height / self.camera.zoom
-        # self.camera_y = self.WORLD_HEIGHT - visible_height
-        # self.camera.world_height = self.WORLD_HEIGHT
-        # self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
-        self.camera.y = 11
+        window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
+        visible_height = window_height / self.camera.zoom
+        self.camera_y = self.WORLD_HEIGHT - visible_height
+        self.camera.world_height = self.WORLD_HEIGHT
+        self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
+        # self.camera.y = 11
         self.map_scroll_speed_per_frame: float = .4  # move speed of camera
         self.total_enemies = 40
         self.prev_enemy_count: int = None
@@ -120,7 +120,7 @@ class LevelEight(VerticalBattleScreen):
             if b.__class__.__name__ == "EnemyNapalmBullet":
                 if not hasattr(b, "persistence_timer"):
                     b.persistence_timer = pygame.time.get_ticks()
-                
+
                 # Check for collision with player
                 if self.starship.hitbox.colliderect(b.rect):
                     # If touched by player, apply damage and delete it
@@ -129,7 +129,7 @@ class LevelEight(VerticalBattleScreen):
                         self.starship.shield_system.take_damage(b.damage)
                         if self.starship.shipHealth < old_health:
                             self.starship.on_hit()
-                    
+
                     b.is_active = False
                     if b in state.enemy_bullets:
                         state.enemy_bullets.remove(b)

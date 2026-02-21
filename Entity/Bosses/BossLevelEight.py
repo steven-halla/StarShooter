@@ -27,7 +27,7 @@ class BossLevelEight(Enemy):
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
         self.moveSpeed: float = 2.2
         self.phase_1: bool = False
-        self.phase_2: bool = True
+        self.phase_2: bool = False
         self.phase_3: bool = False
         # --- Wave beam timers---
         self.wave_beam_timer = Timer(1.0)
@@ -80,20 +80,20 @@ class BossLevelEight(Enemy):
         # -------------------------
         # PHASE SELECT (by HP %)
         # -------------------------
-        # hp_pct = (self.enemyHealth / self.maxHealth) * 100 if self.maxHealth else 0
+        hp_pct = (self.enemyHealth / self.maxHealth) * 100 if self.maxHealth else 0
 
-        # if hp_pct > 70:
-        #     self.phase_1 = True
-        #     self.phase_2 = False
-        #     self.phase_3 = False
-        # elif hp_pct > 40:
-        #     self.phase_1 = False
-        #     self.phase_2 = True
-        #     self.phase_3 = False
-        # else:
-        #     self.phase_1 = False
-        #     self.phase_2 = False
-        #     self.phase_3 = True
+        if hp_pct > 70:
+            self.phase_1 = True
+            self.phase_2 = False
+            self.phase_3 = False
+        elif hp_pct > 40:
+            self.phase_1 = False
+            self.phase_2 = True
+            self.phase_3 = False
+        else:
+            self.phase_1 = False
+            self.phase_2 = False
+            self.phase_3 = True
 
         if not self.is_active:
             return

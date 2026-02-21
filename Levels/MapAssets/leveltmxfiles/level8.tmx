@@ -315,7 +315,7 @@
  </layer>
  <objectgroup id="4" name="enemies">
   <object id="1" name="time_bomb" x="129.831" y="1241.22" width="120" height="120"/>
-  <object id="2" name="player" x="236.221" y="117.508" width="16" height="16"/>
+  <object id="2" name="player" x="113.905" y="1495.79" width="16" height="16"/>
   <object id="4" name="level_8_boss" x="173.228" y="3.63416" width="120" height="70"/>
  </objectgroup>
  <objectgroup id="6" name="player"/>
