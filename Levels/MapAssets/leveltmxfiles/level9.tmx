@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="21" height="120" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="6">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="21" height="120" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="7">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="hazard" width="21" height="120">
   <data encoding="csv">
@@ -750,5 +750,6 @@
  </objectgroup>
  <objectgroup id="5" name="enemies">
   <object id="2" name="bile_spitter" x="122.992" y="1775.07" width="16" height="16"/>
+  <object id="6" name="level_9_boss" x="197.214" y="38.2103" width="48" height="48"/>
  </objectgroup>
 </map>

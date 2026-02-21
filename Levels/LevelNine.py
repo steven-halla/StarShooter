@@ -1,6 +1,7 @@
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
+from Entity.Bosses.BossLevelNine import BossLevelNine
 from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
@@ -18,12 +19,13 @@ class LevelNine(VerticalBattleScreen):
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
-        window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
-        visible_height = window_height / self.camera.zoom
-        self.camera_y = self.WORLD_HEIGHT - visible_height
-        self.camera.world_height = self.WORLD_HEIGHT
-        self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
-        self.camera.y = float(self.camera_y)
+        # window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
+        # visible_height = window_height / self.camera.zoom
+        # self.camera_y = self.WORLD_HEIGHT - visible_height
+        # self.camera.world_height = self.WORLD_HEIGHT
+        # self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
+        # self.camera.y = float(self.camera_y)
+        self.camera.y = 80
         self.map_scroll_speed_per_frame: float = .4  # move speed of camera
         self.total_enemies = 40
         self.prev_enemy_count: int = None
@@ -182,8 +184,8 @@ class LevelNine(VerticalBattleScreen):
         for obj in self.tiled_map.objects:
             # if obj.name == "level_8_boss":
             #     enemy = BossLevelEight()
-            if obj.name == "bile_spitter":
-                enemy = BileSpitter()
+            if obj.name == "level_9_boss":
+                enemy = BossLevelNine()
             else:
                 continue
 
