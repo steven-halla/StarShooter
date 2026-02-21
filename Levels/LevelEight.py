@@ -115,6 +115,44 @@ class LevelEight(VerticalBattleScreen):
             if enemy.enemyHealth <= 0:
                 state.enemies.remove(enemy)
 
+        for b in list(state.enemy_bullets):
+            # --- NAPALM LOGIC ---
+            if b.__class__.__name__ == "EnemyNapalmBullet":
+                if not hasattr(b, "persistence_timer"):
+                    b.persistence_timer = pygame.time.get_ticks()
+                
+                # Check for collision with player
+                if self.starship.hitbox.colliderect(b.rect):
+                    # If touched by player, apply damage and delete it
+                    if not self.starship.invincible:
+                        old_health = self.starship.shipHealth
+                        self.starship.shield_system.take_damage(b.damage)
+                        if self.starship.shipHealth < old_health:
+                            self.starship.on_hit()
+                    
+                    b.is_active = False
+                    if b in state.enemy_bullets:
+                        state.enemy_bullets.remove(b)
+                    continue
+
+                # If 10 seconds have passed since it was created/spawned, delete it
+                if pygame.time.get_ticks() - b.persistence_timer > 10000:
+                    b.is_active = False
+                    if b in state.enemy_bullets:
+                        state.enemy_bullets.remove(b)
+                continue
+
+            if getattr(b, "is_acid_missile", False) and getattr(b, "is_tracking", False):
+                if self.starship:
+                    px = self.starship.hitbox.centerx
+                    py = self.starship.hitbox.centery
+                    dx = px - (b.x + b.width / 2)
+                    dy = py - (b.y + b.height / 2)
+                    dist = (dx * dx + dy * dy) ** 0.5
+                    if dist != 0:
+                        b.vx = dx / dist
+                        b.vy = dy / dist
+
     def update_handle_level_complete(self, state):
         if (
                 not self.level_complete

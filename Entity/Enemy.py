@@ -500,6 +500,7 @@ class Enemy:
 
             # tag (optional but useful in collision code)
             b.is_acid_missile = True
+            b.is_tracking = True
 
             # movement: aim at player if possible, else straight down
             if getattr(self, "target_player", None) is not None:
@@ -522,6 +523,18 @@ class Enemy:
 
             b.update_rect()
             state.enemy_bullets.append(b)
+            # how to call
+            # self.acid_missiles(
+            #     state=state,
+            #     speed=2.0,
+            #     height=10,
+            #     width=10,
+            #     power=20,
+            #     life=1,
+            #     max_life=1,
+            #     number=8,
+            #     spread=100
+            # )
 
 
     def splatter_cannon(

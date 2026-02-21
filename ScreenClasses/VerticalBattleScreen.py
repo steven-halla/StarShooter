@@ -327,7 +327,7 @@ class VerticalBattleScreen:
                             e_bullet.is_active = False # Mark as inactive
                             if e_bullet in state.enemy_bullets:
                                 state.enemy_bullets.remove(e_bullet)
-                        
+
                         break # stop checking this player bullet against other missiles
 
             if bullet not in self.player_bullets:

@@ -50,6 +50,15 @@ class BossLevelEight(Enemy):
         # fire immediately (optional)
         self.acid_missiles_timer.last_time_ms -= self.acid_missiles_timer.interval_ms
 
+        self.napalm_timer = Timer(5.0)
+        # Offset to fire immediately
+        self.napalm_timer.last_time_ms -= self.napalm_timer.interval_ms
+
+        self.napalm_burst_timer = Timer(0.7)
+        # Offset to fire immediately
+        self.napalm_burst_timer.last_time_ms -= self.napalm_burst_timer.interval_ms
+
+        self.napalm_burst_counter = 0
 
         self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
@@ -78,8 +87,8 @@ class BossLevelEight(Enemy):
         #     self.phase_1 = False
         #     self.phase_2 = False
         #     self.phase_3 = True
-        self.phase_2 = True
-        self.phase_3 = False
+        self.phase_2 = False
+        self.phase_3 = True
         self.phase_1 = False
         if not self.is_active:
             return
@@ -136,18 +145,36 @@ class BossLevelEight(Enemy):
             if self.acid_missiles_timer.is_ready():
                 self.acid_missiles(
                     state=state,
-                    speed=3.5,
-                    height=18,
-                    width=18,
+                    speed=2.0,
+                    height=10,
+                    width=10,
                     power=20,
                     life=1,
                     max_life=1,
-                    number=3,
+                    number=8,
                     spread=100
                 )
                 self.acid_missiles_timer.reset()
         elif self.phase_3:
-            pass
+            if self.napalm_timer.is_ready():
+                if self.napalm_burst_timer.is_ready():
+                    self.shoot_napalm(
+                        bullet_speed=3.5,
+                        bullet_width=20,
+                        bullet_height=20,
+                        bullet_color=self.bulletColor,
+                        bullet_damage=50,
+                        travel_time=0.5,
+                        explosion_time=3.0,
+                        aoe_size=(80, 80),
+                        state=state
+                    )
+                    self.napalm_burst_timer.reset()
+                    self.napalm_burst_counter += 1
+
+                    if self.napalm_burst_counter >= 5:
+                        self.napalm_timer.reset()
+                        self.napalm_burst_counter = 0
 
     def moveAI(self) -> None:
         # -------------------------
