@@ -50,15 +50,22 @@ class BossLevelEight(Enemy):
         # fire immediately (optional)
         self.acid_missiles_timer.last_time_ms -= self.acid_missiles_timer.interval_ms
 
-        self.napalm_timer = Timer(5.0)
-        # Offset to fire immediately
-        self.napalm_timer.last_time_ms -= self.napalm_timer.interval_ms
+        # Phase 3 timers
+        self.phase_3_attack_timer = Timer(6.0)
+        self.phase_3_attack_timer.last_time_ms -= self.phase_3_attack_timer.interval_ms
+        self.phase_3_selected_attack = None
+        self.phase_3_attack_in_progress = False
 
-        self.napalm_burst_timer = Timer(0.7)
-        # Offset to fire immediately
-        self.napalm_burst_timer.last_time_ms -= self.napalm_burst_timer.interval_ms
+        # Phase 3 sub-timers for sequence-based attacks
+        self.phase_3_splatter_cannon_sequence_timer = Timer(0.9)
+        self.phase_3_splatter_cannon_sequence_counter = 0
 
-        self.napalm_burst_counter = 0
+        # Restoration of Napalm timers for Phase 3 (as requested, separate from the 3-part sequence)
+        self.phase_3_napalm_timer = Timer(7.0)
+        self.phase_3_napalm_timer.last_time_ms -= self.phase_3_napalm_timer.interval_ms
+        self.phase_3_napalm_burst_timer = Timer(0.7)
+        self.phase_3_napalm_burst_timer.last_time_ms -= self.phase_3_napalm_burst_timer.interval_ms
+        self.phase_3_napalm_burst_counter = 0
 
         self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
@@ -75,27 +82,28 @@ class BossLevelEight(Enemy):
         # -------------------------
         hp_pct = (self.enemyHealth / self.maxHealth) * 100 if self.maxHealth else 0
 
-        # if hp_pct > 70:
-        #     self.phase_1 = True
-        #     self.phase_2 = False
-        #     self.phase_3 = False
-        # elif hp_pct > 40:
-        #     self.phase_1 = False
-        #     self.phase_2 = True
-        #     self.phase_3 = False
-        # else:
-        #     self.phase_1 = False
-        #     self.phase_2 = False
-        #     self.phase_3 = True
-        self.phase_2 = False
-        self.phase_3 = True
-        self.phase_1 = False
+        if hp_pct > 70:
+            self.phase_1 = True
+            self.phase_2 = False
+            self.phase_3 = False
+        elif hp_pct > 40:
+            self.phase_1 = False
+            self.phase_2 = True
+            self.phase_3 = False
+        else:
+            self.phase_1 = False
+            self.phase_2 = False
+            self.phase_3 = True
+
         if not self.is_active:
             return
 
         # movement / hitbox
-        self.moveAI()
+        # self.moveAI()
         self.update_hitbox()
+        self.phase_1 = False
+        self.phase_2 = False
+        self.phase_3 = True
 
 
 
@@ -156,25 +164,88 @@ class BossLevelEight(Enemy):
                 )
                 self.acid_missiles_timer.reset()
         elif self.phase_3:
-            if self.napalm_timer.is_ready():
-                if self.napalm_burst_timer.is_ready():
+            if self.phase_3_attack_timer.is_ready() and not self.phase_3_attack_in_progress:
+                # Randomly select an attack using string keys assigned to numbers
+                roll = random.randint(1, 3)
+                attack_map = {
+                    1: "phase_3_splatter_cannon",
+                    2: "phase_3_wave_beam",
+                    3: "phase_3_acid_missiles"
+                }
+                self.phase_3_selected_attack = attack_map[roll]
+                self.phase_3_attack_in_progress = True
+                self.phase_3_attack_timer.reset()
+
+            if self.phase_3_attack_in_progress:
+                if self.phase_3_selected_attack == "phase_3_splatter_cannon":
+                    if self.phase_3_splatter_cannon_sequence_timer.is_ready():
+                        self.splatter_cannon(
+                            bullet_speed=1.7,
+                            bullet_width=5,
+                            bullet_height=5,
+                            bullet_color=self.bulletColor,
+                            bullet_damage=5,
+                            low_rand_range=-0.20,
+                            high_rand_range=0.99,
+                            bullet_count=15,
+                            state=state
+                        )
+                        self.phase_3_splatter_cannon_sequence_timer.reset()
+                        self.phase_3_splatter_cannon_sequence_counter += 1
+
+                        if self.phase_3_splatter_cannon_sequence_counter >= 3:
+                            self.phase_3_attack_in_progress = False
+                            self.phase_3_splatter_cannon_sequence_counter = 0
+
+                elif self.phase_3_selected_attack == "phase_3_wave_beam":
+                    self.wave_beam(
+                        state=state,
+                        direction="down",
+                        attack_power=25,
+                        speed=3.0,
+                        wave_range=30.0,
+                        wave_speed=0.02,
+                        rof_ms=0,
+                        width=60,
+                        height=12,
+                        bullet_color=self.bulletColor,
+                    )
+                    self.phase_3_attack_in_progress = False
+
+                elif self.phase_3_selected_attack == "phase_3_acid_missiles":
+                    self.acid_missiles(
+                        state=state,
+                        speed=2.0,
+                        height=10,
+                        width=10,
+                        power=20,
+                        life=1,
+                        max_life=1,
+                        number=8,
+                        spread=100
+                    )
+                    self.phase_3_attack_in_progress = False
+
+            # --- Independent Napalm Attack (Phase 3) ---
+            if self.phase_3_napalm_timer.is_ready():
+                if self.phase_3_napalm_burst_timer.is_ready():
                     self.shoot_napalm(
                         bullet_speed=3.5,
-                        bullet_width=20,
-                        bullet_height=20,
+                        bullet_width=30,
+                        bullet_height=10,
                         bullet_color=self.bulletColor,
                         bullet_damage=50,
-                        travel_time=0.5,
+                        travel_time=0.7,
                         explosion_time=3.0,
                         aoe_size=(80, 80),
                         state=state
                     )
-                    self.napalm_burst_timer.reset()
-                    self.napalm_burst_counter += 1
+                    self.phase_3_napalm_burst_timer.reset()
+                    self.phase_3_napalm_burst_counter += 1
 
-                    if self.napalm_burst_counter >= 5:
-                        self.napalm_timer.reset()
-                        self.napalm_burst_counter = 0
+                    if self.phase_3_napalm_burst_counter >= 5:
+                        self.phase_3_napalm_timer.reset()
+                        self.phase_3_napalm_burst_counter = 0
 
     def moveAI(self) -> None:
         # -------------------------
@@ -206,8 +277,30 @@ class BossLevelEight(Enemy):
             pass
 
         elif self.phase_3:
-            # do phase 3 behavior here
-            pass
+            # phase 3 movement
+            if not hasattr(self, "_p3_dir_x"):
+                self._p3_dir_x = 1
+                self._p3_dir_y = 1
+
+            self.x += self.moveSpeed * 1.5 * self._p3_dir_x
+            self.y += self.moveSpeed * 1.5 * self._p3_dir_y
+
+            max_x = (self.camera.window_width / self.camera.zoom) - self.width
+            max_y = (self.camera.window_height / self.camera.zoom) - self.height
+
+            if self.x < 0:
+                self.x = 0
+                self._p3_dir_x = 1
+            elif self.x > max_x:
+                self.x = max_x
+                self._p3_dir_x = -1
+
+            if self.y < 0:
+                self.y = 0
+                self._p3_dir_y = 1
+            elif self.y > max_y:
+                self.y = max_y
+                self._p3_dir_y = -1
 
     def draw(self, surface: pygame.Surface, camera):
         # self.draw_bomb(surface, self.camera)
