@@ -260,6 +260,107 @@ class Enemy:
         #     state = state
         # )
 
+    def wave_beam(
+            self,
+            *,
+            state,
+            direction: str,  # "left" | "right" | "up" | "down"
+            attack_power: int,
+            speed: float,
+            wave_range: float,  # amplitude in pixels
+            wave_speed: float,  # radians per frame step (ex: 0.18) OR per tick unit below
+            rof_ms: int,  # rate of fire cooldown in ms
+            width: int,
+            height: int,
+            bullet_color: tuple[int, int, int],
+    ) -> None:
+        # ROF (local on Enemy, no __init__ edits)
+        now = pygame.time.get_ticks()
+        if not hasattr(self, "_wave_beam_last_fire_ms"):
+            self._wave_beam_last_fire_ms = 0
+        if now - self._wave_beam_last_fire_ms < rof_ms:
+            return
+        self._wave_beam_last_fire_ms = now
+
+        # boss center (world)
+        cx = self.x + self.width / 2 - width / 2
+        cy = self.y + self.height / 2 - height / 2
+
+        # direction vector
+        vx = 0.0
+        vy = 0.0
+        if direction == "left":
+            vx = -1.0
+        elif direction == "right":
+            vx = 1.0
+        elif direction == "up":
+            vy = -1.0
+        elif direction == "down":
+            vy = 1.0
+        else:
+            return
+
+        b = Bullet(cx, cy)
+        b.width = width
+        b.height = height
+        b.color = bullet_color
+        b.damage = attack_power
+
+        # straight travel direction
+        b.vx = vx
+        b.vy = vy
+        b.bullet_speed = speed
+
+        # -------- wave state stored ON THE BULLET (no new class) --------
+        # base straight-line anchor
+        b._wave_base_x = float(cx)
+        b._wave_base_y = float(cy)
+
+        # wave config
+        b._wave_range = float(wave_range)
+        b._wave_speed = float(wave_speed)
+        b._wave_spawn_ms = now
+
+        # wave axis: horizontal travel => wave on Y, vertical travel => wave on X
+        b._wave_axis = "y" if abs(vx) > 0 else "x"
+
+        # override bullet.update with a per-instance function
+        def _wave_update():
+            t_ms = pygame.time.get_ticks() - b._wave_spawn_ms
+
+            # move anchor straight
+            b._wave_base_x += b.vx * b.bullet_speed
+            b._wave_base_y += b.vy * b.bullet_speed
+
+            # wave offset (uses ms so it’s stable)
+            offset = math.sin(t_ms * b._wave_speed) * b._wave_range
+
+            if b._wave_axis == "y":
+                b.x = b._wave_base_x
+                b.y = b._wave_base_y + offset
+            else:
+                b.x = b._wave_base_x + offset
+                b.y = b._wave_base_y
+
+            b.update_rect()
+
+        b.update = _wave_update  # type: ignore[attr-defined]
+        b.update_rect()
+        state.enemy_bullets.append(b)
+        # how to call
+        # self.wave_beam(
+        #     state=state,
+        #     direction="right",  # or "left"/"up"/"down"
+        #     attack_power=25,
+        #     speed=6.0,
+        #     wave_range=30.0,
+        #     wave_speed=0.02,  # smaller = slower wave
+        #     rof_ms=120,  # smaller = tighter spacing
+        #     width=40,
+        #     height=12,
+        #     bullet_color=self.bulletColor,
+        # )
+
 
     def shoot_multiple_down_vertical_y(
             self,

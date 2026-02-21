@@ -21,14 +21,17 @@ class BossLevelEight(Enemy):
         self.color: tuple[int, int, int] = GlobalConstants.RED
 
         self.speed: float = 0.4
-        self.enemyHealth: float = 1111.0
-        self.maxHealth: float = 1111.0
+        self.enemyHealth: float = 2000.0
+        self.maxHealth: float = 2000.0
 
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
         self.moveSpeed: float = 2.2
         self.phase_1: bool = True
         self.phase_2: bool = False
         self.phase_3: bool = False
+        # --- BossLevelEight.__init__ (add this with your other fields) ---
+        self.wave_beam_timer = Timer(1.0)
+        self.wave_beam_timer.reset()
 
 
         self.bile_spitter_image = pygame.image.load(
@@ -38,11 +41,12 @@ class BossLevelEight(Enemy):
         self.touch_damage: int = 10
         # state machine
 
-
     def update(self, state) -> None:
         super().update(state)
-        # drop this near the top of BossLevelEight.update(), after super().update(state)
 
+        # -------------------------
+        # PHASE SELECT (by HP %)
+        # -------------------------
         hp_pct = (self.enemyHealth / self.maxHealth) * 100 if self.maxHealth else 0
 
         if hp_pct > 70:
@@ -50,43 +54,49 @@ class BossLevelEight(Enemy):
             self.phase_2 = False
             self.phase_3 = False
         elif hp_pct > 40:
-            # 40% < hp <= 70%
             self.phase_1 = False
             self.phase_2 = True
             self.phase_3 = False
         else:
-            # hp <= 40%
             self.phase_1 = False
             self.phase_2 = False
             self.phase_3 = True
+
         if not self.is_active:
             return
+
+        # movement / hitbox
         self.moveAI()
-
-        # WORLD-SPACE hitbox
         self.update_hitbox()
-        # -------------------------
-        # PHASE STATE MACHINE
-        # -------------------------
 
+
+
+        # -------------------------
+        # PHASE BEHAVIOR HOOKS
+        # -------------------------
         if self.phase_1:
-            # do phase 1 behavior here
-            # when you're ready to switch:
-            # self.phase_1 = False
-            # self.phase_2 = True
-            pass
-
+            # -------------------------
+            # WAVE BEAM (every 5 seconds)
+            # -------------------------
+            if self.wave_beam_timer.is_ready():
+                # example: fire horizontal (waves up/down)
+                self.wave_beam(
+                    state=state,
+                    direction="down",  # "left"/"right" => wave on Y, "up"/"down" => wave on X
+                    attack_power=25,
+                    speed=5.0,
+                    wave_range=30.0,
+                    wave_speed=0.02,
+                    rof_ms=0,  # single beam shot when timer hits (no extra ROF gating)
+                    width=60,
+                    height=12,
+                    bullet_color=self.bulletColor,
+                )
+                self.wave_beam_timer.reset()
         elif self.phase_2:
-            # do phase 2 behavior here
-            # when you're ready to switch:
-            # self.phase_2 = False
-            # self.phase_3 = True
             pass
-
         elif self.phase_3:
-            # do phase 3 behavior here
             pass
-
 
     def moveAI(self) -> None:
         # -------------------------
@@ -94,11 +104,21 @@ class BossLevelEight(Enemy):
         # -------------------------
 
         if self.phase_1:
-            # do phase 1 behavior here
-            # when you're ready to switch:
-            # self.phase_1 = False
-            # self.phase_2 = True
-            pass
+            # move left/right only, clamp to screen bounds (WORLD X because camera.x is fixed at 0)
+            if not hasattr(self, "_p1_dir"):
+                self._p1_dir = 1  # 1 = right, -1 = left
+
+            self.x += self.moveSpeed * self._p1_dir
+
+            # clamp to visible world width (camera doesn't scroll X)
+            max_x = (self.camera.window_width / self.camera.zoom) - self.width
+
+            if self.x < 0:
+                self.x = 0
+                self._p1_dir = 1
+            elif self.x > max_x:
+                self.x = max_x
+                self._p1_dir = -1
 
         elif self.phase_2:
             # do phase 2 behavior here
