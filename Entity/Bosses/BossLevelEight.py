@@ -26,8 +26,8 @@ class BossLevelEight(Enemy):
 
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
         self.moveSpeed: float = 2.2
-        self.phase_1: bool = True
-        self.phase_2: bool = False
+        self.phase_1: bool = False
+        self.phase_2: bool = True
         self.phase_3: bool = False
         # --- Wave beam timers---
         self.wave_beam_timer = Timer(1.0)
@@ -46,7 +46,7 @@ class BossLevelEight(Enemy):
 
         # __init__ snippet (Boss / Enemy that will fire acid missiles)
 
-        self.acid_missiles_timer = Timer(5.0)  # fire every 5 seconds
+        self.acid_missiles_timer = Timer(8.0)  # fire every 5 seconds
         # fire immediately (optional)
         self.acid_missiles_timer.last_time_ms -= self.acid_missiles_timer.interval_ms
 
@@ -80,30 +80,27 @@ class BossLevelEight(Enemy):
         # -------------------------
         # PHASE SELECT (by HP %)
         # -------------------------
-        hp_pct = (self.enemyHealth / self.maxHealth) * 100 if self.maxHealth else 0
+        # hp_pct = (self.enemyHealth / self.maxHealth) * 100 if self.maxHealth else 0
 
-        if hp_pct > 70:
-            self.phase_1 = True
-            self.phase_2 = False
-            self.phase_3 = False
-        elif hp_pct > 40:
-            self.phase_1 = False
-            self.phase_2 = True
-            self.phase_3 = False
-        else:
-            self.phase_1 = False
-            self.phase_2 = False
-            self.phase_3 = True
+        # if hp_pct > 70:
+        #     self.phase_1 = True
+        #     self.phase_2 = False
+        #     self.phase_3 = False
+        # elif hp_pct > 40:
+        #     self.phase_1 = False
+        #     self.phase_2 = True
+        #     self.phase_3 = False
+        # else:
+        #     self.phase_1 = False
+        #     self.phase_2 = False
+        #     self.phase_3 = True
 
         if not self.is_active:
             return
 
         # movement / hitbox
-        # self.moveAI()
+        self.moveAI()
         self.update_hitbox()
-        self.phase_1 = False
-        self.phase_2 = False
-        self.phase_3 = True
 
 
 
@@ -231,19 +228,19 @@ class BossLevelEight(Enemy):
                 if self.phase_3_napalm_burst_timer.is_ready():
                     self.shoot_napalm(
                         bullet_speed=3.5,
-                        bullet_width=30,
-                        bullet_height=10,
+                        bullet_width=20,
+                        bullet_height=5,
                         bullet_color=self.bulletColor,
                         bullet_damage=50,
                         travel_time=0.7,
                         explosion_time=3.0,
-                        aoe_size=(80, 80),
+                        aoe_size=(20, 5),
                         state=state
                     )
                     self.phase_3_napalm_burst_timer.reset()
                     self.phase_3_napalm_burst_counter += 1
 
-                    if self.phase_3_napalm_burst_counter >= 5:
+                    if self.phase_3_napalm_burst_counter >= 4:
                         self.phase_3_napalm_timer.reset()
                         self.phase_3_napalm_burst_counter = 0
 
@@ -270,37 +267,44 @@ class BossLevelEight(Enemy):
                 self._p1_dir = -1
 
         elif self.phase_2:
-            # do phase 2 behavior here
-            # when you're ready to switch:
-            # self.phase_2 = False
-            # self.phase_3 = True
-            pass
+            # move to the middle of X axis on screen
+            target_x = (self.camera.window_width / self.camera.zoom) / 2 - self.width / 2
+
+            if self.x < target_x:
+                self.x += self.moveSpeed
+                if self.x > target_x:
+                    self.x = target_x
+            elif self.x > target_x:
+                self.x -= self.moveSpeed
+                if self.x < target_x:
+                    self.x = target_x
 
         elif self.phase_3:
+            pass
             # phase 3 movement
-            if not hasattr(self, "_p3_dir_x"):
-                self._p3_dir_x = 1
-                self._p3_dir_y = 1
-
-            self.x += self.moveSpeed * 1.5 * self._p3_dir_x
-            self.y += self.moveSpeed * 1.5 * self._p3_dir_y
-
-            max_x = (self.camera.window_width / self.camera.zoom) - self.width
-            max_y = (self.camera.window_height / self.camera.zoom) - self.height
-
-            if self.x < 0:
-                self.x = 0
-                self._p3_dir_x = 1
-            elif self.x > max_x:
-                self.x = max_x
-                self._p3_dir_x = -1
-
-            if self.y < 0:
-                self.y = 0
-                self._p3_dir_y = 1
-            elif self.y > max_y:
-                self.y = max_y
-                self._p3_dir_y = -1
+            # if not hasattr(self, "_p3_dir_x"):
+            #     self._p3_dir_x = 1
+            #     self._p3_dir_y = 1
+            #
+            # self.x += self.moveSpeed * 1.5 * self._p3_dir_x
+            # self.y += self.moveSpeed * 1.5 * self._p3_dir_y
+            #
+            # max_x = (self.camera.window_width / self.camera.zoom) - self.width
+            # max_y = (self.camera.window_height / self.camera.zoom) - self.height
+            #
+            # if self.x < 0:
+            #     self.x = 0
+            #     self._p3_dir_x = 1
+            # elif self.x > max_x:
+            #     self.x = max_x
+            #     self._p3_dir_x = -1
+            #
+            # if self.y < 0:
+            #     self.y = 0
+            #     self._p3_dir_y = 1
+            # elif self.y > max_y:
+            #     self.y = max_y
+            #     self._p3_dir_y = -1
 
     def draw(self, surface: pygame.Surface, camera):
         # self.draw_bomb(surface, self.camera)
