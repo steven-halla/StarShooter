@@ -179,9 +179,10 @@ class VerticalBattleScreen:
 
         # Collect enemy bullets - moved from draw method to update method
         for enemy in state.enemies:
-            if hasattr(enemy, "enemyBullets"):
+            if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
                 for b in enemy.enemyBullets:
-                    state.enemy_bullets.append(b)
+                    if b not in state.enemy_bullets:
+                        state.enemy_bullets.append(b)
                 enemy.enemyBullets.clear()
 
         self.bullet_collision_helper_remover(state)
@@ -303,7 +304,34 @@ class VerticalBattleScreen:
     def bullet_helper(self, state):
 
         for bullet in list(self.player_bullets):
+            bullet_rect = bullet.rect
 
+            # -------------------------
+            # COLLISION WITH ACID MISSILES (special destructible bullets)
+            # -------------------------
+            for e_bullet in list(state.enemy_bullets):
+                if getattr(e_bullet, "is_acid_missile", False):
+                    if bullet_rect.colliderect(e_bullet.rect):
+                        # Subtract damage from missile
+                        e_bullet.life -= getattr(bullet, "damage", 1)
+                        # Flash the missile red
+                        e_bullet.is_flashing = True
+                        e_bullet.flash_start_time = pygame.time.get_ticks()
+
+                        # remove player bullet (unless it's piercing/special, but keeping it simple for now)
+                        if bullet in self.player_bullets:
+                            self.player_bullets.remove(bullet)
+
+                        # remove missile if dead
+                        if e_bullet.life <= 0:
+                            e_bullet.is_active = False # Mark as inactive
+                            if e_bullet in state.enemy_bullets:
+                                state.enemy_bullets.remove(e_bullet)
+                        
+                        break # stop checking this player bullet against other missiles
+
+            if bullet not in self.player_bullets:
+                continue
 
             # -------------------------
             # METAL SHIELD (uses rect, not hitbox)

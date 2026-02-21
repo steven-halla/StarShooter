@@ -44,6 +44,12 @@ class BossLevelEight(Enemy):
 
         self.splatter_cannon_sequence_counter = 0
 
+        # __init__ snippet (Boss / Enemy that will fire acid missiles)
+
+        self.acid_missiles_timer = Timer(5.0)  # fire every 5 seconds
+        # fire immediately (optional)
+        self.acid_missiles_timer.last_time_ms -= self.acid_missiles_timer.interval_ms
+
 
         self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
@@ -60,19 +66,21 @@ class BossLevelEight(Enemy):
         # -------------------------
         hp_pct = (self.enemyHealth / self.maxHealth) * 100 if self.maxHealth else 0
 
-        if hp_pct > 70:
-            self.phase_1 = True
-            self.phase_2 = False
-            self.phase_3 = False
-        elif hp_pct > 40:
-            self.phase_1 = False
-            self.phase_2 = True
-            self.phase_3 = False
-        else:
-            self.phase_1 = False
-            self.phase_2 = False
-            self.phase_3 = True
-
+        # if hp_pct > 70:
+        #     self.phase_1 = True
+        #     self.phase_2 = False
+        #     self.phase_3 = False
+        # elif hp_pct > 40:
+        #     self.phase_1 = False
+        #     self.phase_2 = True
+        #     self.phase_3 = False
+        # else:
+        #     self.phase_1 = False
+        #     self.phase_2 = False
+        #     self.phase_3 = True
+        self.phase_2 = True
+        self.phase_3 = False
+        self.phase_1 = False
         if not self.is_active:
             return
 
@@ -125,7 +133,18 @@ class BossLevelEight(Enemy):
                 )
                 self.wave_beam_timer.reset()
         elif self.phase_2:
-            pass
+            if self.acid_missiles_timer.is_ready():
+                self.acid_missiles(
+                    state=state,
+                    speed=3.5,
+                    height=18,
+                    width=18,
+                    power=20,
+                    life=1,
+                    max_life=1,
+                    number=3
+                )
+                self.acid_missiles_timer.reset()
         elif self.phase_3:
             pass
 

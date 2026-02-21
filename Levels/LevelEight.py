@@ -87,7 +87,6 @@ class LevelEight(VerticalBattleScreen):
 
         for enemy in list(state.enemies):
             enemy.update(state)
-
             if enemy.y > screen_bottom:
                 if enemy not in self.missed_enemies:
                     self.missed_enemies.append(enemy)
@@ -106,7 +105,11 @@ class LevelEight(VerticalBattleScreen):
             enemy.update_hitbox()
 
             if hasattr(enemy, "enemy_bullets") and enemy.enemy_bullets:
-                state.enemy_bullets.extend(enemy.enemy_bullets)
+                # Filter out missiles that might already be in state.enemy_bullets
+                # though usually they are added here only once.
+                for b in enemy.enemy_bullets:
+                    if b not in state.enemy_bullets:
+                        state.enemy_bullets.append(b)
                 enemy.enemy_bullets.clear()
 
             if enemy.enemyHealth <= 0:
@@ -138,6 +141,23 @@ class LevelEight(VerticalBattleScreen):
         for enemy in state.enemies:
             enemy.draw(state.DISPLAY, self.camera)
             enemy.draw_damage_flash(state.DISPLAY, self.camera)
+
+        # Draw damage flash for acid missiles
+        for b in state.enemy_bullets:
+            if getattr(b, "is_acid_missile", False) and getattr(b, "is_flashing", False):
+                elapsed = pygame.time.get_ticks() - b.flash_start_time
+                if elapsed < b.flash_duration_ms:
+                    if (elapsed // b.flash_interval_ms) % 2 == 0:
+                        x = self.camera.world_to_screen_x(b.x)
+                        y = self.camera.world_to_screen_y(b.y)
+                        w = int(b.width * self.camera.zoom)
+                        h = int(b.height * self.camera.zoom)
+
+                        flash = pygame.Surface((w, h), pygame.SRCALPHA)
+                        flash.fill((*GlobalConstants.RED, 160))
+                        state.DISPLAY.blit(flash, (x, y))
+                else:
+                    b.is_flashing = False
 
 
     def load_enemy_into_list(self, state):

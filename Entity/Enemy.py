@@ -452,6 +452,72 @@ class Enemy:
             #     bullet_damage=10
             # )
 
+    def acid_missiles(
+            self,
+            state,
+            speed: float,
+            height: int,
+            width: int,
+            power: int,
+            life: int,
+            max_life: int,
+            number: int,
+    ) -> None:
+        """
+        Spawns 'Acid Missiles' as enemy bullets that have HP (life/max_life).
+        Player bullets can destroy them if your collision loop subtracts life.
+        """
+
+        if state is None:
+            return
+
+        # spawn from enemy center
+        cx = self.x + self.width / 2
+        cy = self.y + self.height / 2
+
+        for i in range(max(1, number)):
+            b = Bullet(cx, cy)
+            b.width = width
+            b.height = height
+            b.color = getattr(self, "bulletColor", GlobalConstants.SKYBLUE)
+            b.damage = power
+
+            # missile HP (so player bullets can destroy)
+            b.life = int(life)
+            b.max_life = int(max_life)
+
+            # Flash attributes (so player bullets can flash when hit)
+            b.is_flashing = False
+            b.flash_start_time = 0
+            b.flash_duration_ms = 120
+            b.flash_interval_ms = 30
+
+            # tag (optional but useful in collision code)
+            b.is_acid_missile = True
+
+            # movement: aim at player if possible, else straight down
+            if getattr(self, "target_player", None) is not None:
+                px = self.target_player.hitbox.centerx
+                py = self.target_player.hitbox.centery
+                dx = px - cx
+                dy = py - cy
+                dist = (dx * dx + dy * dy) ** 0.5
+                if dist != 0:
+                    b.vx = dx / dist
+                    b.vy = dy / dist
+                else:
+                    b.vx = 0
+                    b.vy = 1
+            else:
+                b.vx = 0
+                b.vy = 1
+
+            b.bullet_speed = speed
+
+            b.update_rect()
+            state.enemy_bullets.append(b)
+
+
     def splatter_cannon(
             self,
             bullet_speed: float,
