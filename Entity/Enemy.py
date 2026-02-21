@@ -497,6 +497,18 @@ class Enemy:
 
             b.update_rect()
             state.enemy_bullets.append(b)
+            # how to call
+            # self.splatter_cannon(
+            #     bullet_speed=1.3,
+            #     bullet_width=21,
+            #     bullet_height=21,
+            #     bullet_color=self.bulletColor,
+            #     bullet_damage=40,
+            #     low_rand_range=-0.40,
+            #     high_rand_range=0.80,
+            #     bullet_count=10,
+            #     state=state
+            # )
 
     def shoot_single_bullet_aimed_at_player(
             self,

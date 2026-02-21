@@ -316,7 +316,7 @@
  <objectgroup id="4" name="enemies">
   <object id="1" name="time_bomb" x="129.831" y="1241.22" width="120" height="120"/>
   <object id="2" name="player" x="236.221" y="117.508" width="16" height="16"/>
-  <object id="4" name="level_8_boss" x="3.63416" y="1.21139" width="150" height="70"/>
+  <object id="4" name="level_8_boss" x="3.63416" y="1.21139" width="133" height="70"/>
  </objectgroup>
  <objectgroup id="6" name="player"/>
 </map>

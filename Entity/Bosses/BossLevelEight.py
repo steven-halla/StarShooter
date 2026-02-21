@@ -29,9 +29,20 @@ class BossLevelEight(Enemy):
         self.phase_1: bool = True
         self.phase_2: bool = False
         self.phase_3: bool = False
-        # --- BossLevelEight.__init__ (add this with your other fields) ---
+        # --- Wave beam timers---
         self.wave_beam_timer = Timer(1.0)
-        self.wave_beam_timer.reset()
+        # Offset to fire immediately
+        self.wave_beam_timer.last_time_ms -= self.wave_beam_timer.interval_ms
+        # splatter cannnon timers
+        self.splatter_cannon_timer = Timer(5.0)
+        # Offset to fire immediately
+        self.splatter_cannon_timer.last_time_ms -= self.splatter_cannon_timer.interval_ms
+
+        self.splatter_cannon_sequence_timer = Timer(0.9)
+        # Offset to fire immediately
+        self.splatter_cannon_sequence_timer.last_time_ms -= self.splatter_cannon_sequence_timer.interval_ms
+
+        self.splatter_cannon_sequence_counter = 0
 
 
         self.bile_spitter_image = pygame.image.load(
@@ -75,6 +86,26 @@ class BossLevelEight(Enemy):
         # PHASE BEHAVIOR HOOKS
         # -------------------------
         if self.phase_1:
+            # update snippet (drop where attacks run, after is_active check)
+            if self.splatter_cannon_timer.is_ready():
+                if self.splatter_cannon_sequence_timer.is_ready():
+                    self.splatter_cannon(
+                        bullet_speed=1.7,
+                        bullet_width=5,
+                        bullet_height=5,
+                        bullet_color=self.bulletColor,
+                        bullet_damage=5,
+                        low_rand_range=-0.20,
+                        high_rand_range=0.99,
+                        bullet_count=15,
+                        state=state
+                    )
+                    self.splatter_cannon_sequence_timer.reset()
+                    self.splatter_cannon_sequence_counter += 1
+
+                    if self.splatter_cannon_sequence_counter >= 3:
+                        self.splatter_cannon_timer.reset()
+                        self.splatter_cannon_sequence_counter = 0
             # -------------------------
             # WAVE BEAM (every 5 seconds)
             # -------------------------
@@ -84,7 +115,7 @@ class BossLevelEight(Enemy):
                     state=state,
                     direction="down",  # "left"/"right" => wave on Y, "up"/"down" => wave on X
                     attack_power=25,
-                    speed=5.0,
+                    speed=3.0,
                     wave_range=30.0,
                     wave_speed=0.02,
                     rof_ms=0,  # single beam shot when timer hits (no extra ROF gating)
