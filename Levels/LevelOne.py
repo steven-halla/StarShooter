@@ -30,7 +30,7 @@ class LevelOne(VerticalBattleScreen):
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.missed_enemies: list[int] = []
         self.game_over: bool = False
-        self.level_complete = False
+        self.level_complete:bool = False
         self.save_state = SaveState()
         self.map_scroll_speed_per_frame: float = .4
 
@@ -69,6 +69,7 @@ class LevelOne(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
+        print(f"Player X: {self.starship.x}, Player Y: {self.starship.y}, Camera Y: {self.camera.y}")
         # print(self.missed_enemies)
         if not hasattr(self, "last_enemy_count"):
             self.last_enemy_count = len(state.enemies)
@@ -244,8 +245,8 @@ class LevelOne(VerticalBattleScreen):
             enemy.update_hitbox()
 
             state.enemies.append(enemy)
-            print(
-                f"[ADD] {enemy.__class__.__name__} "
-                f"hp={enemy.enemyHealth} "
-                f"→ enemies size = {len(state.enemies)}"
-            )
+            # print(
+            #     f"[ADD] {enemy.__class__.__name__} "
+            #     f"hp={enemy.enemyHealth} "
+            #     f"→ enemies size = {len(state.enemies)}"
+            # )

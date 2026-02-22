@@ -195,3 +195,24 @@ class SaveState:
             self.data = json.load(f)
 
         return True
+
+    def load_from_level(self) -> dict[str, Any] | None:
+        """
+        Loads the player state from 'player_save.json' and the position from 'level_save_point.json'.
+        Returns the level-specific position data if successful.
+        """
+        # 1. Load the main player state (ship stats, etc.)
+        if not self.load_from_file(self.DEFAULT_FILENAME):
+            print(f"[SaveState] Failed to load {self.DEFAULT_FILENAME} during load_from_level")
+            return None
+
+        # 2. Load the level-specific save point data (position)
+        level_save_path = os.path.join(self.base_dir, "level_save_point.json")
+        if not os.path.exists(level_save_path):
+            print(f"[SaveState] No level save point found at {level_save_path}")
+            return None
+
+        with open(level_save_path, "r") as f:
+            level_data = json.load(f)
+        
+        return level_data

@@ -20,8 +20,8 @@
       "bullets_per_shot": 2
     },
     "wind_slicer": {
-      "damage": 5,
-      "bullet_count": 8
+      "damage": 5.0,
+      "bullet_count": 1
     }
   },
   "missiles": {
@@ -34,7 +34,7 @@
     "regen_interval_seconds": 10.0
   },
   "shield": {
-    "current": 100,
+    "current": 40,
     "max": 100,
     "recharge_rate": 0.2,
     "time_to_start_recharge": 10000

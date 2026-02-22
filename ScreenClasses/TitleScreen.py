@@ -21,8 +21,8 @@ class TitleScreen:
         self.font_title = pygame.font.SysFont("arial", 72, bold=True)
         self.font_menu = pygame.font.SysFont("arial", 32)
 
-        # levels 1–10, 12 = SHOP, 11 = LOAD
-        self.levels = list(range(1, 11)) + [12, 11]
+        # levels 1–10, 12 = SHOP, 11 = LOAD, 13 = LOAD LEVEL PROGRESS
+        self.levels = list(range(1, 11)) + [12, 11, 13]
         self.selected_index = 0
 
         self.bg_color = (0, 0, 0)
@@ -157,6 +157,60 @@ class TitleScreen:
                 return
 
             # -------------------------
+            # LOAD LEVEL PROGRESS (LEVEL 13)
+            # -------------------------
+            if selected_level == 13:
+                level_data = state.save_state.load_from_level()
+                if level_data:
+                    # 1) Restore player stats
+                    state.save_state.restore_player(state.starship)
+
+                    # 2) Get current level
+                    level_num = state.starship.current_level
+                    
+                    from Levels.LevelOne import LevelOne
+                    from Levels.LevelTwo import LevelTwo
+                    from Levels.levelThree import LevelThree
+                    from Levels.LevelFour import LevelFour
+                    from Levels.LevelFive import LevelFive
+                    from Levels.LevelSix import LevelSix
+                    from Levels.LevelSeven import LevelSeven
+                    from Levels.LevelEight import LevelEight
+                    from Levels.LevelNine import LevelNine
+                    from Levels.LevelTen import LevelTen
+
+                    LEVEL_MAP_ACTUAL = {
+                        1: LevelOne,
+                        2: LevelTwo,
+                        3: LevelThree,
+                        4: LevelFour,
+                        5: LevelFive,
+                        6: LevelSix,
+                        7: LevelSeven,
+                        8: LevelEight,
+                        9: LevelNine,
+                        10: LevelTen,
+                    }
+
+                    level_class = LEVEL_MAP_ACTUAL.get(level_num, LevelOne)
+                    
+                    # 3) Initialize level and restore state
+                    state.currentScreen = level_class(state.textbox)
+                    
+                    # Restore position to starship
+                    state.starship.x = level_data["player_x"]
+                    state.starship.y = level_data["player_y"]
+                    
+                    # Restore camera (VerticalBattleScreen has camera_y and camera object)
+                    # We need to set these on the level instance
+                    state.currentScreen.camera_y = float(level_data["player_camera_y"])
+                    if hasattr(state.currentScreen, "camera"):
+                        state.currentScreen.camera.y = float(level_data["player_camera_y"])
+
+                    state.currentScreen.start(state)
+                    return
+
+            # -------------------------
             # NORMAL LEVEL LOAD
             # -------------------------
             from Levels.LevelOne import LevelOne
@@ -230,6 +284,8 @@ class TitleScreen:
         current = self.levels[self.selected_index]
         if current == 11:
             label = "LOAD GAME"
+        elif current == 13:
+            label = "LOAD LEVEL PROGRESS"
         elif current == 12:
             label = "SHOP KEEPER"
         else:

@@ -101,6 +101,7 @@ class VerticalBattleScreen:
 
         self.sub_weapon_icons = {}
 
+        self.save_point_used: bool = False
         self.textbox = TextBox(
             GlobalConstants.BASE_WINDOW_WIDTH,
             GlobalConstants.BASE_WINDOW_HEIGHT
@@ -169,6 +170,7 @@ class VerticalBattleScreen:
         self.move_map_y_axis()
 
         self.move_player_x_y()
+        self.update_save_point(state)
         # self.update_collision_tiles(state)
         self.starship.update()
         self.clamp_starship_to_screen()
@@ -223,6 +225,55 @@ class VerticalBattleScreen:
             if dx != 0 or dy != 0:
                 self.mover.move_normalized(self.starship, dx, dy, "speed")
 
+    def update_save_point(self, state: 'GameState') -> None:
+        """Checks for collision with 'save_point' tiles and saves state if needed."""
+        try:
+            layer = self.tiled_map.get_layer_by_name("save_point")
+        except (ValueError, KeyError):
+            return # No save point layer in this level
+
+        tile_size = self.tile_size
+        player = self.starship
+        player_rect = player.hitbox
+
+        for col, row, image in layer.tiles():
+            if image is None:
+                continue
+
+            tile_rect = pygame.Rect(
+                col * tile_size,
+                row * tile_size,
+                tile_size,
+                tile_size
+            )
+
+            if player_rect.colliderect(tile_rect):
+                if not self.save_point_used:
+                    print(f"Save point reached! Player Position: ({player.x}, {player.y})")
+                    print(f"Player Position relative to camera: ({player.x}, {player.y - self.camera_y})")
+                    
+                    self.save_state.capture_player(self.starship)
+                    self.save_state.save_to_file("player_save.json")
+                    
+                    # Save level specific data including camera-based position
+                    import json
+                    import os
+                    save_data = {
+                        "player_x": player.x,
+                        "player_y": player.y,
+                        "player_camera_y": self.camera.y
+                    }
+                    
+                    save_dir = os.path.join(os.getcwd(), "SaveStates")
+                    os.makedirs(save_dir, exist_ok=True)
+                    save_path = os.path.join(save_dir, "level_save_point.json")
+                    
+                    with open(save_path, "w") as f:
+                        json.dump(save_data, f, indent=2)
+                    
+                    self.save_point_used = True
+                    print(f"Saved level_save_point.json to {save_path}")
+
     def draw(self, state) -> None:
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
         window_height = GlobalConstants.GAMEPLAY_HEIGHT
@@ -237,6 +288,7 @@ class VerticalBattleScreen:
             self.sub_weapon_icons[weapon_name] = pygame.transform.scale(icon, (24, 24))
 
         self.draw_tiled_layers(scene_surface)
+        self.draw_save_point_layer(scene_surface)
 
         if hasattr(self, "draw_level_collision"):
             self.draw_collision_tiles(scene_surface)
@@ -598,7 +650,10 @@ class VerticalBattleScreen:
 
         # Ordered render: BACKGROUND → GROUND → HAZARD
         for layer_name in ("background", "hazard"):
-            layer = self.tiled_map.get_layer_by_name(layer_name)
+            try:
+                layer = self.tiled_map.get_layer_by_name(layer_name)
+            except ValueError:
+                continue
 
             for col, row, image in layer.tiles():
                 if image is None:
@@ -612,6 +667,29 @@ class VerticalBattleScreen:
                     continue
 
                 surface.blit(image, (col * tile_size, screen_y))
+
+    def draw_save_point_layer(self, surface: pygame.Surface) -> None:
+        """Draws the tiles in the 'save_point' layer."""
+        try:
+            layer = self.tiled_map.get_layer_by_name("save_point")
+        except (ValueError, KeyError):
+            return # No save point layer in this level
+
+        tile_size = self.tile_size
+        window_height = GlobalConstants.GAMEPLAY_HEIGHT
+
+        for col, row, image in layer.tiles():
+            if image is None:
+                continue
+
+            world_y = row * tile_size
+            screen_y = world_y - self.camera_y
+
+            # Cull off-screen tiles
+            if screen_y + tile_size < 0 or screen_y > window_height:
+                continue
+
+            surface.blit(image, (col * tile_size, screen_y))
 
     def update_collision_tiles(self, state, damage: int = 5) -> None:
         layer = self.tiled_map.get_layer_by_name("collision")
