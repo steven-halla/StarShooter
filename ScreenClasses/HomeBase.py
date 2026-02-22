@@ -34,8 +34,24 @@ class HomeBase(Screen):
         self.arrow_text: str = "->"
         self.arrow_gap: int = 10
         self.upper_padding: int = 12
-        self._up_lock = False
-        self._down_lock = False
+
+        # input locks
+        self._up_lock: bool = False
+        self._down_lock: bool = False
+        self._f_lock: bool = False
+
+        # weapon shop popup state
+        self.weapon_shop_open: bool = False
+        self.weapon_shop_index: int = 0
+        self.weapon_shop_items: list[str] = [
+            "m. gun damage booster",
+            "missile speed booster",
+        ]
+
+        # weapon shop rect (400x400 centered)
+        self.weapon_shop_rect = pygame.Rect(0, 0, 450, 400)
+        self.weapon_shop_border_thickness: int = 4
+
 
     def start(self, state) -> None:
         super().start(state)
@@ -43,6 +59,10 @@ class HomeBase(Screen):
         if not self._welcome_shown:
             self.textbox.show("Welcome to your home base")
             self._welcome_shown = True
+
+        # ensure shop rect is centered once we have a display
+        w, h = state.DISPLAY.get_size()
+        self.weapon_shop_rect.center = (w // 2 - 50, h // 2 - 80)
 
     def update(self, state):
         super().update(state)
@@ -56,23 +76,53 @@ class HomeBase(Screen):
         if self.controls.q_just_pressed_button:
             self.textbox.advance()
 
-        # UP = previous option
-        if self.controls.up_button and not self._up_lock:
-            self.menu_index -= 1
-            if self.menu_index < 0:
-                self.menu_index = 0
-            self._up_lock = True
-        elif not self.controls.up_button:
-            self._up_lock = False
+        # MENU NAV (disabled while popup open)
+        if not self.weapon_shop_open:
+            if self.controls.up_button and not self._up_lock:
+                self.menu_index -= 1
+                if self.menu_index < 0:
+                    self.menu_index = 0
+                self._up_lock = True
+            elif not self.controls.up_button:
+                self._up_lock = False
 
-        # DOWN = next option
-        if self.controls.down_button and not self._down_lock:
-            self.menu_index += 1
-            if self.menu_index > len(self.menu_items) - 1:
-                self.menu_index = len(self.menu_items) - 1
-            self._down_lock = True
-        elif not self.controls.down_button:
-            self._down_lock = False
+            if self.controls.down_button and not self._down_lock:
+                self.menu_index += 1
+                if self.menu_index > len(self.menu_items) - 1:
+                    self.menu_index = len(self.menu_items) - 1
+                self._down_lock = True
+            elif not self.controls.down_button:
+                self._down_lock = False
+        else:
+            # Shop navigation
+            if self.controls.up_button and not self._up_lock:
+                self.weapon_shop_index -= 1
+                if self.weapon_shop_index < 0:
+                    self.weapon_shop_index = 0
+                self._up_lock = True
+            elif not self.controls.up_button:
+                self._up_lock = False
+
+            if self.controls.down_button and not self._down_lock:
+                self.weapon_shop_index += 1
+                if self.weapon_shop_index > len(self.weapon_shop_items) - 1:
+                    self.weapon_shop_index = len(self.weapon_shop_items) - 1
+                self._down_lock = True
+            elif not self.controls.down_button:
+                self._down_lock = False
+
+        # OPEN WEAPON SHOP (Primary fire key = F) ONLY when selection is 0
+        if not self.weapon_shop_open:
+            if self.controls.main_weapon_button and not self._f_lock:
+                if self.menu_index == 0:
+                    self.weapon_shop_open = True
+                self._f_lock = True
+            elif not self.controls.main_weapon_button:
+                self._f_lock = False
+
+        # CLOSE WEAPON SHOP (Magic 1 key = D) keep same behavior using release flag
+        if self.weapon_shop_open and self.controls.magic_1_released:
+            self.weapon_shop_open = False
 
     def draw_upper_home_base_screen(self, state) -> None:
         text_box_rect = self.textbox.rect
@@ -81,7 +131,7 @@ class HomeBase(Screen):
             0,
             0,
             state.DISPLAY.get_width(),
-            max(0, text_box_rect.top - self.upper_padding)
+            max(0, text_box_rect.top - self.upper_padding),
         )
 
         if top_area.height <= 0:
@@ -100,6 +150,57 @@ class HomeBase(Screen):
 
         state.DISPLAY.blit(scaled, (x, y))
 
+    def weapon_shop_rectangle(self, state) -> None:
+        if not self.weapon_shop_open:
+            return
+
+        # black background fill inside the popup
+        pygame.draw.rect(state.DISPLAY, (0, 0, 0), self.weapon_shop_rect)
+
+        # thick white border
+        pygame.draw.rect(
+            state.DISPLAY,
+            (255, 255, 255),
+            self.weapon_shop_rect,
+            self.weapon_shop_border_thickness,
+        )
+
+        # items
+        x = self.weapon_shop_rect.x + 50
+        y = self.weapon_shop_rect.y + 18
+
+        title_font = pygame.font.SysFont("arial", 24)
+        item_font = pygame.font.SysFont("arial", 20)
+
+        title_surf = title_font.render("Weapon Shop", True, (255, 255, 255))
+        state.DISPLAY.blit(title_surf, (x , y))
+        y += title_surf.get_height() + 20
+
+        arrow_surf = self.menu_font.render(self.arrow_text, True, (255, 255, 255))
+        arrow_x = x - arrow_surf.get_width() - self.arrow_gap
+
+        for i, item in enumerate(self.weapon_shop_items):
+            if i == self.weapon_shop_index:
+                state.DISPLAY.blit(arrow_surf, (arrow_x, y))
+
+            surf = item_font.render(item, True, (255, 255, 255))
+            state.DISPLAY.blit(surf, (x, y))
+            y += surf.get_height() + 14
+    # def weapon_shop_rectangle(self, state) -> None:
+    #     if not self.weapon_shop_open:
+    #         return
+    #
+    #     # black background fill inside the popup
+    #     pygame.draw.rect(state.DISPLAY, (0, 0, 0), self.weapon_shop_rect)
+    #
+    #     # thick white border
+    #     pygame.draw.rect(
+    #         state.DISPLAY,
+    #         (255, 255, 255),
+    #         self.weapon_shop_rect,
+    #         self.weapon_shop_border_thickness,
+    #     )
+
     def draw(self, state):
         state.DISPLAY.fill(GlobalConstants.BLACK)
 
@@ -116,12 +217,15 @@ class HomeBase(Screen):
         arrow_x = base_x - arrow_surf.get_width() - self.arrow_gap
 
         for i, item in enumerate(self.menu_items):
-            if i == self.menu_index:
+            if i == self.menu_index and not self.weapon_shop_open:
                 state.DISPLAY.blit(arrow_surf, (arrow_x, y))
 
             surf = self.menu_font.render(item, True, (255, 255, 255))
             state.DISPLAY.blit(surf, (base_x, y))
             y += surf.get_height() + self.menu_line_gap
+
+        # popup (overlaps image)
+        self.weapon_shop_rectangle(state)
 
         self.textbox.draw(state.DISPLAY)
 
