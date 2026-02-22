@@ -335,14 +335,3 @@ class BossLevelTen(Enemy):
             duration_ms=10000
         )
 
-    ###### DO NOT REMOVE The below YOU MOTHER FUCKER these are
-        ###### important instructions for this task
-
-#phase 1
-# rain - balls shoot up and then down on player, moves enemy left/right
-#phase 2
-# boomerrange - fires two bullets that travel to player and then back to enemy
-#figure 8 attack meellee attack at player
-#phase 3 go to center of screen and aim at player
-# flame thrower - go center of screen and aim flame thrower at player
-#missiles - shoots missiles that target player
