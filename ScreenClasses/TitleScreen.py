@@ -21,8 +21,8 @@ class TitleScreen:
         self.font_title = pygame.font.SysFont("arial", 72, bold=True)
         self.font_menu = pygame.font.SysFont("arial", 32)
 
-        # levels 1–10, 12 = SHOP, 11 = LOAD, 13 = LOAD LEVEL PROGRESS
-        self.levels = list(range(1, 11)) + [12, 11, 13]
+        # levels 1–10, 12 = SHOP, 11 = LOAD, 13 = LOAD LEVEL PROGRESS, 14 = HOME BASE
+        self.levels = list(range(1, 11)) + [12, 11, 13, 14]
         self.selected_index = 0
 
         self.bg_color = (0, 0, 0)
@@ -59,6 +59,15 @@ class TitleScreen:
         # FIRE (F)
         if self.controls.main_weapon_button:
             selected_level = self.levels[self.selected_index]
+
+            # -------------------------
+            # HOME BASE (LEVEL 14)
+            # -------------------------
+            if selected_level == 14:
+                from ScreenClasses.HomeBase import HomeBase
+                state.currentScreen = HomeBase(state.textbox)
+                state.currentScreen.start(state)
+                return
 
             # -------------------------
             # SHOP KEEPER (LEVEL 12)
@@ -288,6 +297,8 @@ class TitleScreen:
             label = "LOAD LEVEL PROGRESS"
         elif current == 12:
             label = "SHOP KEEPER"
+        elif current == 14:
+            label = "HOME BASE"
         else:
             label = f"LEVEL {current}"
         level_surf = self.font_menu.render(label, True, self.highlight_color)

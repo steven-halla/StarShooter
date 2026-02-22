@@ -25,7 +25,7 @@
     }
   },
   "missiles": {
-    "damage": 343,
+    "damage": 50,
     "bullet_speed": 1.5,
     "rate_of_fire": 0.5,
     "max": 2,

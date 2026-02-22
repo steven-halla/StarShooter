@@ -17,7 +17,7 @@ class Missile(Bullet):
         self.weapon_name: str = "Missile"
 
         # stats
-        self.damage: int = 343
+        self.damage: int = 50
         self.rate_of_fire: float = 0.5
         self.bullet_speed: float = 1.5
 
