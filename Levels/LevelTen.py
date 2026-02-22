@@ -67,6 +67,14 @@ class LevelTen(VerticalBattleScreen):
         self.save_state.save_to_file("player_save.json")
 
     def update(self, state) -> None:
+        # Create melee_hitbox FIRST (before enemies update)
+        self.starship.melee_hitbox = pygame.Rect(
+            int(self.starship.x),
+            int(self.starship.y),
+            self.starship.width,
+            self.starship.height
+        )
+
         super().update(state)
 
         self.update_game_over_condition()

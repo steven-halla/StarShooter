@@ -30,7 +30,7 @@ class BossLevelTen(Enemy):
         self.exp: int = 1
         self.credits: int = 5
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
-        self.moveSpeed: float = 2.2
+        self.moveSpeed: float = 0.9
         self.edge_padding: int = 0
         self.move_direction: int = random.choice([-1, 1])
         self.move_interval_ms: int = 3000
@@ -51,30 +51,40 @@ class BossLevelTen(Enemy):
         self.rest_phase_timer = Timer(10.0)  # how long REST lasts
         self.machine_gun_timer = Timer(0.5)  # fire rate during FIRE
         self.aimed_shot_timer = Timer(1.0)  # 1 second
+        self.horizontal_barrage_timer = Timer(4.0)  # once every 4 seconds
 
         self.phase_1 = False
         self.phase_2 = True
         self.phase_3 = False
 
         self.liquid_launcher_timer = Timer(5.0)
+        self.is_resting = False
+        self.rest_start_time = 0
+        self._rope = None
+        self.player_caught: bool = False
 
     def update(self, state) -> None:
         super().update(state)
+        # print(self.phase_2)
         if not self.is_active:
             return
 
+        now = pygame.time.get_ticks()
+
+
+
         if self.liquid_launcher_timer.is_ready():
-            self.boomerang(
-                power=25,
-                bullet_number=4,
-                width=14,
-                height=14,
-                color=self.bulletColor,
-                speed=5.0,
-                max_distance_traveled=180.0,
-                bullet_spread=50,
-                state=state
-            )
+            # self.boomerang(
+            #     power=25,
+            #     bullet_number=4,
+            #     width=14,
+            #     height=14,
+            #     color=self.bulletColor,
+            #     speed=5.0,
+            #     max_distance_traveled=180.0,
+            #     bullet_spread=50,
+            #     state=state
+            # )
             # self.liquid_launcher(
             #     damage=20,
             #     air_height=180.0,
@@ -87,6 +97,12 @@ class BossLevelTen(Enemy):
             #     state=state
             # )
             self.liquid_launcher_timer.reset()
+            self.is_resting = True
+            self.rest_start_time = pygame.time.get_ticks()
+
+        if self.horizontal_barrage_timer.is_ready():
+            self.horizontal_barrage(state)
+            self.horizontal_barrage_timer.reset()
 
         ####DO NOT REMOVE THIS YOU MOTHER FUCKER
         # hp_pct = (self.enemyHealth / self.maxHealth) * 100 if self.maxHealth else 0
@@ -104,18 +120,15 @@ class BossLevelTen(Enemy):
         #     self.phase_2 = False
         #     self.phase_3 = True
         ###### DO NOT REMOVE THIS YOU MOTHER FUCKER
-        self.moveAI()
+
+        self.moveAI(state)
 
         # WORLD-SPACE hitbox
         self.update_hitbox()
 
-
-
-
         now = pygame.time.get_ticks()
 
-
-    def moveAI(self) -> None:
+    def moveAI(self, state) -> None:
 
         if self.phase_1:
             # use the SAME world-width that Enemy.clamp_horizontal() uses
@@ -141,14 +154,23 @@ class BossLevelTen(Enemy):
                 self._phase1_dir = -1
 
         elif self.phase_2:
-            pass
+            now = pygame.time.get_ticks()
+
+            # REST: only blocks ATTACKS elsewhere, NOT movement
+            if self.is_resting and (now - self.rest_start_time >= 5000):
+                self.is_resting = False
+
+            # ALWAYS chase the player (no early returns)
+            if state.starship:
+                dx = state.starship.x - self.x
+                dy = state.starship.y - self.y
+                self.mover.enemy_move(self, dx, dy)
 
         elif self.phase_3:
             pass
 
     def draw(self, surface: pygame.Surface, camera):
         # self.draw_bomb(surface, self.camera)
-
 
         super().draw(surface, camera)
 
@@ -167,7 +189,38 @@ class BossLevelTen(Enemy):
         screen_y = camera.world_to_screen_y(self.y)
         surface.blit(scaled_sprite, (screen_x, screen_y))
 
-        ###### DO NOT REMOVE The below YOU MOTHER FUCKER these are
+    def horizontal_barrage(self, state) -> None:
+        """Fires 10 bullets from the RIGHT edge of the screen to the LEFT."""
+        if self.camera is None:
+            return
+
+        # RIGHT of screen in world space
+        right_x = self.camera.window_width / self.camera.zoom
+        # LEFT of screen in world space is 0 (as horizontal camera doesn't scroll)
+        
+        # Screen height in world space
+        screen_height_world = self.camera.window_height / self.camera.zoom
+        # Top of current screen in world space
+        top_y = self.camera.y
+        
+        # Calculate Y spacing to spread 10 bullets
+        spacing = screen_height_world / 11
+
+        for i in range(1, 11):
+            bullet_y = top_y + (i * spacing)
+            b = Bullet(right_x, bullet_y)
+            b.vx = -1.0 # Right to Left
+            b.vy = 0.0
+            b.bullet_speed = 5.0 # Typical bullet speed
+            b.width = self.bulletWidth
+            b.height = self.bulletHeight
+            b.damage = 10
+            b.camera = self.camera
+            
+            # Using game_state.enemy_bullets as per comment on line 32
+            state.enemy_bullets.append(b)
+
+    ###### DO NOT REMOVE The below YOU MOTHER FUCKER these are
         ###### important instructions for this task
 
 #phase 1

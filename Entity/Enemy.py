@@ -359,7 +359,7 @@ class Enemy:
             half = (bullet_number - 1) / 2
             spacing = max(2, width + 2)
             offsets = [int((i - half) * spacing) for i in range(bullet_number)]
-            
+
             # calculate angle spread
             angle_step = math.radians(bullet_spread) / (bullet_number - 1) if bullet_number > 1 else 0
             angles = [base_angle - (math.radians(bullet_spread) / 2) + (i * angle_step) for i in range(bullet_number)]
@@ -367,7 +367,7 @@ class Enemy:
         for i in range(bullet_number):
             angle = angles[i]
             off = offsets[i]
-            
+
             b = Bullet(ex - width / 2 + off, ey - height / 2)
             b.width = width
             b.height = height

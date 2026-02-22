@@ -68,7 +68,7 @@ class BossLevelThree(Enemy):
         #     self.phase = 2
         # else:
         #     self.phase = 3
-        self.phase = 3
+        self.phase = 1
 
         # -------------------------
         # PHASE 1 — ROPE + SHOOT
