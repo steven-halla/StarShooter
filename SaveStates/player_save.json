@@ -1,7 +1,7 @@
 {
   "version": 1,
   "player": {
-    "shipHealth": 144,
+    "shipHealth": 50,
     "shipHealthMax": 50,
     "equipped_magic": [
       "",

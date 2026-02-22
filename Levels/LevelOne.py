@@ -61,7 +61,6 @@ class LevelOne(VerticalBattleScreen):
         self.starship.y = player_y
 
         self.load_enemy_into_list(state)
-        self.starship.shipHealth = 144
         self.save_state.capture_player(self.starship)
         self.save_state.save_to_file("player_save.json")
         state.starship.apply_upgrades()
@@ -69,7 +68,10 @@ class LevelOne(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
-        print(f"Player X: {self.starship.x}, Player Y: {self.starship.y}, Camera Y: {self.camera.y}")
+        print(self.missed_enemies)
+        if self.missed_enemies.__len__() > 3:
+            print("Objective failed!!!")
+        # print(f"Player X: {self.starship.x}, Player Y: {self.starship.y}, Camera Y: {self.camera.y}")
         # print(self.missed_enemies)
         if not hasattr(self, "last_enemy_count"):
             self.last_enemy_count = len(state.enemies)
@@ -144,7 +146,7 @@ class LevelOne(VerticalBattleScreen):
                         print("GAME OVER!!!")
 
     def update_game_over_condition(self):
-        if len(self.missed_enemies) > 9:
+        if len(self.missed_enemies) > 3:
             print("GAME OVER!!!")
             self.game_over = True
 
@@ -195,11 +197,18 @@ class LevelOne(VerticalBattleScreen):
         # ---------------------------------
         # draw (no flicker)
         # ---------------------------------
-        enemy_text = font.render(
-            f"Enemies {self.enemies_killed}/40",
-            True,
-            (255, 255, 255)
-        )
+        if len(self.missed_enemies) > 3:
+            enemy_text = font.render(
+                "objective failed",
+                True,
+                (255, 0, 0)
+            )
+        else:
+            enemy_text = font.render(
+                f"enemies missed {len(self.missed_enemies)} / 4",
+                True,
+                (255, 255, 255)
+            )
         state.DISPLAY.blit(enemy_text, (10, 50))
 
     # def draw_enemy_counter(self, current_enemies, font, state):
