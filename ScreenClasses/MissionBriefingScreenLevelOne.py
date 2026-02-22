@@ -2,71 +2,99 @@ import pygame
 
 from SaveStates.SaveState import SaveState
 from ScreenClasses.Screen import Screen
-from Constants.GlobalConstants import GlobalConstants
 
 
 class MissionBriefingScreenLevelOne(Screen):
     def __init__(self):
         super().__init__()
-        self.level_start:bool = True
-        self.font_title = pygame.font.Font(None, 48)
-        self.font_body = pygame.font.Font(None, 26)
-        self.set_player = "None"
+        self.level_start: bool = True
         self.skip_ready_time = pygame.time.get_ticks() + 2500
         self.save_state = SaveState()
-
 
         self.briefing_text = [
             "Mission Briefing: Save the colony",
             "",
-            "The Space colony Beckersville  is under attack from the undead legion",
+            "The Space colony Beckersville is under attack from the undead legion.",
             "Ammo is almost depleted, and most of the barrels have melted.",
-            "The enemy strike force includes a Harvester bio ship",
+            "The enemy strike force includes a Harvester bio ship.",
             "",
-            "Destroy at least 40 enemies.",
-            "Destroy the Harvester Bio ship",
+            "Objectives:",
+            "- Destroy at least 40 enemies.",
+            "- Destroy the Harvester Bio ship.",
             "",
-            "All fighter pilots are deadk, you will be alone.",
+            "All fighter pilots are dead. You will be alone.",
             "",
-            "Use arrow keys to move. Press F key Machine gun Fire..",
+            "Controls:",
+            "- Arrow keys: Move",
+            "- F: Machine gun fire",
+            "- A: Launch missiles",
+            "- D: Special attack",
             "",
-            "Press A key to launch missiles. Press D key to launch Special Attack",
-            "",
-
             "Press F to deploy."
         ]
 
+        self.briefing_message: str = "\n".join(self.briefing_text)
+        self._briefing_shown: bool = False
+
+        # portrait settings
+        self.portrait_box_gap = 24
+
+        # sprite sheet
+        self.character_sprite_image = pygame.image.load(
+            "Assets/Images/tarial_sixteen_bit_spirte_sheet.png"
+        ).convert_alpha()
+
+        # frame rect (LEFT frame only)
+        # NOTE: this assumes your sheet is 3 frames across with the same height
+        frame_w = self.character_sprite_image.get_width() // 3
+        frame_h = self.character_sprite_image.get_height()
+
+        # Use ints for subsurface rect
+        self.portrait_sprite_rect = pygame.Rect(0, 0, int(frame_w), int(frame_h))
+
     def update(self, state):
-        # if self.level_start == True:
-        #     self.level_start = False
-            # self.save_state.capture_player(self.starship, self.__class__.__name__)
-            # self.save_state.save_to_file("player_save.json")
+        if not self._briefing_shown:
+            state.textbox.show(self.briefing_message)
+            self._briefing_shown = True
+
         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    state.textbox.advance()
 
-                if pygame.time.get_ticks() < self.skip_ready_time:
+                if event.key == pygame.K_f:
+                    if pygame.time.get_ticks() < self.skip_ready_time:
+                        return
+                    if state.textbox.is_visible():
+                        return
+
+                    from Levels.LevelOne import LevelOne
+                    next_level = LevelOne(state.textbox)
+                    next_level.set_player(state.starship)
+                    state.currentScreen = next_level
+                    next_level.start(state)
                     return
-                from Levels.LevelOne import LevelOne
 
-                next_level = LevelOne(state.textbox)
-                next_level.set_player(state.starship)
-                state.currentScreen = next_level
-                next_level.start(state)
-                return
     def draw(self, state):
         state.DISPLAY.fill((0, 0, 0))
 
-        y = 80
-        for i, line in enumerate(self.briefing_text):
-            if i == 0:
-                text_surface = self.font_title.render(line, True, (255, 50, 50))
-            else:
-                text_surface = self.font_body.render(line, True, (200, 200, 200))
+        state.textbox.draw(state.DISPLAY)
 
-            rect = text_surface.get_rect(
-    center=(GlobalConstants.WINDOWS_SIZE[0] // 2, y)
-)
-            state.DISPLAY.blit(text_surface, rect)
-            y += 36
+        text_box_rect = state.textbox.rect
+
+        portrait_box_size = text_box_rect.height
+        portrait_box_rect = pygame.Rect(
+            text_box_rect.left - self.portrait_box_gap - portrait_box_size,
+            text_box_rect.top,
+            portrait_box_size,
+            portrait_box_size
+        )
+
+        sprite_rect = pygame.Rect(60, 320, 440, 440)
+        sprite = self.character_sprite_image.subsurface(sprite_rect)
+        scaled_sprite = pygame.transform.scale(sprite, (portrait_box_rect.width, portrait_box_rect.height -10))
+        sprite_x = portrait_box_rect.x
+        sprite_y = portrait_box_rect.y
+        state.DISPLAY.blit(scaled_sprite, (sprite_x +3, sprite_y +5))
 
         pygame.display.flip()

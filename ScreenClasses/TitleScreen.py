@@ -4,6 +4,7 @@ from Constants.GlobalConstants import GlobalConstants
 from Controller.KeyBoardControls import KeyBoardControls
 from Levels import levelThree
 from Levels.levelThree import LevelThree
+from ScreenClasses.MissionBriefingScreenLevelOne import MissionBriefingScreenLevelOne
 
 
 class TitleScreen:
@@ -83,8 +84,20 @@ class TitleScreen:
                     from Levels.LevelNine import LevelNine
                     from Levels.LevelTen import LevelTen
 
+                    # LEVEL_MAP = {
+                    #     1: LevelOne,
+                    #     2: LevelTwo,
+                    #     3: LevelThree,
+                    #     4: LevelFour,
+                    #     5: LevelFive,
+                    #     6: LevelSix,
+                    #     7: LevelSeven,
+                    #     8: LevelEight,
+                    #     9: LevelNine,
+                    #     10: LevelTen,
+                    # }
                     LEVEL_MAP = {
-                        1: LevelOne,
+                        1: MissionBriefingScreenLevelOne,
                         2: LevelTwo,
                         3: LevelThree,
                         4: LevelFour,
@@ -100,7 +113,10 @@ class TitleScreen:
                     level_num = state.starship.current_level
                     level_class = LEVEL_MAP.get(level_num, LevelOne)
 
-                    state.currentScreen = level_class(state.textbox)
+                    if level_class == MissionBriefingScreenLevelOne:
+                        state.currentScreen = level_class()
+                    else:
+                        state.currentScreen = level_class(state.textbox)
                     state.currentScreen.start(state)
                 return
 
@@ -119,7 +135,7 @@ class TitleScreen:
             from Levels.LevelTen import LevelTen
 
             LEVEL_MAP = {
-                1: LevelOne,
+                1: MissionBriefingScreenLevelOne,
                 2: LevelTwo,
                 3: LevelThree,
                 4: LevelFour,
@@ -132,7 +148,10 @@ class TitleScreen:
             }
 
             level_class = LEVEL_MAP[selected_level]
-            state.currentScreen = level_class(state.textbox)
+            if level_class == MissionBriefingScreenLevelOne:
+                state.currentScreen = level_class()
+            else:
+                state.currentScreen = level_class(state.textbox)
             state.currentScreen.start(state)
 
     # REQUIRED BY ENGINE
