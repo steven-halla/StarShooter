@@ -8,11 +8,11 @@
       null
     ],
     "magic_inventory": [],
-    "current_level": 9
+    "current_level": 10
   },
   "weapons": {
     "machine_gun": {
-      "damage": 10.7,
+      "damage": 0.7,
       "width": 4,
       "height": 4,
       "rate_of_fire": 0.1,

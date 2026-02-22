@@ -2,6 +2,7 @@ import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelOne import BossLevelOne
+from Entity.Bosses.BossLevelTen import BossLevelTen
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.ObjectiveBlock import ObjectiveBlock
@@ -26,10 +27,11 @@ class LevelTen(VerticalBattleScreen):
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
         window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
         visible_height = window_height / self.camera.zoom
-        self.camera_y = self.WORLD_HEIGHT - visible_height
-        self.camera.world_height = self.WORLD_HEIGHT
-        self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
-        self.camera.y = float(self.camera_y)
+        # self.camera_y = self.WORLD_HEIGHT - visible_height
+        # self.camera.world_height = self.WORLD_HEIGHT
+        # self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
+        # self.camera.y = float(self.camera_y)
+        self.camera.y = 80
         self.map_scroll_speed_per_frame: float = .4  # move speed of camera
         self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
         self.game_over: bool = False
@@ -61,7 +63,7 @@ class LevelTen(VerticalBattleScreen):
 
         self.load_enemy_into_list(state)
         self.starship.shipHealth = 144
-        self.save_state.capture_player(self.starship, self.__class__.__name__)
+        self.save_state.capture_player(self.starship)
         self.save_state.save_to_file("player_save.json")
 
     def update(self, state) -> None:
@@ -138,8 +140,8 @@ class LevelTen(VerticalBattleScreen):
         state.enemies.clear()
 
         for obj in self.tiled_map.objects:
-            if obj.name == "level_1_boss":
-                enemy = BossLevelOne()
+            if obj.name == "level_10_boss":
+                enemy = BossLevelTen()
             elif obj.name == "bile_spitter":
                 enemy = BileSpitter()
             elif obj.name == "shooting_up_block":
