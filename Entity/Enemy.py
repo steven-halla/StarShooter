@@ -313,6 +313,146 @@ class Enemy:
         #     state=state
         # )
 
+    def boomerang(
+            self,
+            *,
+            power: int,
+            bullet_number: int,
+            width: int,
+            height: int,
+            color: tuple[int, int, int],
+            speed: float,
+            max_distance_traveled: float,
+            bullet_spread: float = 0.0,
+            state
+    ) -> None:
+        """
+        Fires bullets toward the player (world-space). Each bullet travels up to
+        `max_distance_traveled` then returns to the enemy. When it touches the enemy,
+        it deletes itself (removed from state.enemy_bullets).
+        """
+        if state is None or self.camera is None or self.target_player is None:
+            return
+
+        # enemy center (world)
+        ex = self.x + self.width / 2
+        ey = self.y + self.height / 2
+
+        # player center (world)
+        px = self.target_player.x + self.target_player.width / 2
+        py = self.target_player.y + self.target_player.height / 2
+
+        dx = px - ex
+        dy = py - ey
+        dist = math.hypot(dx, dy)
+        if dist == 0:
+            return
+
+        # base angle to player
+        base_angle = math.atan2(dy, dx)
+
+        # small spawn offsets so multiple bullets don't sit perfectly stacked
+        if bullet_number <= 1:
+            angles = [base_angle]
+            offsets = [0]
+        else:
+            half = (bullet_number - 1) / 2
+            spacing = max(2, width + 2)
+            offsets = [int((i - half) * spacing) for i in range(bullet_number)]
+            
+            # calculate angle spread
+            angle_step = math.radians(bullet_spread) / (bullet_number - 1) if bullet_number > 1 else 0
+            angles = [base_angle - (math.radians(bullet_spread) / 2) + (i * angle_step) for i in range(bullet_number)]
+
+        for i in range(bullet_number):
+            angle = angles[i]
+            off = offsets[i]
+            
+            b = Bullet(ex - width / 2 + off, ey - height / 2)
+            b.width = width
+            b.height = height
+            b.color = color
+            b.damage = power
+            b.bullet_speed = float(speed)
+            b.camera = self.camera
+
+            # forward velocity (at spread angle)
+            b.vx = math.cos(angle)
+            b.vy = math.sin(angle)
+
+            # boomerang state stored on bullet
+            b._br_returning = False
+            b._br_traveled = 0.0
+            b._br_max = float(max_distance_traveled)
+
+            b.update_rect()
+
+            def _br_update(bullet=b, enemy=self, game_state=state):
+                if not bullet.is_active:
+                    return
+
+                # if returning, re-aim at enemy center every frame
+                if bullet._br_returning:
+                    tx = enemy.x + enemy.width / 2
+                    ty = enemy.y + enemy.height / 2
+                    ddx = tx - bullet.x
+                    ddy = ty - bullet.y
+                    d = math.hypot(ddx, ddy)
+
+                    if d != 0:
+                        bullet.vx = ddx / d
+                        bullet.vy = ddy / d
+
+                # move
+                step_x = bullet.vx * bullet.bullet_speed
+                step_y = bullet.vy * bullet.bullet_speed
+                bullet.x += step_x
+                bullet.y += step_y
+
+                # track distance traveled (only while going out)
+                if not bullet._br_returning:
+                    bullet._br_traveled += math.hypot(step_x, step_y)
+                    if bullet._br_traveled >= bullet._br_max:
+                        bullet._br_returning = True
+
+                bullet.update_rect()
+
+                # delete on touching enemy (return complete)
+                if bullet._br_returning and bullet.rect.colliderect(enemy.hitbox):
+                    bullet.is_active = False
+                    if bullet in game_state.enemy_bullets:
+                        game_state.enemy_bullets.remove(bullet)
+                    return
+
+                # keep your Bullet off-camera despawn behavior too
+                if bullet.camera is not None:
+                    visible_top = bullet.camera.y - 100
+                    visible_bottom = (
+                            bullet.camera.y
+                            + (bullet.camera.window_height / bullet.camera.zoom)
+                            + 100
+                    )
+                    if bullet.y + bullet.height < visible_top or bullet.y > visible_bottom:
+                        bullet.is_active = False
+                        if bullet in game_state.enemy_bullets:
+                            game_state.enemy_bullets.remove(bullet)
+
+            b.update = _br_update  # type: ignore[attr-defined]
+
+            state.enemy_bullets.append(b)
+
+        # how to call (BossLevelTen update)
+        # self.boomerang(
+        #     power=25,
+        #     bullet_number=2,
+        #     width=14,
+        #     height=14,
+        #     color=self.bulletColor,
+        #     speed=5.0,
+        #     max_distance_traveled=260.0,
+        #     bullet_spread=20,
+        #     state=state
+        # )
     def shoot_single_down_vertical_y(
             self,
             bullet_speed: float,

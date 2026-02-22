@@ -52,14 +52,42 @@ class BossLevelTen(Enemy):
         self.machine_gun_timer = Timer(0.5)  # fire rate during FIRE
         self.aimed_shot_timer = Timer(1.0)  # 1 second
 
-        self.phase_1 = True
-        self.phase_2 = False
+        self.phase_1 = False
+        self.phase_2 = True
         self.phase_3 = False
+
+        self.liquid_launcher_timer = Timer(5.0)
 
     def update(self, state) -> None:
         super().update(state)
         if not self.is_active:
             return
+
+        if self.liquid_launcher_timer.is_ready():
+            self.boomerang(
+                power=25,
+                bullet_number=4,
+                width=14,
+                height=14,
+                color=self.bulletColor,
+                speed=5.0,
+                max_distance_traveled=180.0,
+                bullet_spread=50,
+                state=state
+            )
+            # self.liquid_launcher(
+            #     damage=20,
+            #     air_height=180.0,
+            #     bullet_spread=50,
+            #     bullet_number=10,
+            #     width=14,
+            #     height=14,
+            #     color=self.bulletColor,
+            #     bullet_speed=4.0,
+            #     state=state
+            # )
+            self.liquid_launcher_timer.reset()
+
         ####DO NOT REMOVE THIS YOU MOTHER FUCKER
         # hp_pct = (self.enemyHealth / self.maxHealth) * 100 if self.maxHealth else 0
         #
