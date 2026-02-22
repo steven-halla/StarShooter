@@ -224,6 +224,95 @@ class Enemy:
     def apply_barrage_damage(self, *args):
         pass
 
+    def liquid_launcher(
+            self,
+            *,
+            damage: int,
+            air_height: float,
+            bullet_spread: int,
+            bullet_number: int,
+            width: int,
+            height: int,
+            color: tuple[int, int, int],
+            bullet_speed: float,
+            state
+    ) -> None:
+        """
+        Fires bullets UP first, then each bullet reverses and travels DOWN after reaching `air_height`.
+        `air_height` is measured in world pixels traveled upward from the spawn point.
+        """
+
+        if state is None:
+            return
+
+        start_x = self.x + self.width // 2 - width // 2
+        start_y = self.y + self.height
+
+        if bullet_number <= 1:
+            offsets = [0]
+        else:
+            half = (bullet_number - 1) / 2
+            offsets = [int((i - half) * bullet_spread) for i in range(bullet_number)]
+
+        for offset in offsets:
+            b = Bullet(start_x + offset, start_y)
+            b.width = width
+            b.height = height
+            b.color = color
+            b.damage = damage
+
+            # UP first (toward y=0)
+            b.vx = 0.0
+            b.vy = -1.0
+            b.bullet_speed = float(bullet_speed)
+
+            b._ll_start_y = float(start_y)
+            b._ll_air_height = float(air_height)
+            b._ll_has_reversed = False
+
+            def _liquid_update(bullet=b):
+                if not bullet.is_active:
+                    return
+
+                bullet.x += bullet.vx * bullet.bullet_speed
+                bullet.y += bullet.vy * bullet.bullet_speed
+
+                # reverse when traveled UP far enough
+                if (not bullet._ll_has_reversed) and (bullet._ll_start_y - bullet.y >= bullet._ll_air_height):
+                    bullet.vy = 1.0  # now rain DOWN
+                    bullet._ll_has_reversed = True
+
+                bullet.update_rect()
+
+                if bullet.camera is not None:
+                    visible_top = bullet.camera.y - 100
+                    visible_bottom = (
+                            bullet.camera.y
+                            + (bullet.camera.window_height / bullet.camera.zoom)
+                            + 100
+                    )
+                    if bullet.y + bullet.height < visible_top or bullet.y > visible_bottom:
+                        bullet.is_active = False
+
+            b.update = _liquid_update  # type: ignore[attr-defined]
+            b.camera = getattr(self, "camera", None)
+
+            b.update_rect()
+            state.enemy_bullets.append(b)
+
+        # how to call (Boss Level 10 update)
+        # self.liquid_launcher(
+        #     damage=20,
+        #     air_height=180.0,
+        #     bullet_spread=40,
+        #     bullet_number=5,
+        #     width=14,
+        #     height=14,
+        #     color=self.bulletColor,
+        #     bullet_speed=4.0,
+        #     state=state
+        # )
+
     def shoot_single_down_vertical_y(
             self,
             bullet_speed: float,

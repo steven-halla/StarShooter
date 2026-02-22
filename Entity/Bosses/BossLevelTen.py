@@ -88,31 +88,29 @@ class BossLevelTen(Enemy):
 
 
     def moveAI(self) -> None:
+
         if self.phase_1:
-            # move left/right only, clamp to screen bounds (WORLD X because camera.x is fixed at 0)
-            window_width = GlobalConstants.BASE_WINDOW_WIDTH
+            # use the SAME world-width that Enemy.clamp_horizontal() uses
+            if self.camera is None:
+                return
+            max_x = (self.camera.window_width / self.camera.zoom) - self.width
 
-            if not hasattr(self, "_last_x"):
-                self._last_x = self.x
+            if not hasattr(self, "_phase1_dir"):
+                self._phase1_dir = random.choice([-1, 1])
 
-            if self.move_direction > 0:
+            # move left/right
+            if self._phase1_dir > 0:
                 self.mover.enemy_move_right(self)
             else:
                 self.mover.enemy_move_left(self)
 
-            # Check boundaries and switch direction
-            if self.x <= self.edge_padding:
-                self.x = self.edge_padding
-                self.move_direction = 1
-            elif self.x + self.width >= (self.camera.window_width / self.camera.zoom) - self.edge_padding:
-                self.x = (self.camera.window_width / self.camera.zoom) - self.edge_padding - self.width
-                self.move_direction = -1
-
-            # Fallback if stuck (e.g. by clamp_horizontal)
-            if self.x == self._last_x:
-                self.move_direction *= -1
-
-            self._last_x = self.x
+            # clamp + bounce (>= / <= so it can't "stick" on the edge)
+            if self.x <= 0:
+                self.x = 0
+                self._phase1_dir = 1
+            elif self.x >= max_x:
+                self.x = max_x
+                self._phase1_dir = -1
 
         elif self.phase_2:
             pass
