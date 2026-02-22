@@ -56,7 +56,7 @@ class BossLevelNine(Enemy):
         self.machine_gun_timer = Timer(0.5)  # fire rate during FIRE
         self.aimed_shot_timer = Timer(1.0)  # 1 second
 
-        self.summon_swarm_timer = Timer(20.0)
+        self.summon_swarm_timer = Timer(10.0)
         self.summon_swarm_timer.reset()
 
         self.boss_alone: bool = False
@@ -209,7 +209,8 @@ class BossLevelNine(Enemy):
             print("----- ON SCREEN DUMP END -----")
             self._debug_last_print = now
 
-        self.boss_alone = only_boss_and_player
+        # ✅ Use ACTIVE enemy count, not raw list length (inactive enemies can keep you in the wrong state)
+        self.boss_alone = (len(active_enemies) <= 1)
 
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
         window_height = getattr(GlobalConstants, "GAMEPLAY_HEIGHT", GlobalConstants.BASE_WINDOW_HEIGHT)
@@ -264,7 +265,6 @@ class BossLevelNine(Enemy):
             self._recovery_mode = True
             self._recovery_dir = random.choice([(1, 0), (-1, 0), (0, 1), (0, -1)])
 
-            # If hugging left wall, force right recovery (primary fix)
             if self.x <= wall_threshold:
                 self._recovery_dir = (1, 0)
             elif self.x + self.width >= (window_width - self.edge_padding - 2):
@@ -275,14 +275,12 @@ class BossLevelNine(Enemy):
         # -------------------------
         # MOVEMENT DECISION
         # -------------------------
-        # 1) wall-escape overrides everything
         if now < self._wall_escape_until:
             if self._wall_escape_dir == 1:
                 self.mover.enemy_move_right(self)
             elif self._wall_escape_dir == -1:
                 self.mover.enemy_move_left(self)
 
-            # add small vertical wobble so we don't keep colliding in the same seam
             if hasattr(self.mover, "enemy_move_up") and hasattr(self.mover, "enemy_move_down"):
                 if self._wall_escape_zig > 0:
                     self.mover.enemy_move_down(self)
@@ -291,7 +289,6 @@ class BossLevelNine(Enemy):
 
             self._stuck_ms = 0
 
-        # 2) recovery
         elif self._recovery_mode:
             dx, dy = self._recovery_dir
             if dx == 1:
@@ -307,14 +304,21 @@ class BossLevelNine(Enemy):
             if now > self._recovery_end_time:
                 self._recovery_mode = False
 
-        # 3) chase when not alone
-        elif not self.boss_alone:
+        # ✅ ATTACK/CHASE STATE: if enemies list length > 1 (as you requested), chase player
+        elif len(enemies) > 1:
             if player.x > self.x:
                 self.mover.enemy_move_right(self)
             elif player.x < self.x:
                 self.mover.enemy_move_left(self)
 
-        # 4) flee + zigzag when alone
+            # Optional: small vertical tracking so it doesn't "stall" if x matches
+            if hasattr(self.mover, "enemy_move_up") and hasattr(self.mover, "enemy_move_down"):
+                if player.y > self.y:
+                    self.mover.enemy_move_down(self)
+                elif player.y < self.y:
+                    self.mover.enemy_move_up(self)
+
+        # RUN STATE (alone): flee + zigzag
         else:
             if not hasattr(self, "_zigzag_dir"):
                 self._zigzag_dir = random.choice([-1, 1])
@@ -345,7 +349,6 @@ class BossLevelNine(Enemy):
         # -------------------------
         if self.x < self.edge_padding:
             self.x = self.edge_padding
-            # if we clamp on left, force a wall-escape immediately
             self._wall_escape_until = now + 900
             self._wall_escape_dir = 1
             self._wall_escape_zig = random.choice([-1, 1])

@@ -12,7 +12,7 @@
   },
   "weapons": {
     "machine_gun": {
-      "damage": 0.7,
+      "damage": 10.7,
       "width": 4,
       "height": 4,
       "rate_of_fire": 0.1,
