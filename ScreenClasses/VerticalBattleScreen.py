@@ -209,14 +209,19 @@ class VerticalBattleScreen:
 
     def move_player_x_y(self):
         if not self.playerDead:
+            dx = 0
+            dy = 0
             if self.controller.left_button:
-                self.mover.player_move_left(self.starship)
+                dx -= 1
             if self.controller.right_button:
-                self.mover.player_move_right(self.starship)
+                dx += 1
             if self.controller.up_button:
-                self.mover.player_move_up(self.starship)
+                dy -= 1
             if self.controller.down_button:
-                self.mover.player_move_down(self.starship)
+                dy += 1
+            
+            if dx != 0 or dy != 0:
+                self.mover.move_normalized(self.starship, dx, dy, "speed")
 
     def draw(self, state) -> None:
         window_width = GlobalConstants.BASE_WINDOW_WIDTH

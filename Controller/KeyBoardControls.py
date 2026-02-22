@@ -112,10 +112,12 @@ class KeyBoardControls:
     @property
     def magic_1_button(self) -> bool:
         return self.isDPressed
+        # let this be X
 
     @property
     def magic_2_button(self) -> bool:
         return self.isSPressed
+
 
     # @property
     # def q_button(self) -> bool:

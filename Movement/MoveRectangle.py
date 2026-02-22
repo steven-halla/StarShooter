@@ -18,17 +18,23 @@ class MoveRectangle:
         speed_attr: 'speed' (player) or 'moveSpeed' (enemy)
         """
 
-        speed = getattr(obj, speed_attr, None)
-        if not isinstance(speed, float):
-            raise TypeError(f"{speed_attr} must be a float")
+        speed = getattr(obj, speed_attr, 0.0)
+        if not isinstance(speed, (float, int)):
+            raise TypeError(f"{speed_attr} must be a float or int")
+        
+        speed = float(speed)
 
         # No movement
         if dx == 0 and dy == 0:
             return
 
+        # Normalize the vector if its length is greater than 1
+        # This prevents diagonal speed increase while allowing 
+        # small movements (if dx/dy are less than 1)
         length = math.hypot(dx, dy)
-        dx /= length
-        dy /= length
+        if length > 1.0:
+            dx /= length
+            dy /= length
 
         obj.x += dx * speed
         obj.y += dy * speed

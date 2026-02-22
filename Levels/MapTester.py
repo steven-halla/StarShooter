@@ -102,14 +102,19 @@ class MapTester(VerticalBattleScreen):
 
         # Player movement
         if not self.playerDead:
+            dx = 0
+            dy = 0
             if self.controller.left_button:
-                self.mover.player_move_left(self.starship)
+                dx -= 1
             if self.controller.right_button:
-                self.mover.player_move_right(self.starship)
+                dx += 1
             if self.controller.up_button:
-                self.mover.player_move_up(self.starship)
+                dy -= 1
             if self.controller.down_button:
-                self.mover.player_move_down(self.starship)
+                dy += 1
+            
+            if dx != 0 or dy != 0:
+                self.mover.move_normalized(self.starship, dx, dy, "speed")
 
         self.starship.update()
         self.clamp_starship_to_screen()
