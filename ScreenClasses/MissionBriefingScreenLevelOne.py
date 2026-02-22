@@ -12,17 +12,17 @@ class MissionBriefingScreenLevelOne(Screen):
         self.save_state = SaveState()
 
         self.briefing_text = [
-            "Mission Briefing: Save the colony",
+            "The space port of bakarant is under attack by the undead legion, fighters have been scrambled and you are to assist.",
             "",
-            "The Space colony Beckersville is under attack from the undead legion.",
-            "Ammo is almost depleted, and most of the barrels have melted.",
+
+            "Ammo is almost depleted, and most of the space ports barrels have melted.",
             "The enemy strike force includes a Harvester bio ship.",
             "",
-            "Objectives:",
-            "- Destroy at least 40 enemies.",
+
+            "-Your objective is to  Destroy at least 40 enemies.",
             "- Destroy the Harvester Bio ship.",
-            "",
-            "All fighter pilots are dead. You will be alone.",
+            "You will be deployed in sector 243 333 433",
+            "The reward for the mission is 5000 credits that you can use for upgrades",
             "",
             "Controls:",
             "- Arrow keys: Move",
@@ -36,23 +36,41 @@ class MissionBriefingScreenLevelOne(Screen):
         self.briefing_message: str = "\n".join(self.briefing_text)
         self._briefing_shown: bool = False
 
-        # portrait settings
         self.portrait_box_gap = 24
 
-        # sprite sheet
         self.character_sprite_image = pygame.image.load(
             "Assets/Images/tarial_sixteen_bit_spirte_sheet.png"
         ).convert_alpha()
 
-        # frame rect (LEFT frame only)
-        # NOTE: this assumes your sheet is 3 frames across with the same height
-        frame_w = self.character_sprite_image.get_width() // 3
-        frame_h = self.character_sprite_image.get_height()
+        self.sprite_rect_1 = pygame.Rect(70, 320, 440, 440)
+        self.sprite_rect_2 = pygame.Rect(510, 320, 480, 440)
+        self.sprite_rect_3 = pygame.Rect(990, 320, 470, 440)
 
-        # Use ints for subsurface rect
-        self.portrait_sprite_rect = pygame.Rect(0, 0, int(frame_w), int(frame_h))
+        self.sprite_rects: list[pygame.Rect] = [
+            self.sprite_rect_1,
+            self.sprite_rect_2,
+            self.sprite_rect_3
+        ]
+
+        self.current_sprite_index: int = 0
+        self.sprite_cycle_interval_ms: int = 500
+        self.last_sprite_switch_time: int = pygame.time.get_ticks()
+
+    def _try_deploy(self, state) -> None:
+        if pygame.time.get_ticks() < self.skip_ready_time:
+            return
+        if state.textbox.is_visible():
+            return
+
+        from Levels.LevelOne import LevelOne
+        next_level = LevelOne(state.textbox)
+        next_level.set_player(state.starship)
+        state.currentScreen = next_level
+        next_level.start(state)
 
     def update(self, state):
+        super().update(state)
+
         if not self._briefing_shown:
             state.textbox.show(self.briefing_message)
             self._briefing_shown = True
@@ -63,22 +81,17 @@ class MissionBriefingScreenLevelOne(Screen):
                     state.textbox.advance()
 
                 if event.key == pygame.K_f:
-                    if pygame.time.get_ticks() < self.skip_ready_time:
-                        return
-                    if state.textbox.is_visible():
-                        return
-
-                    from Levels.LevelOne import LevelOne
-                    next_level = LevelOne(state.textbox)
-                    next_level.set_player(state.starship)
-                    state.currentScreen = next_level
-                    next_level.start(state)
-                    return
+                    self._try_deploy(state)
 
     def draw(self, state):
         state.DISPLAY.fill((0, 0, 0))
 
         state.textbox.draw(state.DISPLAY)
+
+        now = pygame.time.get_ticks()
+        if now - self.last_sprite_switch_time >= self.sprite_cycle_interval_ms:
+            self.current_sprite_index = (self.current_sprite_index + 1) % len(self.sprite_rects)
+            self.last_sprite_switch_time = now
 
         text_box_rect = state.textbox.rect
 
@@ -90,11 +103,15 @@ class MissionBriefingScreenLevelOne(Screen):
             portrait_box_size
         )
 
-        sprite_rect = pygame.Rect(60, 320, 440, 440)
+        sprite_rect = self.sprite_rects[self.current_sprite_index]
         sprite = self.character_sprite_image.subsurface(sprite_rect)
-        scaled_sprite = pygame.transform.scale(sprite, (portrait_box_rect.width, portrait_box_rect.height -10))
+        scaled_sprite = pygame.transform.scale(
+            sprite,
+            (portrait_box_rect.width, portrait_box_rect.height - 10)
+        )
+
         sprite_x = portrait_box_rect.x
         sprite_y = portrait_box_rect.y
-        state.DISPLAY.blit(scaled_sprite, (sprite_x +3, sprite_y +5))
+        state.DISPLAY.blit(scaled_sprite, (sprite_x + 3, sprite_y + 5))
 
         pygame.display.flip()
