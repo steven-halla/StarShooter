@@ -5,6 +5,7 @@ from Entity.Bosses.BossLevelNine import BossLevelNine
 from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
+from Entity.Monsters.Slaver import Slaver
 from Entity.Monsters.TimeBomb import TimeBomb
 from Entity.Monsters.TriSpitter import TriSpitter
 from SaveStates.SaveState import SaveState
@@ -186,6 +187,14 @@ class LevelNine(VerticalBattleScreen):
             #     enemy = BossLevelEight()
             if obj.name == "level_9_boss":
                 enemy = BossLevelNine()
+            elif obj.name == "bile_spitter":
+                enemy = BileSpitter()
+            elif obj.name == "tri_spitter":
+                enemy = TriSpitter()
+            elif obj.name == "blade_spinner":
+                enemy = BladeSpinner()
+            elif obj.name == "slaver":
+                enemy = Slaver()
             else:
                 continue
 
