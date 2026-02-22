@@ -5,6 +5,10 @@ from Controller.KeyBoardControls import KeyBoardControls
 from Levels import levelThree
 from Levels.levelThree import LevelThree
 from ScreenClasses.MissionBriefingScreenLevelOne import MissionBriefingScreenLevelOne
+from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
+from ScreenClasses.MissionBriefingScreenLevelThree import MissionBriefingScreenLevelThree
+from ScreenClasses.MissionBriefingScreenLevelFour import MissionBriefingScreenLevelFour
+from ScreenClasses.MissionBriefingScreenLevelFive import MissionBriefingScreenLevelFive
 
 
 class TitleScreen:
@@ -28,6 +32,7 @@ class TitleScreen:
         # one-tap locks
         self._up_lock = False
         self._down_lock = False
+        self.show_mission_briefing = True
 
     # REQUIRED BY ENGINE
     def start(self, state) -> None:
@@ -111,9 +116,40 @@ class TitleScreen:
 
                     # Default to LevelOne if current_level is invalid
                     level_num = state.starship.current_level
-                    level_class = LEVEL_MAP.get(level_num, LevelOne)
 
-                    if level_class == MissionBriefingScreenLevelOne:
+                    LEVEL_MAP_ACTUAL = {
+                        1: LevelOne,
+                        2: LevelTwo,
+                        3: LevelThree,
+                        4: LevelFour,
+                        5: LevelFive,
+                        6: LevelSix,
+                        7: LevelSeven,
+                        8: LevelEight,
+                        9: LevelNine,
+                        10: LevelTen,
+                    }
+
+                    LEVEL_MAP_BRIEFING = {
+                        1: MissionBriefingScreenLevelOne,
+                        2: MissionBriefingScreenLevelTwo,
+                        3: MissionBriefingScreenLevelThree,
+                        4: MissionBriefingScreenLevelFour,
+                        5: MissionBriefingScreenLevelFive,
+                    }
+
+                    if self.show_mission_briefing and level_num in LEVEL_MAP_BRIEFING:
+                        level_class = LEVEL_MAP_BRIEFING[level_num]
+                    else:
+                        level_class = LEVEL_MAP_ACTUAL.get(level_num, LevelOne)
+
+                    if level_class in [
+                        MissionBriefingScreenLevelOne,
+                        MissionBriefingScreenLevelTwo,
+                        MissionBriefingScreenLevelThree,
+                        MissionBriefingScreenLevelFour,
+                        MissionBriefingScreenLevelFive
+                    ]:
                         state.currentScreen = level_class()
                     else:
                         state.currentScreen = level_class(state.textbox)
@@ -134,8 +170,8 @@ class TitleScreen:
             from Levels.LevelNine import LevelNine
             from Levels.LevelTen import LevelTen
 
-            LEVEL_MAP = {
-                1: MissionBriefingScreenLevelOne,
+            LEVEL_MAP_ACTUAL = {
+                1: LevelOne,
                 2: LevelTwo,
                 3: LevelThree,
                 4: LevelFour,
@@ -147,8 +183,26 @@ class TitleScreen:
                 10: LevelTen,
             }
 
-            level_class = LEVEL_MAP[selected_level]
-            if level_class == MissionBriefingScreenLevelOne:
+            LEVEL_MAP_BRIEFING = {
+                1: MissionBriefingScreenLevelOne,
+                2: MissionBriefingScreenLevelTwo,
+                3: MissionBriefingScreenLevelThree,
+                4: MissionBriefingScreenLevelFour,
+                5: MissionBriefingScreenLevelFive,
+            }
+
+            if self.show_mission_briefing and selected_level in LEVEL_MAP_BRIEFING:
+                level_class = LEVEL_MAP_BRIEFING[selected_level]
+            else:
+                level_class = LEVEL_MAP_ACTUAL[selected_level]
+
+            if level_class in [
+                MissionBriefingScreenLevelOne,
+                MissionBriefingScreenLevelTwo,
+                MissionBriefingScreenLevelThree,
+                MissionBriefingScreenLevelFour,
+                MissionBriefingScreenLevelFive
+            ]:
                 state.currentScreen = level_class()
             else:
                 state.currentScreen = level_class(state.textbox)

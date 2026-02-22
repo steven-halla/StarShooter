@@ -11,6 +11,7 @@ class MissionBriefingScreenLevelOne(Screen):
         self.skip_ready_time = pygame.time.get_ticks() + 2500
         self.save_state = SaveState()
 
+
         self.briefing_text = [
             "The space port of bakarant is under attack by the undead legion, fighters have been scrambled and you are to assist.",
             "",
