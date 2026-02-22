@@ -258,21 +258,12 @@ class VerticalBattleScreen:
             bw = int(bullet.width * self.camera.zoom)
             bh = int(bullet.height * self.camera.zoom)
 
-            # Debug print to show bullet screen coordinates
-            # print(f"[DRAW BULLET] screen_pos=({bx:.1f},{by:.1f}), world_pos=({bullet.x:.1f},{bullet.y:.1f})")
+            # Draw bullet with its own color if it has one
+            color = getattr(bullet, "color", (255, 0, 0))
 
-            # Draw a larger, more visible bullet for debugging
             pygame.draw.rect(
                 state.DISPLAY,
-                (255, 0, 0),  # RED for better visibility
-                pygame.Rect(bx-2, by-2, bw+4, bh+4),
-                0
-            )
-
-            # Draw the actual bullet
-            pygame.draw.rect(
-                state.DISPLAY,
-                (0, 255, 0),  # GREEN
+                color,
                 pygame.Rect(bx, by, bw, bh),
                 0
             )
@@ -1038,6 +1029,11 @@ class VerticalBattleScreen:
     def bullet_collision_helper_remover(self, state):
         for bullet in list(state.enemy_bullets):
             bullet.update()
+
+            if not bullet.is_active:
+                if bullet in state.enemy_bullets:
+                    state.enemy_bullets.remove(bullet)
+                continue
 
             # Call lay_bomb in UPDATE mode for each bullet
             for enemy in state.enemies:

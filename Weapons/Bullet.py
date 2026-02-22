@@ -31,6 +31,16 @@ class Bullet:
         self.x += self.vx * self.bullet_speed
         self.y += self.vy * self.bullet_speed
 
+        if hasattr(self, "max_range") and self.max_range > 0:
+            if not hasattr(self, "start_x"):
+                self.start_x = self.x
+                self.start_y = self.y
+            
+            dx = self.x - self.start_x
+            dy = self.y - self.start_y
+            if (dx*dx + dy*dy) > self.max_range * self.max_range:
+                self.is_active = False
+
         self.rect.topleft = (int(self.x), int(self.y))
 
         # -------------------------
@@ -56,7 +66,7 @@ class Bullet:
 
         pygame.draw.rect(
             surface,
-            (255, 255, 255),
+            self.color if hasattr(self, "color") else (255, 255, 255),
             pygame.Rect(
                 screen_x,
                 screen_y,

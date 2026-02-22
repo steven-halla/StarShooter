@@ -73,36 +73,32 @@ class BossLevelTen(Enemy):
 
 
 
-        if self.liquid_launcher_timer.is_ready():
-            # self.boomerang(
-            #     power=25,
-            #     bullet_number=4,
-            #     width=14,
-            #     height=14,
-            #     color=self.bulletColor,
-            #     speed=5.0,
-            #     max_distance_traveled=180.0,
-            #     bullet_spread=50,
-            #     state=state
-            # )
-            # self.liquid_launcher(
-            #     damage=20,
-            #     air_height=180.0,
-            #     bullet_spread=50,
-            #     bullet_number=10,
-            #     width=14,
-            #     height=14,
-            #     color=self.bulletColor,
-            #     bullet_speed=4.0,
-            #     state=state
-            # )
-            self.liquid_launcher_timer.reset()
-            self.is_resting = True
-            self.rest_start_time = pygame.time.get_ticks()
+        if self.liquid_launcher_timer.is_ready() or (hasattr(self, "_dragon_breath_active") and self._dragon_breath_active):
+            if self.liquid_launcher_timer.is_ready():
+                self.liquid_launcher_timer.reset()
+                self.is_resting = True
+                self.rest_start_time = pygame.time.get_ticks()
 
-        if self.horizontal_barrage_timer.is_ready():
-            self.horizontal_barrage(state)
-            self.horizontal_barrage_timer.reset()
+            self.dragons_breath(
+                monster_x=self.x,
+                monster_y=self.y,
+                monster_width=self.width,
+                monster_height=self.height,
+                length=120,
+                min_width=10,
+                max_width=60,
+                segments=6,
+                color=(255, 120, 0),
+                damage=18,
+                x_offset=0,
+                y_offset=0,
+                state=state,
+                duration_ms=10000
+            )
+
+        # if self.horizontal_barrage_timer.is_ready():
+        #     self.horizontal_barrage(state)
+        #     self.horizontal_barrage_timer.reset()
 
         ####DO NOT REMOVE THIS YOU MOTHER FUCKER
         # hp_pct = (self.enemyHealth / self.maxHealth) * 100 if self.maxHealth else 0

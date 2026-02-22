@@ -1473,8 +1473,6 @@ class Enemy:
         #     state=state
         # )
 
-
-    # need to update this with params for brea
     def dragons_breath(
             self,
             monster_x: float,
@@ -1489,75 +1487,97 @@ class Enemy:
             damage: int,
             x_offset: int,
             y_offset: int,
-            state
+            state,
+            duration_ms: int = 10000
     ) -> None:
         if state is None:
             return
 
+        # spawn cadence (Timer is in SECONDS in your project)
+        if not hasattr(self, "_dragon_breath_timer"):
+            self._dragon_breath_timer = Timer(0.05)  # 50ms
+            self._dragon_breath_timer.reset()
 
+        # active window tracking
+        if not hasattr(self, "_dragon_breath_active"):
+            self._dragon_breath_active = False
+            self._dragon_breath_start_time = 0
 
-        # lazy init (NO __init__ changes)
-        if not hasattr(self, "_dragon_cone"):
-            self._dragon_cone = []
+        now = pygame.time.get_ticks()
 
-        cone = self._dragon_cone
+        # start the breath if not active yet
+        if not self._dragon_breath_active:
+            self._dragon_breath_active = True
+            self._dragon_breath_start_time = now
 
-        # ensure correct number of segments
-        while len(cone) < segments:
-            b = Bullet(0, 0)
-            b.remove_type = 1
+        # stop after duration
+        if now - self._dragon_breath_start_time >= duration_ms:
+            self._dragon_breath_active = False
+            return
 
-            b.vx = 0
-            b.vy = 0
-            b.bullet_speed = 0
+        # spawn flame particles repeatedly while active
+        if not self._dragon_breath_timer.is_ready():
+            return
+        self._dragon_breath_timer.reset()
+
+        num_bullets = segments if segments > 0 else 1
+
+        base_x = monster_x + monster_width // 2 + x_offset
+        base_y = monster_y + monster_height // 2 + y_offset
+
+        # aim at player if available, else downward
+        target_angle = 90.0
+        if getattr(self, "target_player", None) is not None:
+            dx = (self.target_player.x + self.target_player.width // 2) - base_x
+            dy = (self.target_player.y + self.target_player.height // 2) - base_y
+            target_angle = math.degrees(math.atan2(dy, dx))
+
+        spread_angle = math.degrees(math.atan2(max_width / 2, length)) * 2
+
+        for _ in range(num_bullets):
+            angle_offset = random.uniform(-spread_angle / 2, spread_angle / 2)
+            angle_rad = math.radians(target_angle + angle_offset)
+
+            b = Bullet(base_x, base_y)
+            b.vx = math.cos(angle_rad)
+            b.vy = math.sin(angle_rad)
+
+            b.bullet_speed = random.uniform(4.0, 6.0)
             b.color = color
             b.damage = damage
-            cone.append(b)
+            b.width = min_width
+            b.height = min_width
+
+            b.start_x = float(base_x)
+            b.start_y = float(base_y)
+            b.max_range = float(length)
+
+            def flame_update(bullet=b, start_w=min_width, end_w=max_width, max_r=float(length)):
+                bullet.x += bullet.vx * bullet.bullet_speed
+                bullet.y += bullet.vy * bullet.bullet_speed
+
+                dx2 = bullet.x - bullet.start_x
+                dy2 = bullet.y - bullet.start_y
+                dist_sq = dx2 * dx2 + dy2 * dy2
+                max_sq = max_r * max_r
+
+                if dist_sq >= max_sq:
+                    bullet.is_active = False
+                    return
+
+                dist = math.sqrt(dist_sq)
+                t = dist / max_r
+                current_size = start_w + (end_w - start_w) * t
+                bullet.width = int(current_size)
+                bullet.height = int(current_size)
+
+                bullet.rect.x = int(bullet.x - bullet.width // 2)
+                bullet.rect.y = int(bullet.y - bullet.height // 2)
+                bullet.rect.width = bullet.width
+                bullet.rect.height = bullet.height
+
+            b.update = flame_update
             state.enemy_bullets.append(b)
-
-        while len(cone) > segments:
-            b = cone.pop()
-            if b in state.enemy_bullets:
-                state.enemy_bullets.remove(b)
-
-        # cone geometry
-        segment_length = length / segments
-
-        for i, bullet in enumerate(cone):
-            t = i / (segments - 1) if segments > 1 else 0
-
-            # interpolate width (narrow → wide)
-            width = int(min_width + (max_width - min_width) * t)
-            height = int(segment_length)
-
-            bullet.width = width
-            bullet.height = height
-
-            # base center of enemy
-            base_x = monster_x + monster_width // 2 + x_offset
-            base_y = monster_y + monster_height + y_offset
-
-            # position downward cone
-            bullet.x = base_x - width // 2
-            bullet.y = base_y + i * segment_length
-
-            bullet.update_rect()
-            # how to call
-            # self.dragons_breath(
-            #     monster_x=self.x,
-            #     monster_y=self.y,
-            #     monster_width=self.width,
-            #     monster_height=self.height,
-            #     length=120,
-            #     min_width=10,
-            #     max_width=60,
-            #     segments=6,
-            #     color=(255, 120, 0),
-            #     damage=18,
-            #     x_offset=0,
-            #     y_offset=0,
-            #     state=state
-            # )
 
     def rope_grab(
             self,
