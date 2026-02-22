@@ -20,8 +20,8 @@ class BossLevelTen(Enemy):
         self.height: int = 40
         self.color: tuple[int, int, int] = GlobalConstants.RED
         self.bulletColor: tuple[int, int, int] = GlobalConstants.SKYBLUE
-        self.bulletWidth: int = 20
-        self.bulletHeight: int = 20
+        self.bulletWidth: int = 10
+        self.bulletHeight: int = 10
         self.fire_interval_ms: int = 2000
         self.last_shot_time: int = 0
         self.speed: float = 0.4
@@ -197,26 +197,26 @@ class BossLevelTen(Enemy):
         # RIGHT of screen in world space
         right_x = self.camera.window_width / self.camera.zoom
         # LEFT of screen in world space is 0 (as horizontal camera doesn't scroll)
-        
+
         # Screen height in world space
         screen_height_world = self.camera.window_height / self.camera.zoom
         # Top of current screen in world space
         top_y = self.camera.y
-        
+
         # Calculate Y spacing to spread 10 bullets
-        spacing = screen_height_world / 11
+        spacing = 40
 
         for i in range(1, 11):
             bullet_y = top_y + (i * spacing)
             b = Bullet(right_x, bullet_y)
             b.vx = -1.0 # Right to Left
             b.vy = 0.0
-            b.bullet_speed = 5.0 # Typical bullet speed
+            b.bullet_speed = 3.0 # Typical bullet speed
             b.width = self.bulletWidth
             b.height = self.bulletHeight
             b.damage = 10
             b.camera = self.camera
-            
+
             # Using game_state.enemy_bullets as per comment on line 32
             state.enemy_bullets.append(b)
 
