@@ -11,7 +11,6 @@ class MissionBriefingScreenLevelOne(Screen):
         self.skip_ready_time = pygame.time.get_ticks() + 2500
         self.save_state = SaveState()
 
-
         self.briefing_text = [
             "The space port of bakarant is under attack by the undead legion, fighters have been scrambled and you are to assist.",
             "",
@@ -45,7 +44,7 @@ class MissionBriefingScreenLevelOne(Screen):
 
         self.sprite_rect_1 = pygame.Rect(70, 320, 440, 440)
         self.sprite_rect_2 = pygame.Rect(510, 320, 480, 440)
-        self.sprite_rect_3 = pygame.Rect(990, 320, 470, 440)
+        self.sprite_rect_3 = pygame.Rect(990, 320, 475, 440)
 
         self.sprite_rects: list[pygame.Rect] = [
             self.sprite_rect_1,
@@ -54,8 +53,44 @@ class MissionBriefingScreenLevelOne(Screen):
         ]
 
         self.current_sprite_index: int = 0
-        self.sprite_cycle_interval_ms: int = 500
+        self.sprite_cycle_interval_ms: int = 300
         self.last_sprite_switch_time: int = pygame.time.get_ticks()
+
+        # mission brief header image (top of screen)
+        self.mission_brief_image = pygame.image.load(
+            "Assets/Images/missionbrief.png"
+        ).convert_alpha()
+        self.mission_brief_padding_top = 16
+        self.mission_brief_padding_side = 16
+
+    def draw_upper_mission_brief_screen(self, state) -> None:
+        text_box_rect = state.textbox.rect
+
+        max_width = state.DISPLAY.get_width() - (self.mission_brief_padding_side * 2 )
+        max_height = text_box_rect.top - self.mission_brief_padding_top
+
+        if max_width <= 0 or max_height <= 0:
+            return
+
+        img_w = self.mission_brief_image.get_width()
+        img_h = self.mission_brief_image.get_height()
+
+        if img_w <= 0 or img_h <= 0:
+            return
+
+        scale = min(max_width / img_w, max_height / img_h, 1.0)
+        new_w = int(img_w * scale + 230)
+        new_h = int(img_h * scale +40)
+
+        if new_w <= 0 or new_h <= 0:
+            return
+
+        scaled = pygame.transform.scale(self.mission_brief_image, (new_w, new_h))
+
+        x = (state.DISPLAY.get_width() - new_w) // 2
+        y = self.mission_brief_padding_top
+
+        state.DISPLAY.blit(scaled, (x+20, y - 40))
 
     def _try_deploy(self, state) -> None:
         if pygame.time.get_ticks() < self.skip_ready_time:
@@ -86,6 +121,9 @@ class MissionBriefingScreenLevelOne(Screen):
 
     def draw(self, state):
         state.DISPLAY.fill((0, 0, 0))
+
+        # NEW: draw the mission brief image above the textbox
+        self.draw_upper_mission_brief_screen(state)
 
         state.textbox.draw(state.DISPLAY)
 
