@@ -2,7 +2,7 @@
   "version": 1,
   "player": {
     "shipHealth": 144,
-    "shipHealthMax": 150,
+    "shipHealthMax": 50,
     "equipped_magic": [
       "",
       null
@@ -12,16 +12,16 @@
   },
   "weapons": {
     "machine_gun": {
-      "damage": 0.7,
+      "damage": 0.5,
       "width": 4,
       "height": 4,
       "rate_of_fire": 0.1,
-      "bullet_speed": 6.0,
-      "bullets_per_shot": 2
+      "bullet_speed": 3.0,
+      "bullets_per_shot": 1
     },
     "wind_slicer": {
-      "damage": 5.0,
-      "bullet_count": 1
+      "damage": 5,
+      "bullet_count": 8
     }
   },
   "missiles": {
@@ -34,7 +34,7 @@
     "regen_interval_seconds": 10.0
   },
   "shield": {
-    "current": 40,
+    "current": 100,
     "max": 100,
     "recharge_rate": 0.2,
     "time_to_start_recharge": 10000

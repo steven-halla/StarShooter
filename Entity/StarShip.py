@@ -132,8 +132,8 @@ class StarShip:
         # the below can get UPGRADED
         # -------------------------
         self.speed: float = 3.0
-        self.shipHealth: int = 150
-        self.shipHealthMax: int = 150
+        self.shipHealth: int = 50
+        self.shipHealthMax: int = 50
         self.post_hit_invincibility_duration: float = 2.0
         self.invincibility_timer: Timer = Timer(self.post_hit_invincibility_duration)
         self.upgrade_chips: list = [""]
@@ -364,8 +364,8 @@ class StarShip:
         self.machine_gun.rate_of_fire = 0.1
         self.machine_gun_bullet_speed = 6.0
         self.machine_gun.bullet_speed = 6.0
-        self.machine_gun_bullets_per_shot = 2
-        self.machine_gun.bullets_per_shot = 2
+        self.machine_gun_bullets_per_shot = 1
+        self.machine_gun.bullets_per_shot = 1
 
         # Reset missile base stats
         self.missile_damage = 343
@@ -415,6 +415,11 @@ class StarShip:
             "machine_gun_extra_bullet": lambda: (
                 setattr(self, "machine_gun_bullets_per_shot", self.machine_gun_bullets_per_shot + 1),
                 setattr(self.machine_gun, "bullets_per_shot", self.machine_gun.bullets_per_shot + 1)
+            ),
+
+            "double_barrel": lambda: (
+                setattr(self, "machine_gun_bullets_per_shot", 2),
+                setattr(self.machine_gun, "bullets_per_shot", 2)
             ),
             # -------------------------
             # MISSILE UPGRADES

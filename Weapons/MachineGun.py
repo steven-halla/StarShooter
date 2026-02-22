@@ -26,12 +26,12 @@ class MachineGun(Bullet):
         self.height: int = 4
 
         # stats
-        self.damage: float = 0.7
+        self.damage: float = 0.5
         self.rate_of_fire: float = 0.1
-        self.bullet_speed: float = 6.0
+        self.bullet_speed: float = 3.0
 
         # firing config
-        self.bullets_per_shot: int = 2
+        self.bullets_per_shot: int = 1
         self.bullet_spread_offset: int = 18
         self.center_bullet_x: int = 18
 
@@ -71,6 +71,14 @@ class MachineGun(Bullet):
 
         count = self.bullets_per_shot
         spread = self.bullet_spread_offset
+
+        # center it on player ship if not double_barrel or if double_barrel upgrade
+        if count == 1:
+            center_x = self.x + 8
+        elif count == 2:
+            center_x = self.x + 14
+            spread = 8
+
         start_index = -(count // 2)
 
         for i in range(count):

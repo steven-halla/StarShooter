@@ -32,7 +32,7 @@ class TitleScreen:
         # one-tap locks
         self._up_lock = False
         self._down_lock = False
-        self.show_mission_briefing = False
+        self.show_mission_briefing = True
 
     # REQUIRED BY ENGINE
     def start(self, state) -> None:
@@ -167,7 +167,7 @@ class TitleScreen:
 
                     # 2) Get current level
                     level_num = state.starship.current_level
-                    
+
                     from Levels.LevelOne import LevelOne
                     from Levels.LevelTwo import LevelTwo
                     from Levels.levelThree import LevelThree
@@ -193,14 +193,14 @@ class TitleScreen:
                     }
 
                     level_class = LEVEL_MAP_ACTUAL.get(level_num, LevelOne)
-                    
+
                     # 3) Initialize level and restore state
                     state.currentScreen = level_class(state.textbox)
-                    
+
                     # Restore position to starship
                     state.starship.x = level_data["player_x"]
                     state.starship.y = level_data["player_y"]
-                    
+
                     # Restore camera (VerticalBattleScreen has camera_y and camera object)
                     # We need to set these on the level instance
                     state.currentScreen.camera_y = float(level_data["player_camera_y"])
