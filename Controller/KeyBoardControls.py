@@ -125,6 +125,10 @@ class KeyBoardControls:
     #     return self.isQPressed
 
     @property
+    def q_just_pressed_button(self) -> bool:
+        return self.qJustPressed
+
+    @property
     def a_button(self) -> bool:
         return self.isAPressed
 

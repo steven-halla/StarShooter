@@ -29,7 +29,13 @@ class HomeBase(Screen):
         self.menu_padding_y: int = 16
         self.menu_line_gap: int = 14
 
+        # arrow / selection
+        self.menu_index: int = 0
+        self.arrow_text: str = "->"
+        self.arrow_gap: int = 10
         self.upper_padding: int = 12
+        self._up_lock = False
+        self._down_lock = False
 
     def start(self, state) -> None:
         super().start(state)
@@ -46,10 +52,27 @@ class HomeBase(Screen):
 
         self.controls.update()
 
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
-                    self.textbox.advance()
+        # ADVANCE TEXTBOX (Q)
+        if self.controls.q_just_pressed_button:
+            self.textbox.advance()
+
+        # UP = previous option
+        if self.controls.up_button and not self._up_lock:
+            self.menu_index -= 1
+            if self.menu_index < 0:
+                self.menu_index = 0
+            self._up_lock = True
+        elif not self.controls.up_button:
+            self._up_lock = False
+
+        # DOWN = next option
+        if self.controls.down_button and not self._down_lock:
+            self.menu_index += 1
+            if self.menu_index > len(self.menu_items) - 1:
+                self.menu_index = len(self.menu_items) - 1
+            self._down_lock = True
+        elif not self.controls.down_button:
+            self._down_lock = False
 
     def draw_upper_home_base_screen(self, state) -> None:
         text_box_rect = self.textbox.rect
@@ -85,12 +108,19 @@ class HomeBase(Screen):
         # box
         pygame.draw.rect(state.DISPLAY, (255, 255, 255), self.right_panel_rect, 4)
 
-        # text inside box
-        x = self.right_panel_rect.x + self.menu_padding_x
+        # text inside box + arrow
+        base_x = self.right_panel_rect.x + self.menu_padding_x
         y = self.right_panel_rect.y + self.menu_padding_y
-        for item in self.menu_items:
+
+        arrow_surf = self.menu_font.render(self.arrow_text, True, (255, 255, 255))
+        arrow_x = base_x - arrow_surf.get_width() - self.arrow_gap
+
+        for i, item in enumerate(self.menu_items):
+            if i == self.menu_index:
+                state.DISPLAY.blit(arrow_surf, (arrow_x, y))
+
             surf = self.menu_font.render(item, True, (255, 255, 255))
-            state.DISPLAY.blit(surf, (x, y))
+            state.DISPLAY.blit(surf, (base_x, y))
             y += surf.get_height() + self.menu_line_gap
 
         self.textbox.draw(state.DISPLAY)
