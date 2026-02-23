@@ -63,9 +63,9 @@ class LevelFive(VerticalBattleScreen):
         self.starship = state.starship
         self.starship.x = player_x
         self.starship.y = player_y
-        self.starship.update_hitbox()
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐
         self.load_enemy_into_list(state)
+        self.save_state.set_location_level(5, screen_name="Level 5")
         self.save_state.capture_player(self.starship)
         self.save_state.save_to_file("player_save.json")
 

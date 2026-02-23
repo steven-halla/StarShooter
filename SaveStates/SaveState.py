@@ -10,6 +10,11 @@ class SaveState:
     def __init__(self):
         self.data: dict[str, Any] = {
             "version": self.VERSION,
+            "location": {
+                "screen": "HOME_BASE",
+                "level_id": None,
+                "spawn_id": None,
+            },
             "player": {},
             "weapons": {},
             "missiles": {},
@@ -22,6 +27,40 @@ class SaveState:
         self.save_path = os.path.join(self.base_dir, self.DEFAULT_FILENAME)
 
     # -------------------------------------------------
+    # LOCATION / RESUME POINT
+    # -------------------------------------------------
+    def set_location_home_base(self) -> None:
+        self.data["location"] = {
+            "screen": "HOME_BASE",
+            "level_id": None,
+            "spawn_id": None,
+        }
+
+    def set_location_level(self, level_id: int, spawn_id: str | None = None, screen_name: str = "LEVEL") -> None:
+        self.data["location"] = {
+            "screen": screen_name,
+            "level_id": level_id,
+            "spawn_id": spawn_id,
+        }
+
+    def set_location_screen(self, screen_name: str) -> None:
+        self.data["location"] = {
+            "screen": screen_name,
+            "level_id": None,
+            "spawn_id": None,
+        }
+
+    def get_location(self) -> dict[str, Any]:
+        loc = self.data.get("location")
+        if isinstance(loc, dict):
+            return {
+                "screen": loc.get("screen", "HOME_BASE"),
+                "level_id": loc.get("level_id"),
+                "spawn_id": loc.get("spawn_id"),
+            }
+        return {"screen": "HOME_BASE", "level_id": None, "spawn_id": None}
+
+    # -------------------------------------------------
     # PLAYER (CORE / REQUIRED)
     # -------------------------------------------------
     def capture_player(self, starship) -> None:
@@ -30,7 +69,7 @@ class SaveState:
             "shipHealthMax": starship.shipHealthMax,
             "equipped_magic": list(starship.equipped_magic),
             "magic_inventory": list(starship.magic_inventory),
-            "current_level": starship.current_level,  # ✅ ADDED
+            "current_level": starship.current_level,
         }
 
         self.data["stats"] = {
@@ -53,7 +92,7 @@ class SaveState:
             "wind_slicer": {
                 "damage": starship.wind_slicer_damage,
                 "bullet_count": starship.wind_slicer_bullet_count,
-            }
+            },
         }
 
         self.data["missiles"] = {
@@ -75,7 +114,7 @@ class SaveState:
             }
 
         self.data["upgrades"] = {
-            "upgrade_chips": list(starship.upgrade_chips)
+            "upgrade_chips": list(starship.upgrade_chips),
         }
 
     # -------------------------------------------------
@@ -86,15 +125,9 @@ class SaveState:
         if p:
             starship.shipHealth = p.get("shipHealth", starship.shipHealth)
             starship.shipHealthMax = p.get("shipHealthMax", starship.shipHealthMax)
-            starship.equipped_magic = list(
-                p.get("equipped_magic", starship.equipped_magic)
-            )
-            starship.magic_inventory = list(
-                p.get("magic_inventory", starship.magic_inventory)
-            )
-            starship.current_level = p.get(  # ✅ RESTORED
-                "current_level", starship.current_level
-            )
+            starship.equipped_magic = list(p.get("equipped_magic", starship.equipped_magic))
+            starship.magic_inventory = list(p.get("magic_inventory", starship.magic_inventory))
+            starship.current_level = p.get("current_level", starship.current_level)
 
         s = self.data.get("stats", {})
         if s:
@@ -109,15 +142,9 @@ class SaveState:
             starship.machine_gun_damage = w_mg.get("damage", starship.machine_gun_damage)
             starship.machine_gun_width = w_mg.get("width", starship.machine_gun_width)
             starship.machine_gun_height = w_mg.get("height", starship.machine_gun_height)
-            starship.machine_gun_rate_of_fire = w_mg.get(
-                "rate_of_fire", starship.machine_gun_rate_of_fire
-            )
-            starship.machine_gun_bullet_speed = w_mg.get(
-                "bullet_speed", starship.machine_gun_bullet_speed
-            )
-            starship.machine_gun_bullets_per_shot = w_mg.get(
-                "bullets_per_shot", starship.machine_gun_bullets_per_shot
-            )
+            starship.machine_gun_rate_of_fire = w_mg.get("rate_of_fire", starship.machine_gun_rate_of_fire)
+            starship.machine_gun_bullet_speed = w_mg.get("bullet_speed", starship.machine_gun_bullet_speed)
+            starship.machine_gun_bullets_per_shot = w_mg.get("bullets_per_shot", starship.machine_gun_bullets_per_shot)
 
         w_ws = self.data.get("weapons", {}).get("wind_slicer", {})
         if w_ws:
@@ -127,20 +154,12 @@ class SaveState:
         m = self.data.get("missiles", {})
         if m:
             starship.missile_damage = m.get("damage", starship.missile_damage)
-            starship.missile_bullet_speed = m.get(
-                "bullet_speed", starship.missile_bullet_speed
-            )
-            starship.missile_rate_of_fire = m.get(
-                "rate_of_fire", starship.missile_rate_of_fire
-            )
+            starship.missile_bullet_speed = m.get("bullet_speed", starship.missile_bullet_speed)
+            starship.missile_rate_of_fire = m.get("rate_of_fire", starship.missile_rate_of_fire)
             starship.missile_max = m.get("max", starship.missile_max)
             starship.missile_current = m.get("current", starship.missile_current)
-            starship.missile_fire_interval_seconds = m.get(
-                "fire_interval_seconds", starship.missile_fire_interval_seconds
-            )
-            starship.missile_regen_interval_seconds = m.get(
-                "regen_interval_seconds", starship.missile_regen_interval_seconds
-            )
+            starship.missile_fire_interval_seconds = m.get("fire_interval_seconds", starship.missile_fire_interval_seconds)
+            starship.missile_regen_interval_seconds = m.get("regen_interval_seconds", starship.missile_regen_interval_seconds)
 
         sh = self.data.get("shield", {})
         if sh and hasattr(starship, "shield_system"):
@@ -160,9 +179,7 @@ class SaveState:
 
         u = self.data.get("upgrades", {})
         if u:
-            starship.upgrade_chips = list(
-                u.get("upgrade_chips", starship.upgrade_chips)
-            )
+            starship.upgrade_chips = list(u.get("upgrade_chips", starship.upgrade_chips))
 
         # reset transient combat state
         starship.invincible = False
@@ -194,6 +211,14 @@ class SaveState:
         with open(path, "r") as f:
             self.data = json.load(f)
 
+        # backfill for older saves missing location
+        if "location" not in self.data:
+            self.data["location"] = {
+                "screen": "HOME_BASE",
+                "level_id": None,
+                "spawn_id": None,
+            }
+
         return True
 
     def load_from_level(self) -> dict[str, Any] | None:
@@ -214,5 +239,5 @@ class SaveState:
 
         with open(level_save_path, "r") as f:
             level_data = json.load(f)
-        
+
         return level_data

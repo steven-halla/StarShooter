@@ -60,6 +60,7 @@ class LevelSeven(VerticalBattleScreen):
         self.starship.y = player_y
         self.load_enemy_into_list(state)
         self.build_flame_grid()
+        self.save_state.set_location_level(7, screen_name="Level 7")
         self.save_state.capture_player(self.starship)
         self.save_state.save_to_file("player_save.json")
 

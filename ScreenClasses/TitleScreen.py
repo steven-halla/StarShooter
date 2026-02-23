@@ -86,7 +86,8 @@ class TitleScreen:
                     # 1) Restore data into the starship object
                     state.save_state.restore_player(state.starship)
 
-                    # 2) Determine which level to load based on the restored current_level
+                    # 2) Determine which level to load based on the restored location or current_level
+                    from ScreenClasses.HomeBase import HomeBase
                     from Levels.LevelOne import LevelOne
                     from Levels.LevelTwo import LevelTwo
                     from Levels.levelThree import LevelThree
@@ -122,6 +123,13 @@ class TitleScreen:
                         9: LevelNine,
                         10: LevelTen,
                     }
+
+                    # 2.1) Check if we should load HomeBase
+                    location = state.save_state.get_location()
+                    if location.get("screen") == "HOME_BASE":
+                        state.currentScreen = HomeBase(state.textbox)
+                        state.currentScreen.start(state)
+                        return
 
                     # Default to LevelOne if current_level is invalid
                     level_num = state.starship.current_level

@@ -252,6 +252,9 @@ class VerticalBattleScreen:
                     print(f"Save point reached! Player Position: ({player.x}, {player.y})")
                     print(f"Player Position relative to camera: ({player.x}, {player.y - self.camera_y})")
                     
+                    level_id = getattr(self.starship, "current_level", 1)
+                    screen_name = f"LEVEL_{level_id}"
+                    self.save_state.set_location_level(level_id, screen_name=screen_name)
                     self.save_state.capture_player(self.starship)
                     self.save_state.save_to_file("player_save.json")
                     

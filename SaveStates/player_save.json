@@ -1,15 +1,21 @@
 {
   "version": 1,
+  "location": {
+    "screen": "Level 4",
+    "level_id": 4,
+    "spawn_id": null
+  },
   "player": {
     "shipHealth": 50,
     "shipHealthMax": 50,
-    "credits": 10000,
     "equipped_magic": [
-      "",
+      "Napalm Spread",
       null
     ],
-    "magic_inventory": [],
-    "current_level": 1
+    "magic_inventory": [
+      "Napalm Spread"
+    ],
+    "current_level": 4
   },
   "weapons": {
     "machine_gun": {
@@ -29,12 +35,11 @@
     "damage": 50,
     "bullet_speed": 1.5,
     "rate_of_fire": 0.5,
-    "max": 2,
-    "current": 2,
+    "max": 1,
+    "current": 1,
     "fire_interval_seconds": 0.5,
     "regen_interval_seconds": 10.0
   },
-
   "shield": {
     "current": 100,
     "max": 100,

@@ -1,4 +1,5 @@
 import pygame
+from SaveStates.SaveState import SaveState
 from ScreenClasses.Screen import Screen
 from Constants.GlobalConstants import GlobalConstants
 from Controller.KeyBoardControls import KeyBoardControls
@@ -9,6 +10,7 @@ class HomeBase(Screen):
         super().__init__()
         self.textbox = textbox
         self._welcome_shown: bool = False
+        self.save_state = SaveState()
 
         # background image (top portion)
         self.hangerbay_image = pygame.image.load("Assets/Images/hangerbay.png").convert()
@@ -24,7 +26,7 @@ class HomeBase(Screen):
 
         # menu text
         self.menu_font = pygame.font.SysFont("arial", 20)
-        self.menu_items: list[str] = ["W. Shop", "D. Shop", "N. Mission"]
+        self.menu_items: list[str] = ["W. Shop", "D. Shop", "N. Mission", "Save", "Load"]
         self.weapon_shop_descriptions: dict[str, str] = {
             "m. gun damage booster": "Machine Gun Damage Booster\nIncreases your machine gun damage.",
             "missile speed booster": "Missile Speed Booster\nIncreases your missile speed.",
@@ -81,6 +83,11 @@ class HomeBase(Screen):
 
     def start(self, state) -> None:
         super().start(state)
+        
+        # Save game when arriving at Home Base
+        self.save_state.set_location_home_base()
+        self.save_state.capture_player(state.starship)
+        self.save_state.save_to_file("player_save.json")
 
         if not self._welcome_shown:
             self.textbox.show("Welcome to your home base")
@@ -176,6 +183,73 @@ class HomeBase(Screen):
                 elif self.menu_index == 1:
                     self.defense_shop_open = True
                     self.last_defense_shop_index = -1  # force first description show
+                elif self.menu_index == 2:
+                    # NEXT MISSION
+                    state.starship.current_level += 1
+                    
+                    # Save before transitioning
+                    self.save_state.capture_player(state.starship)
+                    self.save_state.save_to_file("player_save.json")
+                    
+                    level_num = state.starship.current_level
+                    
+                    # Import mapping and screens
+                    from Levels.LevelOne import LevelOne
+                    from Levels.LevelTwo import LevelTwo
+                    from Levels.levelThree import LevelThree
+                    from Levels.LevelFour import LevelFour
+                    from Levels.LevelFive import LevelFive
+                    from Levels.LevelSix import LevelSix
+                    from Levels.LevelSeven import LevelSeven
+                    from Levels.LevelEight import LevelEight
+                    from Levels.LevelNine import LevelNine
+                    from Levels.LevelTen import LevelTen
+                    
+                    from ScreenClasses.MissionBriefingScreenLevelOne import MissionBriefingScreenLevelOne
+                    from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
+                    from ScreenClasses.MissionBriefingScreenLevelThree import MissionBriefingScreenLevelThree
+                    from ScreenClasses.MissionBriefingScreenLevelFour import MissionBriefingScreenLevelFour
+                    from ScreenClasses.MissionBriefingScreenLevelFive import MissionBriefingScreenLevelFive
+                    
+                    LEVEL_MAP_ACTUAL = {
+                        1: LevelOne,
+                        2: LevelTwo,
+                        3: LevelThree,
+                        4: LevelFour,
+                        5: LevelFive,
+                        6: LevelSix,
+                        7: LevelSeven,
+                        8: LevelEight,
+                        9: LevelNine,
+                        10: LevelTen,
+                    }
+                    
+                    LEVEL_MAP_BRIEFING = {
+                        1: MissionBriefingScreenLevelOne,
+                        2: MissionBriefingScreenLevelTwo,
+                        3: MissionBriefingScreenLevelThree,
+                        4: MissionBriefingScreenLevelFour,
+                        5: MissionBriefingScreenLevelFive,
+                    }
+                    
+                    if level_num in LEVEL_MAP_BRIEFING:
+                        level_class = LEVEL_MAP_BRIEFING[level_num]
+                    else:
+                        level_class = LEVEL_MAP_ACTUAL.get(level_num, LevelOne)
+                    
+                    if level_class in [
+                        MissionBriefingScreenLevelOne,
+                        MissionBriefingScreenLevelTwo,
+                        MissionBriefingScreenLevelThree,
+                        MissionBriefingScreenLevelFour,
+                        MissionBriefingScreenLevelFive
+                    ]:
+                        state.currentScreen = level_class()
+                    else:
+                        state.currentScreen = level_class(state.textbox)
+                    
+                    state.currentScreen.start(state)
+                    return
                 self.f_lock = True
             elif not self.controls.main_weapon_button:
                 self.f_lock = False
