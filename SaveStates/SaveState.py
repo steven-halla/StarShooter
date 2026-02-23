@@ -66,6 +66,7 @@ class SaveState:
     def capture_player(self, starship) -> None:
         self.data["player"] = {
             "shipHealth": starship.shipHealth,
+            "money": starship.money,
             "shipHealthMax": starship.shipHealthMax,
             "equipped_magic": list(starship.equipped_magic),
             "magic_inventory": list(starship.magic_inventory),
@@ -124,6 +125,8 @@ class SaveState:
         p = self.data.get("player", {})
         if p:
             starship.shipHealth = p.get("shipHealth", starship.shipHealth)
+            # Backward compatibility: fall back to 'credits' if older save
+            starship.money = p.get("money", p.get("credits", starship.money))
             starship.shipHealthMax = p.get("shipHealthMax", starship.shipHealthMax)
             starship.equipped_magic = list(p.get("equipped_magic", starship.equipped_magic))
             starship.magic_inventory = list(p.get("magic_inventory", starship.magic_inventory))
@@ -189,6 +192,7 @@ class SaveState:
     # FILE IO
     # -------------------------------------------------
     def save_to_file(self, filename: str | None = None) -> None:
+        print(" I AM A SAVE FILE AND I AM CALLED")
         if filename is None:
             filename = self.DEFAULT_FILENAME
 

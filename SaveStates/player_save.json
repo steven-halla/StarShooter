@@ -7,13 +7,14 @@
   },
   "player": {
     "shipHealth": 50,
+    "money": 5000,
     "shipHealthMax": 50,
     "equipped_magic": [
       "",
       null
     ],
     "magic_inventory": [],
-    "current_level": 1
+    "current_level": 0
   },
   "weapons": {
     "machine_gun": {
@@ -34,12 +35,12 @@
     "bullet_speed": 1.5,
     "rate_of_fire": 0.5,
     "max": 1,
-    "current": 0,
+    "current": 1,
     "fire_interval_seconds": 0.5,
     "regen_interval_seconds": 10.0
   },
   "shield": {
-    "current": 86.60000000000134,
+    "current": 100,
     "max": 100,
     "recharge_rate": 0.2,
     "time_to_start_recharge": 10000
@@ -53,7 +54,8 @@
   },
   "upgrades": {
     "upgrade_chips": [
-      ""
+      "",
+      "Metal Shield"
     ]
   }
 }

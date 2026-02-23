@@ -27,7 +27,7 @@ class MissionBriefingScreenLevelOne(Screen):
             "Controls:",
             "- Arrow keys: Move",
             "- F: Machine gun fire",
-            "- A: Launch missiles",
+            "- B: Launch missiles",
             "- D: Special attack",
             "",
             "Press F to deploy."

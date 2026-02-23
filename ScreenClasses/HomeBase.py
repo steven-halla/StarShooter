@@ -112,38 +112,38 @@ class HomeBase(Screen):
 
         # MENU NAV (disabled while popup open)
         if not self.weapon_shop_open and not self.defense_shop_open:
-            if self.controls.up_button and not self.up_lock:
+            if self.controls.up_button and not self._up_lock:
                 self.menu_index -= 1
                 if self.menu_index < 0:
                     self.menu_index = 0
-                self.up_lock = True
+                self._up_lock = True
             elif not self.controls.up_button:
-                self.up_lock = False
+                self._up_lock = False
 
-            if self.controls.down_button and not self.down_lock:
+            if self.controls.down_button and not self._down_lock:
                 self.menu_index += 1
                 if self.menu_index > len(self.menu_items) - 1:
                     self.menu_index = len(self.menu_items) - 1
-                self.down_lock = True
+                self._down_lock = True
             elif not self.controls.down_button:
-                self.down_lock = False
+                self._down_lock = False
         elif self.weapon_shop_open:
             # Weapon Shop navigation
-            if self.controls.up_button and not self.up_lock:
+            if self.controls.up_button and not self._up_lock:
                 self.weapon_shop_index -= 1
                 if self.weapon_shop_index < 0:
                     self.weapon_shop_index = 0
-                self.up_lock = True
+                self._up_lock = True
             elif not self.controls.up_button:
-                self.up_lock = False
+                self._up_lock = False
 
-            if self.controls.down_button and not self.down_lock:
+            if self.controls.down_button and not self._down_lock:
                 self.weapon_shop_index += 1
                 if self.weapon_shop_index > len(self.weapon_shop_items) - 1:
                     self.weapon_shop_index = len(self.weapon_shop_items) - 1
-                self.down_lock = True
+                self._down_lock = True
             elif not self.controls.down_button:
-                self.down_lock = False
+                self._down_lock = False
 
             # SHOW DESCRIPTION IN TEXTBOX WHEN SELECTION CHANGES
             if self.weapon_shop_index != self.last_weapon_shop_index:
@@ -152,21 +152,21 @@ class HomeBase(Screen):
                 self.last_weapon_shop_index = self.weapon_shop_index
         elif self.defense_shop_open:
             # Defense Shop navigation
-            if self.controls.up_button and not self.up_lock:
+            if self.controls.up_button and not self._up_lock:
                 self.defense_shop_index -= 1
                 if self.defense_shop_index < 0:
                     self.defense_shop_index = 0
-                self.up_lock = True
+                self._up_lock = True
             elif not self.controls.up_button:
-                self.up_lock = False
+                self._up_lock = False
 
-            if self.controls.down_button and not self.down_lock:
+            if self.controls.down_button and not self._down_lock:
                 self.defense_shop_index += 1
                 if self.defense_shop_index > len(self.defense_shop_items) - 1:
                     self.defense_shop_index = len(self.defense_shop_items) - 1
-                self.down_lock = True
+                self._down_lock = True
             elif not self.controls.down_button:
-                self.down_lock = False
+                self._down_lock = False
 
             # SHOW DESCRIPTION IN TEXTBOX WHEN SELECTION CHANGES
             if self.defense_shop_index != self.last_defense_shop_index:
@@ -176,7 +176,7 @@ class HomeBase(Screen):
 
         # OPEN SHOPS (Primary fire key = F)
         if not self.weapon_shop_open and not self.defense_shop_open:
-            if self.controls.main_weapon_button and not self.f_lock:
+            if self.controls.main_weapon_button and not self._f_lock:
                 if self.menu_index == 0:
                     self.weapon_shop_open = True
                     self.last_weapon_shop_index = -1  # force first description show
@@ -250,12 +250,25 @@ class HomeBase(Screen):
                     
                     state.currentScreen.start(state)
                     return
-                self.f_lock = True
+                elif self.menu_index == 3:
+                    # SAVE GAME
+                    self.save_state.set_location_home_base()
+                    self.save_state.capture_player(state.starship)
+                    self.save_state.save_to_file("player_save.json")
+                    self.textbox.show("Game saved.")
+                elif self.menu_index == 4:
+                    # LOAD GAME
+                    if self.save_state.load_from_file("player_save.json"):
+                        self.save_state.restore_player(state.starship)
+                        self.textbox.show("Game loaded.")
+                    else:
+                        self.textbox.show("No save file found.")
+                self._f_lock = True
             elif not self.controls.main_weapon_button:
-                self.f_lock = False
+                self._f_lock = False
         elif self.weapon_shop_open:
             # PURCHASE LOGIC (Primary fire key = F) while shop is open
-            if self.controls.main_weapon_button and not self.f_lock:
+            if self.controls.main_weapon_button and not self._f_lock:
                 item = self.weapon_shop_items[self.weapon_shop_index]
                 price = 5000
                 if item not in state.starship.upgrade_chips:
@@ -264,17 +277,21 @@ class HomeBase(Screen):
                         state.starship.upgrade_chips.append(item)
                         if hasattr(state.starship, "apply_upgrades"):
                             state.starship.apply_upgrades()
+                        # Auto-save after successful purchase
+                        self.save_state.set_location_home_base()
+                        self.save_state.capture_player(state.starship)
+                        self.save_state.save_to_file("player_save.json")
                         self.textbox.show(f"Purchased {item} for {price}!")
                     else:
                         self.textbox.show(f"Not enough money for {item} (Need {price}).")
                 else:
                     self.textbox.show(f"{item} is already sold out.")
-                self.f_lock = True
+                self._f_lock = True
             elif not self.controls.main_weapon_button:
-                self.f_lock = False
+                self._f_lock = False
         elif self.defense_shop_open:
             # PURCHASE LOGIC (Primary fire key = F) while shop is open
-            if self.controls.main_weapon_button and not self.f_lock:
+            if self.controls.main_weapon_button and not self._f_lock:
                 item = self.defense_shop_items[self.defense_shop_index]
                 price = 5000
                 if item not in state.starship.upgrade_chips:
@@ -283,14 +300,18 @@ class HomeBase(Screen):
                         state.starship.upgrade_chips.append(item)
                         if hasattr(state.starship, "apply_upgrades"):
                             state.starship.apply_upgrades()
+                        # Auto-save after successful purchase
+                        self.save_state.set_location_home_base()
+                        self.save_state.capture_player(state.starship)
+                        self.save_state.save_to_file("player_save.json")
                         self.textbox.show(f"Purchased {item} for {price}!")
                     else:
                         self.textbox.show(f"Not enough money for {item} (Need {price}).")
                 else:
                     self.textbox.show(f"{item} is already sold out.")
-                self.f_lock = True
+                self._f_lock = True
             elif not self.controls.main_weapon_button:
-                self.f_lock = False
+                self._f_lock = False
 
         # CLOSE SHOPS (Magic 1 key = D) keep same behavior using release flag
         if self.weapon_shop_open and self.controls.magic_1_released:

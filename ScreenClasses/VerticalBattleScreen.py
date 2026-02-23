@@ -54,9 +54,7 @@ class VerticalBattleScreen:
             "./Assets/Images/hud_icons.png"
         ).convert_alpha()
 
-        self.hud_sheet = pygame.image.load(
-            "./Assets/Images/hud_icons.png"
-        ).convert_alpha()
+
 
         ICON_SIZE = 16
         UI_ICON_SIZE = 24
@@ -221,7 +219,7 @@ class VerticalBattleScreen:
                 dy -= 1
             if self.controller.down_button:
                 dy += 1
-            
+
             if dx != 0 or dy != 0:
                 self.mover.move_normalized(self.starship, dx, dy, "speed")
 
@@ -251,13 +249,13 @@ class VerticalBattleScreen:
                 if not self.save_point_used:
                     print(f"Save point reached! Player Position: ({player.x}, {player.y})")
                     print(f"Player Position relative to camera: ({player.x}, {player.y - self.camera_y})")
-                    
+
                     level_id = getattr(self.starship, "current_level", 1)
                     screen_name = f"LEVEL_{level_id}"
                     self.save_state.set_location_level(level_id, screen_name=screen_name)
                     self.save_state.capture_player(self.starship)
                     self.save_state.save_to_file("player_save.json")
-                    
+
                     # Save level specific data including camera-based position
                     import json
                     import os
@@ -266,14 +264,14 @@ class VerticalBattleScreen:
                         "player_y": player.y,
                         "player_camera_y": self.camera.y
                     }
-                    
+
                     save_dir = os.path.join(os.getcwd(), "SaveStates")
                     os.makedirs(save_dir, exist_ok=True)
                     save_path = os.path.join(save_dir, "level_save_point.json")
-                    
+
                     with open(save_path, "w") as f:
                         json.dump(save_data, f, indent=2)
-                    
+
                     self.save_point_used = True
                     print(f"Saved level_save_point.json to {save_path}")
 
@@ -545,6 +543,35 @@ class VerticalBattleScreen:
         icon_y = bar_y - 4
         surface.blit(self.missile_icon, (icon_x, icon_y))
 
+        # -----------------------------
+        # MISSILE COUNT TEXT
+        # -----------------------------
+        font = pygame.font.Font(None, 24)
+
+        missile_text = f"{self.starship.missile_current}/{self.starship.missile_max}"
+        missile_surface = font.render(missile_text, True, (255, 255, 255))
+
+        missile_text_x = icon_x + 32 + 5
+        missile_text_y = icon_y + 8
+
+        surface.blit(missile_surface, (missile_text_x, missile_text_y))
+
+        # -----------------------------
+        # KI TEXT (x + 100)
+        # -----------------------------
+        ki_text = f"{self.starship.player_ki}/{self.starship.player_max_ki}"
+        ki_surface = font.render(ki_text, True, (255, 255, 255))
+
+        ki_label_surface = font.render("Ki", True, (255, 255, 255))
+
+        ki_text_x = missile_text_x + 120
+        ki_text_y = missile_text_y
+
+        ki_label_x = ki_text_x - ki_label_surface.get_width() - 6
+        ki_label_y = ki_text_y
+
+        surface.blit(ki_label_surface, (ki_label_x, ki_label_y))
+        surface.blit(ki_surface, (ki_text_x, ki_text_y))
         # -----------------------------
         # MISSILE COUNT TEXT
         # -----------------------------

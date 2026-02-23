@@ -157,29 +157,47 @@ class ShopKeeper:
         row = self.current_selected_chip % self.num_rows
         col = self.current_selected_chip // self.num_rows
 
+        # Use locks to prevent continuous movement in menus
+        if not hasattr(self, "_up_lock"): self._up_lock = False
+        if not hasattr(self, "_down_lock"): self._down_lock = False
+        if not hasattr(self, "_left_lock"): self._left_lock = False
+        if not hasattr(self, "_right_lock"): self._right_lock = False
+
         if self.controls.up_button:
-            if row > 0:
-                self.current_selected_chip -= 1
-                self.textbox.show(self._get_description(state, self.current_selected_chip))
-            self.controls.isUpPressed = False
+            if not self._up_lock:
+                if row > 0:
+                    self.current_selected_chip -= 1
+                    self.textbox.show(self._get_description(state, self.current_selected_chip))
+                self._up_lock = True
+        else:
+            self._up_lock = False
 
         if self.controls.down_button:
-            if row < self.num_rows - 1:
-                self.current_selected_chip += 1
-                self.textbox.show(self._get_description(state, self.current_selected_chip))
-            self.controls.isDownPressed = False
+            if not self._down_lock:
+                if row < self.num_rows - 1:
+                    self.current_selected_chip += 1
+                    self.textbox.show(self._get_description(state, self.current_selected_chip))
+                self._down_lock = True
+        else:
+            self._down_lock = False
 
         if self.controls.left_button:
-            if col > 0:
-                self.current_selected_chip -= self.num_rows
-                self.textbox.show(self._get_description(state, self.current_selected_chip))
-            self.controls.isLeftPressed = False
+            if not self._left_lock:
+                if col > 0:
+                    self.current_selected_chip -= self.num_rows
+                    self.textbox.show(self._get_description(state, self.current_selected_chip))
+                self._left_lock = True
+        else:
+            self._left_lock = False
 
         if self.controls.right_button:
-            if col < self.num_cols - 1:
-                self.current_selected_chip += self.num_rows
-                self.textbox.show(self._get_description(state, self.current_selected_chip))
-            self.controls.isRightPressed = False
+            if not self._right_lock:
+                if col < self.num_cols - 1:
+                    self.current_selected_chip += self.num_rows
+                    self.textbox.show(self._get_description(state, self.current_selected_chip))
+                self._right_lock = True
+        else:
+            self._right_lock = False
 
         if self.controls.main_weapon_button:
             self.fill_timer += state.delta
@@ -224,7 +242,7 @@ class ShopKeeper:
         # Draw money bar at top
         money_bar_height = 40
         pygame.draw.rect(state.DISPLAY, (0, 0, 0), (0, 0, state.DISPLAY.get_width(), money_bar_height))
-        
+
         # Render and draw player money
         money_text = f"Money: ${state.starship.money}"
         money_surf = self.font.render(money_text, True, (255, 255, 255))

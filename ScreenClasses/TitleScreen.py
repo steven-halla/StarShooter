@@ -32,7 +32,7 @@ class TitleScreen:
         # one-tap locks
         self._up_lock = False
         self._down_lock = False
-        self.show_mission_briefing = False
+        self.show_mission_briefing = True
 
     # REQUIRED BY ENGINE
     def start(self, state) -> None:
@@ -43,17 +43,17 @@ class TitleScreen:
         self.controls.update()
 
         # UP = previous option
-        if self.controls.down_button and not self._up_lock:
+        if self.controls.up_button and not self._up_lock:
             self.selected_index = (self.selected_index - 1) % len(self.levels)
             self._up_lock = True
-        elif not self.controls.down_button:
+        elif not self.controls.up_button:
             self._up_lock = False
 
         # DOWN = next option
-        if self.controls.up_button and not self._down_lock:
+        if self.controls.down_button and not self._down_lock:
             self.selected_index = (self.selected_index + 1) % len(self.levels)
             self._down_lock = True
-        elif not self.controls.up_button:
+        elif not self.controls.down_button:
             self._down_lock = False
 
         # FIRE (F)
