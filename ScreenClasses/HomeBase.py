@@ -28,8 +28,8 @@ class HomeBase(Screen):
         self.menu_font = pygame.font.SysFont("arial", 20)
         self.menu_items: list[str] = ["W. Shop", "D. Shop", "N. Mission", "Save", "Load"]
         self.weapon_shop_descriptions: dict[str, str] = {
-            "m. gun damage booster": "Machine Gun Damage Booster\nIncreases your machine gun damage.",
-            "missile speed booster": "Missile Speed Booster\nIncreases your missile speed.",
+            "M. gun damage booster": "Machine Gun Damage Booster\nIncreases your machine gun damage.",
+            "Missile speed booster": "Missile Speed Booster\nIncreases your missile speed.",
             "Metal Shield": "Metal Shield\nUse Ki to create a metal shield that rotates around the ship that damages enemies/bullets on contact.",
         }
         self.defense_shop_descriptions: dict[str, str] = {
@@ -58,8 +58,8 @@ class HomeBase(Screen):
         self.weapon_shop_open: bool = False
         self.weapon_shop_index: int = 0
         self.weapon_shop_items: list[str] = [
-            "m. gun damage booster",
-            "missile speed booster",
+            "M. gun damage booster",
+            "Missile speed booster",
             "Metal Shield"
         ]
 
@@ -83,7 +83,7 @@ class HomeBase(Screen):
 
     def start(self, state) -> None:
         super().start(state)
-        
+
         # Save game when arriving at Home Base
         self.save_state.set_location_home_base()
         self.save_state.capture_player(state.starship)
@@ -100,6 +100,8 @@ class HomeBase(Screen):
 
     def update(self, state):
         super().update(state)
+        # print(state.starship.machine_gun_damage)
+
 
         if not hasattr(self, "controls"):
             self.controls = KeyBoardControls()
@@ -186,13 +188,13 @@ class HomeBase(Screen):
                 elif self.menu_index == 2:
                     # NEXT MISSION
                     state.starship.current_level += 1
-                    
+
                     # Save before transitioning
                     self.save_state.capture_player(state.starship)
                     self.save_state.save_to_file("player_save.json")
-                    
+
                     level_num = state.starship.current_level
-                    
+
                     # Import mapping and screens
                     from Levels.LevelOne import LevelOne
                     from Levels.LevelTwo import LevelTwo
@@ -204,13 +206,13 @@ class HomeBase(Screen):
                     from Levels.LevelEight import LevelEight
                     from Levels.LevelNine import LevelNine
                     from Levels.LevelTen import LevelTen
-                    
+
                     from ScreenClasses.MissionBriefingScreenLevelOne import MissionBriefingScreenLevelOne
                     from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
                     from ScreenClasses.MissionBriefingScreenLevelThree import MissionBriefingScreenLevelThree
                     from ScreenClasses.MissionBriefingScreenLevelFour import MissionBriefingScreenLevelFour
                     from ScreenClasses.MissionBriefingScreenLevelFive import MissionBriefingScreenLevelFive
-                    
+
                     LEVEL_MAP_ACTUAL = {
                         1: LevelOne,
                         2: LevelTwo,
@@ -223,7 +225,7 @@ class HomeBase(Screen):
                         9: LevelNine,
                         10: LevelTen,
                     }
-                    
+
                     LEVEL_MAP_BRIEFING = {
                         1: MissionBriefingScreenLevelOne,
                         2: MissionBriefingScreenLevelTwo,
@@ -231,12 +233,12 @@ class HomeBase(Screen):
                         4: MissionBriefingScreenLevelFour,
                         5: MissionBriefingScreenLevelFive,
                     }
-                    
+
                     if level_num in LEVEL_MAP_BRIEFING:
                         level_class = LEVEL_MAP_BRIEFING[level_num]
                     else:
                         level_class = LEVEL_MAP_ACTUAL.get(level_num, LevelOne)
-                    
+
                     if level_class in [
                         MissionBriefingScreenLevelOne,
                         MissionBriefingScreenLevelTwo,
@@ -247,7 +249,7 @@ class HomeBase(Screen):
                         state.currentScreen = level_class()
                     else:
                         state.currentScreen = level_class(state.textbox)
-                    
+
                     state.currentScreen.start(state)
                     return
                 elif self.menu_index == 3:
@@ -278,6 +280,14 @@ class HomeBase(Screen):
                         if item == "Metal Shield":
                             state.starship.magic_inventory.append(item)
                             state.starship.equipped_magic[0] = item
+                        elif item == "M. gun damage booster":
+                            state.starship.machine_gun_damage += 0.1
+                            print("I bought better bullets")
+
+                        elif item == "Missile speed booster":
+                            state.starship.missile_bullet_speed += 1.0
+                            print("I bought better speed for missiles")
+
                         if hasattr(state.starship, "apply_upgrades"):
                             state.starship.apply_upgrades()
                         # Auto-save after successful purchase
@@ -301,8 +311,26 @@ class HomeBase(Screen):
                     if state.starship.money >= price:
                         state.starship.money -= price
                         state.starship.upgrade_chips.append(item)
+                        if item == "Armor Plating":
+                            state.starship.shipHealth += 50
+                            state.starship.shipHealthMax += 50
+
+                            print("I bought better hull amount")
+
+                        elif item == "Shield Generator":
+                            state.starship.current_shield += 25
+                            state.starship.max_shield += 25
+                            print("I bought better shield amount")
+
+                        elif item == "Ki Efficiency chip":
+                            state.starship.player_ki += 25
+                            state.starship.player_max_ki += 25
+                            print("I bought better ki amount")
+
+
                         if hasattr(state.starship, "apply_upgrades"):
                             state.starship.apply_upgrades()
+
                         # Auto-save after successful purchase
                         self.save_state.set_location_home_base()
                         self.save_state.capture_player(state.starship)

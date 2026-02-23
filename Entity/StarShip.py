@@ -132,8 +132,8 @@ class StarShip:
         # the below can get UPGRADED
         # -------------------------
         self.speed: float = 2.2
-        self.shipHealth: int = 50
-        self.shipHealthMax: int = 50
+        self.shipHealth: int = 25
+        self.shipHealthMax: int = 25
         self.post_hit_invincibility_duration: float = 2.0
         self.invincibility_timer: Timer = Timer(self.post_hit_invincibility_duration)
         self.upgrade_chips: list = [""]

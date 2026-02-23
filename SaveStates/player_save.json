@@ -1,24 +1,24 @@
 {
   "version": 1,
   "location": {
-    "screen": "Level 2",
-    "level_id": 2,
+    "screen": "Level 1",
+    "level_id": 1,
     "spawn_id": null
   },
   "player": {
     "shipHealth": 50,
-    "money": 10000,
+    "money": 5000,
     "shipHealthMax": 50,
     "equipped_magic": [
       "",
       null
     ],
     "magic_inventory": [],
-    "current_level": 2
+    "current_level": 1
   },
   "weapons": {
     "machine_gun": {
-      "damage": 0.5,
+      "damage": 0.6,
       "width": 4,
       "height": 4,
       "rate_of_fire": 0.1,
@@ -54,7 +54,8 @@
   },
   "upgrades": {
     "upgrade_chips": [
-      ""
+      "",
+      "M. gun damage booster"
     ]
   }
 }

@@ -159,6 +159,8 @@ class VerticalBattleScreen:
     def update(self, state: 'GameState'):
 
         self.controller.update()
+        # print("Line 162 and 163 vertical battle screen")
+        # print(state.starship.machine_gun_damage)
 
         # THEN: react to input
         if self.textbox.is_visible():
