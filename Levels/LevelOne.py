@@ -1,7 +1,9 @@
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Bosses.BossLevelOne import BossLevelOne
+from ScreenClasses.HomeBase import HomeBase
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.TriSpitter import TriSpitter
@@ -33,6 +35,7 @@ class LevelOne(VerticalBattleScreen):
         self.level_complete:bool = False
         self.save_state = SaveState()
         self.map_scroll_speed_per_frame: float = .4
+        self.boss_death_timer = None
 
 
         self.intro_dialogue = (
@@ -68,6 +71,12 @@ class LevelOne(VerticalBattleScreen):
 
 
     def update(self, state) -> None:
+        if self.boss_death_timer is not None:
+            if self.boss_death_timer.is_ready():
+                state.currentScreen = HomeBase(self.textbox)
+                state.currentScreen.start(state)
+                return
+
         super().update(state)
         print(self.missed_enemies)
         if self.missed_enemies.__len__() > 3:
@@ -116,20 +125,15 @@ class LevelOne(VerticalBattleScreen):
                 enemy.enemy_bullets.clear()
 
             if enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)
+                self.remove_enemy_if_dead(enemy, state)
 
     def update_handle_level_complete(self, state):
-        if (
-                not self.level_complete
-                and any(
-            enemy.__class__.__name__ == "BossLevelOne" and enemy.enemyHealth <= 0
-            for enemy in state.enemies
-        )
-        ):
-            self.level_complete = True
-            next_level = MissionBriefingScreenLevelTwo()
-            state.currentScreen = next_level
-            next_level.start(state)
+        if not self.level_complete:
+            boss_alive = any(isinstance(enemy, BossLevelOne) for enemy in state.enemies)
+            if not boss_alive:
+                if self.boss_death_timer is None:
+                    self.boss_death_timer = Timer(2.0)
+                    self.boss_death_timer.reset()
 
     def update_add_enemy_to_missed_list(self, state):
         UI_KILL_PADDING = 13.5  # pixels ABOVE the UI panel (tweak this)

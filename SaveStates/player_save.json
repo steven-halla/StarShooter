@@ -1,8 +1,8 @@
 {
   "version": 1,
   "location": {
-    "screen": "LEVEL_1",
-    "level_id": 1,
+    "screen": "HOME_BASE",
+    "level_id": null,
     "spawn_id": null
   },
   "player": {
@@ -34,12 +34,12 @@
     "bullet_speed": 1.5,
     "rate_of_fire": 0.5,
     "max": 1,
-    "current": 1,
+    "current": 0,
     "fire_interval_seconds": 0.5,
     "regen_interval_seconds": 10.0
   },
   "shield": {
-    "current": 50.40000000000041,
+    "current": 86.60000000000134,
     "max": 100,
     "recharge_rate": 0.2,
     "time_to_start_recharge": 10000
