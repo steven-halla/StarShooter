@@ -20,6 +20,7 @@ class VerticalBattleScreen:
     def __init__(self, textbox):
         self.starship = StarShip()
         self.playerDead: bool = False
+
         self.textbox = textbox
         self.tiled_map = pytmx.load_pygame("")
         self.tile_size: int = self.tiled_map.tileheight
@@ -454,8 +455,15 @@ class VerticalBattleScreen:
         if melee_bullet and melee_bullet in state.enemy_bullets:
             state.enemy_bullets.remove(melee_bullet)
 
+        # Spawn enemy drop (if applicable for the level)
+        self.spawn_enemy_drop(enemy, state)
+
         if enemy in state.enemies:
             state.enemies.remove(enemy)
+
+    def spawn_enemy_drop(self, enemy, state) -> None:
+        """Override in subclasses to provide specific drop logic."""
+        pass
 
     def get_enemy_screen_rect(self, enemy) -> pygame.Rect:
         return pygame.Rect(

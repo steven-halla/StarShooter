@@ -29,8 +29,8 @@ class BossLevelTwo(Enemy):
         self.enemy_image = self.bile_spitter_image
 
         # stats
-        self.enemyHealth: float = 500.0
-        self.maxHealth: float = 500.0
+        self.enemyHealth: float = 700.0
+        self.maxHealth: float = 700.0
         self.exp: int = 1
         self.credits: int = 5
 

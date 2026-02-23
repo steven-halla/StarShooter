@@ -67,7 +67,7 @@ class GameState:
         self.enemy_bullets: list[Bullet] = []
         self.player_bullets: list[Bullet] = []
         self.enemies: list[Enemy] = []
-
+        self.enemy_drops: list = []
         self.save_state = SaveState()
 
         self.delta: int = 0

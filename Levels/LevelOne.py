@@ -1,8 +1,11 @@
+import random
+
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Entity.Bosses.BossLevelOne import BossLevelOne
+from Entity.Drops.EnemyDrops import EnemyDrop
 from ScreenClasses.HomeBase import HomeBase
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
@@ -47,6 +50,7 @@ class LevelOne(VerticalBattleScreen):
         )
 
     def start(self, state) -> None:
+        state.enemy_drops.clear()
         print("I only want to see this one time lleve one")
         state.starship.equipped_magic = ["", None]
         state.starship.current_level = 1
@@ -69,6 +73,12 @@ class LevelOne(VerticalBattleScreen):
         self.save_state.save_to_file("player_save.json")
         state.starship.apply_upgrades()
 
+    def spawn_enemy_drop(self, enemy, state) -> None:
+        # pick ONE drop type (example: random)
+        drop_type = random.choice(["BLUE", "PURPLE", "YELLOW"])
+
+        drop = EnemyDrop(enemy.x, enemy.y, drop_type)
+        state.enemy_drops.append(drop)
 
     def update(self, state) -> None:
         if self.boss_death_timer is not None:
@@ -78,7 +88,12 @@ class LevelOne(VerticalBattleScreen):
                 return
 
         super().update(state)
-        print(self.missed_enemies)
+        print(state.enemy_drops)
+        # -------------------------
+        # LEVEL / SCREEN: UPDATE
+        # -------------------------
+        for d in list(state.enemy_drops):
+            d.update(state)
         if self.missed_enemies.__len__() > 3:
             print("Objective failed!!!")
         # print(f"Player X: {self.starship.x}, Player Y: {self.starship.y}, Camera Y: {self.camera.y}")
@@ -94,6 +109,12 @@ class LevelOne(VerticalBattleScreen):
 
     def draw(self, state):
         super().draw(state)
+        # -------------------------
+        # LEVEL / SCREEN: DRAW
+        # (draw AFTER enemies if you want drops on top)
+        # -------------------------
+        for d in state.enemy_drops:
+            d.draw(state.DISPLAY, self.camera)
         font = pygame.font.Font(None, 28)
         current_enemies = len(state.enemies)
         self.draw_enemy_counter(current_enemies, font, state)
@@ -101,6 +122,7 @@ class LevelOne(VerticalBattleScreen):
         self.draw_ui_panel(state.DISPLAY)
 
         pygame.display.flip()
+
 
 
     def update_enemy_helper(self, state):
@@ -111,7 +133,7 @@ class LevelOne(VerticalBattleScreen):
             if enemy.y > screen_bottom:
                 if enemy not in self.missed_enemies:
                     self.missed_enemies.append(enemy)
-                    print("enemy missed")
+                    # print("enemy missed")
                 continue
 
 

@@ -55,7 +55,7 @@ class FireLauncher(Enemy):
         # match BileSpitter ordering
         self.update_hitbox()
 
-        self.moveAI()
+        # self.moveAI()
 
         if self.attack_timer.is_ready():
             self.shoot_spores(
@@ -78,55 +78,126 @@ class FireLauncher(Enemy):
         if not self.mover.enemy_on_screen(self, self.camera):
             return
 
-        if not hasattr(self, "base_y"):
-            self.base_y = self.y
-            self.move_direction_y = 1
-
-        screen_bottom_world = (
-            self.camera.y
-            + (self.camera.window_height / self.camera.zoom)
-        )
-
-        if (
-            not self.is_retreating
-            and self.y + self.height >= screen_bottom_world - 50
-        ):
-            self.is_retreating = True
-            self.retreat_start_y = self.y
-
-        if self.is_retreating:
-            self.mover.enemy_move_up(self)
-            moved = self.retreat_start_y - self.y
-
-            if moved >= 200:
-                self.is_retreating = False
-                self.base_y = self.y
-            return
-
-        desired_top = self.base_y - 100
-        desired_bottom = self.base_y + 100
-
+        # -------------------------
+        # camera bounds (world space)
+        # -------------------------
         cam_top = self.camera.y
         cam_bottom = (
-            self.camera.y
-            + (self.camera.window_height / self.camera.zoom)
-            - self.height
+                self.camera.y
+                + (self.camera.window_height / self.camera.zoom)
+                - self.height
         )
 
-        patrol_top = max(desired_top, cam_top)
-        patrol_bottom = min(desired_bottom, cam_bottom)
+        now = pygame.time.get_ticks()
 
-        if self.move_direction_y > 0:
-            self.mover.enemy_move_down(self)
-        else:
+        # -------------------------
+        # build 3 stored variations ONCE
+        # each variation = (up_ms, down_ms) totaling 5000ms
+        # up is always 1–2 seconds, down is the remainder (3–4 seconds)
+        # -------------------------
+        if not hasattr(self, "y_move_variations"):
+            self.y_move_variations = []
+            for _ in range(3):
+                up_ms = random.randint(1000, 2000)
+                down_ms = 5000 - up_ms
+                self.y_move_variations.append((up_ms, down_ms))
+
+            # start first sequence
+            self.y_sequence_start_ms = now
+            self.y_active_variation = random.choice(self.y_move_variations)
+
+        # -------------------------
+        # start a new 5-second sequence when the current one ends
+        # pick randomly from the 3 stored variations
+        # -------------------------
+        elapsed = now - self.y_sequence_start_ms
+        if elapsed >= 5000:
+            self.y_sequence_start_ms = now
+            self.y_active_variation = random.choice(self.y_move_variations)
+            elapsed = 0
+
+        up_ms, down_ms = self.y_active_variation  # down_ms exists for clarity
+
+        # -------------------------
+        # decide direction for this moment in the 5s sequence
+        # first: up for 1–2s
+        # then: down for the remaining 3–4s
+        # -------------------------
+        move_up_now = (elapsed < up_ms)
+
+        # never move UP if near top within 50px
+        top_block_line = cam_top + 50
+        if move_up_now and self.y <= top_block_line:
+            move_up_now = False  # force down smoothly (no snapping)
+
+        # -------------------------
+        # movement
+        # -------------------------
+        if move_up_now:
             self.mover.enemy_move_up(self)
+        else:
+            self.mover.enemy_move_down(self)
 
-        if self.y <= patrol_top:
-            self.y = patrol_top
-            self.move_direction_y = 1
-        elif self.y >= patrol_bottom:
-            self.y = patrol_bottom
-            self.move_direction_y = -1
+        # -------------------------
+        # clamp after moving (prevents leaving the screen)
+        # -------------------------
+        if self.y < cam_top:
+            self.y = cam_top
+        elif self.y > cam_bottom:
+            self.y = cam_bottom
+    # def moveAI(self) -> None:
+    #     if not self.mover.enemy_on_screen(self, self.camera):
+    #         return
+    #
+    #     if not hasattr(self, "base_y"):
+    #         self.base_y = self.y
+    #         self.move_direction_y = 1
+    #
+    #     screen_bottom_world = (
+    #         self.camera.y
+    #         + (self.camera.window_height / self.camera.zoom)
+    #     )
+    #
+    #     if (
+    #         not self.is_retreating
+    #         and self.y + self.height >= screen_bottom_world - 50
+    #     ):
+    #         self.is_retreating = True
+    #         self.retreat_start_y = self.y
+    #
+    #     if self.is_retreating:
+    #         self.mover.enemy_move_up(self)
+    #         moved = self.retreat_start_y - self.y
+    #
+    #         if moved >= 200:
+    #             self.is_retreating = False
+    #             self.base_y = self.y
+    #         return
+    #
+    #     desired_top = self.base_y - 100
+    #     desired_bottom = self.base_y + 100
+    #
+    #     cam_top = self.camera.y
+    #     cam_bottom = (
+    #         self.camera.y
+    #         + (self.camera.window_height / self.camera.zoom)
+    #         - self.height
+    #     )
+    #
+    #     patrol_top = max(desired_top, cam_top)
+    #     patrol_bottom = min(desired_bottom, cam_bottom)
+    #
+    #     if self.move_direction_y > 0:
+    #         self.mover.enemy_move_down(self)
+    #     else:
+    #         self.mover.enemy_move_up(self)
+    #
+    #     if self.y <= patrol_top:
+    #         self.y = patrol_top
+    #         self.move_direction_y = 1
+    #     elif self.y >= patrol_bottom:
+    #         self.y = patrol_bottom
+    #         self.move_direction_y = -1
 
     # -------------------------------------------------
     # DRAW
@@ -153,3 +224,5 @@ class FireLauncher(Enemy):
                 camera.world_to_screen_y(self.y),
             )
         )
+    def clamp_vertical(self) -> None:
+        pass
