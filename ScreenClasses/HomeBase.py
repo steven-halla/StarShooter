@@ -79,6 +79,8 @@ class HomeBase(Screen):
 
         self.last_weapon_shop_index: int = -1
         self.last_defense_shop_index: int = -1
+        self.show_mission_briefing = False
+
 
 
     def start(self, state) -> None:
@@ -234,7 +236,7 @@ class HomeBase(Screen):
                         5: MissionBriefingScreenLevelFive,
                     }
 
-                    if level_num in LEVEL_MAP_BRIEFING:
+                    if self.show_mission_briefing and level_num in LEVEL_MAP_BRIEFING:
                         level_class = LEVEL_MAP_BRIEFING[level_num]
                     else:
                         level_class = LEVEL_MAP_ACTUAL.get(level_num, LevelOne)

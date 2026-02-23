@@ -67,6 +67,7 @@ class LevelTwo(VerticalBattleScreen):
         self.update_side_ship()
         self.update_enemy_helper(state)
         self.update_complete_level(state)
+        print(len(state.enemies))
 
     def draw(self, state):
         super().draw(state)
