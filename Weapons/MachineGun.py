@@ -27,8 +27,8 @@ class MachineGun(Bullet):
 
         # stats
         self.damage: float = 0.5
-        self.rate_of_fire: float = 0.1
-        self.bullet_speed: float = 3.0
+        self.rate_of_fire: float = .1
+        self.bullet_speed: float = 3.5
 
         # firing config
         self.bullets_per_shot: int = 1

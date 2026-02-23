@@ -221,11 +221,11 @@
  <objectgroup id="3" name="enemies">
   <object id="6" name="blade_spinner" x="298.474" y="2344.21" width="16" height="16"/>
   <object id="146" name="blade_spinner" x="210.83" y="1929.44" width="16" height="16"/>
-  <object id="140" name="blade_spinner" x="68.8723" y="1662.81" width="16" height="16"/>
+  <object id="140" name="blade_spinner" x="50.2676" y="890.717" width="16" height="16"/>
   <object id="141" name="blade_spinner" x="323.162" y="1976.35" width="16" height="16"/>
-  <object id="137" name="blade_spinner" x="193.548" y="1733.17" width="16" height="16"/>
+  <object id="137" name="blade_spinner" x="340.525" y="1286.66" width="16" height="16"/>
   <object id="134" name="blade_spinner" x="44.1909" y="616.295" width="16" height="16"/>
-  <object id="145" name="blade_spinner" x="70.1068" y="1913.4" width="16" height="16"/>
+  <object id="145" name="blade_spinner" x="51.5021" y="1773.87" width="16" height="16"/>
   <object id="139" name="blade_spinner" x="249.097" y="2335.57" width="16" height="16"/>
   <object id="148" name="blade_spinner" x="282.426" y="1048.07" width="16" height="16"/>
   <object id="135" name="blade_spinner" x="83.6853" y="2328.16" width="16" height="16"/>

@@ -19,11 +19,11 @@ class BladeSpinner(Enemy):
         self.height: int = 16
         self.color: tuple[int, int, int] = GlobalConstants.RED
         # movement stats
-        self.speed: float = 1.0
+        self.speed: float = 0.9
 
         # gameplay stats
-        self.enemyHealth: int = 8
-        self.maxHealth: float = 8.0
+        self.enemyHealth: int = 6
+        self.maxHealth: float = 6.0
 
         self.exp: int = 1
         self.credits: int = 5

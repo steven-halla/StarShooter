@@ -24,9 +24,9 @@ class TriSpitter(Enemy):
         self.bulletHeight: int = 20
         self.fire_interval_ms: int = 2000
         self.last_shot_time: int = 0
-        self.speed: float = 0.4
-        self.enemyHealth: float = 5.0
-        self.maxHealth: float = 5.0
+        self.speed: float = 0.3
+        self.enemyHealth: float = 4.0
+        self.maxHealth: float = 4.0
 
         self.exp: int = 1
         self.credits: int = 5
@@ -61,13 +61,13 @@ class TriSpitter(Enemy):
         if state.starship.current_level != 3:
             if self.is_active and self.attack_timer.is_ready():
                 self.shoot_multiple_down_vertical_y(
-                    bullet_speed=4.0,
-                    bullet_width=10,
+                    bullet_speed=3.0,
+                    bullet_width=9,
                     bullet_height=50,
                     bullet_color=self.bulletColor,
                     bullet_damage=20,
                     bullet_count=3,
-                    bullet_spread=44,
+                    bullet_spread=46,
                     state = state
                 )
                 self.attack_timer.reset()

@@ -25,12 +25,12 @@ class BossLevelOne(Enemy):
         self.fire_interval_ms: int = 2000
         self.last_shot_time: int = 0
         self.speed: float = 0.4
-        self.enemyHealth: float = 1111.0
-        self.maxHealth: float = 1111.0
+        self.enemyHealth: float = 700.0
+        self.maxHealth: float = 700.0
         self.exp: int = 1
         self.credits: int = 5
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
-        self.moveSpeed: float = 2.2
+        self.moveSpeed: float = 2.4
         self.edge_padding: int = 0
         self.move_direction: int = random.choice([-1, 1])
         self.move_interval_ms: int = 3000
@@ -72,12 +72,12 @@ class BossLevelOne(Enemy):
             # FIRE PHASE
             if self.machine_gun_timer.is_ready():
                 self.shoot_multiple_down_vertical_y(
-                    bullet_speed=4.0,
+                    bullet_speed=3.7,
                     bullet_width=3,
                     bullet_height=10,
                     bullet_color=self.bulletColor,
                     bullet_damage=10,
-                    bullet_count=3,
+                    bullet_count=4,
                     bullet_spread=50,
                     state=state
                 )
@@ -97,7 +97,7 @@ class BossLevelOne(Enemy):
                     bullet_width=20,
                     bullet_height=20,
                     bullet_color=self.bulletColor,
-                    bullet_damage=10,
+                    bullet_damage=50,
                     state=state
                 )
                 self.aimed_shot_timer.reset()

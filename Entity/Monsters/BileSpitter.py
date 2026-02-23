@@ -14,7 +14,7 @@ class BileSpitter(Enemy):
         # movement
         self.mover: MoveRectangle = MoveRectangle()
         self.move_direction: int = random.choice([-1, 1])
-        self.moveSpeed: float = 2.2
+        self.moveSpeed: float = 2.0
         self.edge_padding: int = 0
 
         # identity / visuals
@@ -58,11 +58,11 @@ class BileSpitter(Enemy):
         if state.starship.current_level != 3:
             if self.is_active and self.attack_timer.is_ready():
                 self.shoot_single_bullet_aimed_at_player(
-                    bullet_speed=3.5,
-                    bullet_width=20,
-                    bullet_height=20,
+                    bullet_speed=3.2,
+                    bullet_width=18,
+                    bullet_height=18,
                     bullet_color=self.bulletColor,
-                    bullet_damage=40,
+                    bullet_damage=30,
                     state=state
                 )
                 self.attack_timer.reset()
