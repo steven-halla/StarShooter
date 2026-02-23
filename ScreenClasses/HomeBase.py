@@ -45,6 +45,8 @@ class HomeBase(Screen):
         self.arrow_gap: int = 10
         self.upper_padding: int = 12
 
+        self.money_font = pygame.font.SysFont("arial", 22, bold=True)
+
         # input locks
         self._up_lock: bool = False
         self._down_lock: bool = False
@@ -181,17 +183,18 @@ class HomeBase(Screen):
             # PURCHASE LOGIC (Primary fire key = F) while shop is open
             if self.controls.main_weapon_button and not self.f_lock:
                 item = self.weapon_shop_items[self.weapon_shop_index]
-                if item == "Metal Shield":
-                    price = 500
+                price = 5000
+                if item not in state.starship.upgrade_chips:
                     if state.starship.money >= price:
-                        if "Metal Shield" not in state.starship.magic_inventory:
-                            state.starship.money -= price
-                            state.starship.magic_inventory.append("Metal Shield")
-                            self.textbox.show(f"Purchased Metal Shield for {price}!")
-                        else:
-                            self.textbox.show("You already have Metal Shield.")
+                        state.starship.money -= price
+                        state.starship.upgrade_chips.append(item)
+                        if hasattr(state.starship, "apply_upgrades"):
+                            state.starship.apply_upgrades()
+                        self.textbox.show(f"Purchased {item} for {price}!")
                     else:
-                        self.textbox.show(f"Not enough money for Metal Shield (Need {price}).")
+                        self.textbox.show(f"Not enough money for {item} (Need {price}).")
+                else:
+                    self.textbox.show(f"{item} is already sold out.")
                 self.f_lock = True
             elif not self.controls.main_weapon_button:
                 self.f_lock = False
@@ -199,8 +202,18 @@ class HomeBase(Screen):
             # PURCHASE LOGIC (Primary fire key = F) while shop is open
             if self.controls.main_weapon_button and not self.f_lock:
                 item = self.defense_shop_items[self.defense_shop_index]
-                # Placeholder logic for defense shop items
-                self.textbox.show(f"Selected {item} for purchase (Not yet implemented).")
+                price = 5000
+                if item not in state.starship.upgrade_chips:
+                    if state.starship.money >= price:
+                        state.starship.money -= price
+                        state.starship.upgrade_chips.append(item)
+                        if hasattr(state.starship, "apply_upgrades"):
+                            state.starship.apply_upgrades()
+                        self.textbox.show(f"Purchased {item} for {price}!")
+                    else:
+                        self.textbox.show(f"Not enough money for {item} (Need {price}).")
+                else:
+                    self.textbox.show(f"{item} is already sold out.")
                 self.f_lock = True
             elif not self.controls.main_weapon_button:
                 self.f_lock = False
@@ -262,6 +275,13 @@ class HomeBase(Screen):
 
         title_surf = title_font.render("Weapon Shop", True, (255, 255, 255))
         state.DISPLAY.blit(title_surf, (x , y))
+
+        # Money display (top right)
+        money_text = f"Credits: {state.starship.money}"
+        money_surf = self.money_font.render(money_text, True, (255, 255, 100))
+        money_x = self.weapon_shop_rect.right - money_surf.get_width() - 20
+        state.DISPLAY.blit(money_surf, (money_x, y))
+
         y += title_surf.get_height() + 20
 
         arrow_surf = self.menu_font.render(self.arrow_text, True, (255, 255, 255))
@@ -273,6 +293,12 @@ class HomeBase(Screen):
 
             surf = item_font.render(item, True, (255, 255, 255))
             state.DISPLAY.blit(surf, (x, y))
+
+            # Price display
+            price_text = "sold out" if item in state.starship.upgrade_chips else "5000"
+            price_surf = item_font.render(price_text, True, (255, 255, 255))
+            state.DISPLAY.blit(price_surf, (x + surf.get_width() + 50, y))
+
             y += surf.get_height() + 14
 
     def defense_shop_rectangle(self, state) -> None:
@@ -299,6 +325,13 @@ class HomeBase(Screen):
 
         title_surf = title_font.render("Defense Shop", True, (255, 255, 255))
         state.DISPLAY.blit(title_surf, (x, y))
+
+        # Money display (top right)
+        money_text = f"Money: {state.starship.money}"
+        money_surf = self.money_font.render(money_text, True, (255, 255, 100))
+        money_x = self.defense_shop_rect.right - money_surf.get_width() - 20
+        state.DISPLAY.blit(money_surf, (money_x, y))
+
         y += title_surf.get_height() + 20
 
         arrow_surf = self.menu_font.render(self.arrow_text, True, (255, 255, 255))
@@ -310,6 +343,12 @@ class HomeBase(Screen):
 
             surf = item_font.render(item, True, (255, 255, 255))
             state.DISPLAY.blit(surf, (x, y))
+
+            # Price display
+            price_text = "sold out" if item in state.starship.upgrade_chips else "5000"
+            price_surf = item_font.render(price_text, True, (255, 255, 255))
+            state.DISPLAY.blit(price_surf, (x + surf.get_width() + 50, y))
+
             y += surf.get_height() + 14
     def draw(self, state):
         state.DISPLAY.fill(GlobalConstants.BLACK)

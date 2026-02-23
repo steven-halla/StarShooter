@@ -154,6 +154,7 @@ class StarShip:
         # -------------------------
         self.frozen_health = self.shipHealth
         self.last_health = self.shipHealth
+        self.credits = 10000
 
 
 

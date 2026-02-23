@@ -3,6 +3,7 @@
   "player": {
     "shipHealth": 50,
     "shipHealthMax": 50,
+    "credits": 10000,
     "equipped_magic": [
       "",
       null
@@ -33,6 +34,7 @@
     "fire_interval_seconds": 0.5,
     "regen_interval_seconds": 10.0
   },
+
   "shield": {
     "current": 100,
     "max": 100,
