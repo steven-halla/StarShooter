@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="210" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="151">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="210" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="152">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="background" width="25" height="210">
   <data encoding="csv">
@@ -223,7 +223,6 @@
   <object id="146" name="blade_spinner" x="210.83" y="1929.44" width="16" height="16"/>
   <object id="140" name="blade_spinner" x="50.2676" y="890.717" width="16" height="16"/>
   <object id="141" name="blade_spinner" x="323.162" y="1976.35" width="16" height="16"/>
-  <object id="137" name="blade_spinner" x="340.525" y="1286.66" width="16" height="16"/>
   <object id="134" name="blade_spinner" x="44.1909" y="616.295" width="16" height="16"/>
   <object id="145" name="blade_spinner" x="51.5021" y="1773.87" width="16" height="16"/>
   <object id="139" name="blade_spinner" x="249.097" y="2335.57" width="16" height="16"/>
@@ -231,20 +230,21 @@
   <object id="135" name="blade_spinner" x="83.6853" y="2328.16" width="16" height="16"/>
   <object id="142" name="blade_spinner" x="325.631" y="2143" width="16" height="16"/>
   <object id="138" name="blade_spinner" x="63.9347" y="2675.03" width="16" height="16"/>
-  <object id="144" name="blade_spinner" x="124.421" y="2981.17" width="16" height="16"/>
+  <object id="144" name="blade_spinner" x="288.142" y="2849.08" width="16" height="16"/>
   <object id="100" name="tri_spitter" x="315.476" y="679.936" width="16" height="16"/>
   <object id="117" name="tri_spitter" x="147.875" y="1991.17" width="16" height="16"/>
   <object id="110" name="tri_spitter" x="325.631" y="2075.11" width="16" height="16"/>
-  <object id="106" name="tri_spitter" x="210.83" y="2926.85" width="16" height="16"/>
-  <object id="113" name="tri_spitter" x="133.062" y="2950.31" width="16" height="16"/>
+  <object id="106" name="tri_spitter" x="39.6672" y="2887.78" width="16" height="16"/>
+  <object id="113" name="tri_spitter" x="183.295" y="2887.05" width="16" height="16"/>
   <object id="108" name="tri_spitter" x="239.222" y="2033.14" width="16" height="16"/>
   <object id="104" name="tri_spitter" x="98.4983" y="1481.35" width="16" height="16"/>
   <object id="115" name="tri_spitter" x="40.4808" y="1982.52" width="16" height="16"/>
   <object id="109" name="tri_spitter" x="230.315" y="554.678" width="16" height="16"/>
   <object id="105" name="tri_spitter" x="286.129" y="1480.12" width="16" height="16"/>
-  <object id="111" name="tri_spitter" x="316.392" y="3023.37" width="16" height="16"/>
-  <object id="107" name="tri_spitter" x="283.661" y="2892.29" width="16" height="16"/>
+  <object id="111" name="tri_spitter" x="316.392" y="2721.97" width="16" height="16"/>
+  <object id="107" name="tri_spitter" x="361.801" y="2894.15" width="16" height="16"/>
   <object id="99" name="bile_spitter" x="310.818" y="1424.57" width="16" height="16"/>
+  <object id="151" name="bile_spitter" x="292.213" y="1352.01" width="16" height="16"/>
   <object id="131" name="bile_spitter" x="114.546" y="2251.63" width="16" height="16"/>
   <object id="123" name="bile_spitter" x="162.688" y="2338.04" width="16" height="16"/>
   <object id="126" name="bile_spitter" x="242.953" y="2690.7" width="16" height="16"/>
@@ -254,7 +254,7 @@
   <object id="128" name="bile_spitter" x="78.7477" y="2524.43" width="16" height="16"/>
   <object id="130" name="bile_spitter" x="25.0417" y="500.433" width="16" height="16"/>
   <object id="122" name="bile_spitter" x="218.237" y="998.695" width="16" height="16"/>
-  <object id="127" name="bile_spitter" x="208.361" y="3013.26" width="16" height="16"/>
+  <object id="127" name="bile_spitter" x="53.9424" y="3063.49" width="16" height="16"/>
   <object id="120" name="bile_spitter" x="166.391" y="1434.44" width="16" height="16"/>
   <object id="133" name="bile_spitter" x="176.266" y="2541.71" width="16" height="16"/>
   <object id="125" name="bile_spitter" x="333.037" y="565.415" width="16" height="16"/>

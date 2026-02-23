@@ -43,28 +43,6 @@ class BladeSpinner(Enemy):
 
     def update(self, state):
         super().update(state)
-        # if not self.is_active:
-        #     return
-        # if self.is_active:
-        #     now = pygame.time.get_ticks()
-        #     if now - self.last_hit_time_field >= self.hit_cooldown:
-        #         self.touch_mellee(
-        #             bullet_width=16,
-        #             bullet_height=16,
-        #             bullet_color=GlobalConstants.RED,
-        #             bullet_damage= 30,
-        #             state = state
-        #         )
-        #
-        #         # Check if bullet hit the player to start cooldown
-        #         if hasattr(self, "_melee_bullet") and self._melee_bullet in state.enemy_bullets:
-        #             if self._melee_bullet.rect.colliderect(self.target_player.hitbox):
-        #                 self.last_hit_time_field = now
-        #     else:
-        #         # If in cooldown, we can remove the bullet to ensure no extra hits
-        #         if hasattr(self, "_melee_bullet") and self._melee_bullet in state.enemy_bullets:
-        #             state.enemy_bullets.remove(self._melee_bullet)
-        #             self._melee_bullet = None
 
         self.update_hitbox()
 
@@ -91,9 +69,8 @@ class BladeSpinner(Enemy):
 
         self.update_hitbox()
 
-        # # explosion check
-        # if self.hitbox.colliderect(self.target_player.hitbox):
-        #     self.on_hit_player()
+        # explosion check
+        self.player_collide_damage(self.target_player)
 
 
     def draw(self, surface: pygame.Surface, camera):

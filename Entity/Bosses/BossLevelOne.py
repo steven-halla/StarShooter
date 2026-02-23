@@ -112,6 +112,7 @@ class BossLevelOne(Enemy):
 
 
         self.last_shot_time = now
+        self.player_collide_damage(state.starship)
     def moveAI(self) -> None:
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
 

@@ -189,7 +189,7 @@ class VerticalBattleScreen:
 
         self.bullet_collision_helper_remover(state)
         self.hazard_tile_helper(state)
-        # self.enemy_player_collision(state)
+        self.enemy_player_collision(state)
         self.rect_helper(state)
         UI_KILL_PADDING = 12  # pixels ABOVE the UI panel (tweak this)
 
@@ -1163,12 +1163,15 @@ class VerticalBattleScreen:
                 if hasattr(enemy, "__class__") and enemy.__class__.__name__ in ("Coins", "TimeBomb"):
                     continue
 
-                enemy_rect = pygame.Rect(
-                    enemy.x,
-                    enemy.y,
-                    enemy.width,
-                    enemy.height
-                )
+                if hasattr(enemy, "hitbox"):
+                    enemy_rect = enemy.hitbox
+                else:
+                    enemy_rect = pygame.Rect(
+                        enemy.x,
+                        enemy.y,
+                        enemy.width,
+                        enemy.height
+                    )
 
                 if player_rect.colliderect(enemy_rect):
                     if hasattr(enemy, "touch_damage"):

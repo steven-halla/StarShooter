@@ -39,7 +39,7 @@
     "regen_interval_seconds": 10.0
   },
   "shield": {
-    "current": 82.20000000000117,
+    "current": 50.40000000000041,
     "max": 100,
     "recharge_rate": 0.2,
     "time_to_start_recharge": 10000
