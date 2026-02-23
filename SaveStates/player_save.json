@@ -1,20 +1,20 @@
 {
   "version": 1,
   "location": {
-    "screen": "HOME_BASE",
-    "level_id": null,
+    "screen": "Level 2",
+    "level_id": 2,
     "spawn_id": null
   },
   "player": {
     "shipHealth": 50,
-    "money": 5000,
+    "money": 10000,
     "shipHealthMax": 50,
     "equipped_magic": [
       "",
       null
     ],
     "magic_inventory": [],
-    "current_level": 0
+    "current_level": 2
   },
   "weapons": {
     "machine_gun": {
@@ -54,8 +54,7 @@
   },
   "upgrades": {
     "upgrade_chips": [
-      "",
-      "Metal Shield"
+      ""
     ]
   }
 }

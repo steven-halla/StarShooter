@@ -49,9 +49,9 @@ class LevelTwo(VerticalBattleScreen):
                 player_x = obj.x
                 player_y = obj.y
                 break
-        if "Metal Shield" not in state.starship.magic_inventory:
-            state.starship.magic_inventory.append("Metal Shield")
-        state.starship.equipped_magic = ["Metal Shield", None]
+        # if "Metal Shield" not in state.starship.magic_inventory:
+        #     state.starship.magic_inventory.append("Metal Shield")
+        # state.starship.equipped_magic = ["Metal Shield", None]
         self.starship.x = player_x
         self.starship.y = player_y
         self.starship.update_hitbox()  # ⭐ REQUIRED ⭐

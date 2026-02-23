@@ -275,6 +275,9 @@ class HomeBase(Screen):
                     if state.starship.money >= price:
                         state.starship.money -= price
                         state.starship.upgrade_chips.append(item)
+                        if item == "Metal Shield":
+                            state.starship.magic_inventory.append(item)
+                            state.starship.equipped_magic[0] = item
                         if hasattr(state.starship, "apply_upgrades"):
                             state.starship.apply_upgrades()
                         # Auto-save after successful purchase
