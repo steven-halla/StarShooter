@@ -159,6 +159,9 @@ class VerticalBattleScreen:
         self.camera.y = float(self.camera_y)
 
     def update(self, state: 'GameState'):
+
+
+
         if state.starship.current_level != 3:
             for d in list(state.enemy_drops):
                 d.update(state.starship, state.enemy_drops, self.camera)
@@ -207,7 +210,7 @@ class VerticalBattleScreen:
                 except ValueError:
                     # If current magic is not in inventory (e.g. None or ""), pick the first one
                     next_index = 0
-                
+
                 state.starship.equipped_magic[0] = inventory[next_index]
                 print(f"Equipped magic 0: {state.starship.equipped_magic[0]}")
 
@@ -375,7 +378,11 @@ class VerticalBattleScreen:
             2
         )
 
+        # resets ANY active metal shield bullets when you cycle magic
 
+
+                # if you want it fully gone instead of inactive, remove it:
+                # self.player_bullets.remove(b)
     def bullet_helper(self, state):
 
         for bullet in list(self.player_bullets):
@@ -408,11 +415,22 @@ class VerticalBattleScreen:
             if bullet not in self.player_bullets:
                 continue
 
+
+
             # -------------------------
             # METAL SHIELD (uses rect, not hitbox)
             # -------------------------
             if bullet.weapon_name == "Metal Shield":
+                if self.controller.magic_cycle_just_pressed:
+                    print("R button pressed")
+                    for b in list(self.player_bullets):
+                        if getattr(b, "weapon_name", "") == "Metal Shield":
+                            b.hit_count = 0
+                            b.has_blocked = False
+                            b.is_active = False  # optional: makes it stop immediately
+                            self.player_bullets.remove(bullet)
                 shield_rect = bullet.rect
+
 
                 for enemy in list(state.enemies):
                     if shield_rect.colliderect(enemy.hitbox):

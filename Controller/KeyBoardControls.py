@@ -149,8 +149,15 @@ class KeyBoardControls:
             self.isStartPressedSwitch = start_held
 
             # ✅ ADDED: R "just pressed" (controller)
-            # common R mappings: 5 (R bumper), 7 (R trigger) depending on driver
-            r_held = bool(self.joystick.get_button(5)) or bool(self.joystick.get_button(7))
+            # common R mappings: 5 (R bumper), 7 (R trigger), 10 (R trigger on some mac/switch drivers)
+            r_held = False
+            if self.joystick.get_numbuttons() > 10:
+                r_held = bool(self.joystick.get_button(5)) or bool(self.joystick.get_button(7)) or bool(self.joystick.get_button(10))
+            elif self.joystick.get_numbuttons() > 7:
+                r_held = bool(self.joystick.get_button(5)) or bool(self.joystick.get_button(7))
+            elif self.joystick.get_numbuttons() > 5:
+                r_held = bool(self.joystick.get_button(5))
+
             if r_held and not self.isRPressedSwitch:
                 self.rJustPressed = True
                 if self.debug_input:
@@ -203,39 +210,44 @@ class KeyBoardControls:
             self.isUpPressedSwitch = self.isUpPressedSwitch or hat_up or btn_up or axis_up
             self.isDownPressedSwitch = self.isDownPressedSwitch or hat_down or btn_down or axis_down
 
-            # DEBUG raw dpad sources (prints only on change)
+            # DEBUG raw button/hat/axis sources (prints only on change)
             if self.debug_input:
+                # Log all button states if any button is pressed
+                for i in range(self.joystick.get_numbuttons()):
+                    if self.joystick.get_button(i):
+                        print(f"[JOY] Button {i} is PRESSED")
+
                 if hat_val != self._last_hat:
-                    print(f"[JOY] hats={self.joystick.get_numhats()} hat0={hat_val}")
+                    # print(f"[JOY] hats={self.joystick.get_numhats()} hat0={hat_val}")
                     self._last_hat = hat_val
 
                 dpad_buttons = (btn_left, btn_right, btn_up, btn_down)
                 if dpad_buttons != self._last_dpad_buttons:
-                    print(f"[JOY] dpad_buttons L/R/U/D = {dpad_buttons} (buttons 13/14/11/12)")
+                    # print(f"[JOY] dpad_buttons L/R/U/D = {dpad_buttons} (buttons 13/14/11/12)")
                     self._last_dpad_buttons = dpad_buttons
 
                 if axis_val != self._last_axis:
-                    print(f"[JOY] axes0/1={axis_val}")
+                    # print(f"[JOY] axes0/1={axis_val}")
                     self._last_axis = axis_val
 
         # -------------------------
         # DEBUG (active state)
         # -------------------------
-        if self.debug_input and any([
-            self.isLeftPressedSwitch, self.isRightPressedSwitch, self.isUpPressedSwitch, self.isDownPressedSwitch,
-            self.isFPressed, self.isBPressedSwitch, self.isYPressedSwitch, self.isAPressedSwitch,
-            self.isDPressed, self.isSPressed, self.qJustPressed, self.isXPressedSwitch, self.isStartPressedSwitch,
-            self.rJustPressed, self.isRPressedSwitch  # ✅ ADDED
-        ]):
-            print(
-                "[STATE] "
-                f"L={self.isLeftPressedSwitch} R={self.isRightPressedSwitch} "
-                f"U={self.isUpPressedSwitch} Dn={self.isDownPressedSwitch} "
-                f"A={self.isAPressedSwitch} B={self.isBPressedSwitch} X={self.isXPressedSwitch} Y={self.isYPressedSwitch} "
-                f"Start={self.isStartPressedSwitch} "
-                f"F={self.isFPressed} Dkey={self.isDPressed} Skey={self.isSPressed} "
-                f"Rjust={self.rJustPressed} Rheld={self.isRPressedSwitch}"
-            )
+        # if self.debug_input and any([
+        #     self.isLeftPressedSwitch, self.isRightPressedSwitch, self.isUpPressedSwitch, self.isDownPressedSwitch,
+        #     self.isFPressed, self.isBPressedSwitch, self.isYPressedSwitch, self.isAPressedSwitch,
+        #     self.isDPressed, self.isSPressed, self.qJustPressed, self.isXPressedSwitch, self.isStartPressedSwitch,
+        #     self.rJustPressed, self.isRPressedSwitch  # ✅ ADDED
+        # ]):
+        #     print(
+        #         "[STATE] "
+        #         f"L={self.isLeftPressedSwitch} R={self.isRightPressedSwitch} "
+        #         f"U={self.isUpPressedSwitch} Dn={self.isDownPressedSwitch} "
+        #         f"A={self.isAPressedSwitch} B={self.isBPressedSwitch} X={self.isXPressedSwitch} Y={self.isYPressedSwitch} "
+        #         f"Start={self.isStartPressedSwitch} "
+        #         f"F={self.isFPressed} Dkey={self.isDPressed} Skey={self.isSPressed} "
+        #         f"Rjust={self.rJustPressed} Rheld={self.isRPressedSwitch}"
+        #     )
     #
     # def update(self):
     #     # reset one-frame flags
@@ -466,4 +478,5 @@ class KeyBoardControls:
 
     @property
     def magic_cycle_just_pressed(self) -> bool:
-        return self.rJustPressed or self.isRPressedSwitch
+
+        return self.rJustPressed
