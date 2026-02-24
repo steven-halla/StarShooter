@@ -57,11 +57,11 @@ class BossLevelTwo(Enemy):
 
         if self.napalm_attack_timer.is_ready():
             self.shoot_napalm(
-                bullet_speed=3.5,
+                bullet_speed=3.3,
                 bullet_width=20,
                 bullet_height=20,
                 bullet_color=self.bulletColor,
-                bullet_damage=50,
+                bullet_damage=40,
                 travel_time=0.5,
                 explosion_time=5.0,
                 aoe_size=(20, 20),
@@ -76,7 +76,7 @@ class BossLevelTwo(Enemy):
                 bullet_width=16,
                 bullet_height=16,
                 bullet_color=self.bulletColor,
-                bullet_damage=35,
+                bullet_damage=25,
                 low_rand_range=-0.3,
                 high_rand_range=0.9,
                 bullet_count=7,
