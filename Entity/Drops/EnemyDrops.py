@@ -31,12 +31,21 @@ class EnemyDrop:
                 return cls(enemy.x, enemy.y, drop_type)
             return None
 
+        if enemy_type == "FireLauncher":
+            if roll < 0.18:
+                drop_type = random.choice([
+                    cls.DROP_SHIELD,
+                    cls.DROP_KI
+                ])
+                return cls(enemy.x, enemy.y, drop_type)
+            return None
+
         # -------------------------
         # Blade Spinner
         # 10% chance to drop a MISSILE
         # -------------------------
         if enemy_type == "BladeSpinner":
-            if roll < 0.10:
+            if roll < 0.15:
                 return cls(enemy.x, enemy.y, cls.DROP_MISSILE)
             return None
 

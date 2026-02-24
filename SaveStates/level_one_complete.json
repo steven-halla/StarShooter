@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "location": {
+    "screen": "HOME_BASE",
+    "level_id": null,
+    "spawn_id": null
+  },
+  "player": {
+    "shipHealth": 25,
+    "money": 10000,
+    "shipHealthMax": 25,
+    "equipped_magic": [
+      "",
+      null
+    ],
+    "magic_inventory": [],
+    "current_level": 1
+  },
+  "weapons": {
+    "machine_gun": {
+      "damage": 0.5,
+      "width": 4,
+      "height": 4,
+      "rate_of_fire": 0.1,
+      "bullet_speed": 3.5,
+      "bullets_per_shot": 1
+    },
+    "wind_slicer": {
+      "damage": 5,
+      "bullet_count": 8
+    }
+  },
+  "missiles": {
+    "damage": 25,
+    "bullet_speed": 1.5,
+    "rate_of_fire": 0.5,
+    "max": 1,
+    "current": 0,
+    "fire_interval_seconds": 0.5,
+    "regen_interval_seconds": 10.0
+  },
+  "shield": {
+    "current": 0,
+    "max": 100,
+    "recharge_rate": 0.2,
+    "time_to_start_recharge": 10000
+  },
+  "stats": {
+    "speed": 2.2,
+    "player_ki": 50,
+    "player_max_ki": 50,
+    "current_heat": 100,
+    "max_heat": 100
+  },
+  "upgrades": {
+    "upgrade_chips": [
+      ""
+    ]
+  }
+}
