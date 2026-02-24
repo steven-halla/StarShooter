@@ -28,14 +28,18 @@ class HomeBase(Screen):
         self.menu_font = pygame.font.SysFont("arial", 20)
         self.menu_items: list[str] = ["W. Shop", "D. Shop", "N. Mission", "Save", "Load"]
         self.weapon_shop_descriptions: dict[str, str] = {
-            "M. gun damage booster": "Machine Gun Damage Booster\nIncreases your machine gun damage.",
+            "M. gun damage booster": "Flesh Rotter Rounds, does extra damage.",
             "Missile speed booster": "Missile Speed Booster\nIncreases your missile speed.",
-            "Metal Shield": "Metal Shield\nUse Ki to create a metal shield that rotates around the ship that damages enemies/bullets on contact.",
+            "Metal Shield": "Metal Shield\nUse Ki to create a metal shield that rotates around the ship that damages enemies.",
+            "Wind Slicer": "Wind Slicer\n Bullets laced with nerve shredder chemicals.",
+            "Missile Count +1": "Increases your max missile count.",
         }
         self.defense_shop_descriptions: dict[str, str] = {
             "Armor Plating": "adds +50 HP to hull.",
             "Shield Generator": "Provides + 25 shields",
             "Ki Efficiency chip": "Adds +25 KI to user.",
+            "Shield Charger": "Faster Recharge rate for shields.",
+            "Speed up": "Ship moves faster.",
         }
         self.menu_padding_x: int = 45
         self.menu_padding_y: int = 16
@@ -49,6 +53,28 @@ class HomeBase(Screen):
 
         self.money_font = pygame.font.SysFont("arial", 22, bold=True)
 
+        # shop levels data
+        self.weapon_shop_levels = {
+            1: ["M. gun damage booster", "Missile speed booster", "Metal Shield"],
+            2: ["Wind Slicer", "Missile Count +1"]
+        }
+        self.defense_shop_levels = {
+            1: ["Armor Plating", "Shield Generator", "Ki Efficiency chip"],
+            2: ["Shield Charger", "Speed up"]
+        }
+        self.item_prices = {
+            "M. gun damage booster": 5000,
+            "Missile speed booster": 5000,
+            "Metal Shield": 5000,
+            "Wind Slicer": 10000,
+            "Missile Count +1": 10000,
+            "Armor Plating": 5000,
+            "Shield Generator": 5000,
+            "Ki Efficiency chip": 5000,
+            "Shield Charger": 10000,
+            "Speed up": 10000
+        }
+
         # input locks
         self._up_lock: bool = False
         self._down_lock: bool = False
@@ -57,20 +83,12 @@ class HomeBase(Screen):
         # weapon shop popup state
         self.weapon_shop_open: bool = False
         self.weapon_shop_index: int = 0
-        self.weapon_shop_items: list[str] = [
-            "M. gun damage booster",
-            "Missile speed booster",
-            "Metal Shield"
-        ]
+        self.weapon_shop_items: list[str] = []
 
         # defense shop popup state
         self.defense_shop_open: bool = False
         self.defense_shop_index: int = 0
-        self.defense_shop_items: list[str] = [
-            "Armor Plating",
-            "Shield Generator",
-            "Ki Efficiency chip"
-        ]
+        self.defense_shop_items: list[str] = []
 
         # shop rects (400x400 centered)
         self.weapon_shop_rect = pygame.Rect(0, 0, 450, 400)
@@ -108,11 +126,32 @@ class HomeBase(Screen):
         super().update(state)
         # print(state.starship.machine_gun_damage)
 
+        # Update shops based on current level (cumulative)
+        self.weapon_shop_items = []
+        self.defense_shop_items = []
+        for level in range(1, state.starship.current_level + 1):
+            if level in self.weapon_shop_levels:
+                self.weapon_shop_items.extend(self.weapon_shop_levels[level])
+            if level in self.defense_shop_levels:
+                self.defense_shop_items.extend(self.defense_shop_levels[level])
 
         if not hasattr(self, "controls"):
             self.controls = KeyBoardControls()
 
         self.controls.update()
+
+        # Magic Cycling
+        if self.controls.magic_cycle_just_pressed:
+            inventory = state.starship.magic_inventory
+            if inventory:
+                current_magic = state.starship.equipped_magic[0]
+                try:
+                    current_index = inventory.index(current_magic)
+                    next_index = (current_index + 1) % len(inventory)
+                except ValueError:
+                    next_index = 0
+                state.starship.equipped_magic[0] = inventory[next_index]
+                print(f"Equipped magic 0: {state.starship.equipped_magic[0]}")
 
         # ADVANCE TEXTBOX (Q)
         if self.controls.q_just_pressed_button:
@@ -278,7 +317,7 @@ class HomeBase(Screen):
             # PURCHASE LOGIC (Primary fire key = F) while shop is open
             if self.controls.main_weapon_button and not self._f_lock:
                 item = self.weapon_shop_items[self.weapon_shop_index]
-                price = 5000
+                price = self.item_prices.get(item, 5000)
                 if item not in state.starship.upgrade_chips:
                     if state.starship.money >= price:
                         state.starship.money -= price
@@ -286,13 +325,18 @@ class HomeBase(Screen):
                         if item == "Metal Shield":
                             state.starship.magic_inventory.append(item)
                             state.starship.equipped_magic[0] = item
+                        elif item == "Wind Slicer":
+                            state.starship.magic_inventory.append(item)
+                            state.starship.equipped_magic[0] = item
                         elif item == "M. gun damage booster":
                             state.starship.machine_gun_damage += 0.1
                             print("I bought better bullets")
-
                         elif item == "Missile speed booster":
                             state.starship.missile_bullet_speed += 1.0
                             print("I bought better speed for missiles")
+                        elif item == "Missile Count +1":
+                            state.starship.missile.max_missiles += 1
+                            print("I bought more missiles")
 
                         if hasattr(state.starship, "apply_upgrades"):
                             state.starship.apply_upgrades()
@@ -312,7 +356,7 @@ class HomeBase(Screen):
             # PURCHASE LOGIC (Primary fire key = F) while shop is open
             if self.controls.main_weapon_button and not self._f_lock:
                 item = self.defense_shop_items[self.defense_shop_index]
-                price = 5000
+                price = self.item_prices.get(item, 5000)
                 if item not in state.starship.upgrade_chips:
                     if state.starship.money >= price:
                         state.starship.money -= price
@@ -320,19 +364,21 @@ class HomeBase(Screen):
                         if item == "Armor Plating":
                             state.starship.shipHealth += 50
                             state.starship.shipHealthMax += 50
-
                             print("I bought better hull amount")
-
                         elif item == "Shield Generator":
                             state.starship.current_shield += 25
                             state.starship.max_shield += 25
                             print("I bought better shield amount")
-
                         elif item == "Ki Efficiency chip":
                             state.starship.player_ki += 25
                             state.starship.player_max_ki += 25
                             print("I bought better ki amount")
-
+                        elif item == "Shield Charger":
+                            state.starship.shield_system.recharge_rate_shield += 0.2
+                            print("I bought faster shield recharge")
+                        elif item == "Speed up":
+                            state.starship.speed += 0.6
+                            print("I bought more speed")
 
                         if hasattr(state.starship, "apply_upgrades"):
                             state.starship.apply_upgrades()
@@ -427,7 +473,8 @@ class HomeBase(Screen):
             state.DISPLAY.blit(surf, (x, y))
 
             # Price display
-            price_text = "sold out" if item in state.starship.upgrade_chips else "5000"
+            price = self.item_prices.get(item, 5000)
+            price_text = "sold out" if item in state.starship.upgrade_chips else str(price)
             price_surf = item_font.render(price_text, True, (255, 255, 255))
             state.DISPLAY.blit(price_surf, (x + surf.get_width() + 50, y))
 
@@ -477,7 +524,8 @@ class HomeBase(Screen):
             state.DISPLAY.blit(surf, (x, y))
 
             # Price display
-            price_text = "sold out" if item in state.starship.upgrade_chips else "5000"
+            price = self.item_prices.get(item, 5000)
+            price_text = "sold out" if item in state.starship.upgrade_chips else str(price)
             price_surf = item_font.render(price_text, True, (255, 255, 255))
             state.DISPLAY.blit(price_surf, (x + surf.get_width() + 50, y))
 

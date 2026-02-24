@@ -75,13 +75,14 @@ class LevelOne(VerticalBattleScreen):
 
 
     def update(self, state) -> None:
+
+        super().update(state)
         if self.boss_death_timer is not None:
             if self.boss_death_timer.is_ready():
                 state.currentScreen = HomeBase(self.textbox)
                 state.currentScreen.start(state)
                 return
 
-        super().update(state)
         # print(state.enemy_drops)
         # -------------------------
         # LEVEL / SCREEN: UPDATE

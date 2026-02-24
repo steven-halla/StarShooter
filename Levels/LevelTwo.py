@@ -1,6 +1,7 @@
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Bosses.BossLevelTwo import BossLevelTwo
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
@@ -8,6 +9,7 @@ from Entity.Monsters.FireLauncher import FireLauncher
 
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.TriSpitter import TriSpitter
+from ScreenClasses.HomeBase import HomeBase
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 from ShipEngine.Shield import Shield
 
@@ -36,6 +38,8 @@ class LevelTwo(VerticalBattleScreen):
         self.shipHealth = 100 # for shield overflow
         self.side_rect_hitbox = pygame.Rect(0, 0, 0, 0)
         self.game_over: bool = False
+        self.boss_death_timer = None
+
 
     def start(self, state) -> None:
         print("LEVEL 2 I wanna see this one time")
@@ -63,11 +67,21 @@ class LevelTwo(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
+
+        if self.boss_death_timer is not None:
+            if self.boss_death_timer.is_ready():
+                state.starship.money += 20000
+                state.currentScreen = HomeBase(self.textbox)
+                state.currentScreen.start(state)
+                return
+
         self.side_rect_shield.update()
         self.update_side_ship()
         self.update_enemy_helper(state)
-        self.update_complete_level(state)
+        self.update_handle_level_complete(state)
         print(len(state.enemies))
+        self.update_handle_level_complete(state)
+
 
     def draw(self, state):
         super().draw(state)
@@ -75,18 +89,15 @@ class LevelTwo(VerticalBattleScreen):
         self.draw_player_and_enemies(state)
         self.draw_side_ship_rectangle_life_meter(state, zoom)
         pygame.display.flip()
+    def update_handle_level_complete(self, state):
+        if not self.level_complete:
+            boss_alive = any(isinstance(enemy, BossLevelTwo) for enemy in state.enemies)
+            if not boss_alive:
+                if self.boss_death_timer is None:
+                    self.boss_death_timer = Timer(2.0)
+                    self.boss_death_timer.reset()
 
 
-    def update_complete_level(self,state):
-        if (
-                not self.level_complete
-                and any(
-            enemy.__class__.__name__ == "BossLevelTwo" and enemy.enemyHealth <= 0
-            for enemy in state.enemies
-        )
-        ):
-            self.level_complete = True
-            return
 
 
     def update_side_ship(self):

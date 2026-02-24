@@ -1,23 +1,22 @@
 {
   "version": 1,
   "location": {
-    "screen": "Level 3",
-    "level_id": 3,
+    "screen": "HOME_BASE",
+    "level_id": null,
     "spawn_id": null
   },
   "player": {
     "shipHealth": 75,
-    "money": 0,
+    "money": 20000,
     "shipHealthMax": 75,
     "equipped_magic": [
-      "Wind Slicer",
+      "Metal Shield",
       null
     ],
     "magic_inventory": [
-      "Metal Shield",
-      "Wind Slicer"
+      "Metal Shield"
     ],
-    "current_level": 3
+    "current_level": 2
   },
   "weapons": {
     "machine_gun": {
@@ -49,7 +48,7 @@
     "time_to_start_recharge": 10000
   },
   "stats": {
-    "speed": 2.8000000000000003,
+    "speed": 2.2,
     "player_ki": 50,
     "player_max_ki": 50,
     "current_heat": 100,
@@ -59,9 +58,7 @@
     "upgrade_chips": [
       "",
       "Metal Shield",
-      "Armor Plating",
-      "Wind Slicer",
-      "Speed up"
+      "Armor Plating"
     ]
   }
 }

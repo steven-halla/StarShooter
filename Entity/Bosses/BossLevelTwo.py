@@ -14,7 +14,7 @@ class BossLevelTwo(Enemy):
         # movement
         self.mover: MoveRectangle = MoveRectangle()
         self.move_direction: int = random.choice([-1, 1])
-        self.moveSpeed: float = 2.2
+        self.moveSpeed: float = 1.5
         self.edge_padding: int = 0
 
         # identity / visuals
@@ -29,15 +29,15 @@ class BossLevelTwo(Enemy):
         self.enemy_image = self.bile_spitter_image
 
         # stats
-        self.enemyHealth: float = 700.0
-        self.maxHealth: float = 700.0
+        self.enemyHealth: float = 1.0
+        self.maxHealth: float = 1.0
         self.exp: int = 1
         self.credits: int = 5
 
         # ranged attack
         self.bulletColor = GlobalConstants.SKYBLUE
-        self.napalm_attack_timer = Timer(7.0)
-        self.splatter_cannon_attack_timer = Timer(3.0)
+        self.napalm_attack_timer = Timer(9.7)
+        self.splatter_cannon_attack_timer = Timer(4.2)
 
         # touch damage
         self.touch_damage: int = 10
@@ -48,6 +48,7 @@ class BossLevelTwo(Enemy):
     # -------------------------------------------------
     def update(self, state) -> None:
         super().update(state)
+
         if not self.is_active:
             return
 
@@ -62,8 +63,8 @@ class BossLevelTwo(Enemy):
                 bullet_color=self.bulletColor,
                 bullet_damage=50,
                 travel_time=0.5,
-                explosion_time=3.0,
-                aoe_size=(80, 80),
+                explosion_time=5.0,
+                aoe_size=(20, 20),
                 state=state
             )
             self.splatter_cannon_attack_timer.reset()
@@ -71,14 +72,14 @@ class BossLevelTwo(Enemy):
 
         if self.splatter_cannon_attack_timer.is_ready():
             self.splatter_cannon(
-                bullet_speed=5.0,
-                bullet_width=10,
-                bullet_height=10,
+                bullet_speed=2.2,
+                bullet_width=16,
+                bullet_height=16,
                 bullet_color=self.bulletColor,
-                bullet_damage=15,
-                low_rand_range=-0.2,
-                high_rand_range=0.2,
-                bullet_count=10,
+                bullet_damage=35,
+                low_rand_range=-0.3,
+                high_rand_range=0.9,
+                bullet_count=7,
                 state=state
             )
             self.splatter_cannon_attack_timer.reset()

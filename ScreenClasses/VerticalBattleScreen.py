@@ -195,6 +195,22 @@ class VerticalBattleScreen:
         self.bullet_collision_helper_remover(state)
         self.hazard_tile_helper(state)
         self.enemy_player_collision(state)
+
+        # Magic Cycling
+        if self.controller.magic_cycle_just_pressed:
+            inventory = state.starship.magic_inventory
+            if inventory:
+                current_magic = state.starship.equipped_magic[0]
+                try:
+                    current_index = inventory.index(current_magic)
+                    next_index = (current_index + 1) % len(inventory)
+                except ValueError:
+                    # If current magic is not in inventory (e.g. None or ""), pick the first one
+                    next_index = 0
+                
+                state.starship.equipped_magic[0] = inventory[next_index]
+                print(f"Equipped magic 0: {state.starship.equipped_magic[0]}")
+
         self.rect_helper(state)
         UI_KILL_PADDING = 12  # pixels ABOVE the UI panel (tweak this)
 
