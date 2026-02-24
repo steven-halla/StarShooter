@@ -55,7 +55,7 @@ class FireLauncher(Enemy):
         # match BileSpitter ordering
         self.update_hitbox()
 
-        # self.moveAI()
+        self.moveAI()
 
         if self.attack_timer.is_ready():
             self.shoot_spores(
@@ -78,73 +78,55 @@ class FireLauncher(Enemy):
         if not self.mover.enemy_on_screen(self, self.camera):
             return
 
-        # -------------------------
-        # camera bounds (world space)
-        # -------------------------
-        cam_top = self.camera.y
-        cam_bottom = (
-                self.camera.y
-                + (self.camera.window_height / self.camera.zoom)
-                - self.height
-        )
-
         now = pygame.time.get_ticks()
 
         # -------------------------
-        # build 3 stored variations ONCE
-        # each variation = (up_ms, down_ms) totaling 5000ms
-        # up is always 1–2 seconds, down is the remainder (3–4 seconds)
+        # init once
+        # 3s pause -> 2s wobble -> 3s pause -> 2s wobble (loop)
         # -------------------------
-        if not hasattr(self, "y_move_variations"):
-            self.y_move_variations = []
-            for _ in range(3):
-                up_ms = random.randint(1000, 2000)
-                down_ms = 5000 - up_ms
-                self.y_move_variations.append((up_ms, down_ms))
+        if not hasattr(self, "y_cycle_start_ms"):
+            self.y_cycle_start_ms = now
+            self.y_wobble_dir = 1  # 1 = down, -1 = up
+            self.y_dir_switch_ms = now  # when to flip direction during wobble
+            self.y_switch_interval_ms = random.randint(180, 350)  # how often to flip during wobble
 
-            # start first sequence
-            self.y_sequence_start_ms = now
-            self.y_active_variation = random.choice(self.y_move_variations)
+        cycle_ms = 10000  # 3 + 2 + 3 + 2 seconds
+        t = (now - self.y_cycle_start_ms) % cycle_ms
 
         # -------------------------
-        # start a new 5-second sequence when the current one ends
-        # pick randomly from the 3 stored variations
+        # phases
+        # 0-3000    pause
+        # 3000-5000 wobble
+        # 5000-8000 pause
+        # 8000-10000 wobble
         # -------------------------
-        elapsed = now - self.y_sequence_start_ms
-        if elapsed >= 5000:
-            self.y_sequence_start_ms = now
-            self.y_active_variation = random.choice(self.y_move_variations)
-            elapsed = 0
+        in_wobble = (3000 <= t < 5000) or (8000 <= t < 10000)
 
-        up_ms, down_ms = self.y_active_variation  # down_ms exists for clarity
+        if not in_wobble:
+            return  # no movement during pause phases
 
         # -------------------------
-        # decide direction for this moment in the 5s sequence
-        # first: up for 1–2s
-        # then: down for the remaining 3–4s
+        # wobble behavior: alternate up/down while in wobble window
+        # never move UP if within 50px of top of screen
         # -------------------------
-        move_up_now = (elapsed < up_ms)
+        if now - self.y_dir_switch_ms >= self.y_switch_interval_ms:
+            self.y_wobble_dir *= -1
+            self.y_dir_switch_ms = now
+            self.y_switch_interval_ms = random.randint(180, 350)
 
-        # never move UP if near top within 50px
+        cam_top = self.camera.y
         top_block_line = cam_top + 50
-        if move_up_now and self.y <= top_block_line:
-            move_up_now = False  # force down smoothly (no snapping)
 
-        # -------------------------
-        # movement
-        # -------------------------
-        if move_up_now:
+        want_move_up = (self.y_wobble_dir < 0)
+        if want_move_up and self.y <= top_block_line:
+            # force down only (no snapping)
+            self.mover.enemy_move_down(self)
+            return
+
+        if want_move_up:
             self.mover.enemy_move_up(self)
         else:
             self.mover.enemy_move_down(self)
-
-        # -------------------------
-        # clamp after moving (prevents leaving the screen)
-        # -------------------------
-        if self.y < cam_top:
-            self.y = cam_top
-        elif self.y > cam_bottom:
-            self.y = cam_bottom
     # def moveAI(self) -> None:
     #     if not self.mover.enemy_on_screen(self, self.camera):
     #         return

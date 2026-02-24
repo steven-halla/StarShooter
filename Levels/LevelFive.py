@@ -215,7 +215,7 @@ class LevelFive(VerticalBattleScreen):
                 enemy.color = GlobalConstants.RED
 
             if enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)
+                self.remove_enemy_if_dead(enemy, state)
 
     def draw_player_and_enemy(self, state):
         if not self.playerDead:

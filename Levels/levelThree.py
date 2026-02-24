@@ -146,7 +146,6 @@ class LevelThree(VerticalBattleScreen):
     def draw(self, state):
         super().draw(state)
         self.draw_player_and_enemies_and_space_station(state)
-        self.draw_ui_panel(state.DISPLAY)
         pygame.display.flip()
 
     def clamp_enemy_to_player_view(self, enemy) -> None:
@@ -440,6 +439,9 @@ class LevelThree(VerticalBattleScreen):
 
             # ... push-out logic ...
 
+    def spawn_enemy_drop(self, enemy, state) -> None:
+        pass
+
     def update_enemy_helper(self, state):
         self.enemy_waves_timer(state)
         self.deflect_helper(state)
@@ -456,7 +458,7 @@ class LevelThree(VerticalBattleScreen):
                 enemy.enemyBullets.clear()
 
             if hasattr(enemy, "enemyHealth") and enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)
+                self.remove_enemy_if_dead(enemy, state)
 
         if not self.starship.invincible:
             player_rect = self.starship.melee_hitbox  # ← USE MELEE HITBOX
@@ -479,7 +481,8 @@ class LevelThree(VerticalBattleScreen):
                     if getattr(enemy, "name", None) == "kamikaze_drone":
                         self.starship.shield_system.take_damage(enemy.touch_damage)
                         self.starship.on_hit()
-                        state.enemies.remove(enemy)
+                        enemy.enemyHealth = 0
+                        self.remove_enemy_if_dead(enemy, state)
                     else:
                         self.starship.shield_system.take_damage(enemy.touch_damage)
                         self.starship.on_hit()

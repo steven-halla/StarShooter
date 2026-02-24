@@ -3,6 +3,7 @@ import pytmx
 import math
 from Constants.GlobalConstants import GlobalConstants
 from Controller.KeyBoardControls import KeyBoardControls
+from Entity.Drops.EnemyDrops import EnemyDrop
 from Entity.Enemy import Enemy
 from Entity.Monsters.Coins import Coins
 from Entity.StarShip import StarShip
@@ -158,6 +159,9 @@ class VerticalBattleScreen:
         self.camera.y = float(self.camera_y)
 
     def update(self, state: 'GameState'):
+        if state.starship.current_level != 3:
+            for d in list(state.enemy_drops):
+                d.update(state.starship, state.enemy_drops, self.camera)
 
         self.controller.update()
         # print("Line 162 and 163 vertical battle screen")
@@ -335,7 +339,10 @@ class VerticalBattleScreen:
                 for bullet in state.enemy_bullets:
                     enemy.lay_bomb(bullet=bullet, surface=state.DISPLAY, camera=self.camera)
 
-        # 🔽 UI PANEL (BOTTOM BAR) - Draw last to ensure it covers anything that comes into contact with it
+        if state.starship.current_level != 3:
+            for d in state.enemy_drops:
+                d.draw(state.DISPLAY, self.camera)
+
         self.draw_ui_panel(state.DISPLAY)
 
         # 3️⃣ (OPTIONAL DEBUG) CONFIRM ALIGNMENT
@@ -463,7 +470,9 @@ class VerticalBattleScreen:
 
     def spawn_enemy_drop(self, enemy, state) -> None:
         """Override in subclasses to provide specific drop logic."""
-        pass
+        drop = EnemyDrop.from_enemy(enemy)
+        if drop:
+            state.enemy_drops.append(drop)
 
     def get_enemy_screen_rect(self, enemy) -> pygame.Rect:
         return pygame.Rect(
@@ -979,8 +988,10 @@ class VerticalBattleScreen:
         # -------------------------
         # METAL SHIELD (single)
         # -------------------------
-        if state.starship.equipped_magic[0] == "Metal Shield" and not self.playerDead:
-            if self.controller.magic_1_button and not has_active(self, "Metal Shield"):
+        if state.starship.equipped_magic[0] == "Metal Shield" and not self.playerDead :
+            if self.controller.magic_1_button and not has_active(self, "Metal Shield") and state.starship.player_ki > 24:
+                state.starship.player_ki -= 25
+
                 shield = state.starship.metal_shield.fire_metal_shield(
                     state.starship.metal_shield_damage,
                     state.starship.max_metal_shield_hits

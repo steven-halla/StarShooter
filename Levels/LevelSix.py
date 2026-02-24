@@ -70,10 +70,8 @@ class LevelSix(VerticalBattleScreen):
         self.update_enemy_helper(state)
 
     def draw(self, state):
-        state.DISPLAY.fill((0, 0, 0))
         super().draw(state)
         self.draw_player_enemies(state)
-        self.draw_ui_panel(state.DISPLAY)
         pygame.display.flip()
 
     def update_enemy_helper(self, state):
@@ -96,7 +94,7 @@ class LevelSix(VerticalBattleScreen):
                 enemy.enemyBullets.clear()
 
             if enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)
+                self.remove_enemy_if_dead(enemy, state)
 
         for enemy in list(state.enemies):
             print(list(state.enemies))
@@ -106,7 +104,7 @@ class LevelSix(VerticalBattleScreen):
             enemy.update(state)
 
             if enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)
+                self.remove_enemy_if_dead(enemy, state)
                 continue
 
             if self.starship.hitbox.colliderect(enemy.hitbox):

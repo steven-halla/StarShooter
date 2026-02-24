@@ -74,7 +74,6 @@ class LevelTwo(VerticalBattleScreen):
         zoom = self.camera.zoom
         self.draw_player_and_enemies(state)
         self.draw_side_ship_rectangle_life_meter(state, zoom)
-        self.draw_ui_panel(state.DISPLAY)
         pygame.display.flip()
 
 
@@ -159,7 +158,7 @@ class LevelTwo(VerticalBattleScreen):
 
         # SAFE CLEANUP (AFTER ALL UPDATES)
         for enemy in dead_enemies:
-            state.enemies.remove(enemy)
+            self.remove_enemy_if_dead(enemy, state)
 
 
 

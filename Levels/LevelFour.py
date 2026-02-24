@@ -90,7 +90,6 @@ class LevelFour(VerticalBattleScreen):
     def draw(self, state):
         super().draw(state)
         self.draw_enemy_player(state)
-        self.draw_ui_panel(state.DISPLAY)
         pygame.display.flip()
 
     def slaver_player_in_vicinity(self, slaver, state) -> bool:
@@ -141,7 +140,7 @@ class LevelFour(VerticalBattleScreen):
                         enemy.enemyBullets.clear()
 
                     if enemy.enemyHealth <= 0:
-                        state.enemies.remove(enemy)
+                        self.remove_enemy_if_dead(enemy, state)
                 continue
 
             enemy.update(state)
@@ -152,6 +151,9 @@ class LevelFour(VerticalBattleScreen):
             if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
                 state.enemy_bullets.extend(enemy.enemyBullets)
                 enemy.enemyBullets.clear()
+
+            if enemy.enemyHealth <= 0:
+                self.remove_enemy_if_dead(enemy, state)
 
             if isinstance(enemy, Slaver):
                 if self.slaver_player_in_vicinity(enemy, state):
@@ -394,7 +396,7 @@ class LevelFour(VerticalBattleScreen):
                 enemy.enemyBullets.clear()
 
             if enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)
+                self.remove_enemy_if_dead(enemy, state)
 
     def draw_enemy_player(self, state):
         if not self.playerDead:

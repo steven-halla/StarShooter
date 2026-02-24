@@ -229,6 +229,11 @@ class MapTester(VerticalBattleScreen):
                 0
             )
 
+        # Enemy Drops
+        if state.starship.current_level != 3:
+            for d in state.enemy_drops:
+                d.draw(state.DISPLAY, self.camera)
+
         # Draw UI panel
         self.draw_ui_panel(state.DISPLAY)
 

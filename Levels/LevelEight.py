@@ -75,7 +75,6 @@ class LevelEight(VerticalBattleScreen):
         font = pygame.font.Font(None, 28)
         current_enemies = len(state.enemies)
         self.draw_player_and_enemy(state)
-        self.draw_ui_panel(state.DISPLAY)
 
         pygame.display.flip()
 
@@ -113,7 +112,7 @@ class LevelEight(VerticalBattleScreen):
                 enemy.enemy_bullets.clear()
 
             if enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)
+                self.remove_enemy_if_dead(enemy, state)
 
         for b in list(state.enemy_bullets):
             # --- NAPALM LOGIC ---

@@ -97,7 +97,6 @@ class LevelNine(VerticalBattleScreen):
         state.DISPLAY.fill(GlobalConstants.BLACK)
         state.DISPLAY.blit(scaled_scene, (0, 0))
 
-
         # Player and enemies
         self.draw_player_and_enemy(state)
 
@@ -112,6 +111,11 @@ class LevelNine(VerticalBattleScreen):
             bh = int(bullet.height * self.camera.zoom)
             pygame.draw.rect(state.DISPLAY, (255, 0, 0), pygame.Rect(bx - 2, by - 2, bw + 4, bh + 4), 0)
             pygame.draw.rect(state.DISPLAY, (0, 255, 0), pygame.Rect(bx, by, bw, bh), 0)
+
+        # Enemy Drops
+        if state.starship.current_level != 3:
+            for d in state.enemy_drops:
+                d.draw(state.DISPLAY, self.camera)
 
         # UI Panel
         self.draw_ui_panel(state.DISPLAY)
@@ -150,7 +154,7 @@ class LevelNine(VerticalBattleScreen):
                 enemy.enemy_bullets.clear()
 
             if enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)
+                self.remove_enemy_if_dead(enemy, state)
 
     def update_handle_level_complete(self, state):
         if (

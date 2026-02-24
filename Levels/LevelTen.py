@@ -89,7 +89,6 @@ class LevelTen(VerticalBattleScreen):
         # self.draw_level_collision(state.DISPLAY)
 
         self.draw_player_and_enemy(state)
-        self.draw_ui_panel(state.DISPLAY)
 
         pygame.display.flip()
 
@@ -127,7 +126,7 @@ class LevelTen(VerticalBattleScreen):
                     self.camera.y = self.camera.y
 
             if enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)
+                self.remove_enemy_if_dead(enemy, state)
 
     def update_handle_level_complete(self, state):
 

@@ -1,20 +1,22 @@
 {
   "version": 1,
   "location": {
-    "screen": "Level 1",
-    "level_id": 1,
+    "screen": "LEVEL_2",
+    "level_id": 2,
     "spawn_id": null
   },
   "player": {
-    "shipHealth": 25,
-    "money": 10000,
-    "shipHealthMax": 25,
+    "shipHealth": 75,
+    "money": 0,
+    "shipHealthMax": 75,
     "equipped_magic": [
-      "",
+      "Metal Shield",
       null
     ],
-    "magic_inventory": [],
-    "current_level": 1
+    "magic_inventory": [
+      "Metal Shield"
+    ],
+    "current_level": 2
   },
   "weapons": {
     "machine_gun": {
@@ -40,21 +42,23 @@
     "regen_interval_seconds": 10.0
   },
   "shield": {
-    "current": 100,
+    "current": 90.8000000000003,
     "max": 100,
     "recharge_rate": 0.2,
     "time_to_start_recharge": 10000
   },
   "stats": {
     "speed": 2.2,
-    "player_ki": 50,
+    "player_ki": 20,
     "player_max_ki": 50,
     "current_heat": 100,
     "max_heat": 100
   },
   "upgrades": {
     "upgrade_chips": [
-      ""
+      "",
+      "Metal Shield",
+      "Armor Plating"
     ]
   }
 }

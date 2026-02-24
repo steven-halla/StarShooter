@@ -77,7 +77,6 @@ class LevelSeven(VerticalBattleScreen):
         super().draw(state)
         self.draw_player_and_enemies(state)
         # self.draw_flames(state.DISPLAY, self.camera)
-        self.draw_ui_panel(state.DISPLAY)
         pygame.display.flip()
 
     def update_build_flame_row(self):
@@ -128,7 +127,7 @@ class LevelSeven(VerticalBattleScreen):
             else:
                 enemy.color = GlobalConstants.RED
             if enemy.enemyHealth <= 0:
-                state.enemies.remove(enemy)
+                self.remove_enemy_if_dead(enemy, state)
 
     def update_repeat_map(self, state) -> None:
         map_height = self.map_height_tiles * self.tile_size

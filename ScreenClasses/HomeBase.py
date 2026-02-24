@@ -85,6 +85,10 @@ class HomeBase(Screen):
 
     def start(self, state) -> None:
         super().start(state)
+        state.starship.shipHealth = state.starship.shipHealthMax
+        state.starship.shield_system.reset()
+        state.starship.player_ki = state.starship.player_max_ki
+        state.starship.missile.current_missiles = state.starship.missile.max_missiles
 
         # Save game when arriving at Home Base
         self.save_state.set_location_home_base()
