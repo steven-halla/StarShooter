@@ -6,8 +6,8 @@ from Constants.GlobalConstants import GlobalConstants
 class EnemyDrop:
     SIZE: int = 16
 
-    DROP_HEALTH: str = "BLUE"
-    DROP_SHIELD: str = "PURPLE"
+    DROP_HEALTH: str = "RED"
+    DROP_SHIELD: str = "BLUE"
     DROP_MISSILE: str = "YELLOW"
     DROP_KI: str = "SKYBLUE"
 
@@ -32,9 +32,8 @@ class EnemyDrop:
             return None
 
         if enemy_type == "FireLauncher":
-            if roll < 0.18:
+            if roll < 0.20:
                 drop_type = random.choice([
-                    cls.DROP_SHIELD,
                     cls.DROP_KI
                 ])
                 return cls(enemy.x, enemy.y, drop_type)
@@ -55,7 +54,7 @@ class EnemyDrop:
         # -------------------------
         if enemy_type == "TriSpitter":
             if roll < 0.10:
-                drop_type = random.choice([cls.DROP_SHIELD, cls.DROP_HEALTH])
+                drop_type = random.choice([cls.DROP_KI, cls.DROP_HEALTH])
                 return cls(enemy.x, enemy.y, drop_type)
             return None
 
@@ -82,7 +81,7 @@ class EnemyDrop:
         # 20% chance to drop SHIELD
         # -------------------------
         if enemy_type == "KamikazeDrone":
-            if roll < 0.20:
+            if roll < 0.15:
                 return cls(enemy.x, enemy.y, cls.DROP_SHIELD)
             return None
 
@@ -95,9 +94,9 @@ class EnemyDrop:
         self.drop_type: str = drop_type
 
         if drop_type == self.DROP_HEALTH:
-            self.color = GlobalConstants.BLUE
+            self.color = GlobalConstants.RED
         elif drop_type == self.DROP_SHIELD:
-            self.color = GlobalConstants.PURPLE
+            self.color = GlobalConstants.BLUE
         elif drop_type == self.DROP_MISSILE:
             self.color = GlobalConstants.YELLOW
         elif drop_type == self.DROP_KI:
@@ -118,7 +117,7 @@ class EnemyDrop:
         elif self.drop_type == self.DROP_SHIELD:
             if hasattr(starship, "shield_system"):
                 starship.shield_system.current_shield_points = min(
-                    starship.shield_system.current_shield_points + 10,
+                    starship.shield_system.current_shield_points + 15,
                     starship.shield_system.max_shield_points,
                 )
                 if hasattr(starship, "current_shield"):
@@ -133,7 +132,7 @@ class EnemyDrop:
                 )
 
         elif self.drop_type == self.DROP_KI:
-            starship.player_ki = min(starship.player_ki + 10, starship.player_max_ki)
+            starship.player_ki = min(starship.player_ki + 15, starship.player_max_ki)
 
     def update(self, starship, drop_list, camera=None) -> None:
         if not self.is_active:

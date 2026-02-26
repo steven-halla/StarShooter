@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="264">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="50" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="322">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="background" width="25" height="50">
   <data encoding="csv">
@@ -117,36 +117,84 @@
  </objectgroup>
  <objectgroup id="4" name="enemies">
   <object id="180" name="tri_spitter" x="5.29077" y="125.526" width="16" height="16"/>
+  <object id="309" name="tri_spitter" x="40.3865" y="191.903" width="16" height="16"/>
+  <object id="308" name="tri_spitter" x="54.8826" y="194.192" width="16" height="16"/>
   <object id="184" name="tri_spitter" x="23.4208" y="169.178" width="16" height="16"/>
+  <object id="304" name="tri_spitter" x="58.5166" y="235.555" width="16" height="16"/>
+  <object id="282" name="tri_spitter" x="37.9169" y="171.467" width="16" height="16"/>
   <object id="179" name="tri_spitter" x="20.1902" y="142.123" width="16" height="16"/>
-  <object id="183" name="tri_spitter" x="15.4316" y="209.427" width="16" height="16"/>
+  <object id="307" name="tri_spitter" x="55.286" y="208.5" width="16" height="16"/>
+  <object id="183" name="tri_spitter" x="30.6906" y="294.115" width="16" height="16"/>
   <object id="168" name="fire_launcher" x="3.88942" y="160.032" width="16" height="16"/>
+  <object id="306" name="fire_launcher" x="38.9852" y="226.409" width="16" height="16"/>
+  <object id="283" name="fire_launcher" x="18.3855" y="162.321" width="16" height="16"/>
+  <object id="305" name="fire_launcher" x="53.4812" y="228.698" width="16" height="16"/>
   <object id="226" name="fire_launcher" x="9.99303" y="182.158" width="16" height="16"/>
+  <object id="303" name="fire_launcher" x="45.0888" y="248.535" width="16" height="16"/>
+  <object id="315" name="fire_launcher" x="55.0071" y="269.897" width="16" height="16"/>
+  <object id="281" name="fire_launcher" x="24.4891" y="184.447" width="16" height="16"/>
+  <object id="302" name="fire_launcher" x="59.5849" y="250.824" width="16" height="16"/>
+  <object id="314" name="fire_launcher" x="69.5032" y="272.186" width="16" height="16"/>
   <object id="236" name="fire_launcher" x="15.8264" y="230.762" width="16" height="16"/>
-  <object id="235" name="fire_launcher" x="22.693" y="177.355" width="16" height="16"/>
+  <object id="280" name="fire_launcher" x="30.3225" y="233.051" width="16" height="16"/>
+  <object id="235" name="fire_launcher" x="58.5517" y="300.953" width="16" height="16"/>
+  <object id="278" name="fire_launcher" x="73.0478" y="303.242" width="16" height="16"/>
   <object id="11" name="level_3_boss" x="84.5935" y="145.148" width="44.25" height="88.38"/>
   <object id="191" name="bile_spitter" x="289.487" y="216.208" width="16" height="16"/>
+  <object id="299" name="bile_spitter" x="289.487" y="216.208" width="16" height="16"/>
   <object id="261" name="bile_spitter" x="289.487" y="216.208" width="16" height="16"/>
-  <object id="207" name="bile_spitter" x="261.917" y="215.483" width="16" height="16"/>
-  <object id="262" name="bile_spitter" x="261.917" y="215.483" width="16" height="16"/>
+  <object id="298" name="bile_spitter" x="289.487" y="216.208" width="16" height="16"/>
+  <object id="207" name="kamikaze_drone" x="274.887" y="131.558" width="16" height="16"/>
+  <object id="275" name="kamikaze_drone" x="357.286" y="106.381" width="16" height="16"/>
+  <object id="319" name="kamikaze_drone" x="357.286" y="106.381" width="16" height="16"/>
+  <object id="271" name="kamikaze_drone" x="311.509" y="149.106" width="16" height="16"/>
+  <object id="316" name="kamikaze_drone" x="311.509" y="149.106" width="16" height="16"/>
+  <object id="265" name="kamikaze_drone" x="261.154" y="115.536" width="16" height="16"/>
+  <object id="277" name="kamikaze_drone" x="343.553" y="90.359" width="16" height="16"/>
+  <object id="320" name="kamikaze_drone" x="343.553" y="90.359" width="16" height="16"/>
+  <object id="269" name="kamikaze_drone" x="215.377" y="158.262" width="16" height="16"/>
+  <object id="273" name="kamikaze_drone" x="297.776" y="133.084" width="16" height="16"/>
+  <object id="317" name="kamikaze_drone" x="297.776" y="133.084" width="16" height="16"/>
+  <object id="262" name="blade_spinner" x="215.377" y="139.951" width="16" height="16"/>
+  <object id="274" name="blade_spinner" x="297.776" y="114.773" width="16" height="16"/>
+  <object id="318" name="blade_spinner" x="297.776" y="114.773" width="16" height="16"/>
+  <object id="270" name="blade_spinner" x="251.999" y="157.499" width="16" height="16"/>
+  <object id="264" name="blade_spinner" x="201.644" y="123.929" width="16" height="16"/>
+  <object id="276" name="blade_spinner" x="284.043" y="98.7515" width="16" height="16"/>
+  <object id="268" name="blade_spinner" x="155.867" y="166.654" width="16" height="16"/>
+  <object id="272" name="blade_spinner" x="238.266" y="141.477" width="16" height="16"/>
   <object id="199" name="bile_spitter" x="293.115" y="269.172" width="16" height="16"/>
+  <object id="286" name="bile_spitter" x="293.115" y="269.172" width="16" height="16"/>
   <object id="202" name="bile_spitter" x="265.545" y="268.447" width="16" height="16"/>
+  <object id="287" name="bile_spitter" x="265.545" y="268.447" width="16" height="16"/>
   <object id="195" name="bile_spitter" x="289.487" y="240.151" width="16" height="16"/>
+  <object id="291" name="bile_spitter" x="289.487" y="240.151" width="16" height="16"/>
   <object id="256" name="bile_spitter" x="289.487" y="240.151" width="16" height="16"/>
+  <object id="290" name="bile_spitter" x="289.487" y="240.151" width="16" height="16"/>
   <object id="204" name="bile_spitter" x="261.917" y="239.425" width="16" height="16"/>
+  <object id="295" name="bile_spitter" x="261.917" y="239.425" width="16" height="16"/>
   <object id="258" name="bile_spitter" x="261.917" y="239.425" width="16" height="16"/>
-  <object id="196" name="bile_spitter" x="271.752" y="345.758" width="16" height="16"/>
-  <object id="200" name="bile_spitter" x="206.034" y="370.21" width="16" height="16"/>
+  <object id="294" name="bile_spitter" x="261.917" y="239.425" width="16" height="16"/>
+  <object id="196" name="bile_spitter" x="270.989" y="348.047" width="16" height="16"/>
+  <object id="321" name="bile_spitter" x="264.885" y="322.869" width="16" height="16"/>
   <object id="193" name="bile_spitter" x="338.823" y="216.208" width="16" height="16"/>
+  <object id="297" name="bile_spitter" x="338.823" y="216.208" width="16" height="16"/>
   <object id="260" name="bile_spitter" x="338.823" y="216.208" width="16" height="16"/>
+  <object id="296" name="bile_spitter" x="338.823" y="216.208" width="16" height="16"/>
   <object id="206" name="bile_spitter" x="311.253" y="215.483" width="16" height="16"/>
+  <object id="301" name="bile_spitter" x="311.253" y="215.483" width="16" height="16"/>
   <object id="263" name="bile_spitter" x="311.253" y="215.483" width="16" height="16"/>
+  <object id="300" name="bile_spitter" x="311.253" y="215.483" width="16" height="16"/>
   <object id="198" name="bile_spitter" x="363.051" y="289.009" width="16" height="16"/>
   <object id="203" name="bile_spitter" x="351.502" y="355.423" width="16" height="16"/>
   <object id="194" name="bile_spitter" x="338.823" y="240.151" width="16" height="16"/>
+  <object id="289" name="bile_spitter" x="338.823" y="240.151" width="16" height="16"/>
   <object id="257" name="bile_spitter" x="338.823" y="240.151" width="16" height="16"/>
+  <object id="288" name="bile_spitter" x="338.823" y="240.151" width="16" height="16"/>
   <object id="205" name="bile_spitter" x="311.253" y="239.425" width="16" height="16"/>
+  <object id="293" name="bile_spitter" x="311.253" y="239.425" width="16" height="16"/>
   <object id="259" name="bile_spitter" x="311.253" y="239.425" width="16" height="16"/>
+  <object id="292" name="bile_spitter" x="311.253" y="239.425" width="16" height="16"/>
   <object id="197" name="bile_spitter" x="380.598" y="332.025" width="16" height="16"/>
   <object id="201" name="bile_spitter" x="314.881" y="325.959" width="16" height="16"/>
  </objectgroup>

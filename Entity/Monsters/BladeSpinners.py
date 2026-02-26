@@ -13,6 +13,7 @@ class BladeSpinner(Enemy):
         # movement helper
         self.mover: MoveRectangle = MoveRectangle()
         self.camera = None
+        self.name: str = "BladeSpinner"
         self.touch_damage: int = 20
         # appearance
         self.width: int = 16

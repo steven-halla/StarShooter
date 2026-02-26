@@ -70,7 +70,7 @@ class BileSpitter(Enemy):
         else:
             if self.is_active and self.attack_timer.is_ready():
                 self.shoot_single_bullet_aimed_at_player(
-                    bullet_speed=2.5,
+                    bullet_speed=2.0,
                     bullet_width=20,
                     bullet_height=20,
                     bullet_color=self.bulletColor,

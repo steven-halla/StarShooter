@@ -1024,7 +1024,7 @@ class VerticalBattleScreen:
         # -------------------------
         if state.starship.equipped_magic[0] == "Metal Shield" and not self.playerDead :
             if self.controller.magic_1_button and not has_active(self, "Metal Shield") and state.starship.player_ki > 24:
-                state.starship.player_ki -= 25
+                state.starship.player_ki -= state.starship.metal_shield.ki_cost
 
                 shield = state.starship.metal_shield.fire_metal_shield(
                     state.starship.metal_shield_damage,
@@ -1069,13 +1069,28 @@ class VerticalBattleScreen:
         # WIND SLICER
         # -------------------------
         if state.starship.equipped_magic[0] == "Wind Slicer" and not self.playerDead:
-            if self.controller.magic_1_button:
-                self.player_bullets.extend(
-                    state.starship.wind_slicer.fire_wind_slicer(
-                        damage=state.starship.wind_slicer_damage,
-                        bullet_count=state.starship.wind_slicer_bullet_count
+            if self.controller.magic_1_button and not has_active(self, "Wind Slicer"):
+                ws = state.starship.wind_slicer
+
+                if ws.wind_slicer_timer.is_ready() and state.starship.player_ki >= ws.ki_cost:
+                    state.starship.player_ki -= ws.ki_cost
+
+                    self.player_bullets.extend(
+                        ws.fire_wind_slicer(
+                            damage=state.starship.wind_slicer_damage,
+                            bullet_count=state.starship.wind_slicer_bullet_count
+                        )
                     )
-                )
+        # if state.starship.equipped_magic[0] == "Wind Slicer" and not self.playerDead:
+        #     if self.controller.magic_1_button and not has_active(self, "Wind Slicer") and state.starship.player_ki > 9:
+        #         state.starship.player_ki -= state.starship.wind_slicer.ki_cost
+        #
+        #         self.player_bullets.extend(
+        #             state.starship.wind_slicer.fire_wind_slicer(
+        #                 damage=state.starship.wind_slicer_damage,
+        #                 bullet_count=state.starship.wind_slicer_bullet_count
+        #             )
+        #         )
 
 
     def weapon_helper(self, state):

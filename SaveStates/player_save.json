@@ -49,9 +49,9 @@
     "time_to_start_recharge": 10000
   },
   "stats": {
-    "speed": 2.8,
-    "player_ki": 50,
-    "player_max_ki": 50,
+    "speed": 2.2,
+    "player_ki": 75,
+    "player_max_ki": 75,
     "current_heat": 100,
     "max_heat": 100
   },
@@ -61,7 +61,8 @@
       "Metal Shield",
       "Armor Plating",
       "Wind Slicer",
-      "Speed up"
+      "Shield Generator",
+      "Ki Efficiency chip"
     ]
   }
 }

@@ -8,7 +8,7 @@ from Entity.Enemy import Enemy
 from Entity.Monsters.TriSpitter import TriSpitter
 from Movement.MoveRectangle import MoveRectangle
 
-
+#CHANGE BOSS ROPE SEE COMMENTS IN ROPE SDECTION
 class BossLevelThree(Enemy):
     def __init__(self) -> None:
         super().__init__()
@@ -73,6 +73,7 @@ class BossLevelThree(Enemy):
         # -------------------------
         # PHASE 1 — ROPE + SHOOT
         # -------------------------
+        # SINGLE SHOT DOWN VERTICAL Y SHOULD NOT HAPPEN WHEN ROPE OUT IF PLAYER NOT GRBBED
         if self.phase == 1:
             # rope control (uses your working timing block)
             if not hasattr(self, "_rope_was_active"):

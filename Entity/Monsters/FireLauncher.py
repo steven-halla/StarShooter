@@ -57,16 +57,29 @@ class FireLauncher(Enemy):
 
         self.moveAI()
 
-        if self.attack_timer.is_ready():
-            self.shoot_spores(
-                bullet_speed=1.5,
-                bullet_width=5,
-                bullet_height=5,
-                bullet_color=self.bulletColor,
-                bullet_damage=20,
-                state=state
-            )
-            self.attack_timer.reset()
+        if state.starship.current_level != 3:
+            if self.is_active and self.attack_timer.is_ready():
+                self.shoot_spores(
+                    bullet_speed=1.5,
+                    bullet_width=5,
+                    bullet_height=5,
+                    bullet_color=self.bulletColor,
+                    bullet_damage=20,
+                    state=state
+                )
+                self.attack_timer.reset()
+
+        else:
+            if self.is_active and self.attack_timer.is_ready():
+                self.shoot_spores(
+                    bullet_speed=0.9,
+                    bullet_width=20,
+                    bullet_height=20,
+                    bullet_color=self.bulletColor,
+                    bullet_damage=20,
+                    state=state
+                )
+                self.attack_timer.reset()
 
         # 🔑 DO NOT REMOVE
         self.player_collide_damage(state.starship)
