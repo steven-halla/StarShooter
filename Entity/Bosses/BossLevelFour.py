@@ -23,8 +23,8 @@ class BossLevelFour(Enemy):
         self.fire_interval_ms: int = 4000
         self.last_shot_time: int = 0
         self.speed: float = 0.4
-        self.enemyHealth: float = 555.0
-        self.maxHealth: float = 555.0
+        self.enemyHealth: float = 250.0
+        self.maxHealth: float = 250.0
         self.exp: int = 1
         self.credits: int = 5
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead

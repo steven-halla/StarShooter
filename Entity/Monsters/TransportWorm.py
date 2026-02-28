@@ -30,8 +30,8 @@ class TransportWorm(Enemy):
         self.enemy_image = self.bile_spitter_image
 
         # stats
-        self.enemyHealth: float = 222.0
-        self.maxHealth: float = 222.0
+        self.enemyHealth: float = 175.0
+        self.maxHealth: float = 175.0
         self.exp: int = 1
         self.credits: int = 5
 

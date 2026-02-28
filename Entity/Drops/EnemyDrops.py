@@ -34,7 +34,7 @@ class EnemyDrop:
         if enemy_type == "FireLauncher":
             if roll < 0.20:
                 drop_type = random.choice([
-                    cls.DROP_KI
+                    cls.DROP_SHIELD
                 ])
                 return cls(enemy.x, enemy.y, drop_type)
             return None
@@ -58,14 +58,21 @@ class EnemyDrop:
                 return cls(enemy.x, enemy.y, drop_type)
             return None
 
+        if enemy_type == "Slaver":
+            if roll < 0.15:
+                drop_type = random.choice([cls.DROP_KI])
+                return cls(enemy.x, enemy.y, drop_type)
+            return None
+        if enemy_type == "transport_worm":
+            if roll < 0.25:
+                drop_type = random.choice([cls.DROP_HEALTH])
+                return cls(enemy.x, enemy.y, drop_type)
+            return None
+
         # -------------------------
         # Fire Launcher
         # 15% chance to drop KI
         # -------------------------
-        if enemy_type == "FireLauncher":
-            if roll < 0.15:
-                return cls(enemy.x, enemy.y, cls.DROP_KI)
-            return None
 
         # -------------------------
         # Wasp Stinger
@@ -82,7 +89,7 @@ class EnemyDrop:
         # -------------------------
         if enemy_type == "KamikazeDrone":
             if roll < 0.15:
-                return cls(enemy.x, enemy.y, cls.DROP_SHIELD)
+                return cls(enemy.x, enemy.y, cls.DROP_KI)
             return None
 
         # default: no drops unless you add more rules

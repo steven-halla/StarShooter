@@ -42,7 +42,6 @@ class KamikazeDrone(Enemy):
         # touch damage
         # touch / explosion damage
         self.touch_damage: int = 70
-        self.explosion_damage: int = 70
         self.touch_timer = Timer(0.75)
 
     # -------------------------------------------------
@@ -78,7 +77,7 @@ class KamikazeDrone(Enemy):
 
         # explosion check
         if self.hitbox.colliderect(self.target_player.hitbox):
-            self.on_hit_player()
+            self.on_hit_player(state)
     # -------------------------------------------------
     # TOUCH DAMAGE (STANDALONE FUNCTION)
     # -------------------------------------------------
@@ -124,40 +123,44 @@ class KamikazeDrone(Enemy):
     def clamp_vertical(self) -> None:
         pass
 
-    def on_hit_player(self):
+    def on_hit_player(self, state):
 
         """Handle drone impact damage (player or non-player target)."""
         if self.target_player is None:
             return
 
-        # ==============================
-        # PLAYER TARGET (WITH SHIELD)
-        # ==============================
-        if hasattr(self.target_player, "shipHealth"):
+        if not hasattr(self.target_player, "shipHealth"):
+            return
 
-            damage = self.explosion_damage
+        damage = self.touch_damage
 
-            # ---- SHIELD CHECK FIRST ----
-            if hasattr(self.target_player, "shield") and self.target_player.shield is not None:
+        # ----------------------------
+        # SHIELD SYSTEM FIRST (ONE PATH)
+        # ----------------------------
+        remaining_damage = 0
 
-                # If shield has strength remaining
-                if self.target_player.shield.current > 0:
+        if hasattr(self.target_player, "shield_system") and self.target_player.shield_system is not None:
+            result = self.target_player.shield_system.take_damage(damage)
 
-                    remaining_damage = self.target_player.shield.take_damage(damage)
-
-                    # If shield breaks and damage spills over
-                    if remaining_damage > 0:
-                        self.target_player.shipHealth -= remaining_damage
-                else:
-                    # No shield left
-                    self.target_player.shipHealth -= damage
+            # If your shield_system.take_damage returns spillover damage, use it.
+            if isinstance(result, (int, float)):
+                remaining_damage = result
             else:
-                # No shield system present
-                self.target_player.shipHealth -= damage
+                remaining_damage = 0
+        else:
+            remaining_damage = damage
 
-            # Trigger player hit animation if available
-            if hasattr(self.target_player, "on_hit"):
-                self.target_player.on_hit()
+        # ----------------------------
+        # HP ONLY GETS HIT BY SPILLOVER
+        # ----------------------------
+        if remaining_damage > 0:
+            self.target_player.shipHealth -= remaining_damage
+
+        # ----------------------------
+        # HIT REACTION ONCE
+        # ----------------------------
+        if hasattr(self.target_player, "on_hit"):
+            self.target_player.on_hit()
 
         # ==============================
         # NON-PLAYER TARGET (Station)

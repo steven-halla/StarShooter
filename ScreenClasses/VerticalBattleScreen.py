@@ -1036,11 +1036,16 @@ class VerticalBattleScreen:
         # -------------------------
         # NAPALM SPREAD
         # -------------------------
+        # NAPALM (updated to match Wind Slicer pattern: timer + Ki gate + active gate)
         if state.starship.equipped_magic[0] == "Napalm Spread" and not self.playerDead:
-            if self.controller.magic_1_button:
-                napalm = state.starship.napalm_spread.fire_napalm_spread()
-                if napalm is not None:
-                    self.player_bullets.append(napalm)
+            ns = state.starship.napalm_spread  # this is your NapalmSpread "weapon" object
+            if self.controller.magic_1_button and not has_active(self, "Napalm Spread"):
+                if ns.napalm_timer.is_ready() and state.starship.player_ki >= ns.ki_cost:
+                    state.starship.player_ki -= ns.ki_cost
+
+                    napalm = ns.fire_napalm_spread()
+                    if napalm is not None:
+                        self.player_bullets.append(napalm)
 
         # -------------------------
         # BEAM SABER (single, held)

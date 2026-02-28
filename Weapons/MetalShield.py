@@ -4,7 +4,7 @@ from Weapons.Bullet import Bullet
 
 
 class MetalShield(Bullet):
-    def __init__(self, x: float, y: float, damage: int = 50, max_hits: int = 3):
+    def __init__(self, x: float, y: float, damage: int = 40, max_hits: int = 3):
         super().__init__(x, y)
 
         # size
@@ -23,7 +23,7 @@ class MetalShield(Bullet):
         self.orbit_radius: float = 40.0
         self.orbit_speed: float = 0.08  # radians per frame
         self.angle: float = 0.0
-        self.ki_cost: int = 25
+        self.ki_cost: int = 20
 
         # state
         self.is_active: bool = True

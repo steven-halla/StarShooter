@@ -344,7 +344,7 @@ class LevelFour(VerticalBattleScreen):
         # --------------------------------------------------
         # SPAWN SLAVER IF NEEDED
         # --------------------------------------------------
-        if self.map_scroll_speed_per_frame == 0 and creep_found_on_screen and now - self.creep_last_spawn_time >= 5500:
+        if self.map_scroll_speed_per_frame == 0 and creep_found_on_screen and now - self.creep_last_spawn_time >= 7000:
             slaver = Slaver()
             slaver.x = screen_left
             slaver.y = screen_top
@@ -419,10 +419,7 @@ class LevelFour(VerticalBattleScreen):
                 enemy = TransportWorm()
             elif obj.name == "kamikazi_drone":
                 enemy = KamikazeDrone()
-            elif obj.name == "bile_spitter":
-                enemy = BileSpitter()
-            elif obj.name == "blade_spinner":
-                enemy = BladeSpinner()
+
             elif obj.name == "fire_launcher":
                 enemy = FireLauncher()
             elif obj.name == "tri_spitter":
@@ -431,6 +428,14 @@ class LevelFour(VerticalBattleScreen):
                 enemy = Slaver()
             else:
                 continue
+            counts = {}
+
+            for e in state.enemies:
+                enemy_type_name = type(e).__name__
+                counts[enemy_type_name] = counts.get(enemy_type_name, 0) + 1
+
+            for enemy_type_name in counts:
+                print(enemy_type_name, counts[enemy_type_name])
 
             enemy.x = obj.x
             enemy.y = obj.y

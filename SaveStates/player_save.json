@@ -1,23 +1,24 @@
 {
   "version": 1,
   "location": {
-    "screen": "HOME_BASE",
-    "level_id": null,
+    "screen": "Level 4",
+    "level_id": 4,
     "spawn_id": null
   },
   "player": {
     "shipHealth": 75,
-    "money": 30000,
+    "money": 0,
     "shipHealthMax": 75,
     "equipped_magic": [
-      "Wind Slicer",
+      "Napalm Spread",
       null
     ],
     "magic_inventory": [
       "Metal Shield",
-      "Wind Slicer"
+      "Wind Slicer",
+      "Napalm Spread"
     ],
-    "current_level": 3
+    "current_level": 4
   },
   "weapons": {
     "machine_gun": {
@@ -45,7 +46,7 @@
   "shield": {
     "current": 100,
     "max": 100,
-    "recharge_rate": 0.2,
+    "recharge_rate": 0.4,
     "time_to_start_recharge": 10000
   },
   "stats": {
@@ -62,7 +63,10 @@
       "Metal Shield",
       "Armor Plating",
       "Missile Count +1",
-      "Speed up"
+      "Speed up",
+      "Napalm Spread",
+      "Shield Generator",
+      "Shield Charger"
     ]
   }
 }
