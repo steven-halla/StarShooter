@@ -6,9 +6,9 @@
     "spawn_id": null
   },
   "player": {
-    "shipHealth": 75,
+    "shipHealth": 25,
     "money": 0,
-    "shipHealthMax": 75,
+    "shipHealthMax": 25,
     "equipped_magic": [
       "Napalm Spread",
       null
@@ -39,7 +39,7 @@
     "bullet_speed": 1.5,
     "rate_of_fire": 0.5,
     "max": 2,
-    "current": 1,
+    "current": 2,
     "fire_interval_seconds": 0.5,
     "regen_interval_seconds": 10.0
   },
@@ -51,8 +51,8 @@
   },
   "stats": {
     "speed": 2.8000000000000003,
-    "player_ki": 50,
-    "player_max_ki": 50,
+    "player_ki": 75,
+    "player_max_ki": 75,
     "current_heat": 100,
     "max_heat": 100,
     "post_hit_invincibility_duration": 2.0
@@ -61,7 +61,7 @@
     "upgrade_chips": [
       "",
       "Metal Shield",
-      "Armor Plating",
+      "Ki Efficiency chip",
       "Missile Count +1",
       "Speed up",
       "Napalm Spread",

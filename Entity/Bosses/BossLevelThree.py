@@ -31,8 +31,8 @@ class BossLevelThree(Enemy):
         self.enemy_image = self.bile_spitter_image
 
         # stats
-        self.enemyHealth: float = 1.0
-        self.maxHealth: float = 1.0
+        self.enemyHealth: float = 800.0
+        self.maxHealth: float = 800.0
         self.exp: int = 1
         self.credits: int = 5
 
@@ -62,13 +62,13 @@ class BossLevelThree(Enemy):
         # -------------------------
         # PHASE SELECTION (EXPLICIT)
         # -------------------------
-        # if self.enemyHealth > 700:
-        #     self.phase = 1
-        # elif self.enemyHealth > 500:
-        #     self.phase = 2
-        # else:
-        #     self.phase = 3
-        self.phase = 3
+        if self.enemyHealth > 700:
+            self.phase = 1
+        elif self.enemyHealth > 500:
+            self.phase = 2
+        else:
+            self.phase = 3
+        # self.phase = 3
 
         # -------------------------
         # PHASE 1 — ROPE + SHOOT

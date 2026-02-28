@@ -23,8 +23,8 @@ class BossLevelFour(Enemy):
         self.fire_interval_ms: int = 4000
         self.last_shot_time: int = 0
         self.speed: float = 0.4
-        self.enemyHealth: float = 250.0
-        self.maxHealth: float = 250.0
+        self.enemyHealth: float = 175.0
+        self.maxHealth: float = 175.0
         self.exp: int = 1
         self.credits: int = 5
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
@@ -60,7 +60,7 @@ class BossLevelFour(Enemy):
         self.max_shield_hp: int = 600
         self.shield_hp: int = self.max_shield_hp
 
-        self.shield_toggle_interval_ms = random.choice((3000, 4000))
+        self.shield_toggle_interval_ms = random.choice((2000, 3500))
         self.last_shield_toggle_time = (
             pygame.time.get_ticks()
             - random.randint(0, self.shield_toggle_interval_ms))
@@ -94,40 +94,40 @@ class BossLevelFour(Enemy):
                     bullet_width=5,
                     bullet_height=5,
                     bullet_color=GlobalConstants.RED,
-                    bullet_damage=22,
+                    bullet_damage=10,
                     cooldown_ms=0,
                     state=state
                 )
 
             elif pattern == "ud":
                 self.shoot_bullets_up_down(
-                    bullet_speed=1.0,
+                    bullet_speed=1.1,
                     bullet_width=5,
                     bullet_height=5,
                     bullet_color=GlobalConstants.RED,
-                    bullet_damage=22,
+                    bullet_damage=10,
                     cooldown_ms=0,
                     state=state
                 )
 
             elif pattern == "ul_lr":
                 self.shoot_bullets_diag_ul_lr(
-                    bullet_speed=1.0,
+                    bullet_speed=1.3,
                     bullet_width=5,
                     bullet_height=5,
                     bullet_color=GlobalConstants.RED,
-                    bullet_damage=22,
+                    bullet_damage=10,
                     cooldown_ms=0,
                     state=state
                 )
 
             elif pattern == "ur_ll":
                 self.shoot_bullets_diag_ur_ll(
-                    bullet_speed=1.0,
+                    bullet_speed=1.2,
                     bullet_width=5,
                     bullet_height=5,
                     bullet_color=GlobalConstants.RED,
-                    bullet_damage=22,
+                    bullet_damage=10,
                     cooldown_ms=0,
                     state=state
                 )
@@ -141,7 +141,7 @@ class BossLevelFour(Enemy):
 
             if self.shield_active:
                 self.shield_hp = self.max_shield_hp
-                self.shield_toggle_interval_ms = random.choice((3000, 4000))
+                self.shield_toggle_interval_ms = random.choice((2000, 3500))
 
         # -------------------------------------------------
         # TRIPLE SHOT WHEN SHIELD DOWN
@@ -156,11 +156,11 @@ class BossLevelFour(Enemy):
         # -------------------------------------------------
         if self.aimed_shot_timer.is_ready():
             self.shoot_single_bullet_aimed_at_player(
-                bullet_speed=4.0,
-                bullet_width=20,
-                bullet_height=20,
+                bullet_speed=3.0,
+                bullet_width=18,
+                bullet_height=18,
                 bullet_color=self.bulletColor,
-                bullet_damage=10,
+                bullet_damage=25,
                 state=state
             )
             self.aimed_shot_timer.reset()

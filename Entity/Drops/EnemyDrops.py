@@ -92,8 +92,16 @@ class EnemyDrop:
                 return cls(enemy.x, enemy.y, cls.DROP_KI)
             return None
 
+        if enemy_type == "BossLevelFour":
+            if roll < 0.35:
+                drop_type = random.choice([cls.DROP_KI, cls.DROP_MISSILE])
+                return cls(enemy.x, enemy.y, drop_type)
+            return None
+            pass
+
         # default: no drops unless you add more rules
         return None
+
 
     def __init__(self, x: float, y: float, drop_type: str):
         self.x: float = float(x)

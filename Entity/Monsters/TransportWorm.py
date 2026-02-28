@@ -46,7 +46,7 @@ class TransportWorm(Enemy):
         # -------------------------
         # SUMMONING
         # -------------------------
-        self.summon_interval_ms: int = 4100
+        self.summon_interval_ms: int = 6000
         self.last_summon_time: int = pygame.time.get_ticks()
 
         self.summon_level: int = 0
