@@ -2,6 +2,8 @@ import json
 import os
 from typing import Any
 
+from Constants.Timer import Timer
+
 
 class SaveState:
     VERSION = 1
@@ -62,6 +64,132 @@ class SaveState:
 
     # -------------------------------------------------
     # PLAYER (CORE / REQUIRED)
+    # # -------------------------------------------------
+    # def capture_player(self, starship) -> None:
+    #     self.data["player"] = {
+    #         "shipHealth": starship.shipHealth,
+    #         "money": starship.money,
+    #         "shipHealthMax": starship.shipHealthMax,
+    #         "equipped_magic": list(starship.equipped_magic),
+    #         "magic_inventory": list(starship.magic_inventory),
+    #         "current_level": starship.current_level,
+    #     }
+    #
+    #     self.data["stats"] = {
+    #         "speed": starship.speed,
+    #         "player_ki": starship.player_ki,
+    #         "player_max_ki": starship.player_max_ki,
+    #         "current_heat": starship.current_heat,
+    #         "max_heat": starship.max_heat,
+    #     }
+    #
+    #     self.data["weapons"] = {
+    #         "machine_gun": {
+    #             "damage": starship.machine_gun_damage,
+    #             "width": starship.machine_gun_width,
+    #             "height": starship.machine_gun_height,
+    #             "rate_of_fire": starship.machine_gun_rate_of_fire,
+    #             "bullet_speed": starship.machine_gun_bullet_speed,
+    #             "bullets_per_shot": starship.machine_gun_bullets_per_shot,
+    #         },
+    #         "wind_slicer": {
+    #             "damage": starship.wind_slicer_damage,
+    #             "bullet_count": starship.wind_slicer_bullet_count,
+    #         },
+    #     }
+    #
+    #     self.data["missiles"] = {
+    #         "damage": starship.missile_damage,
+    #         "bullet_speed": starship.missile_bullet_speed,
+    #         "rate_of_fire": starship.missile_rate_of_fire,
+    #         "max": starship.missile_max,
+    #         "current": starship.missile_current,
+    #         "fire_interval_seconds": starship.missile_fire_interval_seconds,
+    #         "regen_interval_seconds": starship.missile_regen_interval_seconds,
+    #     }
+    #
+    #     if hasattr(starship, "shield_system"):
+    #         self.data["shield"] = {
+    #             "current": starship.shield_system.current_shield_points,
+    #             "max": starship.shield_system.max_shield_points,
+    #             "recharge_rate": starship.shield_system.recharge_rate_shield,
+    #             "time_to_start_recharge": starship.shield_system.time_to_start_shield_recharge,
+    #         }
+    #
+    #     self.data["upgrades"] = {
+    #         "upgrade_chips": list(starship.upgrade_chips),
+    #     }
+    #
+    # # -------------------------------------------------
+    # # RESTORE PLAYER
+    # # -------------------------------------------------
+    # def restore_player(self, starship) -> None:
+    #     p = self.data.get("player", {})
+    #     if p:
+    #         starship.shipHealth = p.get("shipHealth", starship.shipHealth)
+    #         # Backward compatibility: fall back to 'credits' if older save
+    #         starship.money = p.get("money", p.get("credits", starship.money))
+    #         starship.shipHealthMax = p.get("shipHealthMax", starship.shipHealthMax)
+    #         starship.equipped_magic = list(p.get("equipped_magic", starship.equipped_magic))
+    #         starship.magic_inventory = list(p.get("magic_inventory", starship.magic_inventory))
+    #         starship.current_level = p.get("current_level", starship.current_level)
+    #
+    #     s = self.data.get("stats", {})
+    #     if s:
+    #         starship.speed = s.get("speed", starship.speed)
+    #         starship.player_ki = s.get("player_ki", starship.player_ki)
+    #         starship.player_max_ki = s.get("player_max_ki", starship.player_max_ki)
+    #         starship.current_heat = s.get("current_heat", starship.current_heat)
+    #         starship.max_heat = s.get("max_heat", starship.max_heat)
+    #
+    #     w_mg = self.data.get("weapons", {}).get("machine_gun", {})
+    #     if w_mg:
+    #         starship.machine_gun_damage = w_mg.get("damage", starship.machine_gun_damage)
+    #         starship.machine_gun_width = w_mg.get("width", starship.machine_gun_width)
+    #         starship.machine_gun_height = w_mg.get("height", starship.machine_gun_height)
+    #         starship.machine_gun_rate_of_fire = w_mg.get("rate_of_fire", starship.machine_gun_rate_of_fire)
+    #         starship.machine_gun_bullet_speed = w_mg.get("bullet_speed", starship.machine_gun_bullet_speed)
+    #         starship.machine_gun_bullets_per_shot = w_mg.get("bullets_per_shot", starship.machine_gun_bullets_per_shot)
+    #
+    #     w_ws = self.data.get("weapons", {}).get("wind_slicer", {})
+    #     if w_ws:
+    #         starship.wind_slicer_damage = w_ws.get("damage", starship.wind_slicer_damage)
+    #         starship.wind_slicer_bullet_count = w_ws.get("bullet_count", starship.wind_slicer_bullet_count)
+    #
+    #     m = self.data.get("missiles", {})
+    #     if m:
+    #         starship.missile_damage = m.get("damage", starship.missile_damage)
+    #         starship.missile_bullet_speed = m.get("bullet_speed", starship.missile_bullet_speed)
+    #         starship.missile_rate_of_fire = m.get("rate_of_fire", starship.missile_rate_of_fire)
+    #         starship.missile_max = m.get("max", starship.missile_max)
+    #         starship.missile_current = m.get("current", starship.missile_current)
+    #         starship.missile_fire_interval_seconds = m.get("fire_interval_seconds", starship.missile_fire_interval_seconds)
+    #         starship.missile_regen_interval_seconds = m.get("regen_interval_seconds", starship.missile_regen_interval_seconds)
+    #
+    #     sh = self.data.get("shield", {})
+    #     if sh and hasattr(starship, "shield_system"):
+    #         starship.shield_system.current_shield_points = sh.get(
+    #             "current", starship.shield_system.current_shield_points
+    #         )
+    #         starship.shield_system.max_shield_points = sh.get(
+    #             "max", starship.shield_system.max_shield_points
+    #         )
+    #         starship.shield_system.recharge_rate_shield = sh.get(
+    #             "recharge_rate", starship.shield_system.recharge_rate_shield
+    #         )
+    #         starship.shield_system.time_to_start_shield_recharge = sh.get(
+    #             "time_to_start_recharge",
+    #             starship.shield_system.time_to_start_shield_recharge,
+    #         )
+    #
+    #     u = self.data.get("upgrades", {})
+    #     if u:
+    #         starship.upgrade_chips = list(u.get("upgrade_chips", starship.upgrade_chips))
+    #
+    #     # reset transient combat state
+    #     starship.invincible = False
+    #     starship.last_health = starship.shipHealth
+
     # -------------------------------------------------
     def capture_player(self, starship) -> None:
         self.data["player"] = {
@@ -79,6 +207,11 @@ class SaveState:
             "player_max_ki": starship.player_max_ki,
             "current_heat": starship.current_heat,
             "max_heat": starship.max_heat,
+
+            # ADDED
+            "post_hit_invincibility_duration": getattr(
+                starship, "post_hit_invincibility_duration", None
+            ),
         }
 
         self.data["weapons"] = {
@@ -140,6 +273,13 @@ class SaveState:
             starship.current_heat = s.get("current_heat", starship.current_heat)
             starship.max_heat = s.get("max_heat", starship.max_heat)
 
+            # ADDED
+            saved_inv_dur = s.get("post_hit_invincibility_duration", None)
+            if saved_inv_dur is not None and hasattr(starship, "post_hit_invincibility_duration"):
+                starship.post_hit_invincibility_duration = saved_inv_dur
+                if hasattr(starship, "invincibility_timer"):
+                    starship.invincibility_timer = Timer(starship.post_hit_invincibility_duration)
+
         w_mg = self.data.get("weapons", {}).get("machine_gun", {})
         if w_mg:
             starship.machine_gun_damage = w_mg.get("damage", starship.machine_gun_damage)
@@ -159,10 +299,18 @@ class SaveState:
             starship.missile_damage = m.get("damage", starship.missile_damage)
             starship.missile_bullet_speed = m.get("bullet_speed", starship.missile_bullet_speed)
             starship.missile_rate_of_fire = m.get("rate_of_fire", starship.missile_rate_of_fire)
+            # load saved counts into starship fields
             starship.missile_max = m.get("max", starship.missile_max)
             starship.missile_current = m.get("current", starship.missile_current)
-            starship.missile_fire_interval_seconds = m.get("fire_interval_seconds", starship.missile_fire_interval_seconds)
-            starship.missile_regen_interval_seconds = m.get("regen_interval_seconds", starship.missile_regen_interval_seconds)
+
+            # IMPORTANT: sync into the actual missile system used in-game
+            if hasattr(starship, "missile"):
+                starship.missile.max_missiles = starship.missile_max
+                starship.missile.current_missiles = starship.missile_current
+            starship.missile_fire_interval_seconds = m.get("fire_interval_seconds",
+                                                           starship.missile_fire_interval_seconds)
+            starship.missile_regen_interval_seconds = m.get("regen_interval_seconds",
+                                                            starship.missile_regen_interval_seconds)
 
         sh = self.data.get("shield", {})
         if sh and hasattr(starship, "shield_system"):

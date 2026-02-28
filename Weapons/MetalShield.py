@@ -23,7 +23,7 @@ class MetalShield(Bullet):
         self.orbit_radius: float = 40.0
         self.orbit_speed: float = 0.08  # radians per frame
         self.angle: float = 0.0
-        self.ki_use: int = 25
+        self.ki_cost: int = 25
 
         # state
         self.is_active: bool = True

@@ -4,6 +4,7 @@ from typing import Optional
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Bosses.BossLevelThree import BossLevelThree
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
@@ -11,6 +12,7 @@ from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.SpaceStation import SpaceStation
+from ScreenClasses.HomeBase import HomeBase
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 
@@ -45,6 +47,10 @@ class LevelThree(VerticalBattleScreen):
         self.disable_player_bullet_damage = True
         self.player_roped:bool = False
         self.trigger_boss3_countdown: bool = False
+        self.boss_death_timer = None
+        self.level_complete = False
+
+
 
     def start(self, state) -> None:
         self.load_space_station_object(state)
@@ -77,6 +83,14 @@ class LevelThree(VerticalBattleScreen):
 
     def update(self, state) -> None:
         # Create melee_hitbox FIRST (before enemies update)
+
+        if self.boss_death_timer is not None:
+            if self.boss_death_timer.is_ready():
+                state.starship.money += 30000
+                state.currentScreen = HomeBase(self.textbox)
+                state.currentScreen.start(state)
+                return
+
         self.starship.melee_hitbox = pygame.Rect(
             int(self.starship.x),
             int(self.starship.y),
@@ -86,6 +100,8 @@ class LevelThree(VerticalBattleScreen):
 
         self.starship.hitbox = pygame.Rect(0, 0, 0, 0)
         self.starship.update()
+        self.update_handle_level_complete(state)
+
         super().update(state)
         print(len(state.enemies))
         self.update_space_station_collision(state)
@@ -101,13 +117,16 @@ class LevelThree(VerticalBattleScreen):
                 self.spawn_level_3_boss(state)
 
         # Check if player is caught by rope
+
         for enemy in state.enemies:
-            if enemy.name == "BossLevelThree":
+            print("ENEMY COUNT =", len(state.enemies))
+            for i, e in enumerate(state.enemies):
+                print(i, type(e), getattr(e, "name", None), "id=", id(e))
+            if isinstance(enemy, BossLevelThree):
                 if getattr(enemy, "player_caught", False):
                     self.player_roped = True
                     print("LEVEL 3: ROPE IS TOUCHING PLAYER")
-                else:
-                    self.player_roped = False
+                break
 
         # Pull player towards screen corner if roped
         if self.player_roped:
@@ -439,6 +458,14 @@ class LevelThree(VerticalBattleScreen):
 
 
             # ... push-out logic ...
+
+    def update_handle_level_complete(self, state):
+        if not self.level_complete:
+            boss_alive = any(isinstance(enemy, BossLevelThree) for enemy in state.enemies)
+            if not boss_alive:
+                if self.boss_death_timer is None:
+                    self.boss_death_timer = Timer(2.0)
+                    self.boss_death_timer.reset()
 
     def spawn_enemy_drop(self, enemy, state) -> None:
         pass
@@ -778,6 +805,7 @@ class LevelThree(VerticalBattleScreen):
 
             if obj.name == "level_3_boss":
                 enemy = BossLevelThree()
+
             # elif obj.name == "bile_spitter":
             #     enemy = BileSpitter()
             # elif obj.name == "blade_spinner":
@@ -813,13 +841,17 @@ class LevelThree(VerticalBattleScreen):
         if self.boss_spawned:
             return
 
-        boss = BossLevelThree()
+        # pull existing boss from the list (do NOT create a new one)
+        boss = next((e for e in state.enemies if isinstance(e, BossLevelThree)), None)
+        if boss is None:
+            return
+
         boss.x = (self.window_width / self.camera.zoom) // 2 - boss.width // 2
         boss.y = self.camera.y + 40
         boss.update_hitbox()
         boss.camera = self.camera
         boss.target_player = self.starship
-        state.enemies.append(boss)
+
         self.boss_spawned = True
 
     def load_space_station_object(self,state):

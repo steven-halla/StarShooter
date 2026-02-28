@@ -55,9 +55,6 @@ class LevelFour(VerticalBattleScreen):
                 player_y = obj.y
                 break
 
-        if "Napalm Spread" not in state.starship.magic_inventory:
-            state.starship.magic_inventory.append("Napalm Spread")
-        state.starship.equipped_magic = ["Napalm Spread", None]
 
         self.starship.x = player_x
         self.starship.y = player_y

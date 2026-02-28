@@ -78,7 +78,6 @@ class LevelTwo(VerticalBattleScreen):
         self.side_rect_shield.update()
         self.update_side_ship()
         self.update_enemy_helper(state)
-        self.update_handle_level_complete(state)
         print(len(state.enemies))
         self.update_handle_level_complete(state)
 
