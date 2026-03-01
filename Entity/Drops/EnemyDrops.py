@@ -31,7 +31,7 @@ class EnemyDrop:
                 return cls(enemy.x, enemy.y, drop_type)
             return None
         if enemy_type == "SpinalRaptor":
-            if roll < 0.25:
+            if roll < 0.35:
                 drop_type = random.choice([
                     cls.DROP_SHIELD,
                     cls.DROP_MISSILE,
@@ -73,6 +73,7 @@ class EnemyDrop:
                 drop_type = random.choice([cls.DROP_KI])
                 return cls(enemy.x, enemy.y, drop_type)
             return None
+
         if enemy_type == "transport_worm":
             if roll < 0.25:
                 drop_type = random.choice([cls.DROP_HEALTH])

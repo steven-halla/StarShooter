@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="360" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="94">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="25" height="360" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="142">
  <tileset firstgid="1" source="../../../../spaceshootertiles.tsx"/>
  <layer id="1" name="hazard" width="25" height="360">
   <data encoding="csv">
@@ -746,29 +746,64 @@
   <object id="14" name="spinal_raptor" x="237.814" y="2120.91" width="16" height="16"/>
   <object id="80" name="spinal_raptor" x="213.724" y="2547.84" width="16" height="16"/>
   <object id="20" name="spinal_raptor" x="257.547" y="391.609" width="16" height="16"/>
-  <object id="22" name="spinal_raptor" x="-3.87801" y="427.459" width="16" height="16"/>
+  <object id="22" name="spinal_raptor" x="30.442" y="1151.04" width="16" height="16"/>
   <object id="11" name="spinal_raptor" x="86.6314" y="4135.51" width="16" height="16"/>
   <object id="15" name="spinal_raptor" x="122.217" y="2112.13" width="16" height="16"/>
   <object id="81" name="spinal_raptor" x="98.1271" y="2539.06" width="16" height="16"/>
-  <object id="36" name="tri_spitter" x="268.036" y="4469.58" width="16" height="16"/>
-  <object id="37" name="tri_spitter" x="78.3222" y="4593.16" width="16" height="16"/>
-  <object id="41" name="bile_spitter" x="53.085" y="3752.5" width="16" height="16"/>
-  <object id="43" name="bile_spitter" x="60.047" y="3641.11" width="16" height="16"/>
-  <object id="44" name="bile_spitter" x="134.703" y="3414.34" width="16" height="16"/>
+  <object id="36" name="fire_launcher" x="149.346" y="1998.54" width="16" height="16"/>
+  <object id="125" name="fire_launcher" x="16.3557" y="5317.57" width="16" height="16"/>
+  <object id="101" name="blade_spinner" x="32.0858" y="2550.52" width="16" height="16"/>
+  <object id="113" name="blade_spinner" x="105.016" y="2910.88" width="16" height="16"/>
+  <object id="96" name="slaver" x="193.676" y="3325.58" width="16" height="16"/>
+  <object id="132" name="fire_launcher" x="250.876" y="3738.85" width="16" height="16"/>
+  <object id="120" name="blade_spinner" x="217.986" y="1735.42" width="16" height="16"/>
+  <object id="37" name="slaver" x="82.6122" y="664.946" width="16" height="16"/>
+  <object id="41" name="slaver" x="44.505" y="3716.75" width="16" height="16"/>
+  <object id="124" name="fire_launcher" x="158.905" y="3924.1" width="16" height="16"/>
+  <object id="112" name="blade_spinner" x="23.055" y="3224.83" width="16" height="16"/>
+  <object id="95" name="kamikaze_drone" x="251.855" y="1177.07" width="16" height="16"/>
+  <object id="131" name="spinal_raptor" x="270.445" y="1477.37" width="16" height="16"/>
+  <object id="119" name="blade_spinner" x="177.495" y="1075.54" width="16" height="16"/>
+  <object id="43" name="fire_launcher" x="8.56695" y="3887.07" width="16" height="16"/>
+  <object id="128" name="fire_launcher" x="263.107" y="4464.79" width="16" height="16"/>
+  <object id="116" name="blade_spinner" x="165.867" y="2163.92" width="16" height="16"/>
+  <object id="97" name="spinal_raptor" x="165.867" y="1933.69" width="16" height="16"/>
+  <object id="133" name="spinal_raptor" x="12.857" y="3480.95" width="16" height="16"/>
+  <object id="109" name="slaver" x="207.337" y="1375.99" width="16" height="16"/>
+  <object id="121" name="slaver" x="217.347" y="5607.36" width="16" height="16"/>
+  <object id="44" name="fire_launcher" x="37.4629" y="4681.32" width="16" height="16"/>
+  <object id="129" name="fire_launcher" x="269.123" y="5094.59" width="16" height="16"/>
+  <object id="105" name="blade_spinner" x="220.503" y="3125.48" width="16" height="16"/>
+  <object id="117" name="blade_spinner" x="174.743" y="2333.26" width="16" height="16"/>
+  <object id="98" name="spinal_raptor" x="121.833" y="2656.44" width="16" height="16"/>
+  <object id="134" name="spinal_raptor" x="118.973" y="1406.62" width="16" height="16"/>
+  <object id="110" name="slaver" x="140.423" y="1849.92" width="16" height="16"/>
+  <object id="122" name="fire_launcher" x="73.2129" y="1266.48" width="16" height="16"/>
   <object id="82" name="kamikaze_drone" x="98.5685" y="3466.54" width="16" height="16"/>
-  <object id="88" name="kamikaze_drone" x="103.922" y="1833.77" width="16" height="16"/>
-  <object id="85" name="kamikaze_drone" x="206.973" y="3465.2" width="16" height="16"/>
-  <object id="89" name="kamikaze_drone" x="212.327" y="1832.44" width="16" height="16"/>
+  <object id="88" name="kamikaze_drone" x="201.162" y="1614.98" width="16" height="16"/>
+  <object id="85" name="kamikaze_drone" x="211.263" y="4692.14" width="16" height="16"/>
+  <object id="89" name="kamikaze_drone" x="36.4368" y="1706.6" width="16" height="16"/>
   <object id="83" name="kamikaze_drone" x="62.4336" y="3467.87" width="16" height="16"/>
   <object id="86" name="kamikaze_drone" x="67.787" y="1835.11" width="16" height="16"/>
-  <object id="90" name="tri_spitter" x="148.087" y="1463.06" width="16" height="16"/>
-  <object id="92" name="tri_spitter" x="166.823" y="1161.93" width="16" height="16"/>
-  <object id="91" name="tri_spitter" x="81.1703" y="1457.7" width="16" height="16"/>
-  <object id="93" name="tri_spitter" x="99.9069" y="1156.58" width="16" height="16"/>
+  <object id="90" name="slaver" x="75.1569" y="4470.35" width="16" height="16"/>
+  <object id="126" name="fire_launcher" x="2.22685" y="789.529" width="16" height="16"/>
+  <object id="92" name="fire_launcher" x="98.1829" y="261.029" width="16" height="16"/>
+  <object id="91" name="slaver" x="41.1303" y="3538.35" width="16" height="16"/>
+  <object id="127" name="slaver" x="35.4103" y="3053.58" width="16" height="16"/>
+  <object id="93" name="fire_launcher" x="194.287" y="235.659" width="16" height="16"/>
   <object id="84" name="kamikaze_drone" x="170.838" y="3466.54" width="16" height="16"/>
-  <object id="87" name="kamikaze_drone" x="176.192" y="1833.77" width="16" height="16"/>
-  <object id="45" name="bile_spitter" x="199.353" y="3152.94" width="16" height="16"/>
+  <object id="87" name="kamikaze_drone" x="243.402" y="1848.07" width="16" height="16"/>
+  <object id="45" name="slaver" x="22.0328" y="2420.78" width="16" height="16"/>
+  <object id="123" name="fire_launcher" x="219.373" y="2904.12" width="16" height="16"/>
+  <object id="111" name="blade_spinner" x="72.0829" y="2768.27" width="16" height="16"/>
+  <object id="94" name="kamikaze_drone" x="43.4828" y="307.237" width="16" height="16"/>
+  <object id="130" name="fire_launcher" x="33.4728" y="1531.32" width="16" height="16"/>
+  <object id="118" name="blade_spinner" x="197.923" y="743.388" width="16" height="16"/>
   <object id="75" name="level_5_boss" x="145.768" y="23.066" width="32" height="32"/>
+  <object id="135" name="rescue_pod" x="211.64" y="3563.56" width="16" height="16"/>
+  <object id="141" name="rescue_pod" x="121.55" y="1926.21" width="16" height="16"/>
+  <object id="140" name="rescue_pod" x="257.4" y="2747.03" width="16" height="16"/>
+  <object id="139" name="rescue_pod" x="41.47" y="1442.87" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="4" name="player">
   <object id="1" name="player" x="69.4965" y="5745.04" width="16" height="16"/>

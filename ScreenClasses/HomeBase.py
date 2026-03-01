@@ -67,17 +67,19 @@ class HomeBase(Screen):
 
         # shop levels data
         self.weapon_shop_levels = {
-            1: ["M. gun damage booster", "Missile speed booster", "Metal Shield"],
+            1: ["M. gun damage booster", "Metal Shield"],
             2: ["Wind Slicer", "Missile Count +1"],
             3: ["Barrel Coolant", "Napalm Spread"],
             4: ["Buster Cannon", "Britrate Missiles"]
+            # 5: ["Missile speed booster", ]
 
         }
         self.defense_shop_levels = {
-            1: ["Armor Plating", "Shield Generator", "Ki Efficiency chip"],
-            2: ["Shield Charger", "Speed up" ],
+            1: ["Armor Plating","Ki Efficiency chip"]  ,
+            2: [ "Speed up", "Shield Generator"],
             3: ["Ki Up ++" ,"Post hit +"],
             4: ["Greater hull", "Shield Generator +"]
+            # 5: ["Shield Charger",]
 
         }
         self.item_prices = {

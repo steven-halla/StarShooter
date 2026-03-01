@@ -4,11 +4,15 @@ from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelFive import BossLevelFive
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
+from Entity.Monsters.BladeSpinners import BladeSpinner
+from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.Ravager import Ravager
 from Entity.Monsters.RescuePod import RescuePod
+from Entity.Monsters.Slaver import Slaver
 from Entity.Monsters.SpinalRaptor import SpinalRaptor
 from Entity.Monsters.SpineLauncher import SpineLauncher
+from Entity.Monsters.TransportWorm import TransportWorm
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from SaveStates.SaveState import SaveState
@@ -56,9 +60,7 @@ class LevelFive(VerticalBattleScreen):
                 player_x = obj.x
                 player_y = obj.y
                 break
-        if "Buster Cannon" not in state.starship.magic_inventory:
-            state.starship.magic_inventory.append("Buster Cannon")
-        state.starship.equipped_magic = ["Buster Cannon", None]
+
 
         self.starship = state.starship
         self.starship.x = player_x
@@ -257,14 +259,28 @@ class LevelFive(VerticalBattleScreen):
             elif obj.name == "kamikaze_drone":
                 enemy = KamikazeDrone()
 
-            elif obj.name == "bile_spitter":
-                enemy = BileSpitter()
 
-            elif obj.name == "acid_launcher":
-                enemy = AcidLauncher()
+            elif obj.name == "slaver":
+                enemy = Slaver()
 
-            elif obj.name == "tri_spitter":
-                enemy = TriSpitter()
+            elif obj.name == "fire_launcher":
+                enemy = FireLauncher()
+
+
+            elif obj.name == "blade_spinner":
+                enemy = BladeSpinner()
+            # put this where you currently have: print(len(state.enemies))
+
+            counts = {}
+            for e in state.enemies:
+                name = getattr(e, "name", type(e).__name__)
+                if name in counts:
+                    counts[name] += 1
+                else:
+                    counts[name] = 1
+
+            for name in counts:
+                print(name, "=", counts[name])
 
             if enemy is None:
                 continue

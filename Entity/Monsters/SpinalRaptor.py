@@ -30,8 +30,8 @@ class SpinalRaptor(Enemy):
         self.enemy_image = self.bile_spitter_image
 
         # stats
-        self.enemyHealth: float = 100.0
-        self.maxHealth: float = 100.0
+        self.enemyHealth: float = 20.0
+        self.maxHealth: float = 20.0
         self.exp: int = 1
         self.credits: int = 5
 
@@ -123,7 +123,7 @@ class SpinalRaptor(Enemy):
                 # ENTER POUNCE
                 if (
                     not self._pounce_active
-                    and dist <= 100
+                    and dist <= 80
                     and now >= self._pounce_cooldown_until
                 ):
                     self._pounce_active = True
@@ -136,7 +136,7 @@ class SpinalRaptor(Enemy):
 
                 speed = self.moveSpeed
                 if self._pounce_active:
-                    speed = self.moveSpeed * 3
+                    speed = self.moveSpeed * 2.5
 
                 self.x += (dx / dist) * speed
                 self.y += (dy / dist) * speed
