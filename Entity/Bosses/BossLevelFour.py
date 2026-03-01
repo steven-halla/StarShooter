@@ -23,8 +23,8 @@ class BossLevelFour(Enemy):
         self.fire_interval_ms: int = 4000
         self.last_shot_time: int = 0
         self.speed: float = 0.4
-        self.enemyHealth: float = 175.0
-        self.maxHealth: float = 175.0
+        self.enemyHealth: float = 100.0
+        self.maxHealth: float = 100.0
         self.exp: int = 1
         self.credits: int = 5
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
@@ -135,13 +135,20 @@ class BossLevelFour(Enemy):
         # -------------------------------------------------
         # SHIELD TOGGLE
         # -------------------------------------------------
+        # -------------------------------------------------
+        # SHIELD TOGGLE
+        # -------------------------------------------------
         if now - self.last_shield_toggle_time >= self.shield_toggle_interval_ms:
             self.shield_active = not self.shield_active
             self.last_shield_toggle_time = now
 
             if self.shield_active:
+                # shield ON duration (tweak if you want)
                 self.shield_hp = self.max_shield_hp
                 self.shield_toggle_interval_ms = random.choice((2000, 3500))
+            else:
+                # shield OFF duration: minimum 4 seconds
+                self.shield_toggle_interval_ms = random.choice((4000, 5500))
 
         # -------------------------------------------------
         # TRIPLE SHOT WHEN SHIELD DOWN
@@ -156,9 +163,9 @@ class BossLevelFour(Enemy):
         # -------------------------------------------------
         if self.aimed_shot_timer.is_ready():
             self.shoot_single_bullet_aimed_at_player(
-                bullet_speed=3.0,
-                bullet_width=18,
-                bullet_height=18,
+                bullet_speed=2.5,
+                bullet_width=17,
+                bullet_height=17,
                 bullet_color=self.bulletColor,
                 bullet_damage=25,
                 state=state
