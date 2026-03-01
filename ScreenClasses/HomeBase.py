@@ -35,6 +35,8 @@ class HomeBase(Screen):
             "Missile Count +1": "Increases your max missile count.",
             "Barrel Coolant": "increase ROF of machine gun",
             "Napalm": "Ki attack that launches Pyrithium fluids that turns the insides into liquid",
+            "Buster Cannon":"Ki Attack that fires molten vibribulated plasma which poisions the blood stream.rapid fire and charged shot.",
+            "Britrate Missiles": "Creates and rapidly accelerates the growth of living tissue upon contact for increased damage"
         }
         self.defense_shop_descriptions: dict[str, str] = {
             "Armor Plating": "adds +50 HP to hull.",
@@ -44,6 +46,11 @@ class HomeBase(Screen):
             "Speed up": "Ship moves faster.",
             "Ki Up ++": "Adds 50 KI to user",
             "Post hit +": "adds an extra +25% to the timer of post hit emergency shields",
+            "Shield Generator +": "Provides + 50 shields",
+            "Greater hull": "Provides + 25 Hull Points and +1 speed"
+
+
+
         }
         # Plasma hot enough to 'ghost ' those hit with a charged shot
         self.menu_padding_x: int = 45
@@ -62,12 +69,16 @@ class HomeBase(Screen):
         self.weapon_shop_levels = {
             1: ["M. gun damage booster", "Missile speed booster", "Metal Shield"],
             2: ["Wind Slicer", "Missile Count +1"],
-            3: ["Barrel Coolant", "Napalm Spread"]
+            3: ["Barrel Coolant", "Napalm Spread"],
+            4: ["Buster Cannon", "Britrate Missiles"]
+
         }
         self.defense_shop_levels = {
             1: ["Armor Plating", "Shield Generator", "Ki Efficiency chip"],
             2: ["Shield Charger", "Speed up" ],
-            3: ["Ki Up ++" ,"Post hit +"]
+            3: ["Ki Up ++" ,"Post hit +"],
+            4: ["Greater hull", "Shield Generator +"]
+
         }
         self.item_prices = {
             "M. gun damage booster": 5000,
@@ -83,7 +94,11 @@ class HomeBase(Screen):
             "Barrel Coolant": 15000,
             "Napalm Spread": 15000,
             "Ki Up ++": 15000,
-            "Post hit +": 15000
+            "Post hit +": 15000,
+            "Shield Generator +": 15000,
+            "Greater hull": 15000,
+            "Buster Cannon": 15000,
+            "Britrate Missiles": 15000
         }
 
         # input locks
@@ -359,6 +374,12 @@ class HomeBase(Screen):
                         elif item == "Napalm Spread":
                             state.starship.magic_inventory.append(item)
                             state.starship.equipped_magic[0] = item
+                        elif item == "Buster Cannon":
+                            state.starship.buster_cannon = True
+                            print("Buster Cannon equipped")
+                        elif item == "Britrate Missiles":
+                            state.starship.missile_damage += 10
+                            print("Britrate Missiles equipped")
 
                         if hasattr(state.starship, "apply_upgrades"):
                             state.starship.apply_upgrades()
@@ -396,7 +417,7 @@ class HomeBase(Screen):
                             state.starship.player_max_ki += 25
                             print("I bought better ki amount")
                         elif item == "Shield Charger":
-                            state.starship.shield_system.recharge_rate_shield += 0.2
+                            state.starship.shield_system.recharge_rate_shield += 0.08
                             print("I bought faster shield recharge")
                         elif item == "Speed up":
                             state.starship.speed += 0.6
@@ -408,6 +429,17 @@ class HomeBase(Screen):
                         elif item == "Post hit +":
                             state.starship.post_hit_invincibility_duration += .5
                             print(" improved emergency shields ")
+                        elif item == "Shield Generator +":
+                            state.starship.current_shield += 50
+                            state.starship.max_shield += 50
+                            print("I bought better shield amount")
+                        elif item == "Greater hull":
+                            state.starship.shipHealth += 25
+                            state.starship.shipHealthMax += 25
+                            state.starship.speed += 0.6
+
+
+
 
                         if hasattr(state.starship, "apply_upgrades"):
                             state.starship.apply_upgrades()

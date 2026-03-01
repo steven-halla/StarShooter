@@ -30,6 +30,16 @@ class EnemyDrop:
                 ])
                 return cls(enemy.x, enemy.y, drop_type)
             return None
+        if enemy_type == "SpinalRaptor":
+            if roll < 0.25:
+                drop_type = random.choice([
+                    cls.DROP_SHIELD,
+                    cls.DROP_MISSILE,
+                    cls.DROP_KI,
+                ])
+                return cls(enemy.x, enemy.y, drop_type)
+            return None
+
 
         if enemy_type == "FireLauncher":
             if roll < 0.20:
@@ -147,7 +157,7 @@ class EnemyDrop:
                 )
 
         elif self.drop_type == self.DROP_KI:
-            starship.player_ki = min(starship.player_ki + 15, starship.player_max_ki)
+            starship.player_ki = min(starship.player_ki + 25, starship.player_max_ki)
 
     def update(self, starship, drop_list, camera=None) -> None:
         if not self.is_active:

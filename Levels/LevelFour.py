@@ -1,6 +1,7 @@
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Bosses.BossLevelFour import BossLevelFour
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
@@ -9,6 +10,7 @@ from Entity.Monsters.KamikazeDrone import KamikazeDrone
 from Entity.Monsters.Slaver import Slaver
 from Entity.Monsters.TransportWorm import TransportWorm
 from Entity.Monsters.TriSpitter import TriSpitter
+from ScreenClasses.HomeBase import HomeBase
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 class LevelFour(VerticalBattleScreen):
@@ -39,6 +41,9 @@ class LevelFour(VerticalBattleScreen):
         self.level_complete = False
         self.worms_saved: list = []
         self.touched_worms: list[TransportWorm] = []
+        # put these in __init__
+        self.level_complete_timer: Timer | None = None
+        self.level_complete_delay_seconds: float = 3.0
 
 
     def start(self, state) -> None:
@@ -66,6 +71,21 @@ class LevelFour(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
+        # replace your boss_death_timer block with this in update()
+
+        # when all enemies are gone, start (or keep) a 3-second timer, then advance
+        if len(state.enemies) == 0:
+            if self.level_complete_timer is None:
+                self.level_complete_timer = Timer(self.level_complete_delay_seconds)
+                self.level_complete_timer.reset()
+            elif self.level_complete_timer.is_ready():
+                state.starship.money += 30000
+                state.currentScreen = HomeBase(self.textbox)
+                state.currentScreen.start(state)
+                return
+        else:
+            # if enemies come back (respawns), cancel the timer
+            self.level_complete_timer = None
         active_worms, creep_found_on_screen, now, screen_left, screen_top = self.update_worm_helper(state)
         self.update_creep_helper(active_worms, creep_found_on_screen, now, screen_left, screen_top, state)
 
