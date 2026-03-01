@@ -991,38 +991,17 @@ class VerticalBattleScreen:
         # -------------------------
         # BUSTER CANNON
         # -------------------------
-        # -------------------------
-        # BUSTER CANNON (charge + Ki gate on release)
-        # -------------------------
         if state.starship.equipped_magic[0] == "Buster Cannon" and not self.playerDead:
-            bc = state.starship.buster_cannon
-
-            # holding button = charge
             if self.controller.magic_1_button:
-                if not bc.is_charging:
-                    bc.start_charge()
-                bc.update()
+                if not state.starship.buster_cannon.is_charging:
+                    state.starship.buster_cannon.start_charge()
+                state.starship.buster_cannon.update()
+            elif state.starship.buster_cannon.is_charging:
+                self.player_bullets.extend(
+                    state.starship.buster_cannon.fire_buster_cannon()
+                )
 
-            # release button = fire (but only if timer ready + enough Ki)
-            # release = fire (timer ready + enough Ki)
-            elif bc.is_charging:
-                if bc.charge_timer.is_ready() and state.starship.player_ki >= bc.ki_cost:
-                    state.starship.player_ki -= bc.ki_cost
-                    self.player_bullets.extend(bc.fire_buster_cannon())
-                    bc.charge_timer.reset()
-                else:
-                    bc.is_charging = False
-        # if state.starship.equipped_magic[0] == "Buster Cannon" and not self.playerDead:
-        #     if self.controller.magic_1_button:
-        #         if not state.starship.buster_cannon.is_charging:
-        #             state.starship.buster_cannon.start_charge()
-        #         state.starship.buster_cannon.update()
-        #     elif state.starship.buster_cannon.is_charging:
-        #         self.player_bullets.extend(
-        #             state.starship.buster_cannon.fire_buster_cannon()
-        #         )
-        #
-        # # -------------------------
+        # -------------------------
         # PLASMA BLASTER (single beam)
         # -------------------------
         if state.starship.equipped_magic[0] == "Plasma Blaster" and not self.playerDead:

@@ -9,6 +9,8 @@ class BusterCanon(Bullet):
         # -----------------
         # BASE SHOT STATS
         # -----------------
+        self.ki_cost = 1
+        self.charged_ki_cost = 5
         self.base_damage = 11
         self.base_speed = 3
         self.base_width = 12
