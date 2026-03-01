@@ -33,16 +33,16 @@ class BossLevelFive(Enemy):
         # -------------------------
         # FIRING TIMERS
         # -------------------------
-        self.fire_interval_ms = 1000
+        self.fire_interval_ms = 1500
         self.last_shot_time = pygame.time.get_ticks()
 
-        self.triple_fire_interval_ms = 1500
+        self.triple_fire_interval_ms = 2000
         self.last_triple_shot_time = pygame.time.get_ticks()
 
         # -------------------------
         # MOVEMENT
         # -------------------------
-        self.moveSpeed = 4.0
+        self.moveSpeed = 3.6
         self.move_interval_ms = 1200
         self.last_move_toggle = pygame.time.get_ticks()
         self.move_direction = random.choice([-1, 1])
@@ -55,7 +55,7 @@ class BossLevelFive(Enemy):
         self.exp = 5
         self.credits = 50
 
-        self.target_update_interval_ms = 3000
+        self.target_update_interval_ms = 3500
         self.last_target_update = pygame.time.get_ticks()
         self.target_x = self.x
 
@@ -97,8 +97,8 @@ class BossLevelFive(Enemy):
         if now - self.last_triple_shot_time >= self.triple_fire_interval_ms:
             self.splatter_cannon(
                 bullet_speed=1.3,
-                bullet_width=21,
-                bullet_height=21,
+                bullet_width=20,
+                bullet_height=20,
                 bullet_color=self.bulletColor,
                 bullet_damage=40,
                 low_rand_range=-0.40,

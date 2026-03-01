@@ -15,7 +15,7 @@ class NapalmSpread(Bullet):
         self.weapon_name: str = "Napalm Spread"
 
         self.width: int = 11
-        self.ki_cost: int = 25
+        self.ki_cost: int = 20
         self.height: int = 11
 
         self.damage: int = 50

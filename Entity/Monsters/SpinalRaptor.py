@@ -73,7 +73,7 @@ class SpinalRaptor(Enemy):
         dx = state.starship.x - self.x
         dy = state.starship.y - self.y
         dist = (dx * dx + dy * dy) ** 0.5
-        if dist <= 100:
+        if dist <= 80:
             self.attack_timer.reset()
 
         self.moveAI(state)

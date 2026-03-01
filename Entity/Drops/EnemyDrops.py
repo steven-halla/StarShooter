@@ -158,7 +158,7 @@ class EnemyDrop:
                 )
 
         elif self.drop_type == self.DROP_KI:
-            starship.player_ki = min(starship.player_ki + 25, starship.player_max_ki)
+            starship.player_ki = min(starship.player_ki + 15, starship.player_max_ki)
 
     def update(self, starship, drop_list, camera=None) -> None:
         if not self.is_active:
