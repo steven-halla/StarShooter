@@ -85,9 +85,9 @@ class BusterCanon(Bullet):
     # -----------------
     # FIRE
     # -----------------
-    def fire_buster_cannon(self) -> list:
+    def fire_buster_cannon(self) -> tuple[list, int]:
         if not self.can_fire():
-            return []
+            return [], 0
 
         self.last_fire_time = pygame.time.get_ticks() / 1000.0
 
@@ -96,16 +96,19 @@ class BusterCanon(Bullet):
 
         projectile = Bullet(bullet_x, bullet_y)
 
+        cost = 0
         if self.is_fully_charged():
             projectile.width = self.charged_width
             projectile.height = self.charged_height
             projectile.damage = self.charged_damage
             projectile.bullet_speed = self.charged_speed
+            cost = self.charged_ki_cost
         else:
             projectile.width = self.base_width
             projectile.height = self.base_height
             projectile.damage = self.base_damage
             projectile.bullet_speed = self.base_speed
+            cost = self.ki_cost
 
         projectile.vx = 0.0
         projectile.vy = -1.0
@@ -114,7 +117,7 @@ class BusterCanon(Bullet):
 
         self.stop_charge()
 
-        return [projectile]
+        return [projectile], cost
 
     # -----------------
     # UPDATE

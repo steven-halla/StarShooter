@@ -366,9 +366,11 @@ class MapTester(VerticalBattleScreen):
                     state.starship.buster_cannon.start_charge()
                 state.starship.buster_cannon.update()
             elif state.starship.buster_cannon.is_charging:
-                state.player_bullets.extend(
-                    state.starship.buster_cannon.fire_buster_cannon()
-                )
+                bullets, cost = state.starship.buster_cannon.fire_buster_cannon()
+                if bullets:
+                    if state.starship.player_ki >= cost:
+                        state.starship.player_ki -= cost
+                        state.player_bullets.extend(bullets)
 
         # -------------------------
         # PLASMA BLASTER (single beam)
