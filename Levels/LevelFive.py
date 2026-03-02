@@ -1,6 +1,7 @@
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Bosses.BossLevelFive import BossLevelFive
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
@@ -16,6 +17,7 @@ from Entity.Monsters.TransportWorm import TransportWorm
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from SaveStates.SaveState import SaveState
+from ScreenClasses.HomeBase import HomeBase
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 class LevelFive(VerticalBattleScreen):
@@ -29,7 +31,8 @@ class LevelFive(VerticalBattleScreen):
         self.map_height_tiles: int = self.tiled_map.height
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400 # y position of map
         window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
-        self.camera_y = self.WORLD_HEIGHT - window_height # look at bottom of map
+        # self.camera_y = self.WORLD_HEIGHT - window_height # look at bottom of map
+        self.camera_y = 100 # look at bottom of map
         # self.camera_y = 100
         self.camera.world_height = self.WORLD_HEIGHT
         # self.camera.y = float(self.camera_y)
@@ -49,6 +52,8 @@ class LevelFive(VerticalBattleScreen):
         self.fire_row_length = 0
         self.MAX_FIRE_ROW_LENGTH = 27
         self.MAX_FIRE_ROWS = 20
+        self.boss_death_timer = None
+
 
     def start(self, state) -> None:
         player_x = None
@@ -73,16 +78,33 @@ class LevelFive(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
+        print(len(state.enemies))
+        self.update_handle_level_complete(state)
+
         self.update_enemy_helper(state)
         self.update_rescue_pod_helper(state)
         self.update_hazard_square(state,current_time_ms=500)
         self.update_hazard_damage(state.DISPLAY.get_height())
+        if self.boss_death_timer is not None:
+            if self.boss_death_timer.is_ready():
+                state.starship.money += 40000
+                state.currentScreen = HomeBase(self.textbox)
+                state.currentScreen.start(state)
+                return
 
     def draw(self, state):
         super().draw(state)
         self.draw_player_and_enemy(state)
         self.draw_hazard_square(state.DISPLAY, self.camera)
         pygame.display.flip()
+
+    def update_handle_level_complete(self, state):
+        if not self.level_complete:
+            boss_alive = any(isinstance(enemy, BossLevelFive) for enemy in state.enemies)
+            if not boss_alive:
+                if self.boss_death_timer is None:
+                    self.boss_death_timer = Timer(2.0)
+                    self.boss_death_timer.reset()
 
     def update_hazard_square(self,state, current_time_ms: int) -> None:
         if not self.is_boss_on_screen(state):

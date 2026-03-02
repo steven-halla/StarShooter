@@ -181,11 +181,11 @@ class Slaver(Enemy):
                         and now - self.last_bile_shot_time >= self.bile_burst_delay_ms
                 ):
                     self.splatter_cannon(
-                        bullet_speed=3.5,
+                        bullet_speed=0.5,
                         bullet_width=10,
                         bullet_height=10,
                         bullet_color=(255, 50, 50),
-                        bullet_damage=25,
+                        bullet_damage=50,
                         low_rand_range=-0.2,
                         high_rand_range=0.2,
                         bullet_count=5,
@@ -327,3 +327,6 @@ class Slaver(Enemy):
 
             case _:
                 pass
+
+    def clamp_vertical(self) -> None:
+        pass

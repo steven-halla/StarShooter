@@ -11,7 +11,7 @@ class BusterCanon(Bullet):
         # -----------------
         self.ki_cost = 1
         self.charged_ki_cost = 4
-        self.base_damage = 5
+        self.base_damage = 2
         self.base_speed = 3
         self.base_width = 12
         self.base_height = 12
@@ -25,8 +25,8 @@ class BusterCanon(Bullet):
         # -----------------
         self.charged_damage = 35
         self.charged_speed = 3.0
-        self.charged_width = self.base_width * 4
-        self.charged_height = self.base_height * 4
+        self.charged_width = self.base_width * 2
+        self.charged_height = self.base_height * 2
         self.charge_time_required = 2.0  # seconds
 
         # -----------------
@@ -91,18 +91,19 @@ class BusterCanon(Bullet):
 
         self.last_fire_time = pygame.time.get_ticks() / 1000.0
 
-        bullet_x = self.x + self.width // 2
-        bullet_y = self.y
+        projectile = Bullet(self.x, self.y)
 
-        projectile = Bullet(bullet_x, bullet_y)
-
-        cost = 0
         if self.is_fully_charged():
-            projectile.width = self.charged_width
+            projectile.width = self.charged_width - 5
             projectile.height = self.charged_height
             projectile.damage = self.charged_damage
             projectile.bullet_speed = self.charged_speed
             cost = self.charged_ki_cost
+
+            # CHARGED X (center the big shot on the same center-line as the base shot)
+            center_line_x = self.x + (self.base_width / 2)
+            projectile_x = center_line_x - (projectile.width / 2)
+
         else:
             projectile.width = self.base_width
             projectile.height = self.base_height
@@ -110,15 +111,19 @@ class BusterCanon(Bullet):
             projectile.bullet_speed = self.base_speed
             cost = self.ki_cost
 
+            # NORMAL X (your original tuning: base center minus 12)
+            projectile_x = (self.x + (self.base_width / 2)) - 12
+
+        projectile.x = int(projectile_x)
+        projectile.y = int(self.y)
+
         projectile.vx = 0.0
         projectile.vy = -1.0
         projectile.camera = self.camera
         projectile.update_rect()
 
         self.stop_charge()
-
         return [projectile], cost
-
     # -----------------
     # UPDATE
     # -----------------

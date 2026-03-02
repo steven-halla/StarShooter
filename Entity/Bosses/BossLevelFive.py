@@ -13,6 +13,7 @@ class BossLevelFive(Enemy):
         super().__init__()
         self.mover: MoveRectangle = MoveRectangle()
         self.id = 0
+        name = "BossLevelFive"
 
         # -------------------------
         # APPEARANCE
@@ -36,14 +37,14 @@ class BossLevelFive(Enemy):
         self.fire_interval_ms = 1500
         self.last_shot_time = pygame.time.get_ticks()
 
-        self.triple_fire_interval_ms = 2000
+        self.triple_fire_interval_ms = 3200
         self.last_triple_shot_time = pygame.time.get_ticks()
 
         # -------------------------
         # MOVEMENT
         # -------------------------
-        self.moveSpeed = 3.6
-        self.move_interval_ms = 1200
+        self.moveSpeed = 3.4
+        self.move_interval_ms = 1000
         self.last_move_toggle = pygame.time.get_ticks()
         self.move_direction = random.choice([-1, 1])
 

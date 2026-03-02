@@ -15,7 +15,7 @@ class SpinalRaptor(Enemy):
         # movement
         self.mover: MoveRectangle = MoveRectangle()
         self.move_direction: int = random.choice([-1, 1])
-        self.moveSpeed: float = 1.0
+        self.moveSpeed: float = 1.2
         self.edge_padding: int = 0
 
         # identity / visuals

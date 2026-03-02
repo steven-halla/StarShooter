@@ -57,3 +57,6 @@ class RescuePod(Enemy):
         hb_h = int(self.hitbox.height * camera.zoom)
 
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
+
+    def clamp_vertical(self) -> None:
+        pass

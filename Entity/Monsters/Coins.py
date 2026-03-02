@@ -100,3 +100,6 @@ class Coins(Enemy):
         if player and self.hitbox.colliderect(player.hitbox):
             self.is_active = False
             self.enemyHealth = 0
+
+    def clamp_vertical(self) -> None:
+        pass

@@ -1,13 +1,13 @@
 {
   "version": 1,
   "location": {
-    "screen": "Level 5",
-    "level_id": 5,
+    "screen": "HOME_BASE",
+    "level_id": null,
     "spawn_id": null
   },
   "player": {
     "shipHealth": 25,
-    "money": 0,
+    "money": 40000,
     "shipHealthMax": 25,
     "equipped_magic": [
       "Buster Cannon",
@@ -40,7 +40,7 @@
     "bullet_speed": 1.5,
     "rate_of_fire": 0.5,
     "max": 2,
-    "current": 2,
+    "current": 0,
     "fire_interval_seconds": 0.5,
     "regen_interval_seconds": 10.0
   },
