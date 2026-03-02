@@ -36,7 +36,8 @@ class HomeBase(Screen):
             "Barrel Coolant": "increase ROF of machine gun",
             "Napalm": "Ki attack that launches Pyrithium fluids that turns the insides into liquid",
             "Buster Cannon":"Ki Attack that fires molten vibribulated plasma which poisions the blood stream.rapid fire and charged shot.",
-            "Britrate Missiles": "Creates and rapidly accelerates the growth of living tissue upon contact for increased damage"
+            "Britrate Missiles": "Creates and rapidly accelerates the growth of living tissue upon contact for increased damage",
+            "Bullet Caliber +": "Increases bullet caliber by 25%."
         }
         self.defense_shop_descriptions: dict[str, str] = {
             "Armor Plating": "adds +50 HP to hull.",
@@ -47,7 +48,8 @@ class HomeBase(Screen):
             "Ki Up ++": "Adds 50 KI to user",
             "Post hit +": "adds an extra +25% to the timer of post hit emergency shields",
             "Shield Generator +": "Provides + 50 shields",
-            "Greater hull": "Provides + 25 Hull Points and +1 speed"
+            "Greater hull": "Provides + 25 Hull Points and +1 speed",
+            "Enemy Drop +": "Increase the value of enemy drops(except missiles)"
 
 
 
@@ -70,28 +72,26 @@ class HomeBase(Screen):
             1: ["M. gun damage booster", "Metal Shield"],
             2: ["Wind Slicer", "Missile Count +1"],
             3: ["Barrel Coolant", "Napalm Spread"],
-            4: ["Buster Cannon", "Britrate Missiles"]
-            # 5: ["Missile speed booster", ]
+            4: ["Buster Cannon", "Britrate Missiles"],
+            5: ["Missile speed booster", "Bullet Caliber +"]
 
         }
         self.defense_shop_levels = {
             1: ["Armor Plating","Ki Efficiency chip"]  ,
             2: [ "Speed up", "Shield Generator"],
             3: ["Ki Up ++" ,"Post hit +"],
-            4: ["Greater hull", "Shield Generator +"]
-            # 5: ["Shield Charger",]
+            4: ["Greater hull", "Shield Generator +"],
+            5: ["Shield Charger", "Enemy Drop +"]
 
         }
         self.item_prices = {
             "M. gun damage booster": 5000,
-            "Missile speed booster": 5000,
             "Metal Shield": 5000,
             "Wind Slicer": 10000,
             "Missile Count +1": 10000,
             "Armor Plating": 5000,
             "Shield Generator": 5000,
             "Ki Efficiency chip": 5000,
-            "Shield Charger": 10000,
             "Speed up": 10000,
             "Barrel Coolant": 15000,
             "Napalm Spread": 15000,
@@ -100,7 +100,12 @@ class HomeBase(Screen):
             "Shield Generator +": 15000,
             "Greater hull": 15000,
             "Buster Cannon": 15000,
-            "Britrate Missiles": 15000
+            "Britrate Missiles": 15000,
+            "Bullet Caliber +": 20000,
+            "Enemy Drop +": 20000,
+            "Missile speed booster": 20000,
+            "Shield Charger": 20000
+
         }
 
         # input locks
@@ -382,6 +387,10 @@ class HomeBase(Screen):
                         elif item == "Britrate Missiles":
                             state.starship.missile_damage += 10
                             print("Britrate Missiles equipped")
+                        elif item == "Bullet Caliber +":
+                            state.starship.machine_gun_width += 1
+                            state.starship.machine_gun_height += 1
+                            print("I bought better bullets")
 
                         if hasattr(state.starship, "apply_upgrades"):
                             state.starship.apply_upgrades()
@@ -439,6 +448,8 @@ class HomeBase(Screen):
                             state.starship.shipHealth += 25
                             state.starship.shipHealthMax += 25
                             state.starship.speed += 0.6
+                        elif item == "Enemy Drop +":
+                            print(" i got bettter enemy drops")
 
 
 

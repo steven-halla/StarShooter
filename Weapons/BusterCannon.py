@@ -10,9 +10,9 @@ class BusterCanon(Bullet):
         # BASE SHOT STATS
         # -----------------
         self.ki_cost = 1
-        self.charged_ki_cost = 4
+        self.charged_ki_cost = 10
         self.base_damage = 2
-        self.base_speed = 3
+        self.base_speed = 4
         self.base_width = 12
         self.base_height = 12
 
@@ -27,7 +27,7 @@ class BusterCanon(Bullet):
         self.charged_speed = 3.0
         self.charged_width = self.base_width * 2
         self.charged_height = self.base_height * 2
-        self.charge_time_required = 2.0  # seconds
+        self.charge_time_required = 3.0  # seconds
 
         # -----------------
         # MOVEMENT VECTOR
@@ -60,7 +60,7 @@ class BusterCanon(Bullet):
         # -----------------
         # BURST PATTERN (3 shots in 2s -> lockout 2s)
         # -----------------
-        self.burst_window_s: float = 2.0
+        self.burst_window_s: float = 2.3
         self.burst_max_shots: int = 3
         self.burst_lockout_s: float = 2.0
 

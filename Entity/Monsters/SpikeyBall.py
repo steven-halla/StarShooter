@@ -88,15 +88,4 @@ class SpikeyBall(Enemy):
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
 
     def _clamp_vertical(self) -> None:
-        if self.camera is None:
-            return
-
-        gameplay_bottom = (
-                self.camera.y
-                + (self.camera.window_height / self.camera.zoom)
-                + 20
-        )
-
-        if self.y + self.height >= gameplay_bottom:
-            self.is_active = False
-            self.enemyHealth = 0
+        pass

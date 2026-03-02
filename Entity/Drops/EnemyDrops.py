@@ -136,14 +136,19 @@ class EnemyDrop:
     def update_rect(self) -> None:
         self.rect.topleft = (int(self.x), int(self.y))
 
-    def apply_effect(self, starship) -> None:
+    def apply_effect(self,state,  starship) -> None:
         if self.drop_type == self.DROP_HEALTH:
-            starship.shipHealth = min(starship.shipHealth + 25, starship.shipHealthMax)
+            bonus = 25 if state.starship.upgrade_chips.contains("Enemy Drop +") else 0
+            starship.shipHealth = min(starship.shipHealth + bonus, starship.shipHealthMax)
 
         elif self.drop_type == self.DROP_SHIELD:
             if hasattr(starship, "shield_system"):
+                bonus = 25
+                if hasattr(state.starship, "upgrade_chips") and "Enemy Drop +" in state.starship.upgrade_chips:
+                    bonus += 25  # total 50 when chip is owned
+
                 starship.shield_system.current_shield_points = min(
-                    starship.shield_system.current_shield_points + 15,
+                    starship.shield_system.current_shield_points + bonus,
                     starship.shield_system.max_shield_points,
                 )
                 if hasattr(starship, "current_shield"):
@@ -157,8 +162,10 @@ class EnemyDrop:
                     starship.missile.max_missiles,
                 )
 
+
         elif self.drop_type == self.DROP_KI:
-            starship.player_ki = min(starship.player_ki + 15, starship.player_max_ki)
+            bonus = 10 if state.starship.upgrade_chips.contains("Enemy Drop +") else 0
+            starship.player_ki = min(starship.player_ki + bonus, starship.player_max_ki)
 
     def update(self, starship, drop_list, camera=None) -> None:
         if not self.is_active:
