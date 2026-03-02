@@ -57,12 +57,32 @@ class BusterCanon(Bullet):
 
         self.update_rect()
 
-    # -----------------
+        # -----------------
+        # BURST PATTERN (3 shots in 2s -> lockout 2s)
+        # -----------------
+        self.burst_window_s: float = 2.0
+        self.burst_max_shots: int = 3
+        self.burst_lockout_s: float = 2.0
+
+        self.burst_window_start: float | None = None
+        self.burst_shots_in_window: int = 0
+        self.lockout_until: float = 0.0
+        self.is_locked_out: bool = False
+        # -----------------
     # RATE OF FIRE CHECK
     # -----------------
     def can_fire(self) -> bool:
         now = pygame.time.get_ticks() / 1000.0
+
+        # NEW: burst lockout gate (after 3 shots in 2.0s)
+        if self.is_locked_out:
+            return False
+
+        # existing ROF gate
         return (now - self.last_fire_time) >= self.rate_of_fire
+    # def can_fire(self) -> bool:
+    #     now = pygame.time.get_ticks() / 1000.0
+    #     return (now - self.last_fire_time) >= self.rate_of_fire
 
     # -----------------
     # CHARGE CONTROL
@@ -82,6 +102,20 @@ class BusterCanon(Bullet):
         elapsed = (pygame.time.get_ticks() - self.charge_start_time) / 1000.0
         return elapsed >= self.charge_time_required
 
+    def register_shot_for_burst_pattern(self) -> None:
+        now = pygame.time.get_ticks() / 1000.0
+
+        # start / reset burst window
+        if self.burst_window_start is None or (now - self.burst_window_start) > self.burst_window_s:
+            self.burst_window_start = now
+            self.burst_shots_in_window = 0
+
+        self.burst_shots_in_window += 1
+
+        # if 3 shots happened inside the window -> lockout
+        if self.burst_shots_in_window >= self.burst_max_shots:
+            self.is_locked_out = True
+            self.lockout_until = self.burst_window_start + self.burst_window_s
     # -----------------
     # FIRE
     # -----------------
@@ -91,19 +125,18 @@ class BusterCanon(Bullet):
 
         self.last_fire_time = pygame.time.get_ticks() / 1000.0
 
-        projectile = Bullet(self.x, self.y)
+        # ✅ NEW: count this shot toward the 3-in-2.0s burst pattern
+        self.register_shot_for_burst_pattern()
 
+        projectile = Bullet(0, 0)
+
+        cost = 0
         if self.is_fully_charged():
-            projectile.width = self.charged_width - 5
+            projectile.width = self.charged_width
             projectile.height = self.charged_height
             projectile.damage = self.charged_damage
             projectile.bullet_speed = self.charged_speed
             cost = self.charged_ki_cost
-
-            # CHARGED X (center the big shot on the same center-line as the base shot)
-            center_line_x = self.x + (self.base_width / 2)
-            projectile_x = center_line_x - (projectile.width / 2)
-
         else:
             projectile.width = self.base_width
             projectile.height = self.base_height
@@ -111,11 +144,9 @@ class BusterCanon(Bullet):
             projectile.bullet_speed = self.base_speed
             cost = self.ki_cost
 
-            # NORMAL X (your original tuning: base center minus 12)
-            projectile_x = (self.x + (self.base_width / 2)) - 12
-
-        projectile.x = int(projectile_x)
-        projectile.y = int(self.y)
+        # Center the projectile on the cannon's position (which is the ship's center)
+        projectile.x = self.x - (projectile.width // 2)
+        projectile.y = self.y
 
         projectile.vx = 0.0
         projectile.vy = -1.0
@@ -124,10 +155,24 @@ class BusterCanon(Bullet):
 
         self.stop_charge()
         return [projectile], cost
+
     # -----------------
     # UPDATE
     # -----------------
+    def check_burst_timer(self) -> None:
+        """recurring timer that should live in update as a function"""
+        if self.burst_window_start is None:
+            return
+
+        now = pygame.time.get_ticks() / 1000.0
+        # if the 2-second window has passed, reset everything
+        if now >= (self.burst_window_start + self.burst_window_s):
+            self.is_locked_out = False
+            self.burst_shots_in_window = 0
+            self.burst_window_start = None
+
     def update(self):
+        self.check_burst_timer()
         self.update_rect()
 
     # -----------------

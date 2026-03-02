@@ -1,8 +1,8 @@
 {
   "version": 1,
   "location": {
-    "screen": "Level 6",
-    "level_id": 6,
+    "screen": "HOME_BASE",
+    "level_id": null,
     "spawn_id": null
   },
   "player": {
@@ -19,7 +19,7 @@
       "Napalm Spread",
       "Buster Cannon"
     ],
-    "current_level": 6
+    "current_level": 5
   },
   "weapons": {
     "machine_gun": {
