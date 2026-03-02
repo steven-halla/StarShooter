@@ -6,9 +6,9 @@
     "spawn_id": null
   },
   "player": {
-    "shipHealth": 25,
-    "money": 40000,
-    "shipHealthMax": 25,
+    "shipHealth": 50,
+    "money": 10000,
+    "shipHealthMax": 50,
     "equipped_magic": [
       "Buster Cannon",
       null
@@ -36,7 +36,7 @@
     }
   },
   "missiles": {
-    "damage": 25,
+    "damage": 35,
     "bullet_speed": 1.5,
     "rate_of_fire": 0.5,
     "max": 2,
@@ -51,7 +51,7 @@
     "time_to_start_recharge": 10000
   },
   "stats": {
-    "speed": 2.8000000000000003,
+    "speed": 3.4000000000000004,
     "player_ki": 75,
     "player_max_ki": 75,
     "current_heat": 100,
@@ -70,7 +70,9 @@
       "Shield Charger",
       "Shield Generator +",
       "Wind Slicer",
-      "M. gun damage booster"
+      "M. gun damage booster",
+      "Britrate Missiles",
+      "Greater hull"
     ]
   }
 }

@@ -117,11 +117,13 @@ class HomeBase(Screen):
         self.weapon_shop_open: bool = False
         self.weapon_shop_index: int = 0
         self.weapon_shop_items: list[str] = []
+        self.weapon_shop_scroll_offset: int = 0
 
         # defense shop popup state
         self.defense_shop_open: bool = False
         self.defense_shop_index: int = 0
         self.defense_shop_items: list[str] = []
+        self.defense_shop_scroll_offset: int = 0
 
         # shop rects (400x400 centered)
         self.weapon_shop_rect = pygame.Rect(0, 0, 450, 400)
@@ -213,6 +215,8 @@ class HomeBase(Screen):
                 self.weapon_shop_index -= 1
                 if self.weapon_shop_index < 0:
                     self.weapon_shop_index = 0
+                if self.weapon_shop_index < self.weapon_shop_scroll_offset:
+                    self.weapon_shop_scroll_offset = self.weapon_shop_index
                 self._up_lock = True
             elif not self.controls.up_button:
                 self._up_lock = False
@@ -221,6 +225,8 @@ class HomeBase(Screen):
                 self.weapon_shop_index += 1
                 if self.weapon_shop_index > len(self.weapon_shop_items) - 1:
                     self.weapon_shop_index = len(self.weapon_shop_items) - 1
+                if self.weapon_shop_index >= self.weapon_shop_scroll_offset + 9:
+                    self.weapon_shop_scroll_offset = self.weapon_shop_index - 8
                 self._down_lock = True
             elif not self.controls.down_button:
                 self._down_lock = False
@@ -236,6 +242,8 @@ class HomeBase(Screen):
                 self.defense_shop_index -= 1
                 if self.defense_shop_index < 0:
                     self.defense_shop_index = 0
+                if self.defense_shop_index < self.defense_shop_scroll_offset:
+                    self.defense_shop_scroll_offset = self.defense_shop_index
                 self._up_lock = True
             elif not self.controls.up_button:
                 self._up_lock = False
@@ -244,6 +252,8 @@ class HomeBase(Screen):
                 self.defense_shop_index += 1
                 if self.defense_shop_index > len(self.defense_shop_items) - 1:
                     self.defense_shop_index = len(self.defense_shop_items) - 1
+                if self.defense_shop_index >= self.defense_shop_scroll_offset + 9:
+                    self.defense_shop_scroll_offset = self.defense_shop_index - 8
                 self._down_lock = True
             elif not self.controls.down_button:
                 self._down_lock = False
@@ -539,8 +549,10 @@ class HomeBase(Screen):
         arrow_surf = self.menu_font.render(self.arrow_text, True, (255, 255, 255))
         arrow_x = x - arrow_surf.get_width() - self.arrow_gap
 
-        for i, item in enumerate(self.weapon_shop_items):
-            if i == self.weapon_shop_index:
+        visible_items = self.weapon_shop_items[self.weapon_shop_scroll_offset : self.weapon_shop_scroll_offset + 9]
+        for i, item in enumerate(visible_items):
+            actual_index = i + self.weapon_shop_scroll_offset
+            if actual_index == self.weapon_shop_index:
                 state.DISPLAY.blit(arrow_surf, (arrow_x, y))
 
             surf = item_font.render(item, True, (255, 255, 255))
@@ -590,8 +602,10 @@ class HomeBase(Screen):
         arrow_surf = self.menu_font.render(self.arrow_text, True, (255, 255, 255))
         arrow_x = x - arrow_surf.get_width() - self.arrow_gap
 
-        for i, item in enumerate(self.defense_shop_items):
-            if i == self.defense_shop_index:
+        visible_items = self.defense_shop_items[self.defense_shop_scroll_offset : self.defense_shop_scroll_offset + 9]
+        for i, item in enumerate(visible_items):
+            actual_index = i + self.defense_shop_scroll_offset
+            if actual_index == self.defense_shop_index:
                 state.DISPLAY.blit(arrow_surf, (arrow_x, y))
 
             surf = item_font.render(item, True, (255, 255, 255))
