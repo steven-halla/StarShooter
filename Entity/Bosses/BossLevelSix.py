@@ -115,7 +115,7 @@ class BossLevelSix(Enemy):
 
         # Check if master grid is built
         if not self._grid_built or len(self.barrage_rects) == 0:
-            print(f"Cannot rebuild active barrage: master grid not built (grid_built={self._grid_built}, rects={len(self.barrage_rects)})")
+            # print(f"Cannot rebuild active barrage: master grid not built (grid_built={self._grid_built}, rects={len(self.barrage_rects)})")
             return
 
         self.active_barrage_rects.clear()
@@ -123,7 +123,7 @@ class BossLevelSix(Enemy):
         cols = self.BARRAGE_COLS
         rows = self.BARRAGE_ROWS
 
-        print(f"Rebuilding with {rows} rows and {cols} columns")
+        # print(f"Rebuilding with {rows} rows and {cols} columns")
 
         for row_index in range(rows):
             start = row_index * cols
@@ -131,7 +131,7 @@ class BossLevelSix(Enemy):
 
             # Safety check to prevent index errors
             if start >= len(self.barrage_rects) or end > len(self.barrage_rects):
-                print(f"Warning: Invalid indices for row {row_index}: start={start}, end={end}, total rects={len(self.barrage_rects)}")
+                # print(f"Warning: Invalid indices for row {row_index}: start={start}, end={end}, total rects={len(self.barrage_rects)}")
                 continue
 
             row_rects = self.barrage_rects[start:end]
@@ -139,7 +139,7 @@ class BossLevelSix(Enemy):
             # Safety check for random.sample
             num_to_choose = min(3, len(row_rects))
             if num_to_choose == 0:
-                print(f"Warning: No rectangles available in row {row_index}")
+                # print(f"Warning: No rectangles available in row {row_index}")
                 continue
 
             # pick 3 UNIQUE rects from this row
@@ -161,28 +161,28 @@ class BossLevelSix(Enemy):
     # BARRAGE PHASE CONTROLLER
     # =====================================================
     def update_barrage(self, player=None) -> None:
-        print(f"\n=== UPDATE BARRAGE ===")
-        print(f"Current phase: {self.barrage_phase}")
-        print(f"May fire barrage: {self.may_fire_barrage}")
-        print(f"Grid built: {self._grid_built}")
-        print(f"Barrage built this cycle: {self._barrage_built_this_cycle}")
+        # print(f"\n=== UPDATE BARRAGE ===")
+        # print(f"Current phase: {self.barrage_phase}")
+        # print(f"May fire barrage: {self.may_fire_barrage}")
+        # print(f"Grid built: {self._grid_built}")
+        # print(f"Barrage built this cycle: {self._barrage_built_this_cycle}")
 
         now = pygame.time.get_ticks()
         elapsed = now - self.barrage_timer
 
         if not self.may_fire_barrage:
-            print("Barrage not updated: may_fire_barrage is False")
+            # print("Barrage not updated: may_fire_barrage is False")
             return
 
         # Ensure camera is available for grid building
         if self.camera is None:
-            print("Barrage not updated: camera is None")
+            # print("Barrage not updated: camera is None")
             return
 
         if self.barrage_phase == self.PHASE_RED:
-            print(f"In RED phase, elapsed: {elapsed}ms, threshold: {self.RED_MS}ms")
+            # print(f"In RED phase, elapsed: {elapsed}ms, threshold: {self.RED_MS}ms")
             if elapsed >= self.RED_MS:
-                print("\n=== MASTER GRID (ALL COORDS) ===")
+                # print("\n=== MASTER GRID (ALL COORDS) ===")
                 for i, rect in enumerate(self.barrage_rects):
                     print(f"[{i:02d}] x={rect.x}, y={rect.y}")
 
@@ -190,44 +190,44 @@ class BossLevelSix(Enemy):
                 for i, rect in enumerate(self.active_barrage_rects):
                     print(f"[{i:02d}] x={rect.x}, y={rect.y}")
 
-                if player:
-                    print("\n=== PLAYER POSITION ===")
-                    print(f"Player x={player.x}, y={player.y}")
-                    print(f"Player hitbox: x={player.hitbox.x}, y={player.hitbox.y}, width={player.hitbox.width}, height={player.hitbox.height}")
+                # if player:
+                #     print("\n=== PLAYER POSITION ===")
+                #     print(f"Player x={player.x}, y={player.y}")
+                #     print(f"Player hitbox: x={player.hitbox.x}, y={player.hitbox.y}, width={player.hitbox.width}, height={player.hitbox.height}")
 
                 print("Transitioning from RED to ORANGE phase")
                 self.barrage_phase = self.PHASE_ORANGE
                 self.barrage_timer = now
 
         elif self.barrage_phase == self.PHASE_ORANGE:
-            print(f"In ORANGE phase, elapsed: {elapsed}ms, threshold: {self.ORANGE_MS}ms")
+            # print(f"In ORANGE phase, elapsed: {elapsed}ms, threshold: {self.ORANGE_MS}ms")
             if elapsed >= self.ORANGE_MS:
-                print("Transitioning from ORANGE to OFF phase")
+                # print("Transitioning from ORANGE to OFF phase")
                 self.barrage_phase = self.PHASE_OFF
                 self.barrage_timer = now
                 self.active_barrage_rects.clear()
                 self._barrage_built_this_cycle = False
 
         elif self.barrage_phase == self.PHASE_OFF:
-            print(f"In OFF phase, elapsed: {elapsed}ms, threshold: {self.OFF_MS}ms")
+            # print(f"In OFF phase, elapsed: {elapsed}ms, threshold: {self.OFF_MS}ms")
             if elapsed >= self.OFF_MS:
                 # Always try to build the grid if it's not built yet
                 if not self._grid_built:
-                    print("Grid not built yet, building now...")
+                    # print("Grid not built yet, building now...")
                     self.build_barrage_grid()
 
                 # If grid building failed, we can't proceed
                 if not self._grid_built:
-                    print("Grid building failed, staying in OFF phase")
+                    # print("Grid building failed, staying in OFF phase")
                     self.barrage_timer = now  # Reset timer to try again later
                     return
 
                 if not self._barrage_built_this_cycle:
-                    print("Rebuilding active barrage...")
+                    # print("Rebuilding active barrage...")
                     self.rebuild_active_barrage()
                     self._barrage_built_this_cycle = True
 
-                print("Transitioning from OFF to RED phase")
+                # print("Transitioning from OFF to RED phase")
                 self.barrage_phase = self.PHASE_RED
                 self.barrage_timer = now
 
@@ -242,11 +242,11 @@ class BossLevelSix(Enemy):
         self._barrage_drawn_this_frame = False  # 🔑 reset once per frame
 
         if not self.is_active:
-            print("Boss not updated: not active")
+            # print("Boss not updated: not active")
             return
 
         if self.camera is None:
-            print("Boss not updated: camera is None")
+            # print("Boss not updated: camera is None")
             return
 
         self.update_hitbox()
@@ -284,18 +284,18 @@ class BossLevelSix(Enemy):
     # DRAW BARRAGE — ONCE PER FRAME, TEMP GRID ONLY
 
     def draw_barrage(self, surface, camera) -> None:
-        print(f"\n=== DRAW BARRAGE STATUS ===")
-        print(f"Barrage phase: {self.barrage_phase}")
-        print(f"May fire barrage: {self.may_fire_barrage}")
-        print(f"Active barrage rects count: {len(self.active_barrage_rects)}")
+        # print(f"\n=== DRAW BARRAGE STATUS ===")
+        # print(f"Barrage phase: {self.barrage_phase}")
+        # print(f"May fire barrage: {self.may_fire_barrage}")
+        # print(f"Active barrage rects count: {len(self.active_barrage_rects)}")
 
         if self._barrage_drawn_this_frame:
-            print("Barrage not drawn: already drawn this frame")
+            # print("Barrage not drawn: already drawn this frame")
             return
         self._barrage_drawn_this_frame = True
 
         if self.barrage_phase == self.PHASE_OFF:
-            print("Barrage not drawn: phase is OFF")
+            # print("Barrage not drawn: phase is OFF")
             return
 
         if not hasattr(self, "_barrage_surface"):
@@ -304,7 +304,7 @@ class BossLevelSix(Enemy):
         self._barrage_surface.fill((0, 0, 0, 0))
 
         color = (255, 0, 0) if self.barrage_phase == self.PHASE_RED else (255, 165, 0)
-        print(f"Drawing barrage with color: {color}")
+        # print(f"Drawing barrage with color: {color}")
 
         z = camera.zoom
 
@@ -315,7 +315,7 @@ class BossLevelSix(Enemy):
             screen_w = int(rect.width * z)
             screen_h = int(rect.height * z)
 
-            print(f"Drawing rect at screen coords: x={screen_x}, y={screen_y}, w={screen_w}, h={screen_h}")
+            # print(f"Drawing rect at screen coords: x={screen_x}, y={screen_y}, w={screen_w}, h={screen_h}")
 
             pygame.draw.rect(
                 self._barrage_surface,
@@ -324,21 +324,21 @@ class BossLevelSix(Enemy):
             )
 
         surface.blit(self._barrage_surface, (0, 0))
-        print("Barrage drawn successfully")
+        # print("Barrage drawn successfully")
     # =====================================================
     # DAMAGE PLAYER — TEMP GRID ONLY
     # =====================================================
     def apply_barrage_damage(self, player) -> None:
         print(f"\n=== APPLY BARRAGE DAMAGE ===")
         if self.barrage_phase != self.PHASE_ORANGE:
-            print(f"No damage applied: barrage phase is {self.barrage_phase}, not ORANGE")
+            # print(f"No damage applied: barrage phase is {self.barrage_phase}, not ORANGE")
             return
         if player.invincible:
-            print(f"No damage applied: player is invincible")
+            # print(f"No damage applied: player is invincible")
             return
 
         player_rect = player.hitbox
-        print(f"Player hitbox: x={player_rect.x}, y={player_rect.y}, w={player_rect.width}, h={player_rect.height}")
+        # print(f"Player hitbox: x={player_rect.x}, y={player_rect.y}, w={player_rect.width}, h={player_rect.height}")
 
         for i, rect in enumerate(self.active_barrage_rects):
             # 🔥 HALF-SIZE DAMAGE AREA (centered)
@@ -355,13 +355,13 @@ class BossLevelSix(Enemy):
                 damage_h,
             )
 
-            print(f"Damage rect {i}: x={damage_rect.x}, y={damage_rect.y}, w={damage_rect.width}, h={damage_rect.height}")
+            # print(f"Damage rect {i}: x={damage_rect.x}, y={damage_rect.y}, w={damage_rect.width}, h={damage_rect.height}")
 
             collision = player_rect.colliderect(damage_rect)
-            print(f"Collision with damage rect {i}: {collision}")
+            # print(f"Collision with damage rect {i}: {collision}")
 
             if collision:
-                print(f"Player hit by barrage! Damage applied: 30")
+                # print(f"Player hit by barrage! Damage applied: 30")
                 # player.shipHealth -= 30
 
                 player.shield_system.take_damage(75)

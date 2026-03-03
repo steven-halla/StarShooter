@@ -993,15 +993,16 @@ class VerticalBattleScreen:
         # -------------------------
         if state.starship.equipped_magic[0] == "Buster Cannon" and not self.playerDead:
             if self.controller.magic_1_button:
-                if not state.starship.buster_cannon.is_charging:
-                    state.starship.buster_cannon.start_charge()
+                state.starship.buster_cannon.start_charge()
                 state.starship.buster_cannon.update()
-            elif state.starship.buster_cannon.is_charging:
-                bullets, cost = state.starship.buster_cannon.fire_buster_cannon()
-                if bullets:
-                    if state.starship.player_ki >= cost:
-                        state.starship.player_ki -= cost
-                        self.player_bullets.extend(bullets)
+            else:
+                if state.starship.buster_cannon.is_charging:
+                    bullets, cost = state.starship.buster_cannon.fire_buster_cannon()
+                    if bullets:
+                        if state.starship.player_ki >= cost:
+                            state.starship.player_ki -= cost
+                            self.player_bullets.extend(bullets)
+                    state.starship.buster_cannon.stop_charge() # Ensure it stops if no bullets fired (e.g. ROF)
 
         # -------------------------
         # PLASMA BLASTER (single beam)
@@ -1098,6 +1099,8 @@ class VerticalBattleScreen:
         #                 bullet_count=state.starship.wind_slicer_bullet_count
         #             )
         #         )
+
+
 
 
     def weapon_helper(self, state):

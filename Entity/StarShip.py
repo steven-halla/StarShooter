@@ -298,6 +298,29 @@ class StarShip:
 
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
 
+        # Buster Cannon Charge Bar
+        if self.buster_cannon.is_charging:
+            charge_width = int(self.width * scale)
+            charge_height = int(2 * scale)
+            charge_x = screen_x
+            charge_y = screen_y + int(self.height * scale) + int(2 * scale)
+
+            # Background (optional, for better visibility)
+            pygame.draw.rect(surface, (50, 50, 50), (charge_x, charge_y, charge_width, charge_height))
+
+            # Progress
+            if self.buster_cannon.is_fully_charged():
+                color = (0, 255, 0) # Green
+                progress_width = charge_width
+            else:
+                color = (255, 0, 0) # Red
+                now = pygame.time.get_ticks()
+                elapsed = (now - self.buster_cannon.charge_start_time) / 1000.0
+                progress = min(elapsed / self.buster_cannon.charge_time_required, 1.0)
+                progress_width = int(charge_width * progress)
+
+            pygame.draw.rect(surface, color, (charge_x, charge_y, progress_width, charge_height))
+
         if self.is_electrocuted:
             self.draw_electric_effect(surface, camera)
 

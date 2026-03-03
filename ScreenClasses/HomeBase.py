@@ -37,7 +37,11 @@ class HomeBase(Screen):
             "Napalm": "Ki attack that launches Pyrithium fluids that turns the insides into liquid",
             "Buster Cannon":"Ki Attack that fires molten vibribulated plasma which poisions the blood stream.rapid fire and charged shot.",
             "Britrate Missiles": "Creates and rapidly accelerates the growth of living tissue upon contact for increased damage",
-            "Bullet Caliber +": "Increases bullet caliber by 25%."
+            "Bullet Caliber +": "Increases bullet caliber by 25%.",
+            "Scredorphin Rounds": "Loads bullets with scredorphin, a chemical that frys the central nervous system for added damage.",
+            "Missile Count +2": "Add +2 to max missiles.",
+            "Missile recharge +": "Increases missile recharge rate.",
+            "Double Barrel": "Mounts a 2nd machine gun on ship."
         }
         self.defense_shop_descriptions: dict[str, str] = {
             "Armor Plating": "adds +50 HP to hull.",
@@ -49,10 +53,11 @@ class HomeBase(Screen):
             "Post hit +": "adds an extra +25% to the timer of post hit emergency shields",
             "Shield Generator +": "Provides + 50 shields",
             "Greater hull": "Provides + 25 Hull Points and +1 speed",
-            "Enemy Drop +": "Increase the value of enemy drops(except missiles)"
-
-
-
+            "Enemy Drop +": "Increase the value of enemy drops(except missiles)",
+            "Shield Flash": "Shields take less time to start recharging.",
+            "speed up +": "Increases ship movement speed even further.",
+            "Hull Repair": "Slowly repairs hull when shields are at full capacity.",
+            "Ki Up +++": "Greatly increases max KI."
         }
         # Plasma hot enough to 'ghost ' those hit with a charged shot
         self.menu_padding_x: int = 45
@@ -73,7 +78,10 @@ class HomeBase(Screen):
             2: ["Wind Slicer", "Missile Count +1"],
             3: ["Barrel Coolant", "Napalm Spread"],
             4: ["Buster Cannon", "Britrate Missiles"],
-            5: ["Missile speed booster", "Bullet Caliber +"]
+            5: ["Missile speed booster", "Bullet Caliber +"],
+            6: ["M gun D. Breath", "Missile Count +2"],
+            7: ["Missile recharge +", "Double Barrel"]
+
 
         }
         self.defense_shop_levels = {
@@ -81,17 +89,19 @@ class HomeBase(Screen):
             2: [ "Speed up", "Shield Generator"],
             3: ["Ki Up ++" ,"Post hit +"],
             4: ["Greater hull", "Shield Generator +"],
-            5: ["Shield Charger", "Enemy Drop +"]
+            5: ["Shield Charger", "Enemy Drop +"],
+            6: ["Shield Flash", "speed up +"],# Sheilds take less time to start re charging
+            7: ["Hull Repair", "Ki Up +++"] # Repairs hull when shields are full
 
         }
         self.item_prices = {
             "M. gun damage booster": 5000,
             "Metal Shield": 5000,
-            "Wind Slicer": 10000,
-            "Missile Count +1": 10000,
             "Armor Plating": 5000,
             "Shield Generator": 5000,
             "Ki Efficiency chip": 5000,
+            "Wind Slicer": 10000,
+            "Missile Count +1": 10000,
             "Speed up": 10000,
             "Barrel Coolant": 15000,
             "Napalm Spread": 15000,
@@ -104,8 +114,15 @@ class HomeBase(Screen):
             "Bullet Caliber +": 20000,
             "Enemy Drop +": 20000,
             "Missile speed booster": 20000,
-            "Shield Charger": 20000
-
+            "Shield Charger": 20000,
+            "M gun D. Breath": 25000,
+            "Missile Count +2": 25000,
+            "Shield Flash": 25000,
+            "speed up +": 25000,
+            "Missile recharge +": 30000,
+            "Double Barrel": 30000,
+            "Hull Repair": 30000,
+            "Ki Up +++": 30000
         }
 
         # input locks

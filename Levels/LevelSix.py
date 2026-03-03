@@ -87,7 +87,7 @@ class LevelSix(VerticalBattleScreen):
                 if not self.starship.invincible:
                     self.starship.shield_system.take_damage(enemy.touch_damage)
                     self.starship.on_hit()
-                    print(f"Player hit by {type(enemy).__name__}! Health: {self.starship.shipHealth}")
+                    # print(f"Player hit by {type(enemy).__name__}! Health: {self.starship.shipHealth}")
 
             if enemy.enemyBullets:
                 state.enemy_bullets.extend(enemy.enemyBullets)
@@ -97,7 +97,7 @@ class LevelSix(VerticalBattleScreen):
                 self.remove_enemy_if_dead(enemy, state)
 
         for enemy in list(state.enemies):
-            print(list(state.enemies))
+            # print(list(state.enemies))
             if not isinstance(enemy, SpikeyBall):
                 continue
 
@@ -122,7 +122,7 @@ class LevelSix(VerticalBattleScreen):
                 continue
 
             if enemy.hitbox.colliderect(self.starship.hitbox):
-                print(f"[LAST COIN] x={enemy.x:.2f}, y={enemy.y:.2f}")
+                # print(f"[LAST COIN] x={enemy.x:.2f}, y={enemy.y:.2f}")
                 enemy.is_active = False
                 state.enemies.remove(enemy)
                 continue
