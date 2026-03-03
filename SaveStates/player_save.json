@@ -36,11 +36,11 @@
     }
   },
   "missiles": {
-    "damage": 35,
+    "damage": 25,
     "bullet_speed": 1.5,
     "rate_of_fire": 0.5,
     "max": 2,
-    "current": 2,
+    "current": 0,
     "fire_interval_seconds": 0.5,
     "regen_interval_seconds": 10.0
   },
@@ -52,8 +52,8 @@
   },
   "stats": {
     "speed": 3.4000000000000004,
-    "player_ki": 75,
-    "player_max_ki": 75,
+    "player_ki": 125,
+    "player_max_ki": 125,
     "current_heat": 100,
     "max_heat": 100,
     "post_hit_invincibility_duration": 2.0
@@ -71,8 +71,8 @@
       "Shield Generator +",
       "Wind Slicer",
       "M. gun damage booster",
-      "Britrate Missiles",
-      "Greater hull"
+      "Greater hull",
+      "Ki Up ++"
     ]
   }
 }

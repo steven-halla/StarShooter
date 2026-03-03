@@ -354,7 +354,7 @@ class LevelFour(VerticalBattleScreen):
         # SCROLL CONTROL (CREEP DECIDES)
         # --------------------------------------------------
         if player_visible and worm_visible and creep_found_on_screen and creep_near_bottom:
-            print(">>> CREEP PAUSE TRIGGERED <<<")
+            # print(">>> CREEP PAUSE TRIGGERED <<<")
             self.map_scroll_speed_per_frame = 0.0
             self.camera.scroll_speed_per_frame = 0.0
         else:
@@ -454,8 +454,8 @@ class LevelFour(VerticalBattleScreen):
                 enemy_type_name = type(e).__name__
                 counts[enemy_type_name] = counts.get(enemy_type_name, 0) + 1
 
-            for enemy_type_name in counts:
-                print(enemy_type_name, counts[enemy_type_name])
+            # for enemy_type_name in counts:
+            #     print(enemy_type_name, counts[enemy_type_name])
 
             enemy.x = obj.x
             enemy.y = obj.y

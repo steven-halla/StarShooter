@@ -3,6 +3,7 @@ import random
 import pygame
 
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Enemy import Enemy
 from Movement.MoveRectangle import MoveRectangle
 from Weapons.Bullet import Bullet
@@ -22,19 +23,15 @@ class SpikeyBall(Enemy):
 
 
         # gameplay stats (not used yet)
-        self.enemyHealth: int = 201
+        self.enemyHealth: int = 50
         self.is_active = True
-
-
-
-
-
-
 
         self.coins_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
-        self.enemy_image = self.coins_image  # 🔑 REQUIRED
+        self.enemy_image = self.coins_image  # 🔑 REQUIRED   # touch damage
+        self.touch_damage: int = 50
+        self.touch_timer = Timer(0.75)
 
 
     def update(self, state) -> None:
@@ -49,8 +46,6 @@ class SpikeyBall(Enemy):
         """Handle firing every 3 seconds + move bullets."""
 
         now = pygame.time.get_ticks()
-
-
 
 
     def draw(self, surface: pygame.Surface, camera):
@@ -87,5 +82,5 @@ class SpikeyBall(Enemy):
 
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
 
-    def _clamp_vertical(self) -> None:
+    def clamp_vertical(self) -> None:
         pass

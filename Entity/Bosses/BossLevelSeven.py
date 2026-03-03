@@ -219,11 +219,11 @@ class BossLevelSeven(Enemy):
                 self.attack_swipe_counter += 1
                 if self.attack_swipe_counter > 3:
                     self.attack_swipe_counter = 0
-                print(self.attack_swipe_counter)
+                # print(self.attack_swipe_counter)
                 self.attack180_cd_timer.reset()
                 self.attack180_state = 0
                 self.attack180_rect = None
-                print("ATTACK180 END")
+                # print("ATTACK180 END")
 
             return
 

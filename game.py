@@ -28,6 +28,8 @@ class Game:
 
         while self.state.isRunning:
             self.state.delta = clock.tick(GlobalConstants.FPS)
+            # print(GlobalConstants.FPS)
+            print(f"FPS: {int(clock.get_fps())}")
 
             self.state.currentScreen.update(self.state)
             self.state.currentScreen.draw(self.state)

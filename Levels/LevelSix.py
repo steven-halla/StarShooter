@@ -3,7 +3,11 @@ import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelSix import BossLevelSix
 from Entity.Monsters.Coins import Coins
+from Entity.Monsters.FireLauncher import FireLauncher
 from Entity.Monsters.SpikeyBall import SpikeyBall
+from Entity.Monsters.BileSpitter import BileSpitter
+from Entity.Monsters.SpinalRaptor import SpinalRaptor
+from Entity.Monsters.TransportWorm import TransportWorm
 from SaveStates.SaveState import SaveState
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
@@ -35,6 +39,7 @@ class LevelSix(VerticalBattleScreen):
         self.may_fire_barrage: bool = True
         self.crush_start_time = None
         self.CRUSH_TIME_MS = 500
+        self.all_potential_enemies = []
 
     def start(self, state) -> None:
         player_x = None
@@ -61,13 +66,29 @@ class LevelSix(VerticalBattleScreen):
         self.save_state.save_to_file("player_save.json")
 
     def update(self, state) -> None:
+
+
+        #CLEAN OUT EXPECT4D ENEMIES LIST AFTER WE KILL BOSS
+
         super().update(state)
         self.update_collision_tiles(state, damage=5)
+
+        # Move enemies from all_potential_enemies to state.enemies when they are in vicinity
+        cam_top = self.camera.y
+        cam_bottom = cam_top + GlobalConstants.GAMEPLAY_HEIGHT
+        buffer = 150  # Load enemies slightly before they appear on screen
+
+        for enemy in list(self.all_potential_enemies):
+            # Check if the enemy is within player vicinity (near screen area)
+            if (enemy.y + enemy.height >= cam_top - buffer) and (enemy.y <= cam_bottom + buffer):
+                state.enemies.append(enemy)
+                self.all_potential_enemies.remove(enemy)
 
         self.update_check_player_touching_collision_bottom()
         self.update_assign_single_barrage_owner(state)
         self.update_player_touches_coin(state)
         self.update_enemy_helper(state)
+        self.update_worm_helper(state)
 
     def draw(self, state):
         super().draw(state)
@@ -75,45 +96,83 @@ class LevelSix(VerticalBattleScreen):
         pygame.display.flip()
 
     def update_enemy_helper(self, state):
-        for enemy in list(state.enemies):
-
-            if not isinstance(enemy, BossLevelSix):
-                continue
-
-            enemy.update(self.starship)
-            enemy.apply_barrage_damage(self.starship)
-
-            if self.starship.hitbox.colliderect(enemy.hitbox):
-                if not self.starship.invincible:
-                    self.starship.shield_system.take_damage(enemy.touch_damage)
-                    self.starship.on_hit()
-                    # print(f"Player hit by {type(enemy).__name__}! Health: {self.starship.shipHealth}")
-
-            if enemy.enemyBullets:
-                state.enemy_bullets.extend(enemy.enemyBullets)
-                enemy.enemyBullets.clear()
-
-            if enemy.enemyHealth <= 0:
-                self.remove_enemy_if_dead(enemy, state)
+        cam_top = self.camera.y
+        cam_bottom = cam_top + GlobalConstants.GAMEPLAY_HEIGHT
+        update_buffer = 100 # Allow some room outside the screen for updates
 
         for enemy in list(state.enemies):
-            # print(list(state.enemies))
-            if not isinstance(enemy, SpikeyBall):
+            # Only update if in vicinity of the camera
+            if not ((enemy.y + enemy.height >= cam_top - update_buffer) and (enemy.y <= cam_bottom + update_buffer)):
+                # If it's a coin and it's below the screen, update_player_touches_coin already handles it
+                # For others, we might want to keep them in state.enemies but not update them,
+                # OR we could move them back to potential enemies if they were ahead and we scrolled back (unlikely in this game)
+                # For now, just skip updating them.
                 continue
 
-            enemy.update(state)
+            if isinstance(enemy, BossLevelSix):
+                enemy.update(self.starship)
+                enemy.apply_barrage_damage(self.starship)
 
-            if enemy.enemyHealth <= 0:
+                if self.starship.hitbox.colliderect(enemy.hitbox):
+                    if not self.starship.invincible:
+                        self.starship.shield_system.take_damage(enemy.touch_damage)
+                        self.starship.on_hit()
+                        # print(f"Player hit by {type(enemy).__name__}! Health: {self.starship.shipHealth}")
+
+                if enemy.enemyBullets:
+                    state.enemy_bullets.extend(enemy.enemyBullets)
+                    enemy.enemyBullets.clear()
+
+            elif isinstance(enemy, SpikeyBall):
+                enemy.update(state)
+
+                if self.starship.hitbox.colliderect(enemy.hitbox):
+                    enemy.color = (135, 206, 235)
+                    if not self.starship.invincible:
+                        self.starship.shipHealth -= 45
+                        self.starship.on_hit()
+                else:
+                    enemy.color = GlobalConstants.RED
+            elif isinstance(enemy, BileSpitter):
+                enemy.update(state)
+            elif isinstance(enemy, TransportWorm):
+                enemy.update(state)
+                # Touch damage for TransportWorm is already called in its update method,
+                # but we should ensure it's removed if dead.
+
+            if hasattr(enemy, "enemyHealth") and enemy.enemyHealth <= 0:
                 self.remove_enemy_if_dead(enemy, state)
-                continue
 
-            if self.starship.hitbox.colliderect(enemy.hitbox):
-                enemy.color = (135, 206, 235)
-                if not self.starship.invincible:
-                    self.starship.shipHealth -= 45
-                    self.starship.on_hit()
-            else:
-                enemy.color = GlobalConstants.RED
+    def update_worm_helper(self, state):
+        now = pygame.time.get_ticks()
+        player = self.starship
+        active_worms = [e for e in state.enemies if isinstance(e, TransportWorm) and e.is_active]
+
+        for worm in active_worms:
+            # check distance
+            dist_y = abs(player.y - worm.y)
+
+            # DEBUG PRINTS using camera
+            p_sx = self.camera.world_to_screen_x(player.x)
+            p_sy = self.camera.world_to_screen_y(player.y)
+            w_sx = self.camera.world_to_screen_x(worm.x)
+            w_sy = self.camera.world_to_screen_y(worm.y)
+            # print(f"[DEBUG] Player Screen: ({p_sx:.1f}, {p_sy:.1f}), Worm Screen: ({w_sx:.1f}, {w_sy:.1f}), DistY: {dist_y:.1f}")
+
+            if dist_y < 300:
+                if now - worm.last_summon_time >= worm.summon_interval_ms:
+                    worm.summon_enemy(
+                        enemy_classes=[
+                            BileSpitter,
+                            SpikeyBall
+                        ],
+                        enemy_groups={
+                            BileSpitter: state.enemies,
+                            SpikeyBall: state.enemies,
+                        },
+                        spawn_y_offset=20
+                    )
+                    worm.last_summon_time = now
 
     def update_player_touches_coin(self, state):
         for enemy in list(state.enemies):
@@ -174,12 +233,22 @@ class LevelSix(VerticalBattleScreen):
 
     def load_enemy_into_list(self, state):
         state.enemies.clear()
+        self.all_potential_enemies.clear()
         for obj in self.tiled_map.objects:
             if obj.name == "level_6_boss":
                 enemy = BossLevelSix()
 
             elif obj.name == "spikey_ball":
                 enemy = SpikeyBall()
+            elif obj.name == "transport_worm":
+                enemy = TransportWorm()
+                enemy.is_active = True
+            elif obj.name == "spinal_raptor":
+                enemy = SpinalRaptor()
+            elif obj.name == "bile_spitter":
+                enemy = BileSpitter()
+            elif obj.name == "fire_launcher":
+                enemy = FireLauncher()
 
             elif obj.name == "coins":
                 enemy = Coins()
@@ -193,7 +262,7 @@ class LevelSix(VerticalBattleScreen):
             enemy.camera = self.camera
             enemy.target_player = self.starship
             enemy.update_hitbox()
-            state.enemies.append(enemy)
+            self.all_potential_enemies.append(enemy)
 
     def is_boss_on_screen(self, state) -> bool:
         cam_top = self.camera.y

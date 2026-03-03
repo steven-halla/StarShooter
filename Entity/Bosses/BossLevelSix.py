@@ -111,7 +111,7 @@ class BossLevelSix(Enemy):
     # =====================================================
     # TEMP GRID — KEEP EXACTLY ONE TOP ROW TILE
     def rebuild_active_barrage(self) -> None:
-        print(f"\n=== REBUILDING ACTIVE BARRAGE ===")
+        # print(f"\n=== REBUILDING ACTIVE BARRAGE ===")
 
         # Check if master grid is built
         if not self._grid_built or len(self.barrage_rects) == 0:
@@ -144,7 +144,7 @@ class BossLevelSix(Enemy):
 
             # pick 3 UNIQUE rects from this row
             chosen = random.sample(row_rects, num_to_choose)
-            print(f"Row {row_index}: Selected {len(chosen)} rectangles")
+            # print(f"Row {row_index}: Selected {len(chosen)} rectangles")
 
             for rect in chosen:
                 self.active_barrage_rects.append(
@@ -156,7 +156,7 @@ class BossLevelSix(Enemy):
                     )
                 )
 
-        print(f"Active barrage rebuilt with {len(self.active_barrage_rects)} rectangles")
+        # print(f"Active barrage rebuilt with {len(self.active_barrage_rects)} rectangles")
     # =====================================================
     # BARRAGE PHASE CONTROLLER
     # =====================================================
@@ -186,7 +186,7 @@ class BossLevelSix(Enemy):
                 for i, rect in enumerate(self.barrage_rects):
                     print(f"[{i:02d}] x={rect.x}, y={rect.y}")
 
-                print("\n=== TEMP GRID (ACTIVE / DRAWN) ===")
+                # print("\n=== TEMP GRID (ACTIVE / DRAWN) ===")
                 for i, rect in enumerate(self.active_barrage_rects):
                     print(f"[{i:02d}] x={rect.x}, y={rect.y}")
 
@@ -195,7 +195,7 @@ class BossLevelSix(Enemy):
                 #     print(f"Player x={player.x}, y={player.y}")
                 #     print(f"Player hitbox: x={player.hitbox.x}, y={player.hitbox.y}, width={player.hitbox.width}, height={player.hitbox.height}")
 
-                print("Transitioning from RED to ORANGE phase")
+                # print("Transitioning from RED to ORANGE phase")
                 self.barrage_phase = self.PHASE_ORANGE
                 self.barrage_timer = now
 
@@ -329,7 +329,7 @@ class BossLevelSix(Enemy):
     # DAMAGE PLAYER — TEMP GRID ONLY
     # =====================================================
     def apply_barrage_damage(self, player) -> None:
-        print(f"\n=== APPLY BARRAGE DAMAGE ===")
+        # print(f"\n=== APPLY BARRAGE DAMAGE ===")
         if self.barrage_phase != self.PHASE_ORANGE:
             # print(f"No damage applied: barrage phase is {self.barrage_phase}, not ORANGE")
             return

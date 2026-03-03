@@ -47,7 +47,7 @@ class TransportWorm(Enemy):
         # SUMMONING
         # -------------------------
         self.summon_interval_ms: int = 6000
-        self.last_summon_time: int = pygame.time.get_ticks()
+        self.last_summon_time: int = 0 # Start ready
 
         self.summon_level: int = 0
         self.burning: bool = False  # Napalm disables summoning
@@ -75,9 +75,13 @@ class TransportWorm(Enemy):
             return
 
         # Weighted selection (order must match enemy_classes)
+        weights = [4, 2, 3, 2]
+        if len(enemy_classes) != len(weights):
+            weights = [1] * len(enemy_classes)
+
         enemy_class = random.choices(
             enemy_classes,
-            weights=[4, 2, 3, 2],  # adjust as needed
+            weights=weights,  # adjust as needed
             k=1
         )[0]
 
@@ -101,6 +105,12 @@ class TransportWorm(Enemy):
 
         enemy_groups[enemy_class].append(enemy)
 
+        # DEBUG PRINT
+        if hasattr(self, 'camera') and self.camera:
+            s_x = self.camera.world_to_screen_x(enemy.x)
+            s_y = self.camera.world_to_screen_y(enemy.y)
+            print(f"[SUMMON] {enemy_class.__name__} at Screen: ({s_x:.1f}, {s_y:.1f})")
+
         # Escalation
         self.summon_level += 1
 
@@ -108,21 +118,21 @@ class TransportWorm(Enemy):
     # UPDATE
     # -------------------------------------------------
     def update(self, state) -> None:
-        super().update(state)
+        self.update_hitbox()
+
+        # check distance to player
+        player = state.starship
+        dist_y = abs(player.y - self.y)
+        if dist_y < 1000:
+            self.is_active = True
+        else:
+            self.is_active = False
+
         if not self.is_active:
             return
 
-
-        self.update_hitbox()
-
-
         # 🔑 CALL TOUCH DAMAGE HANDLER
         self.player_collide_damage(state.starship)
-
-
-
-
-
 
     # -------------------------------------------------
     # DRAW
