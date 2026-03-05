@@ -111,11 +111,15 @@ class LevelSix(VerticalBattleScreen):
 
     def update_handle_level_complete(self, state):
         if not self.level_complete:
-            boss_alive = any(isinstance(enemy, BossLevelSix) for enemy in state.enemies)
-            if not boss_alive:
+            # Check all_potential_enemies AND state.enemies for the boss
+            # This handles the boss whether it has spawned yet or not
+            boss = next((e for e in self.all_potential_enemies + state.enemies if isinstance(e, BossLevelSix)), None)
+
+            if boss and boss.boss_dead:
                 if self.boss_death_timer is None:
                     self.boss_death_timer = Timer(2.0)
                     self.boss_death_timer.reset()
+                    self.level_complete = True
 
     def draw_coin_counter(self, state):
         font = pygame.font.Font(None, 28)

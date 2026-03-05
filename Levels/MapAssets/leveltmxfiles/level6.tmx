@@ -1372,7 +1372,6 @@
   <object id="195" name="coins" x="238.954" y="3333.55" width="16" height="16"/>
   <object id="281" name="fire_launcher" x="234.897" y="4768.31" width="16" height="16"/>
   <object id="286" name="fire_launcher" x="76.6821" y="4788.59" width="16" height="16"/>
-  <object id="268" name="coins" x="102.374" y="4318.01" width="16" height="16"/>
   <object id="260" name="coins" x="195.681" y="5247.01" width="16" height="16"/>
   <object id="186" name="coins" x="247.067" y="1821.72" width="16" height="16"/>
   <object id="243" name="coins" x="178.101" y="6469.46" width="16" height="16"/>
@@ -1406,7 +1405,6 @@
   <object id="239" name="coins" x="187.904" y="5104.86" width="16" height="16"/>
   <object id="205" name="coins" x="136.517" y="4132.59" width="16" height="16"/>
   <object id="191" name="coins" x="128.404" y="2308.37" width="16" height="16"/>
-  <object id="265" name="coins" x="190.608" y="4319.19" width="16" height="16"/>
   <object id="256" name="coins" x="256.869" y="5011.55" width="16" height="16"/>
   <object id="238" name="coins" x="264.982" y="5849.96" width="16" height="16"/>
   <object id="305" name="bile_spitter" x="150.04" y="6066.32" width="16" height="16"/>
@@ -1414,7 +1412,6 @@
   <object id="204" name="coins" x="217.654" y="4121.77" width="16" height="16"/>
   <object id="257" name="coins" x="106.767" y="5267.13" width="16" height="16"/>
   <object id="41" name="coins" x="252.932" y="676.65" width="16" height="16"/>
-  <object id="253" name="coins" x="59.5577" y="4281.78" width="16" height="16"/>
   <object id="227" name="coins" x="132.58" y="629.314" width="16" height="16"/>
   <object id="254" name="coins" x="69.0236" y="4530.6" width="16" height="16"/>
   <object id="225" name="coins" x="165.034" y="1337.91" width="16" height="16"/>

@@ -174,8 +174,11 @@ class EnemyDrop:
 
 
         elif self.drop_type == self.DROP_KI:
-            bonus = 10 if "Enemy Drop +" in state.starship.upgrade_chips else 0
+            bonus = 10
+            if "Enemy Drop +" in state.starship.upgrade_chips:
+                bonus += 10
             starship.player_ki = min(starship.player_ki + bonus, starship.player_max_ki)
+
 
     def update(self, state, drop_list, camera=None) -> None:
         if not self.is_active:

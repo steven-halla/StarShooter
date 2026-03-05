@@ -433,6 +433,10 @@ class VerticalBattleScreen:
 
 
                 for enemy in list(state.enemies):
+                    # Skip coins - they should only be collected by starship collision
+                    if isinstance(enemy, Coins) or (hasattr(enemy, "__class__") and enemy.__class__.__name__ == "TimeBomb"):
+                        continue
+
                     if shield_rect.colliderect(enemy.hitbox):
                         damage_to_deal = bullet.apply_damage()
                         enemy.enemyHealth -= damage_to_deal
@@ -455,7 +459,7 @@ class VerticalBattleScreen:
 
             for enemy in list(state.enemies):
                 # Skip coins - they should only be collected by starship collision
-                if hasattr(enemy, "__class__") and enemy.__class__.__name__ in ("Coins", "TimeBomb"):
+                if isinstance(enemy, Coins) or (hasattr(enemy, "__class__") and enemy.__class__.__name__ == "TimeBomb"):
                     continue
 
                 if not bullet_rect.colliderect(enemy.hitbox):
@@ -1152,6 +1156,10 @@ class VerticalBattleScreen:
         bullet_y = bullet.y
 
         for enemy in state.enemies:
+
+            # Skip coins and time bombs
+            if isinstance(enemy, Coins) or (hasattr(enemy, "__class__") and enemy.__class__.__name__ == "TimeBomb"):
+                continue
 
             # skip enemies outside screen
             if enemy.y + enemy.height < visible_top:

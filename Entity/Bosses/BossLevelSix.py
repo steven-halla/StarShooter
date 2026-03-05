@@ -16,11 +16,12 @@ class BossLevelSix(Enemy):
 
         self.width = 40
         self.height = 40
+        self.boss_dead: bool = False
         self.color = GlobalConstants.RED
 
         self.enemyBullets: list[Bullet] = []
-        self.enemyHealth = 900
-        self.maxHealth = 900
+        self.enemyHealth = 800
+        self.maxHealth = 800
 
 
         self.bile_spitter_image = pygame.image.load(
@@ -242,6 +243,10 @@ class BossLevelSix(Enemy):
     # =====================================================
     def update(self, state, player=None) -> None:
         super().update(state)
+        if self.enemyHealth < 1:
+            self.boss_dead = True
+
+            print("Boss is dead!")
 
         self._barrage_drawn_this_frame = False  # 🔑 reset once per frame
 
