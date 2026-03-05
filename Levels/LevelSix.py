@@ -25,9 +25,9 @@ class LevelSix(VerticalBattleScreen):
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400 # y position of map
         window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
         self.camera_y = self.WORLD_HEIGHT - window_height # look at bottom of map
-        # self.camera_y =  90 # look at bottom of map
+        self.camera_y =  90 # look at bottom of map
         self.camera.world_height = self.WORLD_HEIGHT
-        self.camera.y = float(self.camera_y)
+        # self.camera.y = float(self.camera_y)
         self.coins_missed = []
         self.flame_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
@@ -71,12 +71,13 @@ class LevelSix(VerticalBattleScreen):
         self.save_state.save_to_file("player_save.json")
 
     def update(self, state) -> None:
-        print(sum(1 for e in state.enemies if getattr(e, "name", "") == "Coins"))
+        # print(sum(1 for e in state.enemies if getattr(e, "name", "") == "Coins"))
         self.update_handle_level_complete(state)
 
-
         if self.boss_death_timer is not None:
+            # print(f"[DEBUG LevelSix] boss_death_timer time left: {self.boss_death_timer.get_time_left()}")
             if self.boss_death_timer.is_ready():
+                print("[DEBUG LevelSix] boss_death_timer is ready! Transitioning to HomeBase.")
                 state.starship.money += 1000 * self.coins_collected
                 state.currentScreen = HomeBase(self.textbox)
                 state.currentScreen.start(state)
@@ -115,11 +116,23 @@ class LevelSix(VerticalBattleScreen):
             # This handles the boss whether it has spawned yet or not
             boss = next((e for e in self.all_potential_enemies + state.enemies if isinstance(e, BossLevelSix)), None)
 
-            if boss and boss.boss_dead:
-                if self.boss_death_timer is None:
-                    self.boss_death_timer = Timer(2.0)
-                    self.boss_death_timer.reset()
-                    self.level_complete = True
+            if boss:
+                print(f"[DEBUG LevelSix] Found boss. enemyHealth: {boss.enemyHealth}, boss_dead: {boss.boss_dead}")
+                if boss.boss_dead:
+                    print(f"[DEBUG LevelSix] Boss dead! Starting timer. boss_death_timer: {self.boss_death_timer}")
+                    if self.boss_death_timer is None:
+                        print("[DEBUG LevelSix] Initializing boss_death_timer.")
+                        self.boss_death_timer = Timer(2.0)
+                        self.boss_death_timer.reset()
+                        self.level_complete = True
+
+                    # Ensure boss is removed from enemies list so it doesn't keep updating/drawing
+                    if boss in state.enemies:
+                        print("[DEBUG LevelSix] Removing boss from state.enemies")
+                        state.enemies.remove(boss)
+                elif boss.enemyHealth <= 0:
+                    print(f"[DEBUG LevelSix] Boss health is {boss.enemyHealth} but boss_dead is False. Forcing boss_dead = True")
+                    boss.boss_dead = True
 
     def draw_coin_counter(self, state):
         font = pygame.font.Font(None, 28)

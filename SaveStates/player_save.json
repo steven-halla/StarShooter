@@ -1,13 +1,13 @@
 {
   "version": 1,
   "location": {
-    "screen": "Level 6",
-    "level_id": 6,
+    "screen": "Level 7",
+    "level_id": 7,
     "spawn_id": null
   },
   "player": {
     "shipHealth": 50,
-    "money": 10000,
+    "money": 1000,
     "shipHealthMax": 50,
     "equipped_magic": [
       "Buster Cannon",
@@ -19,7 +19,7 @@
       "Napalm Spread",
       "Buster Cannon"
     ],
-    "current_level": 6
+    "current_level": 7
   },
   "weapons": {
     "machine_gun": {
@@ -40,7 +40,7 @@
     "bullet_speed": 1.5,
     "rate_of_fire": 0.5,
     "max": 2,
-    "current": 2,
+    "current": 0,
     "fire_interval_seconds": 0.5,
     "regen_interval_seconds": 10.0
   },
@@ -56,7 +56,7 @@
     "player_max_ki": 125,
     "current_heat": 100,
     "max_heat": 100,
-    "post_hit_invincibility_duration": 2.0
+    "post_hit_invincibility_duration": 2.5
   },
   "upgrades": {
     "upgrade_chips": [
@@ -72,7 +72,10 @@
       "Wind Slicer",
       "M. gun damage booster",
       "Greater hull",
-      "Ki Up ++"
+      "Ki Up ++",
+      "Missile Count +2",
+      "Shield Flash",
+      "Post hit +"
     ]
   }
 }
