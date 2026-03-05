@@ -40,6 +40,7 @@ class LevelSix(VerticalBattleScreen):
         self.crush_start_time = None
         self.CRUSH_TIME_MS = 500
         self.all_potential_enemies = []
+        self.coins_collected: int = 0
 
     def start(self, state) -> None:
         player_x = None
@@ -66,6 +67,7 @@ class LevelSix(VerticalBattleScreen):
         self.save_state.save_to_file("player_save.json")
 
     def update(self, state) -> None:
+        print(sum(1 for e in state.enemies if getattr(e, "name", "") == "Coins"))
 
 
         #CLEAN OUT EXPECT4D ENEMIES LIST AFTER WE KILL BOSS
@@ -93,7 +95,17 @@ class LevelSix(VerticalBattleScreen):
     def draw(self, state):
         super().draw(state)
         self.draw_player_enemies(state)
+        self.draw_coin_counter(state)
         pygame.display.flip()
+
+    def draw_coin_counter(self, state):
+        font = pygame.font.Font(None, 28)
+        coin_text = font.render(
+            f"Coins: {self.coins_collected}",
+            True,
+            GlobalConstants.WHITE
+        )
+        state.DISPLAY.blit(coin_text, (10, 10))
 
     def update_enemy_helper(self, state):
         cam_top = self.camera.y
@@ -182,6 +194,7 @@ class LevelSix(VerticalBattleScreen):
 
             if enemy.hitbox.colliderect(self.starship.hitbox):
                 # print(f"[LAST COIN] x={enemy.x:.2f}, y={enemy.y:.2f}")
+                self.coins_collected += 1
                 enemy.is_active = False
                 state.enemies.remove(enemy)
                 continue

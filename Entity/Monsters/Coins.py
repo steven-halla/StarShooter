@@ -24,6 +24,7 @@ class Coins(Enemy):
         # gameplay stats (not used yet)
         self.enemyHealth: int = 1
         self.is_active = True
+        self.name:str = "Coins"
 
 
 
