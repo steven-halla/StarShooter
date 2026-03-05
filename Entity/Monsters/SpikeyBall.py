@@ -17,6 +17,7 @@ class SpikeyBall(Enemy):
         # enemy appearance
         self.width: int = 40
         self.height: int = 40
+        self.name: str = "SpikeyBall"
         self.color: tuple[int, int, int] = GlobalConstants.RED
 
 

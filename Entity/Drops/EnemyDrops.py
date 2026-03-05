@@ -74,6 +74,16 @@ class EnemyDrop:
                 return cls(enemy.x, enemy.y, drop_type)
             return None
 
+        if enemy_type == "SpikeyBall":
+            if roll < 0.20:
+                drop_type = random.choice([
+                    cls.DROP_HEALTH,
+                    cls.DROP_SHIELD,
+                    cls.DROP_MISSILE
+                ])
+                return cls(enemy.x, enemy.y, drop_type)
+            return None
+
         if enemy_type == "transport_worm":
             if roll < 0.25:
                 drop_type = random.choice([cls.DROP_HEALTH])
@@ -136,15 +146,15 @@ class EnemyDrop:
     def update_rect(self) -> None:
         self.rect.topleft = (int(self.x), int(self.y))
 
-    def apply_effect(self,state,  starship) -> None:
+    def apply_effect(self, state, starship) -> None:
         if self.drop_type == self.DROP_HEALTH:
-            bonus = 25 if state.starship.upgrade_chips.contains("Enemy Drop +") else 0
+            bonus = 25 if "Enemy Drop +" in state.starship.upgrade_chips else 0
             starship.shipHealth = min(starship.shipHealth + bonus, starship.shipHealthMax)
 
         elif self.drop_type == self.DROP_SHIELD:
             if hasattr(starship, "shield_system"):
                 bonus = 25
-                if hasattr(state.starship, "upgrade_chips") and "Enemy Drop +" in state.starship.upgrade_chips:
+                if "Enemy Drop +" in state.starship.upgrade_chips:
                     bonus += 25  # total 50 when chip is owned
 
                 starship.shield_system.current_shield_points = min(
@@ -164,17 +174,17 @@ class EnemyDrop:
 
 
         elif self.drop_type == self.DROP_KI:
-            bonus = 10 if state.starship.upgrade_chips.contains("Enemy Drop +") else 0
+            bonus = 10 if "Enemy Drop +" in state.starship.upgrade_chips else 0
             starship.player_ki = min(starship.player_ki + bonus, starship.player_max_ki)
 
-    def update(self, starship, drop_list, camera=None) -> None:
+    def update(self, state, drop_list, camera=None) -> None:
         if not self.is_active:
             return
 
         self.update_rect()
 
-        if self.rect.colliderect(starship.hitbox):
-            self.apply_effect(starship)
+        if self.rect.colliderect(state.starship.hitbox):
+            self.apply_effect(state, state.starship)
             self.is_active = False
             if self in drop_list:
                 drop_list.remove(self)

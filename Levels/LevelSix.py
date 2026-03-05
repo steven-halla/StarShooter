@@ -110,15 +110,15 @@ class LevelSix(VerticalBattleScreen):
     def update_enemy_helper(self, state):
         cam_top = self.camera.y
         cam_bottom = cam_top + GlobalConstants.GAMEPLAY_HEIGHT
-        update_buffer = 100 # Allow some room outside the screen for updates
+        update_buffer = 150 # Match load buffer
 
         for enemy in list(state.enemies):
             # Only update if in vicinity of the camera
             if not ((enemy.y + enemy.height >= cam_top - update_buffer) and (enemy.y <= cam_bottom + update_buffer)):
-                # If it's a coin and it's below the screen, update_player_touches_coin already handles it
-                # For others, we might want to keep them in state.enemies but not update them,
-                # OR we could move them back to potential enemies if they were ahead and we scrolled back (unlikely in this game)
-                # For now, just skip updating them.
+                continue
+
+            if isinstance(enemy, Coins):
+                # Coins are handled in update_player_touches_coin
                 continue
 
             if isinstance(enemy, BossLevelSix):
@@ -129,7 +129,6 @@ class LevelSix(VerticalBattleScreen):
                     if not self.starship.invincible:
                         self.starship.shield_system.take_damage(enemy.touch_damage)
                         self.starship.on_hit()
-                        # print(f"Player hit by {type(enemy).__name__}! Health: {self.starship.shipHealth}")
 
                 if enemy.enemyBullets:
                     state.enemy_bullets.extend(enemy.enemyBullets)
@@ -145,12 +144,25 @@ class LevelSix(VerticalBattleScreen):
                         self.starship.on_hit()
                 else:
                     enemy.color = GlobalConstants.RED
-            elif isinstance(enemy, BileSpitter):
-                enemy.update(state)
-            elif isinstance(enemy, TransportWorm):
-                enemy.update(state)
-                # Touch damage for TransportWorm is already called in its update method,
-                # but we should ensure it's removed if dead.
+            else:
+                # General update for other enemies (SpinalRaptor, BileSpitter, TransportWorm, FireLauncher)
+                result = enemy.update(state)
+
+                if hasattr(enemy, "enemyBullets") and enemy.enemyBullets:
+                    state.enemy_bullets.extend(enemy.enemyBullets)
+                    enemy.enemyBullets.clear()
+
+                if result is not None:
+                    # Some older enemies might return a single bullet
+                    from Weapons.Bullet import Bullet
+                    if isinstance(result, Bullet):
+                        state.enemy_bullets.append(result)
+
+                if self.starship.hitbox.colliderect(enemy.hitbox):
+                    if not self.starship.invincible:
+                        touch_damage = getattr(enemy, "touch_damage", 10)
+                        self.starship.shield_system.take_damage(touch_damage)
+                        self.starship.on_hit()
 
             if hasattr(enemy, "enemyHealth") and enemy.enemyHealth <= 0:
                 self.remove_enemy_if_dead(enemy, state)

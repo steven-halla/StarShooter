@@ -164,7 +164,7 @@ class VerticalBattleScreen:
 
         if state.starship.current_level != 3:
             for d in list(state.enemy_drops):
-                d.update(state.starship, state.enemy_drops, self.camera)
+                d.update(state, state.enemy_drops, self.camera)
 
         self.controller.update()
         # print("Line 162 and 163 vertical battle screen")
