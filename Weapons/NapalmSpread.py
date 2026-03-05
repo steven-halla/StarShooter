@@ -18,7 +18,7 @@ class NapalmSpread(Bullet):
         self.ki_cost: int = 20
         self.height: int = 11
 
-        self.damage: int = 50
+        self.damage: int = 35
         self.rate_of_fire: float = 3.5  # slightly slower fire rate
         self.bullet_speed: float = 3.5
 

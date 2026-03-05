@@ -1,6 +1,7 @@
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Bosses.BossLevelSix import BossLevelSix
 from Entity.Monsters.Coins import Coins
 from Entity.Monsters.FireLauncher import FireLauncher
@@ -9,6 +10,7 @@ from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.SpinalRaptor import SpinalRaptor
 from Entity.Monsters.TransportWorm import TransportWorm
 from SaveStates.SaveState import SaveState
+from ScreenClasses.HomeBase import HomeBase
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
 class LevelSix(VerticalBattleScreen):
@@ -23,7 +25,7 @@ class LevelSix(VerticalBattleScreen):
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400 # y position of map
         window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
         self.camera_y = self.WORLD_HEIGHT - window_height # look at bottom of map
-        # self.camera_y =  100 # look at bottom of map
+        # self.camera_y =  90 # look at bottom of map
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera.y = float(self.camera_y)
         self.coins_missed = []
@@ -41,6 +43,8 @@ class LevelSix(VerticalBattleScreen):
         self.CRUSH_TIME_MS = 500
         self.all_potential_enemies = []
         self.coins_collected: int = 0
+        self.boss_death_timer = None
+
 
     def start(self, state) -> None:
         player_x = None
@@ -68,8 +72,15 @@ class LevelSix(VerticalBattleScreen):
 
     def update(self, state) -> None:
         print(sum(1 for e in state.enemies if getattr(e, "name", "") == "Coins"))
+        self.update_handle_level_complete(state)
 
 
+        if self.boss_death_timer is not None:
+            if self.boss_death_timer.is_ready():
+                state.starship.money += 1000 * self.coins_collected
+                state.currentScreen = HomeBase(self.textbox)
+                state.currentScreen.start(state)
+                return
         #CLEAN OUT EXPECT4D ENEMIES LIST AFTER WE KILL BOSS
 
         super().update(state)
@@ -98,6 +109,14 @@ class LevelSix(VerticalBattleScreen):
         self.draw_coin_counter(state)
         pygame.display.flip()
 
+    def update_handle_level_complete(self, state):
+        if not self.level_complete:
+            boss_alive = any(isinstance(enemy, BossLevelSix) for enemy in state.enemies)
+            if not boss_alive:
+                if self.boss_death_timer is None:
+                    self.boss_death_timer = Timer(2.0)
+                    self.boss_death_timer.reset()
+
     def draw_coin_counter(self, state):
         font = pygame.font.Font(None, 28)
         coin_text = font.render(
@@ -122,7 +141,7 @@ class LevelSix(VerticalBattleScreen):
                 continue
 
             if isinstance(enemy, BossLevelSix):
-                enemy.update(self.starship)
+                enemy.update(state, self.starship)
                 enemy.apply_barrage_damage(self.starship)
 
                 if self.starship.hitbox.colliderect(enemy.hitbox):
@@ -221,15 +240,26 @@ class LevelSix(VerticalBattleScreen):
                 state.enemies.remove(enemy)
 
     def update_assign_single_barrage_owner(self, state) -> None:
-        bosses = [e for e in state.enemies if isinstance(e, BossLevelSix)]
+        cam_top = self.camera.y
+        cam_bottom = cam_top + GlobalConstants.GAMEPLAY_HEIGHT
+        buffer = 150
 
+        bosses = [e for e in state.enemies if isinstance(e, BossLevelSix)]
         if not bosses:
             return
 
         for boss in bosses:
             boss.may_fire_barrage = False
 
-        bosses[0].may_fire_barrage = True
+        on_screen_bosses = [
+            b for b in bosses
+            if (b.y + b.height >= cam_top - buffer) and (b.y <= cam_bottom + buffer)
+        ]
+
+        if on_screen_bosses:
+            on_screen_bosses[0].may_fire_barrage = True
+        else:
+            bosses[0].may_fire_barrage = True
 
     def update_check_player_touching_collision_bottom(self) -> None:
         player = self.starship

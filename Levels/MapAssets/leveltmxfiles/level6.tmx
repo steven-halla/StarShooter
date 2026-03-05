@@ -1304,13 +1304,10 @@
 </data>
  </layer>
  <objectgroup id="4" name="player">
-  <object id="1" name="player" x="64.5154" y="6870.01" width="16" height="16"/>
+  <object id="1" name="player" x="130.776" y="6870.01" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="5" name="enemies">
-  <object id="2" name="level_6_boss" x="122.987" y="1.58692" width="32" height="32"/>
-  <object id="4" name="level_6_boss" x="162.66" y="-9.09495e-13" width="32" height="32"/>
-  <object id="6" name="level_6_boss" x="199.952" y="1.58692" width="32" height="32"/>
-  <object id="5" name="level_6_boss" x="82.52" y="2.38039" width="32" height="32"/>
+  <object id="2" name="level_6_boss" x="86.4758" y="1.58692" width="144" height="32"/>
   <object id="34" name="coins" x="163.06" y="585.455" width="16" height="16"/>
   <object id="242" name="coins" x="75.1628" y="3609.12" width="16" height="16"/>
   <object id="275" name="fire_launcher" x="146.833" y="293.367" width="16" height="16"/>
@@ -1327,10 +1324,10 @@
   <object id="241" name="coins" x="119.787" y="5444.14" width="16" height="16"/>
   <object id="210" name="coins" x="217.15" y="6289.31" width="16" height="16"/>
   <object id="298" name="bile_spitter" x="187.401" y="6657.12" width="16" height="16"/>
-  <object id="327" name="spikey_ball" x="121.14" y="5360.3" width="16" height="16"/>
+  <object id="327" name="spikey_ball" x="214.446" y="47.2516" width="16" height="16"/>
   <object id="323" name="transport_worm" x="160.355" y="3183.15" width="16" height="16"/>
   <object id="308" name="bile_spitter" x="154.946" y="2367.74" width="16" height="16"/>
-  <object id="328" name="spikey_ball" x="181.992" y="1560.44" width="16" height="16"/>
+  <object id="328" name="spikey_ball" x="95.4466" y="48.6039" width="16" height="16"/>
   <object id="324" name="transport_worm" x="122.492" y="1279.17" width="16" height="16"/>
   <object id="326" name="transport_worm" x="119.787" y="5335.96" width="16" height="16"/>
   <object id="229" name="coins" x="191.458" y="4429.94" width="16" height="16"/>
@@ -1348,7 +1345,7 @@
   <object id="333" name="spikey_ball" x="96.7995" y="3683.5" width="16" height="16"/>
   <object id="319" name="spinal_raptor" x="138.72" y="1753.81" width="16" height="16"/>
   <object id="311" name="bile_spitter" x="260.424" y="6355.57" width="16" height="16"/>
-  <object id="321" name="spinal_raptor" x="160.356" y="4208.18" width="16" height="16"/>
+  <object id="321" name="spinal_raptor" x="194.163" y="4212.23" width="16" height="16"/>
   <object id="322" name="spinal_raptor" x="119.788" y="2383.97" width="16" height="16"/>
   <object id="187" name="coins" x="45.4134" y="1683.49" width="16" height="16"/>
   <object id="248" name="coins" x="149.537" y="5994.52" width="16" height="16"/>
@@ -1380,20 +1377,20 @@
   <object id="186" name="coins" x="247.067" y="1821.72" width="16" height="16"/>
   <object id="243" name="coins" x="178.101" y="6469.46" width="16" height="16"/>
   <object id="332" name="spikey_ball" x="237.601" y="3616.18" width="16" height="16"/>
-  <object id="318" name="spinal_raptor" x="205.146" y="3192.92" width="16" height="16"/>
+  <object id="318" name="spinal_raptor" x="164.579" y="3079.33" width="16" height="16"/>
   <object id="212" name="spinal_raptor" x="68.5679" y="6447.82" width="16" height="16"/>
   <object id="231" name="coins" x="272.76" y="4783.18" width="16" height="16"/>
   <object id="194" name="coins" x="125.363" y="3847.41" width="16" height="16"/>
   <object id="261" name="coins" x="175.397" y="6378.86" width="16" height="16"/>
   <object id="334" name="spikey_ball" x="218.669" y="5791.97" width="16" height="16"/>
   <object id="335" name="spikey_ball" x="87.4995" y="5793.33" width="16" height="16"/>
-  <object id="336" name="spikey_ball" x="183.51" y="4008.34" width="16" height="16"/>
+  <object id="336" name="spikey_ball" x="152.408" y="3969.12" width="16" height="16"/>
   <object id="320" name="spinal_raptor" x="210.556" y="5297.04" width="16" height="16"/>
   <object id="297" name="fire_launcher" x="41.5224" y="6577.64" width="16" height="16"/>
   <object id="307" name="bile_spitter" x="33.4089" y="6512.73" width="16" height="16"/>
   <object id="306" name="bile_spitter" x="42.8747" y="6683.12" width="16" height="16"/>
   <object id="309" name="bile_spitter" x="295.748" y="6587.11" width="16" height="16"/>
-  <object id="329" name="spikey_ball" x="118.602" y="1387.65" width="16" height="16"/>
+  <object id="329" name="spikey_ball" x="157.817" y="47.5519" width="16" height="16"/>
   <object id="325" name="transport_worm" x="102.374" y="1768.99" width="16" height="16"/>
   <object id="183" name="coins" x="201.09" y="1602.65" width="16" height="16"/>
   <object id="251" name="coins" x="248.419" y="6109.76" width="16" height="16"/>

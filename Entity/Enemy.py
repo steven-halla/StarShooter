@@ -460,9 +460,10 @@ class Enemy:
             bullet_height: int,
             bullet_color: tuple[int, int, int],
             bullet_damage: int,
-            state
+            state,
+            x_offset: int = 0
     ) -> None:
-        bullet_x = self.x + self.width // 2 - bullet_width // 2
+        bullet_x = self.x + self.width // 2 - bullet_width // 2 + x_offset
         bullet_y = self.y + self.height
 
         bullet = Bullet(bullet_x, bullet_y)

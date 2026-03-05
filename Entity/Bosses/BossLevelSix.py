@@ -19,8 +19,8 @@ class BossLevelSix(Enemy):
         self.color = GlobalConstants.RED
 
         self.enemyBullets: list[Bullet] = []
-        self.enemyHealth = 400
-        self.maxHealth = 400
+        self.enemyHealth = 900
+        self.maxHealth = 900
 
 
         self.bile_spitter_image = pygame.image.load(
@@ -31,8 +31,8 @@ class BossLevelSix(Enemy):
         # BARRAGE GRID
         # -------------------------
         self.BARRAGE_SIZE = 32
-        self.BARRAGE_ROWS = 5
-        self.BARRAGE_COLS = 8
+        self.BARRAGE_ROWS = 6
+        self.BARRAGE_COLS = 6
 
         # MASTER GRID (never modified)
         self.barrage_rects: list[pygame.Rect] = []
@@ -60,6 +60,9 @@ class BossLevelSix(Enemy):
         self.may_fire_barrage: bool = True
         self.touch_damage: int = 10
 
+        self.vertical_shot_timer = pygame.time.get_ticks()
+        self.VERTICAL_SHOT_COOLDOWN_MS = 3000
+
 
 
     # =====================================================
@@ -74,25 +77,28 @@ class BossLevelSix(Enemy):
         SIZE = self.BARRAGE_SIZE
 
         BASE_COORDS = [
+
+            (64, 30), (98, 30), (132, 30),
+            (166, 30), (200, 30), (234, 30),
             # Row 1
-            (30, 60), (64, 60), (98, 60), (132, 60),
-            (166, 60), (200, 60), (234, 60), (268, 60),
+            (64, 60), (98, 60), (132, 60),
+            (166, 60), (200, 60), (234, 60),
 
             # Row 2
-            (30, 94), (64, 94), (98, 94), (132, 94),
-            (166, 94), (200, 94), (234, 94), (268, 94),
+             (64, 94), (98, 94), (132, 94),
+            (166, 94), (200, 94), (234, 94),
 
             # Row 3
-            (30, 128), (64, 128), (98, 128), (132, 128),
-            (166, 128), (200, 128), (234, 128), (268, 128),
+             (64, 128), (98, 128), (132, 128),
+            (166, 128), (200, 128), (234, 128),
 
             # Row 4
-            (30, 162), (64, 162), (98, 162), (132, 162),
-            (166, 162), (200, 162), (234, 162), (268, 162),
+            (64, 162), (98, 162), (132, 162),
+            (166, 162), (200, 162), (234, 162),
 
             # Row 5
-            (30, 196), (64, 196), (98, 196), (132, 196),
-            (166, 196), (200, 196), (234, 196), (268, 196),
+            (64, 196), (98, 196), (132, 196),
+            (166, 196), (200, 196), (234, 196),
 
 
         ]
@@ -137,7 +143,7 @@ class BossLevelSix(Enemy):
             row_rects = self.barrage_rects[start:end]
 
             # Safety check for random.sample
-            num_to_choose = min(3, len(row_rects))
+            num_to_choose = min(5, len(row_rects))
             if num_to_choose == 0:
                 # print(f"Warning: No rectangles available in row {row_index}")
                 continue
@@ -235,8 +241,6 @@ class BossLevelSix(Enemy):
     # UPDATE
     # =====================================================
     def update(self, state, player=None) -> None:
-
-
         super().update(state)
 
         self._barrage_drawn_this_frame = False  # 🔑 reset once per frame
@@ -256,6 +260,20 @@ class BossLevelSix(Enemy):
             self.build_barrage_grid()
 
         self.update_barrage(player)
+
+        # Fire vertical shot every 5 seconds
+        now = pygame.time.get_ticks()
+        if now - self.vertical_shot_timer >= self.VERTICAL_SHOT_COOLDOWN_MS:
+            self.shoot_single_down_vertical_y(
+                bullet_speed=0.3,
+                bullet_width=20,
+                bullet_height=20,
+                bullet_color=GlobalConstants.RED,
+                bullet_damage=10,
+                state=state,
+                x_offset=random.randint(-100, 100)
+            )
+            self.vertical_shot_timer = now
 
         for bullet in self.enemyBullets:
             bullet.update()
