@@ -3,6 +3,7 @@ import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelSeven import BossLevelSeven
+from Entity.Monsters.SpinalRaptor import SpinalRaptor
 from SaveStates.SaveState import SaveState
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 from Weapons.Bullet import Bullet
@@ -68,7 +69,7 @@ class LevelSeven(VerticalBattleScreen):
         super().update(state)
         # print(state.enemies)
         self.update_loop_level(state)
-        # self.update_build_flame_row()
+        self.update_build_flame_row()
         self.update_enemy_helper(state)
         self.update_repeat_map(state)
         self.update_debug_print_player_and_boss_visible(state)
@@ -76,7 +77,7 @@ class LevelSeven(VerticalBattleScreen):
     def draw(self, state):
         super().draw(state)
         self.draw_player_and_enemies(state)
-        # self.draw_flames(state.DISPLAY, self.camera)
+        self.draw_flames(state.DISPLAY, self.camera)
         pygame.display.flip()
 
     def update_build_flame_row(self):
@@ -146,14 +147,12 @@ class LevelSeven(VerticalBattleScreen):
             if boss:
                 self.respawn_boss_at_random_tile(boss)
                 self.boss_shift_start_time = None
-            boss = next(
-                (e for e in state.enemies if isinstance(e, BossLevelSeven)),
-                None
-            )
 
-            if boss:
-                self.respawn_boss_at_random_tile(boss)
-                self.boss_shift_start_time = None
+            # Remove existing SpinalRaptors before re-populating
+            state.enemies = [e for e in state.enemies if not isinstance(e, SpinalRaptor)]
+
+            # Spawn SpinalRaptors at each point in the boss_appear_point layer
+            self.load_spinal_raptors(state)
 
     def update_move_map_y_axis(self):
         window_height = GlobalConstants.GAMEPLAY_HEIGHT
@@ -256,17 +255,16 @@ class LevelSeven(VerticalBattleScreen):
     def draw_player_and_enemies(self, state):
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
-        for boss in state.enemies:
-            if not isinstance(boss, BossLevelSeven):
-                continue
-            boss.draw(state.DISPLAY, self.camera)
-            boss.draw_damage_flash(state.DISPLAY, self.camera)
+        for enemy in state.enemies:
+            enemy.draw(state.DISPLAY, self.camera)
+            enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
     def draw_level_collision(self, surface: pygame.Surface) -> None:
         self.draw_collision_tiles(surface)
 
     def build_flame_row(self) -> None:
-        SIZE = 82
+        WIDTH = 82
+        HEIGHT = 41
         GAP = 6
         START_X = 8
         COLS = 9
@@ -277,16 +275,15 @@ class LevelSeven(VerticalBattleScreen):
         if self.flame_base_world_y is None:
             self.flame_base_world_y = (
                     self.camera.y
-                    + (self.camera.window_height / self.camera.zoom)
-                    - SIZE
+                    + HEIGHT
             )
 
-        row_offset_y = -(self.flame_rows_built * (SIZE + GAP))
+        row_offset_y = (self.flame_rows_built * (HEIGHT + GAP))
 
         for col in range(COLS):
-            x = START_X + col * (SIZE + GAP)
+            x = START_X + col * (WIDTH + GAP)
             y = self.flame_base_world_y + row_offset_y
-            self.flame_rects.append(pygame.Rect(x, y, SIZE, SIZE))
+            self.flame_rects.append(pygame.Rect(x, y, WIDTH, HEIGHT))
 
         self.flame_rows_built += 1
 
@@ -318,11 +315,10 @@ class LevelSeven(VerticalBattleScreen):
                     world_y = y * self.tile_size
                     coords.append((world_x, world_y))
 
-    def load_enemy_into_list(self, state) -> None:
-        state.enemies.clear()
+    def load_spinal_raptors(self, state) -> None:
         try:
             layer = self.tiled_map.get_layer_by_name("boss_appear_point")
-        except ValueError:
+        except (ValueError, KeyError):
             print("[LEVEL 7] No tile layer named 'boss_appear_point'")
             return
 
@@ -334,9 +330,37 @@ class LevelSeven(VerticalBattleScreen):
             print("[LEVEL 7] 'boss_appear_point' layer has no tiles set")
             return
 
+        for sx, sy in spawn_tiles:
+            raptor = SpinalRaptor()
+            raptor.x = sx * self.tile_size + (self.tile_size - raptor.width) // 2
+            raptor.y = sy * self.tile_size + (self.tile_size - raptor.height) // 2
+            raptor.camera = self.camera
+            raptor.target_player = self.starship
+            raptor.update_hitbox()
+            state.enemies.append(raptor)
+
+    def load_enemy_into_list(self, state) -> None:
+        # state.enemies.clear()
+
+        try:
+            layer = self.tiled_map.get_layer_by_name("boss_appear_point")
+        except (ValueError, KeyError):
+            print("[LEVEL 7] No tile layer named 'boss_appear_point'")
+            return
+
+        spawn_tiles: list[tuple[int, int]] = [
+            (tx, ty) for tx, ty, gid in layer if gid != 0
+        ]
+
+        if not spawn_tiles:
+            print("[LEVEL 7] 'boss_appear_point' layer has no tiles set")
+            return
+
+        # --- spawn boss (same as before) ---
         tx, ty = max(spawn_tiles, key=lambda t: t[1])
         tile_world_x = tx * self.tile_size
         tile_world_y = ty * self.tile_size
+
         boss = BossLevelSeven()
         boss.x = tile_world_x + (self.tile_size - boss.width) // 2
         boss.y = tile_world_y + (self.tile_size - boss.height) // 2
@@ -344,6 +368,9 @@ class LevelSeven(VerticalBattleScreen):
         boss.target_player = self.starship
         boss.update_hitbox()
         state.enemies.append(boss)
+
+        # --- spawn 1 spinal raptor per boss_appear_point tile ---
+        self.load_spinal_raptors(state)
 
         print("[LEVEL 7] boss_appear_point tiles (world):")
         for sx, sy in spawn_tiles:
@@ -355,22 +382,59 @@ class LevelSeven(VerticalBattleScreen):
             f"({self.camera.world_to_screen_x(boss.x)}, "
             f"{self.camera.world_to_screen_y(boss.y)})"
         )
+    # def load_enemy_into_list(self, state) -> None:
+    #     # state.enemies.clear()
+    #     try:
+    #         layer = self.tiled_map.get_layer_by_name("boss_appear_point")
+    #     except ValueError:
+    #         print("[LEVEL 7] No tile layer named 'boss_appear_point'")
+    #         return
+    #
+    #     spawn_tiles: list[tuple[int, int]] = [
+    #         (tx, ty) for tx, ty, gid in layer if gid != 0
+    #     ]
+    #
+    #     if not spawn_tiles:
+    #         print("[LEVEL 7] 'boss_appear_point' layer has no tiles set")
+    #         return
+    #
+    #     tx, ty = max(spawn_tiles, key=lambda t: t[1])
+    #     tile_world_x = tx * self.tile_size
+    #     tile_world_y = ty * self.tile_size
+    #     boss = BossLevelSeven()
+    #     boss.x = tile_world_x + (self.tile_size - boss.width) // 2
+    #     boss.y = tile_world_y + (self.tile_size - boss.height) // 2
+    #     boss.camera = self.camera
+    #     boss.target_player = self.starship
+    #     boss.update_hitbox()
+    #     state.enemies.append(boss)
+    #
+    #     print("[LEVEL 7] boss_appear_point tiles (world):")
+    #     for sx, sy in spawn_tiles:
+    #         print(f"  tile -> ({sx * self.tile_size}, {sy * self.tile_size})")
+    #
+    #     print(f"[LEVEL 7] Boss spawned world: ({boss.x}, {boss.y})")
+    #     print(
+    #         f"[LEVEL 7] Boss spawned SCREEN: "
+    #         f"({self.camera.world_to_screen_x(boss.x)}, "
+    #         f"{self.camera.world_to_screen_y(boss.y)})"
+    #     )
 
     def build_flame_grid(self) -> None:
-        SIZE = 82
+        WIDTH = 82
+        HEIGHT = 41
         GAP = 6
         START_X = 8
         COLS = 9
 
         self.flame_rects.clear()
 
-        screen_height = GlobalConstants.GAMEPLAY_HEIGHT
-
+        # Build flames from the TOP down
         for row in range(self.flame_rows_built):
-            row_y = screen_height - SIZE - row * (SIZE + GAP)
+            row_y = row * (HEIGHT + GAP)
             for col in range(COLS):
-                x = START_X + col * (SIZE + GAP)
-                self.flame_rects.append(pygame.Rect(x, row_y, SIZE, SIZE))
+                x = START_X + col * (WIDTH + GAP)
+                self.flame_rects.append(pygame.Rect(x, row_y, WIDTH, HEIGHT))
 
     def respawn_boss_at_random_tile(self, boss) -> None:
         print("dklfj;lsajlfa")

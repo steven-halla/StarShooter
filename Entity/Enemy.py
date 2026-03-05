@@ -179,7 +179,8 @@ class Enemy:
 
         dx = abs(self.x - self.target_player.x)
         dy = abs(self.y - self.target_player.y)
-        return dx <= 400 and dy <= 300
+        # Increased radius for vertical levels and faster movement
+        return dx <= 800 and dy <= 800
 
     # --------------------------------------------------
     # HITBOX

@@ -26,8 +26,8 @@ class BossLevelSeven(Enemy):
         self.fire_interval_ms: int = 2000
         self.last_shot_time: int = 0
         self.speed: float = 0.4
-        self.enemyHealth: float = 3000.0
-        self.maxHealth: float = 3000.0
+        self.enemyHealth: float = 1000.0
+        self.maxHealth: float = 1000.0
         self.exp: int = 1
         self.credits: int = 5
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
@@ -252,6 +252,9 @@ class BossLevelSeven(Enemy):
 
     def update(self, state) -> None:
         super().update(state)
+        print("boss level seven line 255 " + str(self.enemyHealth))
+        if not self.is_active:
+            return
         now = pygame.time.get_ticks()
         time_left_ms = 5000 - (now - self.attack_choice_timer.last_time_ms)
         if time_left_ms < 0:
@@ -267,16 +270,17 @@ class BossLevelSeven(Enemy):
             self.attack_sequence_two = False
             self.attack_sequence_three = False
 
-            if attack_chooser_roll <= 50:
+            if attack_chooser_roll <= 30:
                 print("attack 1")  # 50%
                 self.attack_sequence_one = True
                 self.is_firing = True
                 self.fire_phase_timer.reset()
-            elif attack_chooser_roll <= 80:
+            elif attack_chooser_roll <= 60:
                 print("attack 2")  # 30% (51-80)
                 self.attack_sequence_two = True
             else:
                 print("attack 3")  # 20% (81-100)
+                #barrage spray
                 self.attack_sequence_three = True
 
             # Reset the buffer timer so there is a 2-second delay before the next attack begins
