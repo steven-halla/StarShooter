@@ -273,6 +273,7 @@ class BossLevelSeven(Enemy):
             if attack_chooser_roll <= 30:
                 print("attack 1")  # 50%
                 self.attack_sequence_one = True
+
                 self.is_firing = True
                 self.fire_phase_timer.reset()
             elif attack_chooser_roll <= 60:
