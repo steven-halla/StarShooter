@@ -4,7 +4,7 @@ from Weapons.Bullet import Bullet
 
 
 class MetalShield(Bullet):
-    def __init__(self, x: float, y: float, damage: int = 25, max_hits: int = 3):
+    def __init__(self, x: float, y: float, damage: int = 20, max_hits: int = 3):
         super().__init__(x, y)
 
         # size

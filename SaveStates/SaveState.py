@@ -1,5 +1,6 @@
 import json
 import os
+import pygame
 from typing import Any
 
 from Constants.Timer import Timer
@@ -201,6 +202,11 @@ class SaveState:
             "current_level": starship.current_level,
         }
 
+        self.data["ship"] = {
+            "width": starship.width,
+            "height": starship.height
+        }
+
         self.data["stats"] = {
             "speed": starship.speed,
             "player_ki": starship.player_ki,
@@ -226,6 +232,20 @@ class SaveState:
             "wind_slicer": {
                 "damage": starship.wind_slicer_damage,
                 "bullet_count": starship.wind_slicer_bullet_count,
+            },
+            "buster_cannon": {
+                "base_damage": starship.buster_cannon_base_damage,
+                "charged_damage": starship.buster_cannon_charged_damage,
+                "charge_time_required": starship.buster_cannon_charge_time_required,
+            },
+            "metal_shield": {
+                "damage": starship.metal_shield_damage,
+                "max_hits": starship.metal_shield_max_hits,
+            },
+            "napalm_spread": {
+                "damage": starship.napalm_spread_damage,
+                "area_of_effect_x": starship.napalm_spread_area_of_effect_x,
+                "area_of_effect_y": starship.napalm_spread_area_of_effect_y,
             },
         }
 
@@ -265,6 +285,17 @@ class SaveState:
             starship.magic_inventory = list(p.get("magic_inventory", starship.magic_inventory))
             starship.current_level = p.get("current_level", starship.current_level)
 
+        ship = self.data.get("ship", {})
+        if ship:
+            starship.width = ship.get("width", starship.width)
+            starship.height = ship.get("height", starship.height)
+            starship.hitbox = pygame.Rect(
+                int(starship.x),
+                int(starship.y),
+                starship.width,
+                starship.height
+            )
+
         s = self.data.get("stats", {})
         if s:
             starship.speed = s.get("speed", starship.speed)
@@ -293,6 +324,23 @@ class SaveState:
         if w_ws:
             starship.wind_slicer_damage = w_ws.get("damage", starship.wind_slicer_damage)
             starship.wind_slicer_bullet_count = w_ws.get("bullet_count", starship.wind_slicer_bullet_count)
+
+        w_bc = self.data.get("weapons", {}).get("buster_cannon", {})
+        if w_bc:
+            starship.buster_cannon_base_damage = w_bc.get("base_damage", starship.buster_cannon_base_damage)
+            starship.buster_cannon_charged_damage = w_bc.get("charged_damage", starship.buster_cannon_charged_damage)
+            starship.buster_cannon_charge_time_required = w_bc.get("charge_time_required", starship.buster_cannon_charge_time_required)
+
+        w_ms = self.data.get("weapons", {}).get("metal_shield", {})
+        if w_ms:
+            starship.metal_shield_damage = w_ms.get("damage", starship.metal_shield_damage)
+            starship.metal_shield_max_hits = w_ms.get("max_hits", starship.metal_shield_max_hits)
+
+        w_ns = self.data.get("weapons", {}).get("napalm_spread", {})
+        if w_ns:
+            starship.napalm_spread_damage = w_ns.get("damage", starship.napalm_spread_damage)
+            starship.napalm_spread_area_of_effect_x = w_ns.get("area_of_effect_x", starship.napalm_spread_area_of_effect_x)
+            starship.napalm_spread_area_of_effect_y = w_ns.get("area_of_effect_y", starship.napalm_spread_area_of_effect_y)
 
         m = self.data.get("missiles", {})
         if m:

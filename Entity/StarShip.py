@@ -90,6 +90,9 @@ class StarShip:
         # Buster cannon
         # -------------------------
         self.buster_cannon = BusterCanon(self.x, self.y)
+        self.buster_cannon_base_damage = self.buster_cannon.base_damage
+        self.buster_cannon_charged_damage = self.buster_cannon.charged_damage
+        self.buster_cannon_charge_time_required = self.buster_cannon.charge_time_required
         # -------------------------
         # Energy ball
         # -------------------------
@@ -103,7 +106,7 @@ class StarShip:
         # -------------------------
         self.metal_shield = MetalShield(self.x, self.y)
         self.metal_shield_damage = self.metal_shield.damage
-        self.max_metal_shield_hits = self.metal_shield.max_hits
+        self.metal_shield_max_hits = self.metal_shield.max_hits
 
 
 
@@ -126,6 +129,9 @@ class StarShip:
         # Napalm Spread
         # -------------------------
         self.napalm_spread = NapalmSpread(self.x, self.y)
+        self.napalm_spread_damage = self.napalm_spread.damage
+        self.napalm_spread_area_of_effect_x = self.napalm_spread.area_of_effect_x
+        self.napalm_spread_area_of_effect_y = self.napalm_spread.area_of_effect_y
 
         # -------------------------
         # Player Data that needs to be saved,
@@ -190,6 +196,9 @@ class StarShip:
         # -------------------------
         self.buster_cannon.x = self.x + self.width // 2
         self.buster_cannon.y = self.y
+        self.buster_cannon.base_damage = self.buster_cannon_base_damage
+        self.buster_cannon.charged_damage = self.buster_cannon_charged_damage
+        self.buster_cannon.charge_time_required = self.buster_cannon_charge_time_required
         self.buster_cannon.update()
         # -------------------------
         # enegy ball
@@ -208,6 +217,8 @@ class StarShip:
         # -------------------------
         self.metal_shield.x = self.x + self.width // 2
         self.metal_shield.y = self.y
+        self.metal_shield.damage = self.metal_shield_damage
+        self.metal_shield.max_hits = self.metal_shield_max_hits
         self.metal_shield.update()
         # -------------------------
         # Plasma blaster
@@ -232,6 +243,9 @@ class StarShip:
         # -------------------------
         self.napalm_spread.x = self.x + self.width // 2
         self.napalm_spread.y = self.y
+        self.napalm_spread.damage = self.napalm_spread_damage
+        self.napalm_spread.area_of_effect_x = self.napalm_spread_area_of_effect_x
+        self.napalm_spread.area_of_effect_y = self.napalm_spread_area_of_effect_y
         self.napalm_spread.update()
         # --------------------------------
         # DETECT DAMAGE (HEALTH DROP)

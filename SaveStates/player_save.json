@@ -21,6 +21,10 @@
     ],
     "current_level": 7
   },
+  "ship": {
+    "width": 16,
+    "height": 16
+  },
   "weapons": {
     "machine_gun": {
       "damage": 0.6,
@@ -33,6 +37,20 @@
     "wind_slicer": {
       "damage": 5,
       "bullet_count": 8
+    },
+    "buster_cannon": {
+      "base_damage": 2,
+      "charged_damage": 35,
+      "charge_time_required": 3.0
+    },
+    "metal_shield": {
+      "damage": 20,
+      "max_hits": 3
+    },
+    "napalm_spread": {
+      "damage": 35,
+      "area_of_effect_x": 33,
+      "area_of_effect_y": 33
     }
   },
   "missiles": {
@@ -48,7 +66,7 @@
     "current": 100,
     "max": 100,
     "recharge_rate": 0.4,
-    "time_to_start_recharge": 9000
+    "time_to_start_recharge": 10000
   },
   "stats": {
     "speed": 3.4000000000000004,

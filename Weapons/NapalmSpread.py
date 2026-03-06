@@ -39,6 +39,7 @@ class NapalmSpread(Bullet):
         self.travel_timer: Timer = Timer(self.travel_time_seconds)
         self.travel_timer.reset()
 
+
         self.explosion_time_seconds: float = 3.4
         self.explosion_timer: Timer = Timer(self.explosion_time_seconds)
 

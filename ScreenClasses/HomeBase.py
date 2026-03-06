@@ -57,7 +57,7 @@ class HomeBase(Screen):
             "Shield Flash": "Shields take less time to start recharging.",
             "speed up +": "Increases ship movement speed even further.",
             "Defense Matrix": "Slowly repairs hull when shields are at full capacity.",
-            "Ki Up +++": "Greatly increases max KI."
+            "Wizards Training": "Greatly increases max KI."
         }
         # Plasma hot enough to 'ghost ' those hit with a charged shot
         self.menu_padding_x: int = 45
@@ -91,7 +91,7 @@ class HomeBase(Screen):
             4: ["Greater hull", "Shield Generator +"],
             5: ["Shield Charger", "Enemy Drop +"],
             6: ["Shield Flash", "speed up +"],# Sheilds take less time to start re charging
-            7: ["Defense Matrix", "Ki Up +++"] # Repairs hull when shields are full
+            7: ["Defense Matrix", "Wizards Training"] # Repairs hull when shields are full
 
         }
         self.item_prices = {
@@ -122,7 +122,7 @@ class HomeBase(Screen):
             "Missile recharge +": 30000,
             "Double Barrel": 30000,
             "Defense Matrix": 30000,
-            "Ki Up +++": 30000
+            "Wizards Training": 30000
         }
 
         # input locks
@@ -483,7 +483,7 @@ class HomeBase(Screen):
                             state.starship.player_max_ki += 50
                             print("greater focus menas more ki")
                         elif item == "Post hit +":
-                            state.starship.post_hit_invincibility_duration += .25
+                            state.starship.post_hit_invincibility_duration += .5
                             print(" improved emergency shields ")
                         elif item == "Shield Generator +":
                             state.starship.current_shield += 50
@@ -494,11 +494,43 @@ class HomeBase(Screen):
                             state.starship.shipHealthMax += 25
                             state.starship.speed += 0.4
                         elif item == "Defense Matrix":
-                            state.starship.shipHealth += 25
-                            state.starship.shipHealthMax += 25
-                            state.starship.current_shield += 50
-                            state.starship.max_shield += 50
-                            state.starship.post_hit_invincibility_duration += .25
+                            state.starship.shipHealth += 10
+                            state.starship.shipHealthMax += 10
+                            state.starship.current_shield += 20
+                            state.starship.max_shield += 20
+                            # state.starship.width = 14
+                            # state.starship.height = 14
+                            state.starship.hitbox.width = 14
+                            state.starship.hitbox.height = 14
+                        elif item == "Wizards Training":
+                            state.starship.player_ki += 25
+                            state.starship.player_max_ki += 25
+
+                            # Wind Slicer damage + 3
+                            state.starship.wind_slicer_damage += 3
+
+                            # buster cannon
+                            # base damage + 1
+                            # charged_+damage +5
+                            # Chaged time Required - 1.0
+                            state.starship.buster_cannon_base_damage += 1
+                            state.starship.buster_cannon_charged_damage += 5
+                            state.starship.buster_cannon_charge_time_required = max(0.1, state.starship.buster_cannon_charge_time_required - 1.0)
+
+                            # Metal shield
+                            # Max_hit +1
+                            state.starship.metal_shield_max_hits += 1
+
+                            # napalm spread
+                            # Damage +5
+                            # area of effect x/y + 33
+                            state.starship.napalm_spread_damage += 5
+                            state.starship.napalm_spread_area_of_effect_x += 33
+                            state.starship.napalm_spread_area_of_effect_y += 33
+
+                            print("Ultimate focus through wizards training")
+
+
 
 
                         elif item == "Enemy Drop +":

@@ -7,6 +7,7 @@ class Bullet:
         self.x = float(x)
         self.y = float(y)
         self.weapon_name = ""
+        self.bullet_eater: bool = False
 
         self.width = 8
         self.height = 8
@@ -35,7 +36,7 @@ class Bullet:
             if not hasattr(self, "start_x"):
                 self.start_x = self.x
                 self.start_y = self.y
-            
+
             dx = self.x - self.start_x
             dy = self.y - self.start_y
             if (dx*dx + dy*dy) > self.max_range * self.max_range:
