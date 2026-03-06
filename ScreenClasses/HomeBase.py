@@ -29,19 +29,19 @@ class HomeBase(Screen):
         self.menu_font = pygame.font.SysFont("arial", 20)
         self.menu_items: list[str] = ["W. Shop", "D. Shop", "N. Mission", "Save","pre brief", "Load"]
         self.weapon_shop_descriptions: dict[str, str] = {
-            "M. gun damage booster": "Flesh Rotter Rounds, does extra damage.",
+            "M. gun damage booster": "Flesh Rotter Rounds that melts the meat right off the bones, does extra damage.",
             "Missile speed booster": "Missile Speed Booster\nIncreases your missile speed.",
             "Metal Shield": "Metal Shield\nKi Phase Shield that scrambles bio signatures and Destroys DNA directly.",
             "Wind Slicer": "Wind Slicer\n Ki 6 shot Micro Bullets laced with nerve shredder chemicals.",
             "Missile Count +1": "Increases your max missile count.",
             "Barrel Coolant": "increase ROF of machine gun",
-            "Napalm": "Ki attack that launches Pyrithium fluids that turns the insides into liquid",
-            "Buster Cannon":"Ki Attack that fires molten vibribulated plasma which poisions the blood stream.rapid fire and charged shot.",
-            "Britrate Missiles": "Creates and rapidly accelerates the growth of living tissue upon contact for increased damage",
+            "Napalm": "Ki attack that launches Pyrithium fire that burns the targets insides first",
+            "Buster Cannon":"Ki Attack that fires molten vibribulated plasma which turns blood into micro glass fibers.rapid fire and charged shot.",
+            "Britrate Missiles": "Creates and violently accelerates the growth of living tissue for increased damage",
             "Bullet Caliber +": "Increases bullet caliber by 25%.",
-            "Scredorphin Rounds": "Loads bullets with scredorphin, a chemical that frys the central nervous system for added damage.",
+            "Neuro Scrambler Rounds": "Loads bullets with Black Synapse chemicals, corrupting the central nervous system and firing off all pain receptors for added damage.",
             "Missile Count +2": "Add +2 to max missiles.",
-            "Tactical Missile Array": "Increases missile recharge rate.",
+            "Tactical Missile Array": "Increases missile recharge rate, speed, damage.",
             "Double Barrel": "Mounts a 2nd machine gun on ship."
         }
         self.defense_shop_descriptions: dict[str, str] = {
@@ -57,8 +57,8 @@ class HomeBase(Screen):
             "Enemy Drop +": "Increase the value of enemy drops(except missiles)",
             "Shield Flash": "Shields take less time to start recharging.",
             "speed up +": "Increases ship movement speed even further.",
-            "Defense Matrix": "Slowly repairs hull when shields are at full capacity.",
-            "Wizards Training": "Greatly increases max KI."
+            "Defense Matrix": "Adds hull, shields, and smaller hit box by over 10%.",
+            "Wizards Training": "Increase max ki and improve all 4  ki special attacks."
         }
         # Plasma hot enough to 'ghost ' those hit with a charged shot
         self.menu_padding_x: int = 45
