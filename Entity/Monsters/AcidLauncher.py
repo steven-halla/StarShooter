@@ -13,6 +13,7 @@ class AcidLauncher(Enemy):
         super().__init__()
 
         # appearance
+        self.name: str = "AcidLauncher"
         self.width: int = 16
         self.height: int = 16
         self.color: tuple[int, int, int] = GlobalConstants.RED
@@ -29,12 +30,12 @@ class AcidLauncher(Enemy):
 
         # firing
         self.weapon_speed: float = 6.0
-        self.fire_interval_ms: int = 2000
+        self.fire_interval_ms: int = 30000
         self.last_shot_time: int = pygame.time.get_ticks()
 
         # gameplay
-        self.enemyHealth: int = 50
-        self.maxHealth: int = 50
+        self.enemyHealth: int = 3
+        self.maxHealth: int = 3
 
         # bullets owned by this enemy
         self.enemyBullets: list[Bullet] = []
@@ -86,13 +87,21 @@ class AcidLauncher(Enemy):
         now = pygame.time.get_ticks()
 
         if now - self.last_shot_time >= self.fire_interval_ms:
-            self.shoot_single_bullet_aimed_at_player(
-                bullet_speed=4.0,
-                bullet_width=20,
-                bullet_height=20,
-                bullet_color=self.bulletColor,
-                bullet_damage=10,
-                state=state
+            self.dragons_breath(
+                monster_x=self.x,
+                monster_y=self.y,
+                monster_width=self.width,
+                monster_height=self.height,
+                length=300,
+                min_width=50,
+                max_width=75,
+                segments=20,
+                color=self.bulletColor,
+                damage=25,
+                x_offset=0,
+                y_offset=0,
+                state=state,
+                duration_ms=20000
             )
 
             self.last_shot_time = now

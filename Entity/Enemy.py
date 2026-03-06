@@ -880,6 +880,95 @@ class Enemy:
         #     bullet_damage=10
         # )
 
+    def spear_lance(
+            self,
+            bullet_width: int,
+            bullet_height: int,
+            bullet_color: tuple[int, int, int],
+            bullet_damage: int,
+            duration: float,
+            state
+    ) -> None:
+        """
+        Creates a spear rooted to the enemy that follows its position.
+        """
+        if self.target_player is None:
+            return
+
+        cam_top = self.camera.y
+        cam_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
+
+        if self.y + self.height < cam_top or self.y > cam_bottom:
+            return
+
+        # Check if already has an active spear
+        spear = getattr(self, "_active_spear", None)
+        if spear is not None and spear in state.enemy_bullets and spear.is_active:
+            return
+
+        # Create the spear
+        spear = Bullet(self.x, self.y)
+        spear.width = bullet_width
+        spear.height = bullet_height
+        spear.color = bullet_color
+        spear.damage = bullet_damage
+        spear.weapon_name = "Spear Lance"
+        spear.bullet_speed = 0  # Static, manually positioned
+
+        # Set duration if Bullet supports it or handle it in Enemy.update
+        spear.max_duration = duration
+        spear.spawn_time = pygame.time.get_ticks() / 1000.0
+
+        spear.update_rect()
+        state.enemy_bullets.append(spear)
+        self._active_spear = spear
+
+    def update_spear_lance(self) -> None:
+        """
+        Updates the position and lifetime of the active spear lance.
+        """
+        spear = getattr(self, "_active_spear", None)
+        if spear is None or not spear.is_active:
+            return
+
+        # Check lifetime
+        now = pygame.time.get_ticks() / 1000.0
+        if now - spear.spawn_time > spear.max_duration:
+            spear.is_active = False
+            self._active_spear = None
+            return
+
+        # Position spear in front of the monster, aimed towards the player
+        if self.target_player:
+            enemy_center_x = self.x + self.width / 2
+            enemy_center_y = self.y + self.height / 2
+
+            player_center_x = self.target_player.hitbox.centerx
+            player_center_y = self.target_player.hitbox.centery
+
+            dx = player_center_x - enemy_center_x
+            dy = player_center_y - enemy_center_y
+            dist = math.hypot(dx, dy)
+
+            if dist > 0:
+                nx = dx / dist
+                ny = dy / dist
+
+                # Root spear directly to the edge of the enemy body
+                anchor_x = enemy_center_x + nx * (self.width / 2)
+                anchor_y = enemy_center_y + ny * (self.height / 2)
+
+                spear.x = anchor_x - spear.width / 2
+                spear.y = anchor_y - spear.height / 2 -40
+            else:
+                spear.x = self.x + (self.width - spear.width) / 2
+                spear.y = self.y + (self.height - spear.height) / 2
+        else:
+            spear.x = self.x + (self.width - spear.width) / 2
+            spear.y = self.y + (self.height - spear.height) / 2
+
+        spear.update_rect()
+
     def touch_mellee(
             self,
             bullet_width: int,

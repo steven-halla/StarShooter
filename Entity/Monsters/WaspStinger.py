@@ -1,108 +1,110 @@
+import random
 import pygame
-import math
 
+from Constants.GlobalConstants import GlobalConstants
 from Constants.Timer import Timer
 from Entity.Enemy import Enemy
 from Movement.MoveRectangle import MoveRectangle
 
 
 class WaspStinger(Enemy):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
-        # movement helper (SAME PATTERN AS DRONE)
+        # movement
         self.mover: MoveRectangle = MoveRectangle()
         self.camera = None
         self.target_player = None
-        self.has_locked = False
-        self.charge_dx = 0.0
-        self.charge_dy = 0.0
-        self.charge_cooldown = Timer(2.0)  # 2 seconds
+        self.speed: float = 1.0
+        self.edge_padding: int = 0
 
-        # state
-        self.is_on_screen = False
+        # identity / visuals
+        self.name: str = "WaspStinger"
+        self.width: int = 40
+        self.height: int = 40
+        self.color = GlobalConstants.RED
 
-
-        # stats
-        self.enemyHealth: int = 100
-        self.maxHealth: int = 100
-        self.enemy_speed: float = 2.5
-        self.width: int = 16
-        self.height: int = 16
-
-        # sprite
-        self.wasp_stinger_image = pygame.image.load(
+        self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
-        self.enemy_image = self.wasp_stinger_image  # 🔑 REQUIRED
+        self.enemy_image = self.bile_spitter_image
 
-    def update(self,state):
+        # stats
+        self.enemyHealth: float = 2.0
+        self.maxHealth: float = 2.0
+        self.exp: int = 1
+        self.credits: int = 5
+
+        # ranged attack
+        self.bulletColor = GlobalConstants.SKYBLUE
+        self.attack_timer = Timer(3.0)
+        self.spear_timer = Timer(5.0)
+
+        # touch damage
+        self.touch_damage: int = 10
+        self.touch_timer = Timer(0.75)
+
+    # -------------------------------------------------
+    # UPDATE
+    # -------------------------------------------------
+    def update(self, state) -> None:
         super().update(state)
-
-        if self.camera is None or self.target_player is None:
+        if not self.is_active:
             return
 
         self.update_hitbox()
 
+        # check if visible first
         self.is_on_screen = self.mover.enemy_on_screen(self, self.camera)
+
+        # do NOT track if drone is not yet visible
         if not self.is_on_screen:
             return
 
-        # cooldown gate AFTER a charge
-        if self.has_locked and self.charge_dx == 0 and self.charge_dy == 0:
-            if not self.charge_cooldown.is_ready():
-                return
-            else:
-                self.has_locked = False
+        if self.target_player is None:
+            return
 
-        # lock direction once
-        if not self.has_locked:
-            dx = self.target_player.x - self.x
-            dy = self.target_player.y - self.y
-            dist = max(1, (dx * dx + dy * dy) ** 0.5)
+        # direction vector toward player
+        px = self.target_player.x
+        py = self.target_player.y
 
-            self.charge_dx = dx / dist
-            self.charge_dy = dy / dist
-            self.has_locked = True
+        dx = px - self.x
+        dy = py - self.y
+        dist = max(1, (dx * dx + dy * dy) ** 0.5)
 
-        # move
-        self.x += self.charge_dx * self.enemy_speed
-        self.y += self.charge_dy * self.enemy_speed
+        self.x += (dx / dist) * self.speed
+        self.y += (dy / dist) * self.speed
 
-        # screen bounds in WORLD space
-        left_edge = 0
-        right_edge = self.camera.window_width / self.camera.zoom
-        top_edge = self.camera.y
-        bottom_edge = self.camera.y + (self.camera.window_height / self.camera.zoom)
+        # 🔑 SPEAR LANCE ATTACK (Triggered when distance <= 100)
+        if dist <= 100:
+            if self.spear_timer.is_ready():
+                self.spear_lance(
+                    bullet_width=10,
+                    bullet_height=80,  # "Length" is 80 (since it's rooted, 40 might be too short)
+                    bullet_color=GlobalConstants.ORANGE,
+                    bullet_damage=20,
+                    duration=1.0,  # Stay out for 1 second
+                    state=state
+                )
+                self.spear_timer.reset()
 
-        hit_edge = False
-
-        if self.x < left_edge:
-            self.x = left_edge
-            hit_edge = True
-        elif self.x + self.width > right_edge:
-            self.x = right_edge - self.width
-            hit_edge = True
-
-        if self.y < top_edge:
-            self.y = top_edge
-            hit_edge = True
-        elif self.y + self.height > bottom_edge:
-            self.y = bottom_edge - self.height
-            hit_edge = True
-
-        # STOP once edge is hit
-        if hit_edge:
-            self.charge_dx = 0
-            self.charge_dy = 0
-
+        # Update rooted attacks
+        self.update_spear_lance()
 
         self.update_hitbox()
+
+        # 🔑 CALL TOUCH DAMAGE HANDLER
+        self.player_collide_damage(state.starship)
+
+
+    # -------------------------------------------------
+    # DRAW
+    # -------------------------------------------------
     def draw(self, surface: pygame.Surface, camera):
         super().draw(surface, camera)  # 🔑 REQUIRED
 
-        sprite_rect = pygame.Rect(60, 128, 32, 32)
-        sprite = self.wasp_stinger_image.subsurface(sprite_rect)
+        sprite_rect = pygame.Rect(0, 344, 32, 32)
+        sprite = self.bile_spitter_image.subsurface(sprite_rect)
 
         scale = camera.zoom
         scaled_sprite = pygame.transform.scale(
@@ -110,15 +112,11 @@ class WaspStinger(Enemy):
             (int(self.width * scale), int(self.height * scale))
         )
 
-        screen_x = camera.world_to_screen_x(self.x)
-        screen_y = camera.world_to_screen_y(self.y)
+        surface.blit(
+            scaled_sprite,
+            (
+                camera.world_to_screen_x(self.x),
+                camera.world_to_screen_y(self.y),
+            )
+        )
 
-        surface.blit(scaled_sprite, (screen_x, screen_y))
-
-        # DEBUG HITBOX
-        hb_x = camera.world_to_screen_x(self.hitbox.x)
-        hb_y = camera.world_to_screen_y(self.hitbox.y)
-        hb_w = int(self.hitbox.width * camera.zoom)
-        hb_h = int(self.hitbox.height * camera.zoom)
-
-        pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)

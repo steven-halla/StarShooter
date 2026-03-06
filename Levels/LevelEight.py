@@ -3,10 +3,12 @@ import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelEight import BossLevelEight
 from Entity.Bosses.BossLevelOne import BossLevelOne
+from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.TimeBomb import TimeBomb
 from Entity.Monsters.TriSpitter import TriSpitter
+from Entity.Monsters.WaspStinger import WaspStinger
 from SaveStates.SaveState import SaveState
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
@@ -92,7 +94,7 @@ class LevelEight(VerticalBattleScreen):
                     print("enemy missed")
                 continue
 
-            if isinstance(enemy, BileSpitter):
+            if isinstance(enemy, (BileSpitter, WaspStinger, AcidLauncher, TimeBomb, BossLevelEight, BladeSpinner, TriSpitter)):
                 enemy.is_active = True
 
 
@@ -207,6 +209,12 @@ class LevelEight(VerticalBattleScreen):
                 enemy = BossLevelEight()
             elif obj.name == "time_bomb":
                 enemy = TimeBomb()
+
+            elif obj.name == "acid_launcher":
+                enemy = AcidLauncher()
+            elif obj.name == "wasp_stinger":
+                enemy = WaspStinger()
+
             else:
                 continue
 
