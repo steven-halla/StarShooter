@@ -40,6 +40,7 @@ class Shield:
 
         if self.current_shield_points <= 0:
             self.owner.shipHealth -= damage
+            print(f"Direct Hull Damage: {damage}. New Health: {self.owner.shipHealth}")
             return
 
         self.current_shield_points -= damage
@@ -51,6 +52,7 @@ class Shield:
 
             # 🔑 APPLY REMAINDER TO HEALTH
             self.owner.shipHealth -= leftover
+            print(f"Shield Depleted! Overflow Damage: {leftover}. New Health: {self.owner.shipHealth}")
 
     # -------------------------
     # UPDATE (CALL EVERY FRAME)

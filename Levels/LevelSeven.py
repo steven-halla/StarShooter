@@ -72,6 +72,7 @@ class LevelSeven(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
+        # self.starship.last_health = self.starship.shipHealth # REMOVED - This was breaking damage detection in StarShip.py
         # print(state.enemies)
         self.update_loop_level(state)
         self.update_build_flame_row()
@@ -127,7 +128,9 @@ class LevelSeven(VerticalBattleScreen):
             print("END LOOP")
 
     def update_enemy_helper(self, state):
+
         for enemy in list(state.enemies):
+            print(state.enemies)
             result = enemy.update(state)
 
             if hasattr(enemy, "update_hitbox"):
@@ -142,15 +145,15 @@ class LevelSeven(VerticalBattleScreen):
 
             if self.starship.hitbox.colliderect(enemy.hitbox):
                 enemy.color = (135, 206, 235)
-
                 if not self.starship.invincible:
-                    self.starship.shipHealth -= getattr(enemy, "contact_damage", 10)
+                    self.starship.shield_system.take_damage(enemy.touch_damage)
+
                     self.starship.on_hit()
             else:
                 enemy.color = GlobalConstants.RED
+
             if enemy.enemyHealth <= 0:
                 self.remove_enemy_if_dead(enemy, state)
-
     def update_repeat_map(self, state) -> None:
         map_height = self.map_height_tiles * self.tile_size
         if self.camera.y <= 0:
@@ -253,8 +256,7 @@ class LevelSeven(VerticalBattleScreen):
         for rect in self.flame_rects:
             if player_screen_rect.colliderect(rect):
                 if not self.starship.invincible:
-                    self.starship.shipHealth -= 20
-                    self.starship.on_hit()
+                    self.starship.shield_system.take_damage(20)
                 print("🔥 PLAYER COLLIDED WITH ORANGE FLAME")
 
             pygame.draw.rect(surface, color, rect)

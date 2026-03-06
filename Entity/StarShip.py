@@ -250,14 +250,15 @@ class StarShip:
         # --------------------------------
         # DETECT DAMAGE (HEALTH DROP)
         # --------------------------------
-        if self.shipHealth < self.last_health and not self.invincible:
+        if self.shipHealth < self.last_health:
             self.on_hit()
 
-            # trigger invincibility
-            self.invincible = True
-            self.invincibility_timer.reset()
+            if not self.invincible:
+                # trigger invincibility
+                self.invincible = True
+                self.invincibility_timer.reset()
 
-            # lock health to current health (after taking damage)
+            # update trackers
             self.frozen_health = self.shipHealth
             self.last_health = self.shipHealth
 
@@ -271,7 +272,10 @@ class StarShip:
                 self.last_health = self.shipHealth
                 self.frozen_health = self.shipHealth
             else:
-                self.shipHealth = self.frozen_health
+                # 🛡️ ONLY revert if health dropped WITHOUT being updated by our trackers
+                # This prevents "illegal" damage while allowing "legal" (shield overflow) damage
+                if self.shipHealth < self.frozen_health:
+                    self.shipHealth = self.frozen_health
 
         if not self.invincible:
             self.last_health = self.shipHealth
@@ -349,6 +353,7 @@ class StarShip:
         self.was_hit = True
         self.is_electrocuted = True
         self.electric_start_time = pygame.time.get_ticks()
+        self.start_invincibility()
 
     def draw_electric_effect(self, surface: pygame.Surface, camera) -> None:
         cx = camera.world_to_screen_x(self.x + self.width / 2)
