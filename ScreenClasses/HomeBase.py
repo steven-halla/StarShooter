@@ -56,7 +56,7 @@ class HomeBase(Screen):
             "Enemy Drop +": "Increase the value of enemy drops(except missiles)",
             "Shield Flash": "Shields take less time to start recharging.",
             "speed up +": "Increases ship movement speed even further.",
-            "Hull Repair": "Slowly repairs hull when shields are at full capacity.",
+            "Defense Matrix": "Slowly repairs hull when shields are at full capacity.",
             "Ki Up +++": "Greatly increases max KI."
         }
         # Plasma hot enough to 'ghost ' those hit with a charged shot
@@ -91,7 +91,7 @@ class HomeBase(Screen):
             4: ["Greater hull", "Shield Generator +"],
             5: ["Shield Charger", "Enemy Drop +"],
             6: ["Shield Flash", "speed up +"],# Sheilds take less time to start re charging
-            7: ["Hull Repair", "Ki Up +++"] # Repairs hull when shields are full
+            7: ["Defense Matrix", "Ki Up +++"] # Repairs hull when shields are full
 
         }
         self.item_prices = {
@@ -121,7 +121,7 @@ class HomeBase(Screen):
             "speed up +": 25000,
             "Missile recharge +": 30000,
             "Double Barrel": 30000,
-            "Hull Repair": 30000,
+            "Defense Matrix": 30000,
             "Ki Up +++": 30000
         }
 
@@ -402,6 +402,13 @@ class HomeBase(Screen):
                             # THIS is what makes gameplay update
                             state.starship.missile.max_missiles = state.starship.missile_max
                             state.starship.missile.current_missiles = state.starship.missile_current
+                        elif item == "Missile Count +2":
+                            state.starship.missile_max += 2
+                            state.starship.missile_current += 2
+
+                            # THIS is what makes gameplay update
+                            state.starship.missile.max_missiles = state.starship.missile_max
+                            state.starship.missile.current_missiles = state.starship.missile_current
                         elif item == "Barrel Coolant":
                             state.starship.machine_gun_bullet_speed += 1
                             print("faster bullets")
@@ -418,6 +425,13 @@ class HomeBase(Screen):
                             state.starship.machine_gun_width += 1
                             state.starship.machine_gun_height += 1
                             print("I bought better bullets")
+
+                        elif item == "M gun D. Breath":
+                            state.starship.machine_gun_damage += 0.2
+
+                            print("I bought better bullets")
+
+
 
                         if hasattr(state.starship, "apply_upgrades"):
                             state.starship.apply_upgrades()
@@ -458,14 +472,18 @@ class HomeBase(Screen):
                             state.starship.shield_system.recharge_rate_shield += 0.08
                             print("I bought faster shield recharge")
                         elif item == "Speed up":
-                            state.starship.speed += 0.6
+                            state.starship.speed += 0.4
+                            print("I bought more speed")
+
+                        elif item == "speed up +":
+                            state.starship.speed += 0.4
                             print("I bought more speed")
                         elif item == "Ki Up ++":
                             state.starship.player_ki += 50
                             state.starship.player_max_ki += 50
                             print("greater focus menas more ki")
                         elif item == "Post hit +":
-                            state.starship.post_hit_invincibility_duration += .5
+                            state.starship.post_hit_invincibility_duration += .25
                             print(" improved emergency shields ")
                         elif item == "Shield Generator +":
                             state.starship.current_shield += 50
@@ -474,7 +492,15 @@ class HomeBase(Screen):
                         elif item == "Greater hull":
                             state.starship.shipHealth += 25
                             state.starship.shipHealthMax += 25
-                            state.starship.speed += 0.6
+                            state.starship.speed += 0.4
+                        elif item == "Defense Matrix":
+                            state.starship.shipHealth += 25
+                            state.starship.shipHealthMax += 25
+                            state.starship.current_shield += 50
+                            state.starship.max_shield += 50
+                            state.starship.post_hit_invincibility_duration += .25
+
+
                         elif item == "Enemy Drop +":
                             print(" i got bettter enemy drops")
 

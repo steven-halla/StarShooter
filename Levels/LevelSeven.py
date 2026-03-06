@@ -2,9 +2,11 @@ import random
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Bosses.BossLevelSeven import BossLevelSeven
 from Entity.Monsters.SpinalRaptor import SpinalRaptor
 from SaveStates.SaveState import SaveState
+from ScreenClasses.HomeBase import HomeBase
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 from Weapons.Bullet import Bullet
 
@@ -44,6 +46,8 @@ class LevelSeven(VerticalBattleScreen):
         self.boss_shift_start_time = None
         self.start_loop: bool = False
         self.end_loop: bool = False
+        self.boss_death_timer = None
+
         self.boss_placement:bool = False
 
     def start(self, state) -> None:
@@ -72,13 +76,29 @@ class LevelSeven(VerticalBattleScreen):
         self.update_build_flame_row()
         self.update_enemy_helper(state)
         self.update_repeat_map(state)
+        self.update_handle_level_complete(state)
+
         self.update_debug_print_player_and_boss_visible(state)
+        if self.boss_death_timer is not None:
+            if self.boss_death_timer.is_ready():
+                state.starship.money += 40000
+                state.currentScreen = HomeBase(self.textbox)
+                state.currentScreen.start(state)
+                return
 
     def draw(self, state):
         super().draw(state)
         self.draw_player_and_enemies(state)
         self.draw_flames(state.DISPLAY, self.camera)
         pygame.display.flip()
+
+    def update_handle_level_complete(self, state):
+        if not self.level_complete:
+            boss_alive = any(isinstance(enemy, BossLevelSeven) for enemy in state.enemies)
+            if not boss_alive:
+                if self.boss_death_timer is None:
+                    self.boss_death_timer = Timer(2.0)
+                    self.boss_death_timer.reset()
 
     def update_build_flame_row(self):
         # This method is now disabled as flame rows are added when a loop is completed
