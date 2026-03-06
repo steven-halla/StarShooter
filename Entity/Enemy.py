@@ -880,17 +880,106 @@ class Enemy:
         #     bullet_damage=10
         # )
 
+    # def spear_lance(
+    #         self,
+    #         bullet_width: int,
+    #         bullet_height: int,
+    #         bullet_color: tuple[int, int, int],
+    #         bullet_damage: int,
+    #         duration: float,
+    #         state
+    # ) -> None:
+    #     """
+    #     Creates a spear rooted to the enemy that follows its position.
+    #     """
+    #     if self.target_player is None:
+    #         return
+    #
+    #     cam_top = self.camera.y
+    #     cam_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
+    #
+    #     if self.y + self.height < cam_top or self.y > cam_bottom:
+    #         return
+    #
+    #     # Check if already has an active spear
+    #     spear = getattr(self, "_active_spear", None)
+    #     if spear is not None and spear in state.enemy_bullets and spear.is_active:
+    #         return
+    #
+    #     # Create the spear
+    #     spear = Bullet(self.x, self.y)
+    #     spear.width = bullet_width
+    #     spear.height = bullet_height
+    #     spear.color = bullet_color
+    #     spear.damage = bullet_damage
+    #     spear.weapon_name = "Spear Lance"
+    #     spear.bullet_speed = 0  # Static, manually positioned
+    #
+    #     # Set duration if Bullet supports it or handle it in Enemy.update
+    #     spear.max_duration = duration
+    #     spear.spawn_time = pygame.time.get_ticks() / 1000.0
+    #
+    #     spear.update_rect()
+    #     state.enemy_bullets.append(spear)
+    #     self._active_spear = spear
+    #
+    # def update_spear_lance(self) -> None:
+    #     """
+    #     Updates the position and lifetime of the active spear lance.
+    #     """
+    #     spear = getattr(self, "_active_spear", None)
+    #     if spear is None or not spear.is_active:
+    #         return
+    #
+    #     # Check lifetime
+    #     now = pygame.time.get_ticks() / 1000.0
+    #     if now - spear.spawn_time > spear.max_duration:
+    #         spear.is_active = False
+    #         self._active_spear = None
+    #         return
+    #
+    #     # Position spear in front of the monster, aimed towards the player
+    #     if self.target_player:
+    #         enemy_center_x = self.x + self.width / 2
+    #         enemy_center_y = self.y + self.height / 2
+    #
+    #         player_center_x = self.target_player.hitbox.centerx
+    #         player_center_y = self.target_player.hitbox.centery
+    #
+    #         dx = player_center_x - enemy_center_x
+    #         dy = player_center_y - enemy_center_y
+    #         dist = math.hypot(dx, dy)
+    #
+    #         if dist > 0:
+    #             nx = dx / dist
+    #             ny = dy / dist
+    #
+    #             # Root spear directly to the edge of the enemy body
+    #             anchor_x = enemy_center_x + nx * (self.width / 2)
+    #             anchor_y = enemy_center_y + ny * (self.height / 2)
+    #
+    #             spear.x = anchor_x - spear.width / 2
+    #             spear.y = anchor_y - spear.height / 2 -40
+    #         else:
+    #             spear.x = self.x + (self.width - spear.width) / 2
+    #             spear.y = self.y + (self.height - spear.height) / 2
+    #     else:
+    #         spear.x = self.x + (self.width - spear.width) / 2
+    #         spear.y = self.y + (self.height - spear.height) / 2
+    #
+    #     spear.update_rect()
     def spear_lance(
             self,
-            bullet_width: int,
-            bullet_height: int,
+            segment_size: int,
+            spear_length: int,
             bullet_color: tuple[int, int, int],
             bullet_damage: int,
             duration: float,
             state
     ) -> None:
         """
-        Creates a spear rooted to the enemy that follows its position.
+        Creates a spear rooted to the enemy made of multiple segments.
+        The spear stays rooted and points toward the player's last position.
         """
         if self.target_player is None:
             return
@@ -901,73 +990,90 @@ class Enemy:
         if self.y + self.height < cam_top or self.y > cam_bottom:
             return
 
-        # Check if already has an active spear
-        spear = getattr(self, "_active_spear", None)
-        if spear is not None and spear in state.enemy_bullets and spear.is_active:
+        # Check if already has active spear segments
+        spear_segments = getattr(self, "_active_spear_segments", [])
+        active = any(s in state.enemy_bullets and s.is_active for s in spear_segments)
+        if active:
             return
 
-        # Create the spear
-        spear = Bullet(self.x, self.y)
-        spear.width = bullet_width
-        spear.height = bullet_height
-        spear.color = bullet_color
-        spear.damage = bullet_damage
-        spear.weapon_name = "Spear Lance"
-        spear.bullet_speed = 0  # Static, manually positioned
+        self._active_spear_segments = []
+        num_segments = spear_length // segment_size
+        if num_segments < 1:
+            num_segments = 1
 
-        # Set duration if Bullet supports it or handle it in Enemy.update
-        spear.max_duration = duration
-        spear.spawn_time = pygame.time.get_ticks() / 1000.0
+        target_x = self.target_player.hitbox.centerx
+        target_y = self.target_player.hitbox.centery
+        spawn_time = pygame.time.get_ticks() / 1000.0
 
-        spear.update_rect()
-        state.enemy_bullets.append(spear)
-        self._active_spear = spear
+        for i in range(num_segments):
+            segment = Bullet(self.x, self.y)
+            segment.width = segment_size
+            segment.height = segment_size
+            segment.base_width = segment_size
+            segment.base_height = segment_size
+            segment.color = bullet_color
+            segment.damage = bullet_damage
+            segment.weapon_name = "Spear Lance"
+            segment.bullet_speed = 0
+            segment.max_duration = duration
+            segment.spawn_time = spawn_time
+            segment.target_x = target_x
+            segment.target_y = target_y
+            segment.segment_index = i
+            segment.is_active = True
+
+            segment.update_rect()
+            state.enemy_bullets.append(segment)
+            self._active_spear_segments.append(segment)
 
     def update_spear_lance(self) -> None:
         """
-        Updates the position and lifetime of the active spear lance.
+        Updates the position and lifetime of all spear segments.
         """
-        spear = getattr(self, "_active_spear", None)
-        if spear is None or not spear.is_active:
+        spear_segments = getattr(self, "_active_spear_segments", [])
+        if not spear_segments:
             return
 
-        # Check lifetime
         now = pygame.time.get_ticks() / 1000.0
-        if now - spear.spawn_time > spear.max_duration:
-            spear.is_active = False
-            self._active_spear = None
+        
+        # Filter out inactive or timed out segments
+        active_segments = []
+        for segment in spear_segments:
+            if not segment.is_active:
+                continue
+            if now - segment.spawn_time > segment.max_duration:
+                segment.is_active = False
+                continue
+            active_segments.append(segment)
+        
+        self._active_spear_segments = active_segments
+        if not active_segments:
             return
 
-        # Position spear in front of the monster, aimed towards the player
-        if self.target_player:
-            enemy_center_x = self.x + self.width / 2
-            enemy_center_y = self.y + self.height / 2
+        enemy_center_x = self.x + self.width / 2
+        enemy_center_y = self.y + self.height / 2
 
-            player_center_x = self.target_player.hitbox.centerx
-            player_center_y = self.target_player.hitbox.centery
+        # Use the target from the first segment
+        first_seg = active_segments[0]
+        target_x = first_seg.target_x
+        target_y = first_seg.target_y
 
-            dx = player_center_x - enemy_center_x
-            dy = player_center_y - enemy_center_y
-            dist = math.hypot(dx, dy)
+        dx = target_x - enemy_center_x
+        dy = target_y - enemy_center_y
+        dist = math.hypot(dx, dy)
 
-            if dist > 0:
-                nx = dx / dist
-                ny = dy / dist
-
-                # Root spear directly to the edge of the enemy body
-                anchor_x = enemy_center_x + nx * (self.width / 2)
-                anchor_y = enemy_center_y + ny * (self.height / 2)
-
-                spear.x = anchor_x - spear.width / 2
-                spear.y = anchor_y - spear.height / 2 -40
-            else:
-                spear.x = self.x + (self.width - spear.width) / 2
-                spear.y = self.y + (self.height - spear.height) / 2
+        if dist == 0:
+            nx, ny = 0, 0
         else:
-            spear.x = self.x + (self.width - spear.width) / 2
-            spear.y = self.y + (self.height - spear.height) / 2
+            nx, ny = dx / dist, dy / dist
 
-        spear.update_rect()
+        # Position each segment along the line
+        offset_start = max(self.width, self.height) / 2
+        for segment in active_segments:
+            dist_from_center = offset_start + segment.segment_index * segment.width
+            segment.x = enemy_center_x + nx * dist_from_center - segment.width / 2
+            segment.y = enemy_center_y + ny * dist_from_center - segment.height / 2
+            segment.update_rect()
 
     def touch_mellee(
             self,

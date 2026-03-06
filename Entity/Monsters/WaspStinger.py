@@ -79,11 +79,11 @@ class WaspStinger(Enemy):
         if dist <= 100:
             if self.spear_timer.is_ready():
                 self.spear_lance(
-                    bullet_width=10,
-                    bullet_height=80,  # "Length" is 80 (since it's rooted, 40 might be too short)
+                    segment_size=16,
+                    spear_length=80,  # 5 segments of 16px
                     bullet_color=GlobalConstants.ORANGE,
                     bullet_damage=20,
-                    duration=1.0,  # Stay out for 1 second
+                    duration=1.5,  # Stay out for 3 seconds
                     state=state
                 )
                 self.spear_timer.reset()
