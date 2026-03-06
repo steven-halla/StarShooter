@@ -39,8 +39,8 @@
     "damage": 25,
     "bullet_speed": 1.5,
     "rate_of_fire": 0.5,
-    "max": 2,
-    "current": 0,
+    "max": 4,
+    "current": 4,
     "fire_interval_seconds": 0.5,
     "regen_interval_seconds": 10.0
   },
@@ -48,7 +48,7 @@
     "current": 100,
     "max": 100,
     "recharge_rate": 0.4,
-    "time_to_start_recharge": 10000
+    "time_to_start_recharge": 9000
   },
   "stats": {
     "speed": 3.4000000000000004,
