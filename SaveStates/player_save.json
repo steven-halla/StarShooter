@@ -55,7 +55,7 @@
     "rate_of_fire": 0.5,
     "max": 4,
     "current": 4,
-    "fire_interval_seconds": 0.5,
+    "fire_interval_seconds": 0.1,
     "regen_interval_seconds": 10.0
   },
   "shield": {

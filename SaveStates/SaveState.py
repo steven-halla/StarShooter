@@ -351,14 +351,23 @@ class SaveState:
             starship.missile_max = m.get("max", starship.missile_max)
             starship.missile_current = m.get("current", starship.missile_current)
 
-            # IMPORTANT: sync into the actual missile system used in-game
-            if hasattr(starship, "missile"):
-                starship.missile.max_missiles = starship.missile_max
-                starship.missile.current_missiles = starship.missile_current
             starship.missile_fire_interval_seconds = m.get("fire_interval_seconds",
                                                            starship.missile_fire_interval_seconds)
             starship.missile_regen_interval_seconds = m.get("regen_interval_seconds",
                                                             starship.missile_regen_interval_seconds)
+
+            # Re-initialize timers with loaded interval values
+            starship.missile_timer = Timer(starship.missile_fire_interval_seconds)
+            starship.missile_regen_timer = Timer(starship.missile_regen_interval_seconds)
+
+            # Sync with the missile system used in-game
+            if hasattr(starship, "missile"):
+                starship.missile.max_missiles = starship.missile_max
+                starship.missile.current_missiles = starship.missile_current
+                starship.missile.missile_fire_interval_seconds = starship.missile_fire_interval_seconds
+                starship.missile.missile_regen_interval_seconds = starship.missile_regen_interval_seconds
+                starship.missile.missile_timer = Timer(starship.missile_fire_interval_seconds)
+                starship.missile.missile_regen_timer = Timer(starship.missile_regen_interval_seconds)
 
         sh = self.data.get("shield", {})
         if sh and hasattr(starship, "shield_system"):

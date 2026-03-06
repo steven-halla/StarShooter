@@ -3,6 +3,7 @@ from SaveStates.SaveState import SaveState
 from ScreenClasses.Screen import Screen
 from Constants.GlobalConstants import GlobalConstants
 from Controller.KeyBoardControls import KeyBoardControls
+from Constants.Timer import Timer
 
 
 class HomeBase(Screen):
@@ -40,7 +41,7 @@ class HomeBase(Screen):
             "Bullet Caliber +": "Increases bullet caliber by 25%.",
             "Scredorphin Rounds": "Loads bullets with scredorphin, a chemical that frys the central nervous system for added damage.",
             "Missile Count +2": "Add +2 to max missiles.",
-            "Missile recharge +": "Increases missile recharge rate.",
+            "Tactical Missile Array": "Increases missile recharge rate.",
             "Double Barrel": "Mounts a 2nd machine gun on ship."
         }
         self.defense_shop_descriptions: dict[str, str] = {
@@ -80,7 +81,7 @@ class HomeBase(Screen):
             4: ["Buster Cannon", "Britrate Missiles"],
             5: ["Missile speed booster", "Bullet Caliber +"],
             6: ["M gun D. Breath", "Missile Count +2"],
-            7: ["Missile recharge +", "Double Barrel"]
+            7: ["Tactical Missile Array", "Double Barrel"]
 
 
         }
@@ -119,7 +120,7 @@ class HomeBase(Screen):
             "Missile Count +2": 25000,
             "Shield Flash": 25000,
             "speed up +": 25000,
-            "Missile recharge +": 30000,
+            "Tactical Missile Array": 30000,
             "Double Barrel": 30000,
             "Defense Matrix": 30000,
             "Wizards Training": 30000
@@ -430,6 +431,13 @@ class HomeBase(Screen):
                             state.starship.machine_gun_damage += 0.2
 
                             print("I bought better bullets")
+                        elif item == "Tactical Missile Array":
+                            state.starship.missile_damage += 8
+                            state.starship.missile_bullet_speed += 1.0
+                            state.starship.missile_regen_interval_seconds -= 1.0
+
+
+                            print("Missile recharge rate increased")
                         elif item == "Double Barrel":
                             state.starship.machine_gun_bullets_per_shot += 1
                             # state.starship.machine_gun_damage -= 0.1
