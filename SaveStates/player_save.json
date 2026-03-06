@@ -21,10 +21,6 @@
     ],
     "current_level": 7
   },
-  "ship": {
-    "width": 16,
-    "height": 16
-  },
   "weapons": {
     "machine_gun": {
       "damage": 0.6,
@@ -95,5 +91,9 @@
       "Shield Flash",
       "Post hit +"
     ]
+  },
+  "ship": {
+    "width": 16,
+    "height": 16
   }
 }

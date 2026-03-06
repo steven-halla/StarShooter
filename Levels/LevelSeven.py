@@ -47,6 +47,7 @@ class LevelSeven(VerticalBattleScreen):
         self.start_loop: bool = False
         self.end_loop: bool = False
         self.boss_death_timer = None
+        self.level_complete = False
 
         self.boss_placement:bool = False
 

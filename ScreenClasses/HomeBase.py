@@ -430,6 +430,10 @@ class HomeBase(Screen):
                             state.starship.machine_gun_damage += 0.2
 
                             print("I bought better bullets")
+                        elif item == "Double Barrel":
+                            state.starship.machine_gun_bullets_per_shot += 1
+                            # state.starship.machine_gun_damage -= 0.1
+                            state.starship.machine_gun_damage *= 0.75
 
 
 
