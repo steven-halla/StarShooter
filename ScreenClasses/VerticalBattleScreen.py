@@ -1035,7 +1035,7 @@ class VerticalBattleScreen:
 
                 shield = state.starship.metal_shield.fire_metal_shield(
                     state.starship.metal_shield_damage,
-                    state.starship.max_metal_shield_hits
+                    state.starship.metal_shield_max_hits
                 )
                 if shield is not None:
                     self.player_bullets.append(shield)

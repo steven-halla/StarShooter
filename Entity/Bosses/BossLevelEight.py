@@ -21,8 +21,8 @@ class BossLevelEight(Enemy):
         self.color: tuple[int, int, int] = GlobalConstants.RED
 
         self.speed: float = 0.4
-        self.enemyHealth: float = 2000.0
-        self.maxHealth: float = 2000.0
+        self.enemyHealth: float = 1000.0
+        self.maxHealth: float = 1000.0
 
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
         self.moveSpeed: float = 2.2
@@ -112,14 +112,14 @@ class BossLevelEight(Enemy):
             if self.splatter_cannon_timer.is_ready():
                 if self.splatter_cannon_sequence_timer.is_ready():
                     self.splatter_cannon(
-                        bullet_speed=1.7,
+                        bullet_speed=1.3,
                         bullet_width=5,
                         bullet_height=5,
                         bullet_color=self.bulletColor,
                         bullet_damage=5,
                         low_rand_range=-0.20,
                         high_rand_range=0.99,
-                        bullet_count=15,
+                        bullet_count=14,
                         state=state
                     )
                     self.splatter_cannon_sequence_timer.reset()
@@ -150,13 +150,13 @@ class BossLevelEight(Enemy):
             if self.acid_missiles_timer.is_ready():
                 self.acid_missiles(
                     state=state,
-                    speed=2.0,
+                    speed=1.8,
                     height=10,
                     width=10,
                     power=20,
                     life=1,
                     max_life=1,
-                    number=8,
+                    number=7,
                     spread=100
                 )
                 self.acid_missiles_timer.reset()
@@ -177,14 +177,14 @@ class BossLevelEight(Enemy):
                 if self.phase_3_selected_attack == "phase_3_splatter_cannon":
                     if self.phase_3_splatter_cannon_sequence_timer.is_ready():
                         self.splatter_cannon(
-                            bullet_speed=1.7,
+                            bullet_speed=1.3,
                             bullet_width=5,
                             bullet_height=5,
                             bullet_color=self.bulletColor,
                             bullet_damage=5,
                             low_rand_range=-0.20,
                             high_rand_range=0.99,
-                            bullet_count=15,
+                            bullet_count=14,
                             state=state
                         )
                         self.phase_3_splatter_cannon_sequence_timer.reset()
@@ -212,13 +212,13 @@ class BossLevelEight(Enemy):
                 elif self.phase_3_selected_attack == "phase_3_acid_missiles":
                     self.acid_missiles(
                         state=state,
-                        speed=2.0,
+                        speed=1.8,
                         height=10,
                         width=10,
                         power=20,
                         life=1,
                         max_life=1,
-                        number=8,
+                        number=7,
                         spread=100
                     )
                     self.phase_3_attack_in_progress = False
@@ -228,13 +228,13 @@ class BossLevelEight(Enemy):
                 if self.phase_3_napalm_burst_timer.is_ready():
                     self.shoot_napalm(
                         bullet_speed=3.5,
-                        bullet_width=20,
-                        bullet_height=5,
+                        bullet_width=25,
+                        bullet_height=10,
                         bullet_color=self.bulletColor,
                         bullet_damage=50,
                         travel_time=0.7,
-                        explosion_time=3.0,
-                        aoe_size=(20, 5),
+                        explosion_time=5.0,
+                        aoe_size=(25, 10),
                         state=state
                     )
                     self.phase_3_napalm_burst_timer.reset()
