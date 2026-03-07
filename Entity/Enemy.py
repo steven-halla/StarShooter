@@ -528,6 +528,18 @@ class Enemy:
             vy = -1.0
         elif direction == "down":
             vy = 1.0
+        elif direction == "aimed":
+            if self.target_player is None:
+                return
+            px = self.target_player.hitbox.centerx
+            py = self.target_player.hitbox.centery
+            dx = px - cx
+            dy = py - cy
+            dist = math.hypot(dx, dy)
+            if dist == 0:
+                return
+            vx = dx / dist
+            vy = dy / dist
         else:
             return
 
@@ -553,7 +565,9 @@ class Enemy:
         b._wave_spawn_ms = now
 
         # wave axis: horizontal travel => wave on Y, vertical travel => wave on X
-        b._wave_axis = "y" if abs(vx) > 0 else "x"
+        # For non-orthogonal travel (aimed), we use a vector perpendicular to (vx, vy)
+        b._wave_perp_vx = -vy
+        b._wave_perp_vy = vx
 
         # override bullet.update with a per-instance function
         def _wave_update():
@@ -566,12 +580,9 @@ class Enemy:
             # wave offset (uses ms so it’s stable)
             offset = math.sin(t_ms * b._wave_speed) * b._wave_range
 
-            if b._wave_axis == "y":
-                b.x = b._wave_base_x
-                b.y = b._wave_base_y + offset
-            else:
-                b.x = b._wave_base_x + offset
-                b.y = b._wave_base_y
+            # apply offset along perpendicular vector
+            b.x = b._wave_base_x + b._wave_perp_vx * offset
+            b.y = b._wave_base_y + b._wave_perp_vy * offset
 
             b.update_rect()
 

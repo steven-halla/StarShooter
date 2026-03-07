@@ -39,6 +39,7 @@ class WaspStinger(Enemy):
         self.bulletColor = GlobalConstants.SKYBLUE
         self.attack_timer = Timer(3.0)
         self.spear_timer = Timer(5.0)
+        self.wave_timer = Timer(5.0)
 
         # touch damage
         self.touch_damage: int = 10
@@ -90,6 +91,22 @@ class WaspStinger(Enemy):
 
         # Update rooted attacks
         self.update_spear_lance()
+
+        # 🔑 WAVE BEAM ATTACK (Triggered every 5 seconds)
+        if self.wave_timer.is_ready():
+            self.wave_beam(
+                state=state,
+                direction="aimed",
+                attack_power=15,
+                speed=4.0,
+                wave_range=40.0,
+                wave_speed=0.01,
+                rof_ms=0,  # Handled by wave_timer
+                width=20,
+                height=20,
+                bullet_color=GlobalConstants.SKYBLUE,
+            )
+            self.wave_timer.reset()
 
         self.update_hitbox()
 
