@@ -25,6 +25,7 @@ class SpikeyBall(Enemy):
 
         # gameplay stats (not used yet)
         self.enemyHealth: int = 50
+        self.maxHealth: int = 50
         self.is_active = True
 
         self.coins_image = pygame.image.load(

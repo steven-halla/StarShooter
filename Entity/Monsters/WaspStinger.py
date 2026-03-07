@@ -30,8 +30,8 @@ class WaspStinger(Enemy):
         self.enemy_image = self.bile_spitter_image
 
         # stats
-        self.enemyHealth: float = 2.0
-        self.maxHealth: float = 2.0
+        self.enemyHealth: float = 5.0
+        self.maxHealth: float = 5.0
         self.exp: int = 1
         self.credits: int = 5
 
@@ -97,8 +97,8 @@ class WaspStinger(Enemy):
             self.wave_beam(
                 state=state,
                 direction="aimed",
-                attack_power=15,
-                speed=4.0,
+                attack_power=35,
+                speed=1.0,
                 wave_range=40.0,
                 wave_speed=0.01,
                 rof_ms=0,  # Handled by wave_timer

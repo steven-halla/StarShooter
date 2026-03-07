@@ -40,7 +40,24 @@ class EnemyDrop:
                 return cls(enemy.x, enemy.y, drop_type)
             return None
 
+        if enemy_type == "AcidLauncher":
+            if roll < 0.18:
+                drop_type = random.choice([
+                    cls.DROP_SHIELD,
+                    cls.DROP_KI,
+                ])
+                return cls(enemy.x, enemy.y, drop_type)
+            return None
 
+        if enemy_type == "WaspStinger":
+            if roll < 0.10:
+                drop_type = random.choice([
+                    cls.DROP_SHIELD,
+                    cls.DROP_HEALTH,
+
+                ])
+                return cls(enemy.x, enemy.y, drop_type)
+            return None
         if enemy_type == "FireLauncher":
             if roll < 0.20:
                 drop_type = random.choice([
@@ -99,10 +116,7 @@ class EnemyDrop:
         # Wasp Stinger
         # 5% chance to drop HEALTH
         # -------------------------
-        if enemy_type == "WaspStinger":
-            if roll < 0.05:
-                return cls(enemy.x, enemy.y, cls.DROP_HEALTH)
-            return None
+
 
         # -------------------------
         # Kamikaze Drone

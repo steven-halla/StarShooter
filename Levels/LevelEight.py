@@ -6,6 +6,8 @@ from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
+from Entity.Monsters.Slaver import Slaver
+from Entity.Monsters.SpikeyBall import SpikeyBall
 from Entity.Monsters.TimeBomb import TimeBomb
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
@@ -214,6 +216,14 @@ class LevelEight(VerticalBattleScreen):
                 enemy = AcidLauncher()
             elif obj.name == "wasp_stinger":
                 enemy = WaspStinger()
+
+            elif obj.name == "spikey_ball":
+                enemy = SpikeyBall()
+
+            elif obj.name == "bile_spitter":
+                enemy = BileSpitter()
+            elif obj.name == "slaver":
+                enemy = Slaver()
 
             else:
                 continue

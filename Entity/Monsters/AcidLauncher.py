@@ -30,7 +30,7 @@ class AcidLauncher(Enemy):
 
         # firing
         self.weapon_speed: float = 6.0
-        self.fire_interval_ms: int = 30000
+        self.fire_interval_ms: int = 3000
         self.last_shot_time: int = pygame.time.get_ticks()
 
         # gameplay
@@ -92,16 +92,16 @@ class AcidLauncher(Enemy):
                 monster_y=self.y,
                 monster_width=self.width,
                 monster_height=self.height,
-                length=300,
-                min_width=50,
-                max_width=75,
+                length=100,
+                min_width=10,
+                max_width=20,
                 segments=20,
                 color=self.bulletColor,
                 damage=25,
                 x_offset=0,
                 y_offset=0,
                 state=state,
-                duration_ms=20000
+                duration_ms=5000
             )
 
             self.last_shot_time = now
