@@ -1,13 +1,13 @@
 {
   "version": 1,
   "location": {
-    "screen": "Level 8",
-    "level_id": 8,
+    "screen": "Level 9",
+    "level_id": 9,
     "spawn_id": null
   },
   "player": {
-    "shipHealth": 50,
-    "money": 11000,
+    "shipHealth": 144,
+    "money": 1000,
     "shipHealthMax": 50,
     "equipped_magic": [
       "Buster Cannon",
@@ -19,7 +19,7 @@
       "Napalm Spread",
       "Buster Cannon"
     ],
-    "current_level": 8
+    "current_level": 9
   },
   "weapons": {
     "machine_gun": {
@@ -31,22 +31,22 @@
       "bullets_per_shot": 2
     },
     "wind_slicer": {
-      "damage": 5,
+      "damage": 8,
       "bullet_count": 8
     },
     "buster_cannon": {
-      "base_damage": 2,
-      "charged_damage": 35,
-      "charge_time_required": 3.0
+      "base_damage": 3,
+      "charged_damage": 40,
+      "charge_time_required": 2.0
     },
     "metal_shield": {
       "damage": 20,
-      "max_hits": 3
+      "max_hits": 4
     },
     "napalm_spread": {
-      "damage": 35,
-      "area_of_effect_x": 33,
-      "area_of_effect_y": 33
+      "damage": 40,
+      "area_of_effect_x": 66,
+      "area_of_effect_y": 66
     }
   },
   "missiles": {
@@ -54,7 +54,7 @@
     "bullet_speed": 1.5,
     "rate_of_fire": 0.5,
     "max": 4,
-    "current": 2,
+    "current": 1,
     "fire_interval_seconds": 0.5,
     "regen_interval_seconds": 10.0
   },
@@ -66,8 +66,8 @@
   },
   "stats": {
     "speed": 3.4000000000000004,
-    "player_ki": 125,
-    "player_max_ki": 125,
+    "player_ki": 150,
+    "player_max_ki": 150,
     "current_heat": 100,
     "max_heat": 100,
     "post_hit_invincibility_duration": 2.5
@@ -90,7 +90,8 @@
       "Missile Count +2",
       "Shield Flash",
       "Post hit +",
-      "Double Barrel"
+      "Double Barrel",
+      "Wizards Training"
     ]
   },
   "ship": {

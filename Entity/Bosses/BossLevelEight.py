@@ -21,8 +21,8 @@ class BossLevelEight(Enemy):
         self.color: tuple[int, int, int] = GlobalConstants.RED
 
         self.speed: float = 0.4
-        self.enemyHealth: float = 1000.0
-        self.maxHealth: float = 1000.0
+        self.enemyHealth: float = 11.0
+        self.maxHealth: float = 11.0
 
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
         self.moveSpeed: float = 2.2

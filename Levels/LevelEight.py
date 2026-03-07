@@ -1,6 +1,7 @@
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Bosses.BossLevelEight import BossLevelEight
 from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Monsters.AcidLauncher import AcidLauncher
@@ -12,6 +13,7 @@ from Entity.Monsters.TimeBomb import TimeBomb
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from SaveStates.SaveState import SaveState
+from ScreenClasses.HomeBase import HomeBase
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
@@ -25,9 +27,10 @@ class LevelEight(VerticalBattleScreen):
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
         window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
         visible_height = window_height / self.camera.zoom
-        self.camera_y = self.WORLD_HEIGHT - visible_height
+        # self.camera_y = self.WORLD_HEIGHT - visible_height
         self.camera.world_height = self.WORLD_HEIGHT
-        self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
+        # self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
+        self.camera_y = 90
         # self.camera.y = 11
         self.map_scroll_speed_per_frame: float = .4  # move speed of camera
         self.total_enemies = 40
@@ -38,6 +41,8 @@ class LevelEight(VerticalBattleScreen):
         self.game_over: bool = False
         self.level_complete = False
         self.save_state = SaveState()
+        self.boss_death_timer = None
+
 
         self.intro_dialogue = (
             "I am the ultimate man on the battlefield. "
@@ -68,10 +73,17 @@ class LevelEight(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
-        # print(self.missed_enemies)
+        print(state.enemies)
+
         self.update_game_over_condition()
         self.update_enemy_helper(state)
         self.update_handle_level_complete(state)
+        if self.boss_death_timer is not None:
+            if self.boss_death_timer.is_ready():
+                state.starship.money += 20000
+                state.currentScreen = HomeBase(self.textbox)
+                state.currentScreen.start(state)
+                return
 
 
     def draw(self, state):
@@ -83,7 +95,13 @@ class LevelEight(VerticalBattleScreen):
         pygame.display.flip()
 
 
-
+    def update_handle_level_complete(self, state):
+        if not self.level_complete:
+            boss_alive = any(isinstance(enemy, BossLevelEight) for enemy in state.enemies)
+            if not boss_alive:
+                if self.boss_death_timer is None:
+                    self.boss_death_timer = Timer(2.0)
+                    self.boss_death_timer.reset()
 
     def update_enemy_helper(self, state):
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
@@ -156,18 +174,7 @@ class LevelEight(VerticalBattleScreen):
                         b.vx = dx / dist
                         b.vy = dy / dist
 
-    def update_handle_level_complete(self, state):
-        if (
-                not self.level_complete
-                and any(
-            enemy.__class__.__name__ == "BossLevelEight" and enemy.enemyHealth <= 0
-            for enemy in state.enemies
-        )
-        ):
-            self.level_complete = True
-            # next_level = MissionBriefingScreenLevelNine()
-            # state.currentScreen = next_level
-            # next_level.start(state)
+
 
 
 
