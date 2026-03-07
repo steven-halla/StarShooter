@@ -29,8 +29,8 @@ class BossLevelNine(Enemy):
         self.fire_interval_ms: int = 2000
         self.last_shot_time: int = 0
         self.speed: float = 0.4
-        self.enemyHealth: float = 3000.0
-        self.maxHealth: float = 3000.0
+        self.enemyHealth: float = 1000.0
+        self.maxHealth: float = 1000.0
         self.exp: int = 1
         self.credits: int = 5
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
@@ -56,7 +56,7 @@ class BossLevelNine(Enemy):
         self.machine_gun_timer = Timer(0.5)  # fire rate during FIRE
         self.aimed_shot_timer = Timer(1.0)  # 1 second
 
-        self.summon_swarm_timer = Timer(10.0)
+        self.summon_swarm_timer = Timer(20.0)
         self.summon_swarm_timer.reset()
 
         self.boss_alone: bool = False

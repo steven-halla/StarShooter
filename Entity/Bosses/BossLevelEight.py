@@ -34,11 +34,11 @@ class BossLevelEight(Enemy):
         # Offset to fire immediately
         self.wave_beam_timer.last_time_ms -= self.wave_beam_timer.interval_ms
         # splatter cannnon timers
-        self.splatter_cannon_timer = Timer(5.0)
+        self.splatter_cannon_timer = Timer(6.0)
         # Offset to fire immediately
         self.splatter_cannon_timer.last_time_ms -= self.splatter_cannon_timer.interval_ms
 
-        self.splatter_cannon_sequence_timer = Timer(0.9)
+        self.splatter_cannon_sequence_timer = Timer(1.3)
         # Offset to fire immediately
         self.splatter_cannon_sequence_timer.last_time_ms -= self.splatter_cannon_sequence_timer.interval_ms
 
@@ -46,7 +46,7 @@ class BossLevelEight(Enemy):
 
         # __init__ snippet (Boss / Enemy that will fire acid missiles)
 
-        self.acid_missiles_timer = Timer(8.0)  # fire every 5 seconds
+        self.acid_missiles_timer = Timer(9.0)  # fire every 5 seconds
         # fire immediately (optional)
         self.acid_missiles_timer.last_time_ms -= self.acid_missiles_timer.interval_ms
 
@@ -57,11 +57,11 @@ class BossLevelEight(Enemy):
         self.phase_3_attack_in_progress = False
 
         # Phase 3 sub-timers for sequence-based attacks
-        self.phase_3_splatter_cannon_sequence_timer = Timer(0.9)
+        self.phase_3_splatter_cannon_sequence_timer = Timer(1.3)
         self.phase_3_splatter_cannon_sequence_counter = 0
 
         # Restoration of Napalm timers for Phase 3 (as requested, separate from the 3-part sequence)
-        self.phase_3_napalm_timer = Timer(7.0)
+        self.phase_3_napalm_timer = Timer(6.0)
         self.phase_3_napalm_timer.last_time_ms -= self.phase_3_napalm_timer.interval_ms
         self.phase_3_napalm_burst_timer = Timer(0.7)
         self.phase_3_napalm_burst_timer.last_time_ms -= self.phase_3_napalm_burst_timer.interval_ms

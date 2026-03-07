@@ -14,10 +14,10 @@ class Ravager(Enemy):
         super().__init__()
         # napalm storage
         self.napalm_list = []
-        self.width = 16
+        self.width = 32
         self.pending_napalm = None
         self.napalm_damage = 10
-        self.height = 16
+        self.height = 32
         self.color = GlobalConstants.RED
 
         self.camera = None
@@ -36,8 +36,8 @@ class Ravager(Enemy):
         self.napalm_interval_ms = 1000
         self.last_napalm_time = pygame.time.get_ticks()
 
-        self.enemyHealth = 200
-        self.maxHealth = 200
+        self.enemyHealth = 100
+        self.maxHealth = 100
         self.enemyBullets: list[Bullet] = []
 
         self.ravager_image = pygame.image.load(

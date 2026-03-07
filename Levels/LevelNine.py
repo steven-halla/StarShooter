@@ -3,11 +3,15 @@ import pytmx
 from Constants.GlobalConstants import GlobalConstants
 from Entity.Bosses.BossLevelNine import BossLevelNine
 from Entity.Bosses.BossLevelOne import BossLevelOne
+from Entity.Monsters.AcidLauncher import AcidLauncher
 from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
+from Entity.Monsters.KamikazeDrone import KamikazeDrone
+from Entity.Monsters.Ravager import Ravager
 from Entity.Monsters.Slaver import Slaver
 from Entity.Monsters.TimeBomb import TimeBomb
 from Entity.Monsters.TriSpitter import TriSpitter
+from Entity.Monsters.WaspStinger import WaspStinger
 from SaveStates.SaveState import SaveState
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
@@ -20,13 +24,13 @@ class LevelNine(VerticalBattleScreen):
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
-        # window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
-        # visible_height = window_height / self.camera.zoom
-        # self.camera_y = self.WORLD_HEIGHT - visible_height
-        # self.camera.world_height = self.WORLD_HEIGHT
-        # self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
-        # self.camera.y = float(self.camera_y)
-        self.camera.y = 80
+        window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
+        visible_height = window_height / self.camera.zoom
+        self.camera_y = self.WORLD_HEIGHT - visible_height
+        self.camera.world_height = self.WORLD_HEIGHT
+        self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
+        self.camera.y = float(self.camera_y)
+        # self.camera.y = 80
         self.map_scroll_speed_per_frame: float = .4  # move speed of camera
         self.total_enemies = 40
         self.prev_enemy_count: int = None
@@ -192,14 +196,17 @@ class LevelNine(VerticalBattleScreen):
             #     enemy = BossLevelEight()
             if obj.name == "level_9_boss":
                 enemy = BossLevelNine()
-            elif obj.name == "bile_spitter":
-                enemy = BileSpitter()
+
             elif obj.name == "tri_spitter":
                 enemy = TriSpitter()
-            elif obj.name == "blade_spinner":
-                enemy = BladeSpinner()
-            elif obj.name == "slaver":
-                enemy = Slaver()
+            elif obj.name == "kamikaze_drone":
+                enemy = KamikazeDrone()
+            elif obj.name == "acid_launcher":
+                enemy = AcidLauncher()
+            elif obj.name == "wasp_stinger":
+                enemy = WaspStinger()
+            elif obj.name == "ravager":
+                enemy = Ravager()
             else:
                 continue
 
