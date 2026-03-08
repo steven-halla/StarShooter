@@ -7,7 +7,10 @@ from Entity.Monsters.BileSpitter import BileSpitter
 from Entity.Monsters.BladeSpinners import BladeSpinner
 from Entity.Monsters.ObjectiveBlock import ObjectiveBlock
 from Entity.Monsters.ShootingUpBlock import ShootingUpBlock
+from Entity.Monsters.SpineLauncher import SpineLauncher
+from Entity.Monsters.SporeFlower import SporeFlower
 from Entity.Monsters.TriSpitter import TriSpitter
+from Entity.Monsters.WaspStinger import WaspStinger
 from SaveStates.SaveState import SaveState
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
@@ -27,16 +30,18 @@ class LevelTen(VerticalBattleScreen):
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
         window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
         visible_height = window_height / self.camera.zoom
-        # self.camera_y = self.WORLD_HEIGHT - visible_height
-        # self.camera.world_height = self.WORLD_HEIGHT
-        # self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
-        # self.camera.y = float(self.camera_y)
-        self.camera.y = 80
+        self.camera_y = self.WORLD_HEIGHT - visible_height
+        self.camera.world_height = self.WORLD_HEIGHT
+        self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
+        self.camera.y = float(self.camera_y)
+        # self.camera.y = 80
         self.map_scroll_speed_per_frame: float = .4  # move speed of camera
-        self.time_limit_ms = 2 * 60 * 1000  # 2 minutes
+        self.time_limit_ms = 5 * 60 * 1000  # 5 minutes
+        self.start_ticks = 0
         self.game_over: bool = False
         self.level_complete = False
         self.save_state = SaveState()
+        self.pending_enemies = []
 
         self.intro_dialogue = (
             "I am the ultimate man on the battlefield. "
@@ -48,6 +53,7 @@ class LevelTen(VerticalBattleScreen):
 
     def start(self, state) -> None:
         print("I only want to see this one time lleve one")
+        self.start_ticks = pygame.time.get_ticks()
         player_x = None
         player_y = None
         state.starship.current_level = 10
@@ -62,13 +68,13 @@ class LevelTen(VerticalBattleScreen):
         self.starship.y = player_y
 
         self.load_enemy_into_list(state)
-        self.starship.shipHealth = 144
         self.save_state.set_location_level(10, screen_name="Level 10")
         self.save_state.capture_player(self.starship)
         self.save_state.save_to_file("player_save.json")
 
     def update(self, state) -> None:
         # Create melee_hitbox FIRST (before enemies update)
+        print(len(state.enemies))
         self.starship.melee_hitbox = pygame.Rect(
             int(self.starship.x),
             int(self.starship.y),
@@ -89,8 +95,29 @@ class LevelTen(VerticalBattleScreen):
         # self.draw_level_collision(state.DISPLAY)
 
         self.draw_player_and_enemy(state)
+        self.draw_timer(state.DISPLAY)
 
         pygame.display.flip()
+
+    def draw_timer(self, surface: pygame.Surface) -> None:
+        elapsed_time = pygame.time.get_ticks() - self.start_ticks
+        remaining_time = max(0, self.time_limit_ms - elapsed_time)
+
+        minutes = (remaining_time // 1000) // 60
+        seconds = (remaining_time // 1000) % 60
+
+        timer_text = f"{minutes:02}:{seconds:02}"
+        font = pygame.font.Font(None, 36)
+        text_surface = font.render(timer_text, True, (255, 255, 255))
+
+        # Position at top right
+        text_rect = text_surface.get_rect()
+        text_rect.topright = (GlobalConstants.BASE_WINDOW_WIDTH - 20, 20)
+
+        # Draw a small semi-transparent background for readability
+        bg_rect = text_rect.inflate(10, 10)
+        pygame.draw.rect(surface, (0, 0, 0, 128), bg_rect)
+        surface.blit(text_surface, text_rect)
 
     # LevelTen.update_enemy_helper
     def draw_level_collision(self, surface: pygame.Surface) -> None:
@@ -100,8 +127,31 @@ class LevelTen(VerticalBattleScreen):
         screen_top = self.camera.y
         screen_bottom = self.camera.y + (self.camera.window_height / self.camera.zoom)
 
+        # ----------------------------------------------------------------------
+        # Lazy Loading: Move enemies from pending_enemies to state.enemies
+        # if they are within 50px above the screen's top edge.
+        # ----------------------------------------------------------------------
+        for enemy in list(self.pending_enemies):
+            # Load Zone: y >= camera.y - 50
+            if enemy.y >= self.camera.y - 50:
+                state.enemies.append(enemy)
+                self.pending_enemies.remove(enemy)
+                print(f"[LAZY LOAD] {enemy.__class__.__name__} at y={enemy.y}")
+
         # default: scrolling ON
         self.map_scroll_speed_per_frame = 0.4
+
+        for b in list(state.enemy_bullets):
+            if getattr(b, "is_acid_missile", False) and getattr(b, "is_tracking", False):
+                if self.starship:
+                    px = self.starship.hitbox.centerx
+                    py = self.starship.hitbox.centery
+                    dx = px - (b.x + b.width / 2)
+                    dy = py - (b.y + b.height / 2)
+                    dist = (dx * dx + dy * dy) ** 0.5
+                    if dist != 0:
+                        b.vx = dx / dist
+                        b.vy = dy / dist
 
         for enemy in list(state.enemies):
             # update ALL enemies once
@@ -134,7 +184,13 @@ class LevelTen(VerticalBattleScreen):
 
 
     def update_game_over_condition(self):
-        pass
+        elapsed_time = pygame.time.get_ticks() - self.start_ticks
+        if elapsed_time >= self.time_limit_ms:
+            self.game_over = True
+            # Assuming there is a way to handle game over in the parent or game loop
+            # For now just setting the flag.
+            # In many of these screens, game_over=True might trigger a reload or title screen.
+            self.starship.shipHealth = 0 # Trigger death if time runs out
 
     def draw_player_and_enemy(self, state):
         if not self.playerDead:
@@ -143,15 +199,41 @@ class LevelTen(VerticalBattleScreen):
             enemy.draw(state.DISPLAY, self.camera)
             enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
+        # Draw damage flash for acid missiles
+        for b in state.enemy_bullets:
+            if getattr(b, "is_acid_missile", False) and getattr(b, "is_flashing", False):
+                elapsed = pygame.time.get_ticks() - b.flash_start_time
+                if elapsed < b.flash_duration_ms:
+                    if (elapsed // b.flash_interval_ms) % 2 == 0:
+                        x = self.camera.world_to_screen_x(b.x)
+                        y = self.camera.world_to_screen_y(b.y)
+                        w = int(b.width * self.camera.zoom)
+                        h = int(b.height * self.camera.zoom)
+
+                        flash = pygame.Surface((w, h), pygame.SRCALPHA)
+                        flash.fill((*GlobalConstants.RED, 160))
+                        state.DISPLAY.blit(flash, (x, y))
+                else:
+                    b.is_flashing = False
+
 
     def load_enemy_into_list(self, state):
         state.enemies.clear()
+        self.pending_enemies.clear()
 
         for obj in self.tiled_map.objects:
             if obj.name == "level_10_boss":
                 enemy = BossLevelTen()
-            elif obj.name == "bile_spitter":
-                enemy = BileSpitter()
+            elif obj.name == "spine_launcher":
+                enemy = SpineLauncher()
+            elif obj.name == "spore_flower":
+                enemy = SporeFlower()
+            elif obj.name == "tri_spitter":
+                enemy = TriSpitter()
+            elif obj.name == "blade_spinner":
+                enemy = BladeSpinner()
+            elif obj.name == "wasp_stinger":
+                enemy = WaspStinger()
             elif obj.name == "shooting_up_block":
                 enemy = ShootingUpBlock()
             elif obj.name == "objective_block":
@@ -168,14 +250,13 @@ class LevelTen(VerticalBattleScreen):
             enemy.camera = self.camera
             enemy.target_player = self.starship
 
-
             enemy.update_hitbox()
 
-            state.enemies.append(enemy)
+            self.pending_enemies.append(enemy)
             print(
-                f"[ADD] {enemy.__class__.__name__} "
+                f"[PENDING] {enemy.__class__.__name__} "
                 f"hp={enemy.enemyHealth} "
-                f"→ enemies size = {len(state.enemies)}"
+                f"→ pending size = {len(self.pending_enemies)}"
             )
 
     # 🔑 THE Y-CLAMP IS NOT HERE

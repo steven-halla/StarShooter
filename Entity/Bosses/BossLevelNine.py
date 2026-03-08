@@ -29,8 +29,8 @@ class BossLevelNine(Enemy):
         self.fire_interval_ms: int = 2000
         self.last_shot_time: int = 0
         self.speed: float = 0.4
-        self.enemyHealth: float = 1000.0
-        self.maxHealth: float = 1000.0
+        self.enemyHealth: float = 5.0
+        self.maxHealth: float = 5.0
         self.exp: int = 1
         self.credits: int = 5
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
@@ -51,12 +51,12 @@ class BossLevelNine(Enemy):
         # state machine
         self.is_firing = False
 
-        self.fire_phase_timer = Timer(5.0)  # how long FIRE lasts
-        self.rest_phase_timer = Timer(10.0)  # how long REST lasts
+        self.fire_phase_timer = Timer(6.0)  # how long FIRE lasts
+        self.rest_phase_timer = Timer(12.0)  # how long REST lasts
         self.machine_gun_timer = Timer(0.5)  # fire rate during FIRE
-        self.aimed_shot_timer = Timer(1.0)  # 1 second
+        self.aimed_shot_timer = Timer(3.0)  # 1 second
 
-        self.summon_swarm_timer = Timer(20.0)
+        self.summon_swarm_timer = Timer(22.0)
         self.summon_swarm_timer.reset()
 
         self.boss_alone: bool = False
@@ -85,7 +85,7 @@ class BossLevelNine(Enemy):
                     bullet_width=3,
                     bullet_height=10,
                     bullet_color=self.bulletColor,
-                    bullet_damage=10,
+                    bullet_damage=30,
                     bullet_count=3,
                     bullet_spread=50,
                     state=state
@@ -106,7 +106,7 @@ class BossLevelNine(Enemy):
                     bullet_width=20,
                     bullet_height=20,
                     bullet_color=self.bulletColor,
-                    bullet_damage=10,
+                    bullet_damage=50,
                     state=state
                 )
                 self.aimed_shot_timer.reset()
@@ -127,6 +127,8 @@ class BossLevelNine(Enemy):
             self.summon_swarm_timer.reset()
 
     def summon_swarm(self, state):
+        print("THE SWARM IS COMING THE SWARM IS COMING")
+
         # Summon one of each: BileSpitter, TriSpitter, BladeSpinner, Slaver
         swarm_classes = [BileSpitter, TriSpitter, BladeSpinner, Slaver]
 
@@ -304,19 +306,21 @@ class BossLevelNine(Enemy):
             if now > self._recovery_end_time:
                 self._recovery_mode = False
 
-        # ✅ ATTACK/CHASE STATE: if enemies list length > 1 (as you requested), chase player
-        elif len(enemies) > 1:
+        # ✅ ATTACK/CHASE STATE: if more than 1 active enemy, chase player
+        elif len(active_enemies) > 1:
+            dx = 0
+            dy = 0
             if player.x > self.x:
-                self.mover.enemy_move_right(self)
+                dx = 1
             elif player.x < self.x:
-                self.mover.enemy_move_left(self)
+                dx = -1
 
-            # Optional: small vertical tracking so it doesn't "stall" if x matches
-            if hasattr(self.mover, "enemy_move_up") and hasattr(self.mover, "enemy_move_down"):
-                if player.y > self.y:
-                    self.mover.enemy_move_down(self)
-                elif player.y < self.y:
-                    self.mover.enemy_move_up(self)
+            if player.y > self.y:
+                dy = 1
+            elif player.y < self.y:
+                dy = -1
+
+            self.mover.enemy_move(self, dx, dy)
 
         # RUN STATE (alone): flee + zigzag
         else:
@@ -331,18 +335,25 @@ class BossLevelNine(Enemy):
                 self._zigzag_dir *= -1
                 self._zigzag_last_toggle = now
 
-            if player.x >= self.x:
-                self.mover.enemy_move_left(self)
-            else:
-                self.mover.enemy_move_right(self)
+            dx = 0
+            dy = 0
 
-            if hasattr(self.mover, "enemy_move_up") and hasattr(self.mover, "enemy_move_down"):
-                if self._zigzag_dir > 0:
-                    self.mover.enemy_move_down(self)
-                else:
-                    self.mover.enemy_move_up(self)
+            # Flee horizontally
+            if player.x >= self.x:
+                dx = -1
             else:
-                self.y += self._zigzag_dir * float(self.moveSpeed)
+                dx = 1
+
+            # Flee vertically
+            if player.y >= self.y:
+                dy = -1
+            else:
+                dy = 1
+
+            # Add zigzag to vertical movement
+            dy += self._zigzag_dir
+
+            self.mover.enemy_move(self, dx, dy)
 
         # -------------------------
         # BOUNDARY CLAMP

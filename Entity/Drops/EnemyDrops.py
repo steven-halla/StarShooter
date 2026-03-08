@@ -39,6 +39,15 @@ class EnemyDrop:
                 ])
                 return cls(enemy.x, enemy.y, drop_type)
             return None
+        if enemy_type == "Ravager":
+            if roll < 0.40:
+                drop_type = random.choice([
+
+                    cls.DROP_MISSILE,
+                    cls.DROP_HEALTH,
+                ])
+                return cls(enemy.x, enemy.y, drop_type)
+            return None
 
         if enemy_type == "AcidLauncher":
             if roll < 0.18:
@@ -162,7 +171,9 @@ class EnemyDrop:
 
     def apply_effect(self, state, starship) -> None:
         if self.drop_type == self.DROP_HEALTH:
-            bonus = 25 if "Enemy Drop +" in state.starship.upgrade_chips else 0
+            bonus = 25
+            if "Enemy Drop +" in state.starship.upgrade_chips:
+                bonus += 25
             starship.shipHealth = min(starship.shipHealth + bonus, starship.shipHealthMax)
 
         elif self.drop_type == self.DROP_SHIELD:

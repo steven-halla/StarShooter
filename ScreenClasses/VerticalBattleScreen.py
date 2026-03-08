@@ -389,6 +389,36 @@ class VerticalBattleScreen:
             bullet_rect = bullet.rect
 
             # -------------------------
+            # COLLISION WITH TILES
+            # -------------------------
+            collision_layer = self.tiled_map.get_layer_by_name("collision")
+            tile_size = self.tile_size
+            bullet_rect = bullet.rect
+            
+            # Simple tile collision check for bullets
+            # We can optimize by only checking tiles around the bullet
+            start_col = int(bullet_rect.left // tile_size)
+            end_col = int(bullet_rect.right // tile_size)
+            start_row = int(bullet_rect.top // tile_size)
+            end_row = int(bullet_rect.bottom // tile_size)
+            
+            hit_wall = False
+            for row in range(start_row, end_row + 1):
+                for col in range(start_col, end_col + 1):
+                    # Check if tile exists at this location in collision layer
+                    tile = collision_layer.data[row][col] if 0 <= row < collision_layer.height and 0 <= col < collision_layer.width else 0
+                    if tile != 0:
+                        hit_wall = True
+                        break
+                if hit_wall:
+                    break
+            
+            if hit_wall:
+                if bullet in self.player_bullets:
+                    self.player_bullets.remove(bullet)
+                continue
+
+            # -------------------------
             # COLLISION WITH ACID MISSILES (special destructible bullets)
             # -------------------------
             for e_bullet in list(state.enemy_bullets):
@@ -1255,6 +1285,31 @@ class VerticalBattleScreen:
                 continue
 
             # Collision check
+            collision_layer = self.tiled_map.get_layer_by_name("collision")
+            tile_size = self.tile_size
+            bullet_rect = bullet.rect
+            
+            # Simple tile collision check for enemy bullets
+            start_col = int(bullet_rect.left // tile_size)
+            end_col = int(bullet_rect.right // tile_size)
+            start_row = int(bullet_rect.top // tile_size)
+            end_row = int(bullet_rect.bottom // tile_size)
+            
+            hit_wall = False
+            for row in range(start_row, end_row + 1):
+                for col in range(start_col, end_col + 1):
+                    tile = collision_layer.data[row][col] if 0 <= row < collision_layer.height and 0 <= col < collision_layer.width else 0
+                    if tile != 0:
+                        hit_wall = True
+                        break
+                if hit_wall:
+                    break
+            
+            if hit_wall:
+                if bullet in state.enemy_bullets:
+                    state.enemy_bullets.remove(bullet)
+                continue
+
             if bullet.collide_with_rect(self.starship.hitbox):
                 if not self.starship.invincible:
                     old_health = self.starship.shipHealth

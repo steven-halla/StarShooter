@@ -1,14 +1,14 @@
 {
   "version": 1,
   "location": {
-    "screen": "Level 9",
-    "level_id": 9,
+    "screen": "Level 10",
+    "level_id": 10,
     "spawn_id": null
   },
   "player": {
     "shipHealth": 144,
-    "money": 1000,
-    "shipHealthMax": 50,
+    "money": 6000,
+    "shipHealthMax": 100,
     "equipped_magic": [
       "Buster Cannon",
       null
@@ -19,7 +19,7 @@
       "Napalm Spread",
       "Buster Cannon"
     ],
-    "current_level": 9
+    "current_level": 10
   },
   "weapons": {
     "machine_gun": {
@@ -50,17 +50,17 @@
     }
   },
   "missiles": {
-    "damage": 25,
-    "bullet_speed": 1.5,
+    "damage": 33,
+    "bullet_speed": 2.5,
     "rate_of_fire": 0.5,
     "max": 4,
-    "current": 1,
+    "current": 4,
     "fire_interval_seconds": 0.5,
-    "regen_interval_seconds": 10.0
+    "regen_interval_seconds": 9.0
   },
   "shield": {
-    "current": 100,
-    "max": 100,
+    "current": 175,
+    "max": 175,
     "recharge_rate": 0.4,
     "time_to_start_recharge": 10000
   },
@@ -91,7 +91,9 @@
       "Shield Flash",
       "Post hit +",
       "Double Barrel",
-      "Wizards Training"
+      "Wizards Training",
+      "Tactical Missile Array",
+      "Armor Plating"
     ]
   },
   "ship": {

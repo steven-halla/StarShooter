@@ -56,8 +56,8 @@ class ShootingUpBlock(Enemy):
                 # print("yes")
                 self.shoot_single_down_vertical_y(
                     bullet_speed=-4,
-                    bullet_width=16,
-                    bullet_height=16,
+                    bullet_width=4,
+                    bullet_height=4,
                     bullet_color=GlobalConstants.RED,
                     bullet_damage=10,
                     state=state

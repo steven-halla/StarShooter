@@ -1,87 +1,128 @@
-import math
+import random
 import pygame
 
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Enemy import Enemy
-from Weapons.Bullet import Bullet
+from Movement.MoveRectangle import MoveRectangle
 
 
 class SporeFlower(Enemy):
     def __init__(self) -> None:
         super().__init__()
 
-        # enemy appearance
-        self.width: int = 16
-        self.height: int = 16
-        self.color: tuple[int, int, int] = GlobalConstants.RED
+        # movement
+        self.mover: MoveRectangle = MoveRectangle()
+        self.move_direction: int = random.choice([-1, 1])
+        self.moveSpeed: float = 2.0
+        self.edge_padding: int = 0
 
-        # bullet appearance
-        self.bulletColor: tuple[int, int, int] = GlobalConstants.SKYBLUE
-        self.bulletWidth: int = 20
-        self.bulletHeight: int = 20
+        # identity / visuals
+        self.name: str = "SporeFlowr"
+        self.width: int = 40
+        self.height: int = 40
+        self.color = GlobalConstants.RED
 
-        # firing
-        self.weapon_speed: float = 3.0
-        self.fire_interval_ms: int = 3000
-        self.last_shot_time: int = pygame.time.get_ticks()
-
-        # gameplay
-        self.enemyHealth: int = 10
-
-        # bullets owned by this enemy
-        self.enemyBullets: list[Bullet] = []
-
-
-        self.spore_flower_image = pygame.image.load(
+        self.bile_spitter_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
         ).convert_alpha()
-        self.enemy_image = self.spore_flower_image  # 🔑 REQUIRED
+        self.enemy_image = self.bile_spitter_image
 
-    def shoot_spores(self) -> None:
-        cx = self.x + self.width // 2
-        cy = self.y + self.height // 2
-        s = self.weapon_speed
+        # stats
+        self.enemyHealth: float = 3.0
+        self.maxHealth: float = 3.0
+        self.exp: int = 1
+        self.credits: int = 5
 
-        bullets = [
-            (-s, 0),  # LEFT
-            (0, s),  # DOWN
-            (s, 0),  # RIGHT
-            (0, -s),  # UP
-            (-s, -s),  # UP-LEFT
-            (s, -s),  # UP-RIGHT
-            (-s, s),  # DOWN-LEFT
-            (s, s),  # DOWN-RIGHT
-        ]
+        # ranged attack
+        self.bulletColor = GlobalConstants.SKYBLUE
+        self.attack_timer = Timer(0.7)
 
-        for dx, dy in bullets:
-            b = Bullet(cx, cy)
-            b.dx = dx
-            b.speed = dy
-            b.width = self.bulletWidth
-            b.height = self.bulletHeight
-            b.color = self.bulletColor
-            b.damage = 10
-            self.enemyBullets.append(b)
+        # touch damage
+        self.touch_damage: int = 10
+        self.touch_timer = Timer(0.75)
 
-    def update(self) -> None:
-        super().update()
+    # -------------------------------------------------
+    # UPDATE
+    # -------------------------------------------------
+    def update(self, state) -> None:
+        super().update(state)
+        if not self.is_active:
+            return
+
+
         self.update_hitbox()
 
-        now = pygame.time.get_ticks()
-
-        if now - self.last_shot_time >= self.fire_interval_ms:
-            self.shoot_spores()
-            self.last_shot_time = now
-
-        for bullet in self.enemyBullets:
-            bullet.update()
 
 
+        if state.starship.current_level != 3:
+            if self.is_active and self.attack_timer.is_ready():
+                self.shoot_single_bullet_aimed_at_player(
+                    bullet_speed=1.4,
+                    bullet_width=6,
+                    bullet_height=6,
+                    bullet_color=self.bulletColor,
+                    bullet_damage=75,
+                    state=state
+                )
+                self.attack_timer.reset()
+
+        else:
+            if self.is_active and self.attack_timer.is_ready():
+                self.shoot_single_bullet_aimed_at_player(
+                    bullet_speed=2.0,
+                    bullet_width=20,
+                    bullet_height=20,
+                    bullet_color=self.bulletColor,
+                    bullet_damage=40,
+                    state=state
+                )
+                self.attack_timer.reset()
+
+        # 🔑 CALL TOUCH DAMAGE HANDLER
+        self.player_collide_damage(state.starship)
+
+
+
+    # -------------------------------------------------
+    # TOUCH DAMAGE (STANDALONE FUNCTION)
+    # -------------------------------------------------
+
+    # -------------------------------------------------
+    # MOVEMENT
+    # -------------------------------------------------
+    def moveAI(self) -> None:
+        window_width = GlobalConstants.BASE_WINDOW_WIDTH
+
+        if not hasattr(self, "_last_x"):
+            self._last_x = self.x
+
+        if self.move_direction > 0:
+            self.mover.enemy_move_right(self)
+        else:
+            self.mover.enemy_move_left(self)
+
+        if self.x < self.edge_padding:
+            self.x = self.edge_padding
+        elif self.x + self.width > window_width - self.edge_padding:
+            self.x = window_width - self.edge_padding - self.width
+
+        if self.x == self._last_x:
+            self.move_direction *= -1
+
+        self._last_x = self.x
+
+    # -------------------------------------------------
+    # DRAW
+    # -------------------------------------------------
     def draw(self, surface: pygame.Surface, camera):
-        super().draw(surface, camera)  # 🔑 REQUIRED
+        if not self.is_active:
+            return
+
+        super().draw(surface, camera)
 
         sprite_rect = pygame.Rect(0, 344, 32, 32)
-        sprite = self.spore_flower_image.subsurface(sprite_rect)
+        sprite = self.bile_spitter_image.subsurface(sprite_rect)
 
         scale = camera.zoom
         scaled_sprite = pygame.transform.scale(
@@ -89,13 +130,13 @@ class SporeFlower(Enemy):
             (int(self.width * scale), int(self.height * scale))
         )
 
-        screen_x = camera.world_to_screen_x(self.x)
-        screen_y = camera.world_to_screen_y(self.y)
-        surface.blit(scaled_sprite, (screen_x, screen_y))
+        surface.blit(
+            scaled_sprite,
+            (
+                camera.world_to_screen_x(self.x),
+                camera.world_to_screen_y(self.y),
+            )
+        )
 
-        hb_x = camera.world_to_screen_x(self.hitbox.x)
-        hb_y = camera.world_to_screen_y(self.hitbox.y)
-        hb_w = int(self.hitbox.width * camera.zoom)
-        hb_h = int(self.hitbox.height * camera.zoom)
-
-        pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
+    def clamp_vertical(self) -> None:
+        pass

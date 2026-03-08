@@ -1,6 +1,7 @@
 import pygame
 import pytmx
 from Constants.GlobalConstants import GlobalConstants
+from Constants.Timer import Timer
 from Entity.Bosses.BossLevelNine import BossLevelNine
 from Entity.Bosses.BossLevelOne import BossLevelOne
 from Entity.Monsters.AcidLauncher import AcidLauncher
@@ -13,6 +14,7 @@ from Entity.Monsters.TimeBomb import TimeBomb
 from Entity.Monsters.TriSpitter import TriSpitter
 from Entity.Monsters.WaspStinger import WaspStinger
 from SaveStates.SaveState import SaveState
+from ScreenClasses.HomeBase import HomeBase
 from ScreenClasses.MissionBriefingScreenLevelTwo import MissionBriefingScreenLevelTwo
 from ScreenClasses.VerticalBattleScreen import VerticalBattleScreen
 
@@ -24,13 +26,13 @@ class LevelNine(VerticalBattleScreen):
         self.map_width_tiles: int = self.tiled_map.width
         self.map_height_tiles: int = self.tiled_map.height
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
-        window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
-        visible_height = window_height / self.camera.zoom
-        self.camera_y = self.WORLD_HEIGHT - visible_height
-        self.camera.world_height = self.WORLD_HEIGHT
-        self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
-        self.camera.y = float(self.camera_y)
-        # self.camera.y = 80
+        # window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
+        # visible_height = window_height / self.camera.zoom
+        # self.camera_y = self.WORLD_HEIGHT - visible_height
+        # self.camera.world_height = self.WORLD_HEIGHT
+        # self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
+        # self.camera.y = float(self.camera_y)
+        self.camera.y = 180
         self.map_scroll_speed_per_frame: float = .4  # move speed of camera
         self.total_enemies = 40
         self.prev_enemy_count: int = None
@@ -40,6 +42,8 @@ class LevelNine(VerticalBattleScreen):
         self.game_over: bool = False
         self.level_complete = False
         self.save_state = SaveState()
+        self.boss_death_timer = None
+
 
         self.intro_dialogue = (
             "I am the ultimate man on the battlefield. "
@@ -65,7 +69,6 @@ class LevelNine(VerticalBattleScreen):
         self.starship.y = player_y
 
         self.load_enemy_into_list(state)
-        self.starship.shipHealth = 144
         self.save_state.set_location_level(9, screen_name="Level 9")
         self.save_state.capture_player(self.starship)
         self.save_state.save_to_file("player_save.json")
@@ -78,6 +81,12 @@ class LevelNine(VerticalBattleScreen):
         self.update_handle_level_complete(state)
         self.update_pull_left(state)
         self.update_pull_right(state)
+        if self.boss_death_timer is not None:
+            if self.boss_death_timer.is_ready():
+                state.starship.money += 40000
+                state.currentScreen = HomeBase(self.textbox)
+                state.currentScreen.start(state)
+                return
 
     def draw(self, state):
         # 1. DRAW TO scene_surface (WORLD SPACE)
@@ -161,17 +170,12 @@ class LevelNine(VerticalBattleScreen):
                 self.remove_enemy_if_dead(enemy, state)
 
     def update_handle_level_complete(self, state):
-        if (
-                not self.level_complete
-                and any(
-            enemy.__class__.__name__ == "BossLevelNine" and enemy.enemyHealth <= 0
-            for enemy in state.enemies
-        )
-        ):
-            self.level_complete = True
-            # next_level = MissionBriefingScreenLevelNine()
-            # state.currentScreen = next_level
-            # next_level.start(state)
+        if not self.level_complete:
+            boss_alive = any(isinstance(enemy, BossLevelNine) for enemy in state.enemies)
+            if not boss_alive:
+                if self.boss_death_timer is None:
+                    self.boss_death_timer = Timer(2.0)
+                    self.boss_death_timer.reset()
 
 
 

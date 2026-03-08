@@ -276,6 +276,10 @@ class StarShip:
                 # This prevents "illegal" damage while allowing "legal" (shield overflow) damage
                 if self.shipHealth < self.frozen_health:
                     self.shipHealth = self.frozen_health
+                elif self.shipHealth > self.frozen_health:
+                    # Update trackers if health increased (e.g. from health drops)
+                    self.frozen_health = self.shipHealth
+                    self.last_health = self.shipHealth
 
         if not self.invincible:
             self.last_health = self.shipHealth

@@ -39,6 +39,7 @@ class Ravager(Enemy):
         self.enemyHealth = 100
         self.maxHealth = 100
         self.enemyBullets: list[Bullet] = []
+        self.name: str = "Ravager"
 
         self.ravager_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"

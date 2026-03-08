@@ -77,9 +77,9 @@ class BossLevelTen(Enemy):
         hp_pct = (self.enemyHealth / self.maxHealth) * 100 if self.maxHealth else 0
 
         # Phase transition resets
-        # new_phase_1 = False
-        # new_phase_2 = False
-        # new_phase_3 = True
+        new_phase_1 = False
+        new_phase_2 = False
+        new_phase_3 = False
 
         if hp_pct > 70:
             new_phase_1 = True
