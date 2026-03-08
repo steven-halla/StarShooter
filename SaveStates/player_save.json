@@ -6,7 +6,7 @@
     "spawn_id": null
   },
   "player": {
-    "shipHealth": 144,
+    "shipHealth": 100,
     "money": 6000,
     "shipHealthMax": 100,
     "equipped_magic": [
