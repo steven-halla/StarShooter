@@ -7,7 +7,7 @@
   },
   "player": {
     "shipHealth": 25,
-    "money": 30000,
+    "money": 20000,
     "shipHealthMax": 25,
     "equipped_magic": [
       "Wind Slicer",
@@ -21,7 +21,7 @@
   },
   "weapons": {
     "machine_gun": {
-      "damage": 0.6,
+      "damage": 0.5,
       "width": 4,
       "height": 4,
       "rate_of_fire": 0.1,
@@ -57,13 +57,13 @@
     "regen_interval_seconds": 10.0
   },
   "shield": {
-    "current": 125,
-    "max": 125,
+    "current": 100,
+    "max": 100,
     "recharge_rate": 0.2,
     "time_to_start_recharge": 10000
   },
   "stats": {
-    "speed": 2.2,
+    "speed": 2.6,
     "player_ki": 75,
     "player_max_ki": 75,
     "current_heat": 100,
@@ -75,9 +75,8 @@
       "",
       "Metal Shield",
       "Ki Efficiency chip",
-      "Shield Generator",
       "Wind Slicer",
-      "M. gun damage booster"
+      "Speed up"
     ]
   },
   "ship": {

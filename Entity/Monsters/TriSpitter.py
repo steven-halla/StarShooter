@@ -75,7 +75,7 @@ class TriSpitter(Enemy):
         else:
             if self.is_active and self.attack_timer.is_ready():
                 self.shoot_multiple_down_vertical_y(
-                    bullet_speed=1.8,
+                    bullet_speed=1.6,
                     bullet_width=12,
                     bullet_height=40,
                     bullet_color=self.bulletColor,

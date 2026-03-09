@@ -72,7 +72,7 @@ class FireLauncher(Enemy):
         else:
             if self.is_active and self.attack_timer.is_ready():
                 self.shoot_spores(
-                    bullet_speed=0.9,
+                    bullet_speed=0.8,
                     bullet_width=20,
                     bullet_height=20,
                     bullet_color=self.bulletColor,

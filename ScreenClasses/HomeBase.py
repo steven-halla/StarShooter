@@ -301,6 +301,10 @@ class HomeBase(Screen):
                 elif self.menu_index == 2:
                     # NEXT MISSION
                     state.starship.current_level += 1
+                    state.starship.shipHealth = state.starship.shipHealthMax
+                    state.starship.shield_system.reset()
+                    state.starship.player_ki = state.starship.player_max_ki
+                    state.starship.missile.current_missiles = state.starship.missile.max_missiles
 
                     # Save before transitioning
                     self.save_state.capture_player(state.starship)
