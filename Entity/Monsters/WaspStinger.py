@@ -24,10 +24,10 @@ class WaspStinger(Enemy):
         self.height: int = 40
         self.color = GlobalConstants.RED
 
-        self.bile_spitter_image = pygame.image.load(
-            "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
+        self.wasp_stinger_image = pygame.image.load(
+            "Assets/Images/wasp_stinger_32x32.png"
         ).convert_alpha()
-        self.enemy_image = self.bile_spitter_image
+        self.enemy_image = self.wasp_stinger_image
 
         # stats
         self.enemyHealth: float = 5.0
@@ -120,13 +120,12 @@ class WaspStinger(Enemy):
     def draw(self, surface: pygame.Surface, camera):
         super().draw(surface, camera)  # 🔑 REQUIRED
 
-        sprite_rect = pygame.Rect(0, 344, 32, 32)
-        sprite = self.bile_spitter_image.subsurface(sprite_rect)
+        sprite = self.wasp_stinger_image
 
         scale = camera.zoom
         scaled_sprite = pygame.transform.scale(
             sprite,
-            (int(self.width * scale), int(self.height * scale))
+            (int(self.width * scale ), int(self.height * scale ))
         )
 
         surface.blit(

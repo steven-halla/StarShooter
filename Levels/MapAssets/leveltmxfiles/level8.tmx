@@ -1427,7 +1427,7 @@
   <object id="33" name="wasp_stinger" x="292.289" y="713.225" width="16" height="16"/>
   <object id="34" name="wasp_stinger" x="59.9389" y="397.219" width="16" height="16"/>
   <object id="37" name="wasp_stinger" x="208.052" y="6790.6" width="16" height="16"/>
-  <object id="83" name="wasp_stinger" x="14.8113" y="7026.98" width="16" height="16"/>
+  <object id="83" name="wasp_stinger" x="23.788" y="7228.06" width="16" height="16"/>
   <object id="84" name="wasp_stinger" x="302.299" y="4532.39" width="16" height="16"/>
   <object id="85" name="wasp_stinger" x="252.001" y="6992.83" width="16" height="16"/>
   <object id="40" name="spikey_ball" x="237.177" y="1054.62" width="16" height="16"/>
@@ -1486,7 +1486,7 @@
   <object id="104" name="bile_spitter" x="242.293" y="2782.49" width="16" height="16"/>
   <object id="110" name="acid_launcher" x="53.647" y="576.705" width="16" height="16"/>
   <object id="111" name="spikey_ball" x="200.144" y="509.646" width="16" height="16"/>
-  <object id="113" name="acid_launcher" x="35.9066" y="7174.15" width="16" height="16"/>
+  <object id="113" name="acid_launcher" x="258.528" y="7066.43" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="6" name="player"/>
 </map>

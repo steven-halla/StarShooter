@@ -14,10 +14,23 @@ class EnemyDrop:
     @classmethod
     def from_enemy(cls, enemy) -> "EnemyDrop | None":
         enemy_type = enemy.__class__.__name__
-        roll = random.random()  # 0.0 <= roll < 1.
+        roll = random.random()  # 0.0 <= roll < 1.0
         print(f"your roll is {roll}")
+
         # -------------------------
-        # Bile Spitter
+        # AcidLauncher
+        # -------------------------
+        if enemy_type == "AcidLauncher":
+            if roll < 0.18:
+                drop_type = random.choice([
+                    cls.DROP_SHIELD,
+                    cls.DROP_KI,
+                ])
+                return cls(enemy.x, enemy.y, drop_type)
+            return None
+
+        # -------------------------
+        # BileSpitter
         # 25% chance to drop ANY power up
         # -------------------------
         if enemy_type == "BileSpitter":
@@ -30,43 +43,27 @@ class EnemyDrop:
                 ])
                 return cls(enemy.x, enemy.y, drop_type)
             return None
-        if enemy_type == "SpinalRaptor":
+
+        # -------------------------
+        # BladeSpinner
+        # -------------------------
+        if enemy_type == "BladeSpinner":
+            if roll < 0.15:
+                return cls(enemy.x, enemy.y, cls.DROP_MISSILE)
+            return None
+
+        # -------------------------
+        # BossLevelFour
+        # -------------------------
+        if enemy_type == "BossLevelFour":
             if roll < 0.35:
-                drop_type = random.choice([
-                    cls.DROP_SHIELD,
-                    cls.DROP_MISSILE,
-                    cls.DROP_KI,
-                ])
-                return cls(enemy.x, enemy.y, drop_type)
-            return None
-        if enemy_type == "Ravager":
-            if roll < 0.40:
-                drop_type = random.choice([
-
-                    cls.DROP_MISSILE,
-                    cls.DROP_HEALTH,
-                ])
+                drop_type = random.choice([cls.DROP_KI, cls.DROP_MISSILE])
                 return cls(enemy.x, enemy.y, drop_type)
             return None
 
-        if enemy_type == "AcidLauncher":
-            if roll < 0.18:
-                drop_type = random.choice([
-                    cls.DROP_SHIELD,
-                    cls.DROP_KI,
-                ])
-                return cls(enemy.x, enemy.y, drop_type)
-            return None
-
-        if enemy_type == "WaspStinger":
-            if roll < 0.10:
-                drop_type = random.choice([
-                    cls.DROP_SHIELD,
-                    cls.DROP_HEALTH,
-
-                ])
-                return cls(enemy.x, enemy.y, drop_type)
-            return None
+        # -------------------------
+        # FireLauncher
+        # -------------------------
         if enemy_type == "FireLauncher":
             if roll < 0.20:
                 drop_type = random.choice([
@@ -76,30 +73,37 @@ class EnemyDrop:
             return None
 
         # -------------------------
-        # Blade Spinner
-        # 10% chance to drop a MISSILE
+        # KamikazeDrone
         # -------------------------
-        if enemy_type == "BladeSpinner":
+        if enemy_type == "KamikazeDrone":
             if roll < 0.15:
-                return cls(enemy.x, enemy.y, cls.DROP_MISSILE)
+                return cls(enemy.x, enemy.y, cls.DROP_KI)
             return None
 
         # -------------------------
-        # Tri Spitter
-        # 10% chance to drop SHIELD or HEALTH
+        # Ravager
         # -------------------------
-        if enemy_type == "TriSpitter":
-            if roll < 0.10:
-                drop_type = random.choice([cls.DROP_KI, cls.DROP_HEALTH])
+        if enemy_type == "Ravager":
+            if roll < 0.40:
+                drop_type = random.choice([
+                    cls.DROP_MISSILE,
+                    cls.DROP_HEALTH,
+                ])
                 return cls(enemy.x, enemy.y, drop_type)
             return None
 
+        # -------------------------
+        # Slaver
+        # -------------------------
         if enemy_type == "Slaver":
             if roll < 0.15:
                 drop_type = random.choice([cls.DROP_KI])
                 return cls(enemy.x, enemy.y, drop_type)
             return None
 
+        # -------------------------
+        # SpikeyBall
+        # -------------------------
         if enemy_type == "SpikeyBall":
             if roll < 0.20:
                 drop_type = random.choice([
@@ -110,41 +114,70 @@ class EnemyDrop:
                 return cls(enemy.x, enemy.y, drop_type)
             return None
 
+        # -------------------------
+        # SpinalRaptor
+        # -------------------------
+        if enemy_type == "SpinalRaptor":
+            if roll < 0.35:
+                drop_type = random.choice([
+                    cls.DROP_SHIELD,
+                    cls.DROP_MISSILE,
+                    cls.DROP_KI,
+                ])
+                return cls(enemy.x, enemy.y, drop_type)
+            return None
+
+        # -------------------------
+        # TriSpitter
+        # -------------------------
+        if enemy_type == "TriSpitter":
+            if roll < 0.10:
+                drop_type = random.choice([cls.DROP_KI, cls.DROP_HEALTH])
+                return cls(enemy.x, enemy.y, drop_type)
+            return None
+
+        # -------------------------
+        # transport_worm
+        # -------------------------
         if enemy_type == "transport_worm":
             if roll < 0.25:
                 drop_type = random.choice([cls.DROP_HEALTH])
                 return cls(enemy.x, enemy.y, drop_type)
             return None
 
-        # -------------------------
-        # Fire Launcher
-        # 15% chance to drop KI
-        # -------------------------
-
-        # -------------------------
-        # Wasp Stinger
-        # 5% chance to drop HEALTH
-        # -------------------------
-
-
-        # -------------------------
-        # Kamikaze Drone
-        # 20% chance to drop SHIELD
-        # -------------------------
-        if enemy_type == "KamikazeDrone":
-            if roll < 0.15:
-                return cls(enemy.x, enemy.y, cls.DROP_KI)
-            return None
-
-        if enemy_type == "BossLevelFour":
-            if roll < 0.35:
-                drop_type = random.choice([cls.DROP_KI, cls.DROP_MISSILE])
+        if enemy_type == "SpineLauncher":
+            if roll < 0.25:
+                drop_type = random.choice([
+                    cls.DROP_KI,
+                ])
                 return cls(enemy.x, enemy.y, drop_type)
             return None
-            pass
+
+        if enemy_type == "SporeFlower":
+            if roll < 0.40:
+                drop_type = random.choice([
+                    cls.DROP_SHIELD,
+                    cls.DROP_HEALTH,
+                ])
+                return cls(enemy.x, enemy.y, drop_type)
+            return None
+
+        # -------------------------
+        # WaspStinger
+        # -------------------------
+        if enemy_type == "WaspStinger":
+            if roll < 0.10:
+                drop_type = random.choice([
+                    cls.DROP_SHIELD,
+                    cls.DROP_HEALTH,
+                ])
+                return cls(enemy.x, enemy.y, drop_type)
+            return None
 
         # default: no drops unless you add more rules
         return None
+
+
 
 
     def __init__(self, x: float, y: float, drop_type: str):

@@ -27,10 +27,10 @@ class LevelEight(VerticalBattleScreen):
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
         window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
         visible_height = window_height / self.camera.zoom
-        # self.camera_y = self.WORLD_HEIGHT - visible_height
+        self.camera_y = self.WORLD_HEIGHT - visible_height
         self.camera.world_height = self.WORLD_HEIGHT
-        # self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
-        self.camera_y = 90
+        self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
+        # self.camera_y = 90
         # self.camera.y = 11
         self.map_scroll_speed_per_frame: float = .4  # move speed of camera
         self.total_enemies = 40

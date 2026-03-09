@@ -1,5 +1,6 @@
 import pygame
 
+from Controller.KeyBoardControls import KeyBoardControls
 from SaveStates.SaveState import SaveState
 from ScreenClasses.Screen import Screen
 
@@ -7,30 +8,28 @@ from ScreenClasses.Screen import Screen
 class MissionBriefingScreenLevelOne(Screen):
     def __init__(self):
         super().__init__()
+        self.controls = KeyBoardControls()
         self.level_start: bool = True
         self.skip_ready_time = pygame.time.get_ticks() + 2500
         self.save_state = SaveState()
 
         self.briefing_text = [
-            "The space port of bakarant is under attack by the undead legion, fighters have been scrambled and you are to assist.",
-            "",
-
-            "Ammo is almost depleted, and most of the space ports barrels have melted.",
+            "The space port of Bakarant is under attack by the undead legion. All fighters have been scrambled.",
+            "Bakarant's barrels have all melted, and ammo stores are near depleted.",
             "The enemy strike force includes a Harvester bio ship.",
-            "",
 
-            "-Your objective is to  Destroy at least 40 enemies.",
+            "-Your objective is to destroy all enemies.",
             "- Destroy the Harvester Bio ship.",
-            "You will be deployed in sector 243 333 433",
+            "Do not let the enemies pass you by.",
             "The reward for the mission is 5000 credits that you can use for upgrades",
-            "",
+
             "Controls:",
-            "- Arrow keys: Move",
-            "- F: Machine gun fire",
-            "- B: Launch missiles",
-            "- D: Special attack",
+            "- D pad/Paddle sticks: Move",
+            "- A: Machine gun fire",
+            "- X: Ki Attacks - Ki is limited",
+            "- B: Missiles-10 second recharge",
             "",
-            "Press F to deploy."
+            "Press A to deploy."
         ]
 
         self.briefing_message: str = "\n".join(self.briefing_text)
@@ -62,6 +61,10 @@ class MissionBriefingScreenLevelOne(Screen):
         ).convert_alpha()
         self.mission_brief_padding_top = 16
         self.mission_brief_padding_side = 16
+
+        # Lock for A button to prevent rapid advance
+        self._a_button_lock: bool = False
+        self._f_button_lock: bool = False
 
     def draw_upper_mission_brief_screen(self, state) -> None:
         text_box_rect = state.textbox.rect
@@ -106,18 +109,25 @@ class MissionBriefingScreenLevelOne(Screen):
 
     def update(self, state):
         super().update(state)
+        self.controls.update()
 
         if not self._briefing_shown:
             state.textbox.show(self.briefing_message)
             self._briefing_shown = True
 
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
-                    state.textbox.advance()
+        # Use switch A button to go through messages
+        if self.controls.a_button and not self._a_button_lock:
+            state.textbox.advance()
+            self._a_button_lock = True
+        elif not self.controls.a_button:
+            self._a_button_lock = False
 
-                if event.key == pygame.K_f:
-                    self._try_deploy(state)
+        # Use F (main_weapon_button) to deploy
+        if self.controls.main_weapon_button and not self._f_button_lock:
+            self._try_deploy(state)
+            self._f_button_lock = True
+        elif not self.controls.main_weapon_button:
+            self._f_button_lock = False
 
     def draw(self, state):
         state.DISPLAY.fill((0, 0, 0))
