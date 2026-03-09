@@ -27,7 +27,6 @@ class Shield:
         Applies damage to shield.
         Any overflow damage is applied to owner.shipHealth.
         """
-        print("taking damage")
         now = pygame.time.get_ticks()
 
         # Courtesy invincibility check

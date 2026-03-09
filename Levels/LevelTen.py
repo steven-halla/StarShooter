@@ -30,10 +30,11 @@ class LevelTen(VerticalBattleScreen):
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400
         window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
         visible_height = window_height / self.camera.zoom
-        self.camera_y = self.WORLD_HEIGHT - visible_height
-        self.camera.world_height = self.WORLD_HEIGHT
-        self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
-        self.camera.y = float(self.camera_y)
+        # self.camera_y = self.WORLD_HEIGHT - visible_height
+        # self.camera.world_height = self.WORLD_HEIGHT
+        # self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
+        # self.camera.y = float(self.camera_y)
+        self.camera.y = 80
         # self.camera.y = 80
         self.map_scroll_speed_per_frame: float = .4  # move speed of camera
         self.time_limit_ms = 5 * 60 * 1000  # 5 minutes
@@ -74,7 +75,7 @@ class LevelTen(VerticalBattleScreen):
 
     def update(self, state) -> None:
         # Create melee_hitbox FIRST (before enemies update)
-        print(len(state.enemies))
+        # print(len(state.enemies))
         self.starship.melee_hitbox = pygame.Rect(
             int(self.starship.x),
             int(self.starship.y),
@@ -177,6 +178,11 @@ class LevelTen(VerticalBattleScreen):
 
             if enemy.enemyHealth <= 0:
                 self.remove_enemy_if_dead(enemy, state)
+
+    def remove_enemy_if_dead(self, enemy, state) -> None:
+        if enemy.enemyHealth <= 0 and isinstance(enemy, ObjectiveBlock):
+            self.time_limit_ms += 60000
+        super().remove_enemy_if_dead(enemy, state)
 
     def update_handle_level_complete(self, state):
 

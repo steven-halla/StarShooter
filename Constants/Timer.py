@@ -36,6 +36,20 @@ class Timer:
         now: int = pygame.time.get_ticks()
         return now - self.last_time_ms >= self.interval_ms
 
+    def delay(self, delay_ms: int) -> None:
+        """
+        Delay the timer so it will not be ready until at least delay_ms has passed from NOW.
+        If the timer is already delayed further into the future, it remains as is.
+        """
+        now: int = pygame.time.get_ticks()
+        # To be ready in exactly delay_ms from now:
+        # now + delay_ms - last_time_ms = interval_ms
+        # last_time_ms = now + delay_ms - interval_ms
+        target_last_time_ms = now + delay_ms - self.interval_ms
+        # We only update if this pushes the next ready time further into the future.
+        if target_last_time_ms > self.last_time_ms:
+            self.last_time_ms = target_last_time_ms
+
         # -----------------------------
         # BASIC CONTROL
         # -----------------------------

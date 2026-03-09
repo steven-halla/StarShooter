@@ -1,3 +1,4 @@
+import math
 import random
 import pygame
 from pygame import surface
@@ -25,8 +26,8 @@ class BossLevelTen(Enemy):
         self.fire_interval_ms: int = 2000
         self.last_shot_time: int = 0
         self.speed: float = 0.4
-        self.enemyHealth: float = 1111.0
-        self.maxHealth: float = 1111.0
+        self.enemyHealth: float = 444.0
+        self.maxHealth: float = 444.0
         self.exp: int = 1
         self.credits: int = 5
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
@@ -55,7 +56,7 @@ class BossLevelTen(Enemy):
 
         self.liquid_launcher_timer = Timer(6.0)
         self.boomerang_timer = Timer(9.0)
-        self.dragons_breath_timer = Timer(4.0)
+        self.dragons_breath_timer = Timer(13.0)
         self.horizontal_barrage_timer = Timer(8.0)
 
         self.is_resting = False
@@ -75,15 +76,25 @@ class BossLevelTen(Enemy):
         self.target_player = state.starship
 
         hp_pct = (self.enemyHealth / self.maxHealth) * 100 if self.maxHealth else 0
+        # print(f"BOSS HP%: {hp_pct:.1f}, Phase1={self.phase_1}, Phase2={self.phase_2}, Phase3={self.phase_3}, resting={self.is_resting}")
 
         # Phase transition resets
         new_phase_1 = False
         new_phase_2 = False
         new_phase_3 = False
+        # print("P3", "resting=", self.is_resting, "breath_ready=", self.dragons_breath_timer.is_ready(), "active=",
+        #       self._dragon_breath_active)
+        #
+        # if hp_pct > 70:
+        #     new_phase_1 = True
+        # elif hp_pct > 40:
+        #     new_phase_2 = True
+        # else:
+        #     new_phase_3 = True
 
-        if hp_pct > 70:
+        if hp_pct > 80:
             new_phase_1 = True
-        elif hp_pct > 40:
+        elif hp_pct > 60:
             new_phase_2 = True
         else:
             new_phase_3 = True
@@ -159,6 +170,7 @@ class BossLevelTen(Enemy):
                 # START breath
                 if self.dragons_breath_timer.is_ready() and not self._dragon_breath_active:
                     self._dragon_breath_active = True
+                    self._dragon_breath_start_time = now
                     self._dragon_breath_end_time = now + 10000  # 10 seconds
                     self.dragons_breath_timer.reset()
 
@@ -166,27 +178,34 @@ class BossLevelTen(Enemy):
                 if self._dragon_breath_active:
                     if now >= self._dragon_breath_end_time:
                         self._dragon_breath_active = False
+                        # Delay other attacks by 7 seconds from NOW
+                        self.liquid_launcher_timer.delay(7000)
+                        self.boomerang_timer.delay(7000)
+                        # Chance to rest after attack
+                        if random.random() < 0.3:
+                            self.is_resting = True
+                            self.rest_start_time = pygame.time.get_ticks()
                     else:
                         self.dragons_breath(
                             monster_x=self.x,
                             monster_y=self.y,
                             monster_width=self.width,
                             monster_height=self.height,
-                            length=120,
+                            length=350,
                             min_width=10,
                             max_width=60,
-                            segments=6,
+                            segments=12,
                             color=(255, 120, 0),
                             damage=18,
                             x_offset=0,
                             y_offset=0,
-                            state=state,
-                            duration_ms=10000
+                            state=state
                         )
+                    return # Exit early so NO other attacks can be evaluated in this frame
                 elif self.liquid_launcher_timer.is_ready():
                     self.liquid_launcher_timer.reset()
-                    self.dragons_breath_timer.last_time_ms += 1000
-                    self.boomerang_timer.last_time_ms += 2000
+                    self.dragons_breath_timer.delay(5000)
+                    self.boomerang_timer.delay(2000)
 
                     self.liquid_launcher(
                         damage=20,
@@ -199,11 +218,15 @@ class BossLevelTen(Enemy):
                         bullet_speed=4.0,
                         state=state
                     )
+                    # Chance to rest after attack
+                    if random.random() < 0.3:
+                        self.is_resting = True
+                        self.rest_start_time = pygame.time.get_ticks()
 
                 elif self.boomerang_timer.is_ready():
                     self.boomerang_timer.reset()
-                    self.dragons_breath_timer.last_time_ms += 1000
-                    self.liquid_launcher_timer.last_time_ms += 2000
+                    self.dragons_breath_timer.delay(5000)
+                    self.liquid_launcher_timer.delay(2000)
 
                     self.boomerang(
                         power=15,
@@ -216,6 +239,10 @@ class BossLevelTen(Enemy):
                         bullet_spread=15.0,
                         state=state
                     )
+                    # Chance to rest after attack
+                    if random.random() < 0.3:
+                        self.is_resting = True
+                        self.rest_start_time = pygame.time.get_ticks()
 
         self.moveAI(state)
 
@@ -314,6 +341,130 @@ class BossLevelTen(Enemy):
             b.camera = self.camera
 
             # Using game_state.enemy_bullets as per comment on line 32
+            state.enemy_bullets.append(b)
+
+    def dragons_breath(
+            self,
+            monster_x: float,
+            monster_y: float,
+            monster_width: int,
+            monster_height: int,
+            length: int,
+            min_width: int,
+            max_width: int,
+            segments: int,
+            color: tuple[int, int, int],
+            damage: int,
+            x_offset: int,
+            y_offset: int,
+            state
+    ) -> None:
+        """Original dragons_breath method moved from Enemy class directly into BossLevelTen.
+        Caller should manage the duration and active state.
+        """
+        if state is None:
+            return
+
+        # spawn cadence (Timer is in SECONDS in your project)
+        if not hasattr(self, "_dragon_breath_timer"):
+            self._dragon_breath_timer = Timer(0.05)  # 50ms
+            self._dragon_breath_timer.reset()
+
+        # spawn flame particles repeatedly while active
+        if not self._dragon_breath_timer.is_ready():
+            return
+
+        self._dragon_breath_timer.reset()
+
+        num_bullets = segments if segments > 0 else 1
+
+        base_x = monster_x + monster_width // 2 + x_offset
+        base_y = monster_y + monster_height // 2 + y_offset
+
+        print(f"DRAGONS BREATH FIRE: pos=({base_x:.1f}, {base_y:.1f}), target_player={self.target_player is not None}")
+
+        # aim at player if available, else downward
+        target_angle = 90.0
+        if getattr(self, "target_player", None) is not None:
+            dx = (self.target_player.x + self.target_player.width // 2) - base_x
+            dy = (self.target_player.y + self.target_player.height // 2) - base_y
+            target_angle = math.degrees(math.atan2(dy, dx))
+
+        spread_angle = math.degrees(math.atan2(max_width / 2, length)) * 2
+
+        for _ in range(num_bullets):
+            angle_offset = random.uniform(-spread_angle / 2, spread_angle / 2)
+            angle_rad = math.radians(target_angle + angle_offset)
+
+            b = Bullet(base_x, base_y)
+            b.vx = math.cos(angle_rad)
+            b.vy = math.sin(angle_rad)
+
+            b.bullet_speed = random.uniform(4.0, 6.0)
+            b.color = color
+            b.damage = damage
+            b.width = min_width
+            b.height = min_width
+
+            b.start_x = float(base_x)
+            b.start_y = float(base_y)
+            b.max_range = float(length)
+
+            # 🔥 CRITICAL: VerticalBattleScreen uses world_to_screen based on x,y
+            # We must make sure the bullet starts visible
+            b.camera = getattr(self, "camera", None)
+
+            def flame_update(bullet=b, start_w=min_width, end_w=max_width, max_r=float(length)):
+                # 🛠️ SETUP: track true center for movement math
+                if not hasattr(bullet, "true_x"):
+                    bullet.true_x = bullet.x
+                    bullet.true_y = bullet.y
+
+                # 🚀 MOVE: manual movement using true center
+                bullet.true_x += bullet.vx * bullet.bullet_speed
+                bullet.true_y += bullet.vy * bullet.bullet_speed
+
+                # 📏 DISTANCE: check range based on true center
+                dx2 = bullet.true_x - bullet.start_x
+                dy2 = bullet.true_y - bullet.start_y
+                dist_sq = dx2 * dx2 + dy2 * dy2
+                max_sq = max_r * max_r
+
+                if dist_sq >= max_sq:
+                    bullet.is_active = False
+                    return
+
+                # 🌊 SCALE: increase size over distance
+                dist = math.sqrt(dist_sq)
+                t = dist / max_r
+                current_size = start_w + (end_w - start_w) * t
+                bullet.width = int(current_size)
+                bullet.height = int(current_size)
+
+                # 🎯 HITBOX: update centered on true_x/y
+                bullet.rect.x = int(bullet.true_x - bullet.width // 2)
+                bullet.rect.y = int(bullet.true_y - bullet.height // 2)
+                bullet.rect.width = bullet.width
+                bullet.rect.height = bullet.height
+
+                # 🎨 DRAW: set bullet.x/y to rect.x/y for VerticalBattleScreen.draw (top-left)
+                bullet.x = float(bullet.rect.x)
+                bullet.y = float(bullet.rect.y)
+
+                # 📽️ CAMERA: manual deactivation with extra buffer
+                if bullet.camera:
+                    # In world coordinates, screen area is (camera.y) to (camera.y + window_height/zoom)
+                    visible_top = bullet.camera.y - 500
+                    visible_bottom = (
+                            bullet.camera.y
+                            + (bullet.camera.window_height / bullet.camera.zoom)
+                            + 500
+                    )
+                    # Use center (true_y) for deactivation check
+                    if bullet.true_y < visible_top or bullet.true_y > visible_bottom:
+                        bullet.is_active = False
+
+            b.update = flame_update
             state.enemy_bullets.append(b)
 
     def flame_thrower(self, state) -> None:
