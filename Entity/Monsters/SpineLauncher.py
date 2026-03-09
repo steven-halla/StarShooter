@@ -62,13 +62,13 @@ class SpineLauncher(Enemy):
                     self.target_player = state.starship
                 self.acid_missiles(
                     state=state,
-                    speed=1.5,
-                    height=20,
-                    width=10,
+                    speed=1.3,
+                    height=16,
+                    width=12,
                     power=26,
-                    life=1,
-                    max_life=1,
-                    number=4,
+                    life=0.1,
+                    max_life=0.1,
+                    number=3,
                     spread=100
                 )
                 self.attack_timer.reset()

@@ -83,7 +83,7 @@ class LevelSeven(VerticalBattleScreen):
         self.update_debug_print_player_and_boss_visible(state)
         if self.boss_death_timer is not None:
             if self.boss_death_timer.is_ready():
-                state.starship.money += 40000
+                state.starship.money += 20000
                 state.currentScreen = HomeBase(self.textbox)
                 state.currentScreen.start(state)
                 return

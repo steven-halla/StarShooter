@@ -70,7 +70,7 @@ class LevelTwo(VerticalBattleScreen):
 
         if self.boss_death_timer is not None:
             if self.boss_death_timer.is_ready():
-                state.starship.money += 20000
+                state.starship.money += 15000
                 state.currentScreen = HomeBase(self.textbox)
                 state.currentScreen.start(state)
                 return
@@ -78,7 +78,7 @@ class LevelTwo(VerticalBattleScreen):
         self.side_rect_shield.update()
         self.update_side_ship()
         self.update_enemy_helper(state)
-        print(len(state.enemies))
+        # print(len(state.enemies))
         self.update_handle_level_complete(state)
 
 

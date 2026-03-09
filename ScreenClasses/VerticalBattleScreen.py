@@ -11,6 +11,7 @@ from Movement.MoveRectangle import MoveRectangle
 from SaveStates.SaveState import SaveState
 from ScreenClasses.Camera import Camera
 from ScreenClasses.TextBox import TextBox
+from Weapons.MetalShield import MetalShield
 
 
 # I NEED TO BUILD AN ENEMY LIST HELPER THAT TAKES ALL LOADED ENEMIES AND PUTS THEM AS PART OF
@@ -394,14 +395,14 @@ class VerticalBattleScreen:
             collision_layer = self.tiled_map.get_layer_by_name("collision")
             tile_size = self.tile_size
             bullet_rect = bullet.rect
-            
+
             # Simple tile collision check for bullets
             # We can optimize by only checking tiles around the bullet
             start_col = int(bullet_rect.left // tile_size)
             end_col = int(bullet_rect.right // tile_size)
             start_row = int(bullet_rect.top // tile_size)
             end_row = int(bullet_rect.bottom // tile_size)
-            
+
             hit_wall = False
             for row in range(start_row, end_row + 1):
                 for col in range(start_col, end_col + 1):
@@ -412,7 +413,7 @@ class VerticalBattleScreen:
                         break
                 if hit_wall:
                     break
-            
+
             if hit_wall:
                 if bullet in self.player_bullets:
                     self.player_bullets.remove(bullet)
@@ -1060,7 +1061,7 @@ class VerticalBattleScreen:
         # METAL SHIELD (single)
         # -------------------------
         if state.starship.equipped_magic[0] == "Metal Shield" and not self.playerDead :
-            if self.controller.magic_1_button and not has_active(self, "Metal Shield") and state.starship.player_ki > 24:
+            if self.controller.magic_1_button and not has_active(self, "Metal Shield") and state.starship.player_ki > 15:
                 state.starship.player_ki -= state.starship.metal_shield.ki_cost
 
                 shield = state.starship.metal_shield.fire_metal_shield(
@@ -1288,13 +1289,13 @@ class VerticalBattleScreen:
             collision_layer = self.tiled_map.get_layer_by_name("collision")
             tile_size = self.tile_size
             bullet_rect = bullet.rect
-            
+
             # Simple tile collision check for enemy bullets
             start_col = int(bullet_rect.left // tile_size)
             end_col = int(bullet_rect.right // tile_size)
             start_row = int(bullet_rect.top // tile_size)
             end_row = int(bullet_rect.bottom // tile_size)
-            
+
             hit_wall = False
             for row in range(start_row, end_row + 1):
                 for col in range(start_col, end_col + 1):
@@ -1304,7 +1305,7 @@ class VerticalBattleScreen:
                         break
                 if hit_wall:
                     break
-            
+
             if hit_wall:
                 if bullet in state.enemy_bullets:
                     state.enemy_bullets.remove(bullet)

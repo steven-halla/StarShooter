@@ -701,8 +701,8 @@ class Enemy:
             height: int,
             width: int,
             power: int,
-            life: int,
-            max_life: int,
+            life: float,
+            max_life: float,
             number: int,
             spread: float = 0
     ) -> None:
@@ -1046,7 +1046,7 @@ class Enemy:
             return
 
         now = pygame.time.get_ticks() / 1000.0
-        
+
         # Filter out inactive or timed out segments
         active_segments = []
         for segment in spear_segments:
@@ -1056,7 +1056,7 @@ class Enemy:
                 segment.is_active = False
                 continue
             active_segments.append(segment)
-        
+
         self._active_spear_segments = active_segments
         if not active_segments:
             return

@@ -87,7 +87,7 @@ class LevelFive(VerticalBattleScreen):
         self.update_hazard_damage(state.DISPLAY.get_height())
         if self.boss_death_timer is not None:
             if self.boss_death_timer.is_ready():
-                state.starship.money += 40000
+                state.starship.money += 30000
                 state.currentScreen = HomeBase(self.textbox)
                 state.currentScreen.start(state)
                 return

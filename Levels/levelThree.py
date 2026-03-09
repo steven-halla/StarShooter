@@ -84,7 +84,7 @@ class LevelThree(VerticalBattleScreen):
 
         if self.boss_death_timer is not None:
             if self.boss_death_timer.is_ready():
-                state.starship.money += 30000
+                state.starship.money += 20000
                 state.currentScreen = HomeBase(self.textbox)
                 state.currentScreen.start(state)
                 return
@@ -101,7 +101,7 @@ class LevelThree(VerticalBattleScreen):
         self.update_handle_level_complete(state)
 
         super().update(state)
-        print(len(state.enemies))
+        # print(len(state.enemies))
         self.update_space_station_collision(state)
         self.update_deflect_hitbox()
         self.update_boss_helper(state)
@@ -117,13 +117,13 @@ class LevelThree(VerticalBattleScreen):
         # Check if player is caught by rope
 
         for enemy in state.enemies:
-            print("ENEMY COUNT =", len(state.enemies))
-            for i, e in enumerate(state.enemies):
-                print(i, type(e), getattr(e, "name", None), "id=", id(e))
+            # print("ENEMY COUNT =", len(state.enemies))
+            # for i, e in enumerate(state.enemies):
+            #     print(i, type(e), getattr(e, "name", None), "id=", id(e))
             if isinstance(enemy, BossLevelThree):
                 if getattr(enemy, "player_caught", False):
                     self.player_roped = True
-                    print("LEVEL 3: ROPE IS TOUCHING PLAYER")
+                    # print("LEVEL 3: ROPE IS TOUCHING PLAYER")
                 break
 
         # Pull player towards screen corner if roped

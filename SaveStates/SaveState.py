@@ -384,6 +384,9 @@ class SaveState:
                 "time_to_start_recharge",
                 starship.shield_system.time_to_start_shield_recharge,
             )
+            # 🔑 SYNC starship's own fields with restored shield_system values
+            starship.current_shield = int(starship.shield_system.current_shield_points)
+            starship.max_shield = starship.shield_system.max_shield_points
 
         u = self.data.get("upgrades", {})
         if u:

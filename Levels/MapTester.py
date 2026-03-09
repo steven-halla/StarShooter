@@ -579,7 +579,9 @@ class MapTester(VerticalBattleScreen):
         for bullet in list(state.player_bullets):
 
             if bullet.weapon_name == "Metal Shield":
-                continue  # never auto-remove shield
+                if not getattr(bullet, "is_active", True):
+                    state.player_bullets.remove(bullet)
+                continue  # never auto-remove shield based on screen position
 
             screen_x = bullet.x - getattr(self.camera, "x", 0)
             screen_y = bullet.y - self.camera.y

@@ -79,7 +79,7 @@ class LevelFour(VerticalBattleScreen):
                 self.level_complete_timer = Timer(self.level_complete_delay_seconds)
                 self.level_complete_timer.reset()
             elif self.level_complete_timer.is_ready():
-                state.starship.money += 30000
+                state.starship.money += 25000
                 state.currentScreen = HomeBase(self.textbox)
                 state.currentScreen.start(state)
                 return

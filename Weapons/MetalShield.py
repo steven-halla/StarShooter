@@ -4,6 +4,7 @@ from Weapons.Bullet import Bullet
 
 
 class MetalShield(Bullet):
+
     def __init__(self, x: float, y: float, damage: int = 20, max_hits: int = 3):
         super().__init__(x, y)
 
@@ -55,6 +56,7 @@ class MetalShield(Bullet):
     def update_orbit(self, center_x: float, center_y: float) -> None:
         if not self.is_active:
             return
+        print("Metal Shield active")
 
         self.angle += self.orbit_speed
         self.x = center_x + math.cos(self.angle) * self.orbit_radius
@@ -63,7 +65,7 @@ class MetalShield(Bullet):
 
     def update(self):
         # orbit-only movement; external code supplies center via update_orbit
-        pass
+        print(str(self.is_active))
 
 
     def fire_metal_shield(self, damage: int = 20, max_hits: int = 3):
