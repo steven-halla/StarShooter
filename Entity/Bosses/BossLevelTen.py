@@ -26,8 +26,8 @@ class BossLevelTen(Enemy):
         self.fire_interval_ms: int = 2000
         self.last_shot_time: int = 0
         self.speed: float = 0.4
-        self.enemyHealth: float = 444.0
-        self.maxHealth: float = 444.0
+        self.enemyHealth: float = 222.0
+        self.maxHealth: float = 222.0
         self.exp: int = 1
         self.credits: int = 5
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
@@ -56,7 +56,7 @@ class BossLevelTen(Enemy):
 
         self.liquid_launcher_timer = Timer(6.0)
         self.boomerang_timer = Timer(9.0)
-        self.dragons_breath_timer = Timer(13.0)
+        self.dragons_breath_timer = Timer(15.0)
         self.horizontal_barrage_timer = Timer(8.0)
 
         self.is_resting = False
@@ -179,8 +179,8 @@ class BossLevelTen(Enemy):
                     if now >= self._dragon_breath_end_time:
                         self._dragon_breath_active = False
                         # Delay other attacks by 7 seconds from NOW
-                        self.liquid_launcher_timer.delay(7000)
-                        self.boomerang_timer.delay(7000)
+                        self.liquid_launcher_timer.delay(1500)
+                        self.boomerang_timer.delay(1500)
                         # Chance to rest after attack
                         if random.random() < 0.3:
                             self.is_resting = True
@@ -279,6 +279,9 @@ class BossLevelTen(Enemy):
         elif self.phase_2 or self.phase_3:
             now = pygame.time.get_ticks()
 
+            if self.phase_3:
+                self.moveSpeed = 0.8  # Slower chasing in phase 3
+
             # REST: only blocks ATTACKS elsewhere, NOT movement
             if self.is_resting and (now - self.rest_start_time >= 5000):
                 self.is_resting = False
@@ -288,9 +291,6 @@ class BossLevelTen(Enemy):
                 dx = state.starship.x - self.x
                 dy = state.starship.y - self.y
                 self.mover.enemy_move(self, dx, dy)
-
-        elif self.phase_3:
-            self.moveSpeed = 0.7
 
     def draw(self, surface: pygame.Surface, camera):
         # self.draw_bomb(surface, self.camera)
@@ -388,7 +388,26 @@ class BossLevelTen(Enemy):
         if getattr(self, "target_player", None) is not None:
             dx = (self.target_player.x + self.target_player.width // 2) - base_x
             dy = (self.target_player.y + self.target_player.height // 2) - base_y
-            target_angle = math.degrees(math.atan2(dy, dx))
+            actual_angle = math.degrees(math.atan2(dy, dx))
+
+            # Initialize current_aim_angle if it doesn't exist
+            if not hasattr(self, "_current_aim_angle"):
+                self._current_aim_angle = actual_angle
+
+            # 🛠️ SMOOTHING: Move current_aim_angle towards actual_angle slowly
+            # We need to handle the -180 to 180 wrap-around
+            diff = (actual_angle - self._current_aim_angle + 180) % 360 - 180
+
+            # Tracking speed: how many degrees to move per particle spawn (0.05s)
+            # 2.0 degrees per 0.05s = 40 degrees per second
+            tracking_speed = 4.0
+
+            if abs(diff) <= tracking_speed:
+                self._current_aim_angle = actual_angle
+            else:
+                self._current_aim_angle += math.copysign(tracking_speed, diff)
+
+            target_angle = self._current_aim_angle
 
         spread_angle = math.degrees(math.atan2(max_width / 2, length)) * 2
 
