@@ -482,7 +482,6 @@ class BossLevelTen(Enemy):
             damage=15,
             x_offset=0,
             y_offset=0,
-            state=state,
-            duration_ms=10000
+            state=state
         )
 
