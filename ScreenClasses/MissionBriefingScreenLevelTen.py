@@ -16,16 +16,10 @@ class MissionBriefingScreenLevelTen(Screen):
 
         self.briefing_text = [
             "Mission Briefing: Final Confrontation",
-            "",
-            "This is it, pilot. The undead legion's final stronghold is within reach.",
-            "Expect a timed operation—we must strike fast and hard before their reinforcements arrive.",
-            "",
-            "The sector is heavily fortified with their most powerful defensive units.",
-            "Failure is not an option. The fate of the entire sector depends on this mission.",
-            "",
-            "Give it everything you've got. For Bakarant! For the sector!",
-            "",
-            "Press F to deploy."
+            "This is a timed mission, enemy reinforcements are inbound, destroy their beacons to slow them down.",
+            "The enemy is deploying Spine Launchers and spore flower defense units, be sure to take them out.",
+            "The enemy commander of the sector is here, destroy this traitor with extreme prejudice.",
+            "Press A to deploy."
         ]
 
         self.briefing_message: str = "\n".join(self.briefing_text)
