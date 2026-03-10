@@ -364,7 +364,7 @@ class LevelFour(VerticalBattleScreen):
         # --------------------------------------------------
         # SPAWN SLAVER IF NEEDED
         # --------------------------------------------------
-        if self.map_scroll_speed_per_frame == 0 and creep_found_on_screen and now - self.creep_last_spawn_time >= 7000:
+        if self.map_scroll_speed_per_frame == 0 and creep_found_on_screen and now - self.creep_last_spawn_time >= 8000:
             slaver = Slaver()
             slaver.x = screen_left
             slaver.y = screen_top

@@ -225,7 +225,7 @@ class BossLevelThree(Enemy):
             enemy = TriSpitter()
 
             # 🔑 SCALE DOWN HERE (SPAWN-ONLY)
-            scale = 0.6  # 60% size
+            scale = 0.25  # 25% size
             enemy.width = int(enemy.width * scale)
             enemy.height = int(enemy.height * scale)
 

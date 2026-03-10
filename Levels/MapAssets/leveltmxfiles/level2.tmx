@@ -302,18 +302,18 @@
   <object id="123" name="tri_spitter" x="200.861" y="2154.61" width="16" height="16"/>
   <object id="121" name="tri_spitter" x="73.985" y="3931.18" width="16" height="16"/>
   <object id="125" name="tri_spitter" x="217.74" y="1776.52" width="16" height="16"/>
-  <object id="127" name="blade_spinner" x="216.052" y="1178.16" width="16" height="16"/>
+  <object id="127" name="blade_spinner" x="283.108" y="1140.33" width="16" height="16"/>
   <object id="132" name="blade_spinner" x="12.818" y="3699.86" width="16" height="16"/>
   <object id="135" name="blade_spinner" x="346.615" y="3925.54" width="16" height="16"/>
-  <object id="130" name="blade_spinner" x="62.4525" y="1503.08" width="16" height="16"/>
+  <object id="130" name="blade_spinner" x="87.0752" y="1503.08" width="16" height="16"/>
   <object id="133" name="blade_spinner" x="71.736" y="3059.33" width="16" height="16"/>
-  <object id="137" name="blade_spinner" x="219.428" y="652.376" width="16" height="16"/>
+  <object id="137" name="blade_spinner" x="245.219" y="623.146" width="16" height="16"/>
   <object id="128" name="blade_spinner" x="254.03" y="853.237" width="16" height="16"/>
   <object id="131" name="blade_spinner" x="178.074" y="3093.93" width="16" height="16"/>
   <object id="136" name="blade_spinner" x="254.874" y="3094.78" width="16" height="16"/>
-  <object id="129" name="blade_spinner" x="296.53" y="1667.55" width="16" height="16"/>
-  <object id="134" name="blade_spinner" x="21.9428" y="625.369" width="16" height="16"/>
-  <object id="138" name="blade_spinner" x="212.676" y="2443.24" width="16" height="16"/>
+  <object id="129" name="blade_spinner" x="270.318" y="1669.14" width="16" height="16"/>
+  <object id="134" name="blade_spinner" x="66.6471" y="620.211" width="16" height="16"/>
+  <object id="138" name="blade_spinner" x="212.676" y="2438.47" width="16" height="16"/>
  </objectgroup>
  <layer id="6" name="background" width="25" height="260">
   <data encoding="csv">

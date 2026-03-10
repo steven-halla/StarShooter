@@ -30,8 +30,8 @@ class TransportWorm(Enemy):
         self.enemy_image = self.bile_spitter_image
 
         # stats
-        self.enemyHealth: float = 100.0
-        self.maxHealth: float = 100.0
+        self.enemyHealth: float = 85.0
+        self.maxHealth: float = 85.0
         self.exp: int = 1
         self.credits: int = 5
 
@@ -46,7 +46,7 @@ class TransportWorm(Enemy):
         # -------------------------
         # SUMMONING
         # -------------------------
-        self.summon_interval_ms: int = 6000
+        self.summon_interval_ms: int = 7500
         self.last_summon_time: int = 0 # Start ready
 
         self.summon_level: int = 0
@@ -89,6 +89,11 @@ class TransportWorm(Enemy):
             return
 
         enemy = enemy_class()
+
+        # 🔑 SCALE DOWN SUMMONED ENEMIES (ZOOM IN COMPATIBILITY)
+        summon_scale = 0.5  # 50% of base size
+        enemy.width = int(enemy.width * summon_scale)
+        enemy.height = int(enemy.height * summon_scale)
 
         # Spread spawn
         angle = random.uniform(-0.6, 0.6)

@@ -188,12 +188,13 @@ class StarShip:
         # -------------------------
         # buster cannon
         # -------------------------
-        self.buster_cannon.x = self.x + self.width // 2
-        self.buster_cannon.y = self.y
-        self.buster_cannon.base_damage = self.buster_cannon_base_damage
-        self.buster_cannon.charged_damage = self.buster_cannon_charged_damage
-        self.buster_cannon.charge_time_required = self.buster_cannon_charge_time_required
-        self.buster_cannon.update()
+        if hasattr(self.buster_cannon, "base_damage"):
+            self.buster_cannon.x = self.x + self.width // 2
+            self.buster_cannon.y = self.y
+            self.buster_cannon.base_damage = self.buster_cannon_base_damage
+            self.buster_cannon.charged_damage = self.buster_cannon_charged_damage
+            self.buster_cannon.charge_time_required = self.buster_cannon_charge_time_required
+            self.buster_cannon.update()
         # -------------------------
         # enegy ball
         # -------------------------
@@ -315,7 +316,7 @@ class StarShip:
         pygame.draw.rect(surface, (255, 255, 0), (hb_x, hb_y, hb_w, hb_h), 2)
 
         # Buster Cannon Charge Bar
-        if self.buster_cannon.is_charging:
+        if hasattr(self.buster_cannon, "is_charging") and self.buster_cannon.is_charging:
             charge_width = int(self.width * scale)
             charge_height = int(2 * scale)
             charge_x = screen_x
@@ -423,9 +424,10 @@ class StarShip:
         self.missile.max_missiles = self.missile_max
         # self.missile.current_missiles = self.missile_current # Careful with current counts
         
-        self.buster_cannon.base_damage = self.buster_cannon_base_damage
-        self.buster_cannon.charged_damage = self.buster_cannon_charged_damage
-        self.buster_cannon.charge_time_required = self.buster_cannon_charge_time_required
+        if hasattr(self.buster_cannon, "base_damage"):
+            self.buster_cannon.base_damage = self.buster_cannon_base_damage
+            self.buster_cannon.charged_damage = self.buster_cannon_charged_damage
+            self.buster_cannon.charge_time_required = self.buster_cannon_charge_time_required
         
         self.metal_shield.damage = self.metal_shield_damage
         self.metal_shield.max_hits = self.metal_shield_max_hits

@@ -7,17 +7,18 @@
   },
   "player": {
     "shipHealth": 25,
-    "money": 20000,
+    "money": 2500,
     "shipHealthMax": 25,
     "equipped_magic": [
-      "Wind Slicer",
+      "Metal Shield",
       null
     ],
     "magic_inventory": [
       "Metal Shield",
-      "Wind Slicer"
+      "Wind Slicer",
+      "Napalm Spread"
     ],
-    "current_level": 3
+    "current_level": 4
   },
   "weapons": {
     "machine_gun": {
@@ -51,14 +52,14 @@
     "damage": 25,
     "bullet_speed": 1.5,
     "rate_of_fire": 0.5,
-    "max": 1,
+    "max": 2,
     "current": 0,
     "fire_interval_seconds": 0.5,
     "regen_interval_seconds": 10.0
   },
   "shield": {
-    "current": 100,
-    "max": 100,
+    "current": 150,
+    "max": 150,
     "recharge_rate": 0.2,
     "time_to_start_recharge": 10000
   },
@@ -76,7 +77,11 @@
       "Metal Shield",
       "Ki Efficiency chip",
       "Wind Slicer",
-      "Speed up"
+      "Speed up",
+      "Napalm Spread",
+      "Missile Count +1",
+      "Buster Cannon",
+      "Shield Generator +"
     ]
   },
   "ship": {

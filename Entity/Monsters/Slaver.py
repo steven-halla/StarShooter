@@ -52,9 +52,9 @@ class Slaver(Enemy):
         # -------------------------
         # GAMEPLAY STATS
         # -------------------------
-        self.speed: float = .8
-        self.enemyHealth: int = 30
-        self.maxHealth: int = 30
+        self.speed: float = .6
+        self.enemyHealth: int = 25
+        self.maxHealth: int = 25
         self.exp: int = 1
         self.credits: int = 5
         self.is_retreating = False
@@ -66,7 +66,7 @@ class Slaver(Enemy):
         # -------------------------
         # AI MOVEMENT STATE (DO NOT TOUCH)
         # -------------------------
-        self.moveSpeed: float = .5
+        self.moveSpeed: float = .4
         self.edge_padding: int = 30
         self.move_direction: int = random.choice([-1, 1])
 

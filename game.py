@@ -28,8 +28,8 @@ class Game:
 
         while self.state.isRunning:
             self.state.delta = clock.tick(GlobalConstants.FPS)
-            # BELOW IS FPS NEVER DELETE THIS
-            print(f"FPS: {int(clock.get_fps())}")
+            # BELOW IS FPS NEVER DELE/TE THIS
+          #  print(f"FPS: {int(clock.get_fps())}")
 
             self.state.currentScreen.update(self.state)
             self.state.currentScreen.draw(self.state)
