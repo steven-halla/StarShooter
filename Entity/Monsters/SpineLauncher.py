@@ -65,7 +65,7 @@ class SpineLauncher(Enemy):
                     speed=1.3,
                     height=16,
                     width=12,
-                    power=26,
+                    power=50,
                     life=0.1,
                     max_life=0.1,
                     number=3,
