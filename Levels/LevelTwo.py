@@ -47,6 +47,10 @@ class LevelTwo(VerticalBattleScreen):
         player_y = None
         state.starship.current_level = 2
         self.starship = state.starship
+        state.starship.shipHealth = state.starship.shipHealthMax
+        state.starship.shield_system.reset()
+        state.starship.player_ki = state.starship.player_max_ki
+        state.starship.missile.current_missiles = state.starship.missile.max_missiles
 
         for obj in self.tiled_map.objects:
             if obj.name == "player":  # this string comes from Tiled

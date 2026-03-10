@@ -56,6 +56,10 @@ class LevelFive(VerticalBattleScreen):
 
 
     def start(self, state) -> None:
+        state.starship.shipHealth = state.starship.shipHealthMax
+        state.starship.shield_system.reset()
+        state.starship.player_ki = state.starship.player_max_ki
+        state.starship.missile.current_missiles = state.starship.missile.max_missiles
         player_x = None
         player_y = None
         state.starship.current_level = 5

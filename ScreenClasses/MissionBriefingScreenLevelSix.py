@@ -15,17 +15,11 @@ class MissionBriefingScreenLevelSix(Screen):
         self.save_state = SaveState()
 
         self.briefing_text = [
-            "Mission Briefing: Worm Infestation",
-            "",
-            "The sector is overrun with transport worms. They are moving valuable cargo through this area.",
-            "Your objective is to intercept the worms and collect any dropped coins for our war effort.",
-            "",
-            "Do not let the worms reach the other side. They are tough but not invincible.",
+            "Mission Briefing: Collect Marzone Crystals",
+            "There are critical resources in the region that we need to collect. ",
+            "The department of genocide will pay 1000 credits for each crystal collected",
             "Use the credits you collect to upgrade your ship for future encounters.",
-            "",
-            "The enemy has sent a heavy escort force to protect their supply line.",
-            "",
-            "Press F to deploy."
+            "Press A to deploy."
         ]
 
         self.briefing_message: str = "\n".join(self.briefing_text)

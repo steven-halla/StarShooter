@@ -157,7 +157,7 @@ class HomeBase(Screen):
 
         self.last_weapon_shop_index: int = -1
         self.last_defense_shop_index: int = -1
-        self.show_mission_briefing = False
+        self.show_mission_briefing = True
 
 
 
@@ -329,6 +329,11 @@ class HomeBase(Screen):
                     from ScreenClasses.MissionBriefingScreenLevelThree import MissionBriefingScreenLevelThree
                     from ScreenClasses.MissionBriefingScreenLevelFour import MissionBriefingScreenLevelFour
                     from ScreenClasses.MissionBriefingScreenLevelFive import MissionBriefingScreenLevelFive
+                    from ScreenClasses.MissionBriefingScreenLevelSix import MissionBriefingScreenLevelSix
+                    from ScreenClasses.MissionBriefingScreenLevelSeven import MissionBriefingScreenLevelSeven
+                    from ScreenClasses.MissionBriefingScreenLevelEight import MissionBriefingScreenLevelEight
+                    from ScreenClasses.MissionBriefingScreenLevelNine import MissionBriefingScreenLevelNine
+                    from ScreenClasses.MissionBriefingScreenLevelTen import MissionBriefingScreenLevelTen
 
                     LEVEL_MAP_ACTUAL = {
                         1: LevelOne,
@@ -349,6 +354,11 @@ class HomeBase(Screen):
                         3: MissionBriefingScreenLevelThree,
                         4: MissionBriefingScreenLevelFour,
                         5: MissionBriefingScreenLevelFive,
+                        6: MissionBriefingScreenLevelSix,
+                        7: MissionBriefingScreenLevelSeven,
+                        8: MissionBriefingScreenLevelEight,
+                        9: MissionBriefingScreenLevelNine,
+                        10: MissionBriefingScreenLevelTen,
                     }
 
                     if self.show_mission_briefing and level_num in LEVEL_MAP_BRIEFING:
@@ -361,7 +371,12 @@ class HomeBase(Screen):
                         MissionBriefingScreenLevelTwo,
                         MissionBriefingScreenLevelThree,
                         MissionBriefingScreenLevelFour,
-                        MissionBriefingScreenLevelFive
+                        MissionBriefingScreenLevelFive,
+                        MissionBriefingScreenLevelSix,
+                        MissionBriefingScreenLevelSeven,
+                        MissionBriefingScreenLevelEight,
+                        MissionBriefingScreenLevelNine,
+                        MissionBriefingScreenLevelTen
                     ]:
                         state.currentScreen = level_class()
                     else:
@@ -376,6 +391,11 @@ class HomeBase(Screen):
                     self.save_state.save_to_file("player_save.json")
                     self.textbox.show("Game saved.")
                 elif self.menu_index == 4:
+                    # PRE BRIEF
+                    self.show_mission_briefing = not self.show_mission_briefing
+                    status = "enabled" if self.show_mission_briefing else "disabled"
+                    self.textbox.show(f"Mission briefing {status}.")
+                elif self.menu_index == 5:
                     # LOAD GAME
                     if self.save_state.load_from_file("player_save.json"):
                         self.save_state.restore_player(state.starship)
@@ -513,6 +533,9 @@ class HomeBase(Screen):
                             state.starship.current_shield += 50
                             state.starship.max_shield += 50
                             print("I bought better shield amount")
+                        elif item == "Shield Flash":
+                            state.starship.shield_system.time_to_start_shield_recharge = max(0, state.starship.shield_system.time_to_start_shield_recharge - 2000)
+                            print("I bought faster shield recharge delay")
                         elif item == "Greater hull":
                             state.starship.shipHealth += 25
                             state.starship.shipHealthMax += 25

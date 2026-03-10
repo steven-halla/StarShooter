@@ -438,3 +438,10 @@ class StarShip:
         
         self.wind_slicer.damage = self.wind_slicer_damage
         self.wind_slicer.bullet_count = self.wind_slicer_bullet_count
+
+        # Apply Shield Flash effect
+        if "Shield Flash" in self.upgrade_chips:
+            # If the value is still at the default 10000, reduce it.
+            # This handles both existing saves and ensuring the effect is active.
+            if self.shield_system.time_to_start_shield_recharge > 8000:
+                self.shield_system.time_to_start_shield_recharge = 8000

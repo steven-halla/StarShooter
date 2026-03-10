@@ -25,9 +25,9 @@ class LevelSix(VerticalBattleScreen):
         self.WORLD_HEIGHT = self.map_height_tiles * self.tile_size + 400 # y position of map
         window_height: int = GlobalConstants.GAMEPLAY_HEIGHT
         self.camera_y = self.WORLD_HEIGHT - window_height # look at bottom of map
-        self.camera_y =  90 # look at bottom of map
+        # self.camera_y =  90 # look at bottom of map
         self.camera.world_height = self.WORLD_HEIGHT
-        # self.camera.y = float(self.camera_y)
+        self.camera.y = float(self.camera_y)
         self.coins_missed = []
         self.flame_image = pygame.image.load(
             "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
@@ -49,6 +49,10 @@ class LevelSix(VerticalBattleScreen):
     def start(self, state) -> None:
         player_x = None
         player_y = None
+        state.starship.shipHealth = state.starship.shipHealthMax
+        state.starship.shield_system.reset()
+        state.starship.player_ki = state.starship.player_max_ki
+        state.starship.missile.current_missiles = state.starship.missile.max_missiles
         state.starship.current_level = 6
 
         for obj in self.tiled_map.objects:

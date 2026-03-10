@@ -61,6 +61,10 @@ class LevelSeven(VerticalBattleScreen):
                 player_x = obj.x
                 player_y = obj.y
                 break
+        state.starship.shipHealth = state.starship.shipHealthMax
+        state.starship.shield_system.reset()
+        state.starship.player_ki = state.starship.player_max_ki
+        state.starship.missile.current_missiles = state.starship.missile.max_missiles
         self.starship = state.starship
         self.starship.x = player_x
         self.starship.y = player_y

@@ -1,16 +1,16 @@
 {
   "version": 1,
   "location": {
-    "screen": "Level 5",
-    "level_id": 5,
+    "screen": "HOME_BASE",
+    "level_id": null,
     "spawn_id": null
   },
   "player": {
     "shipHealth": 75,
-    "money": 2500,
+    "money": 48000,
     "shipHealthMax": 75,
     "equipped_magic": [
-      "Buster Cannon",
+      "Napalm Spread",
       null
     ],
     "magic_inventory": [
@@ -19,7 +19,7 @@
       "Napalm Spread",
       "Buster Cannon"
     ],
-    "current_level": 5
+    "current_level": 6
   },
   "weapons": {
     "machine_gun": {
@@ -50,7 +50,7 @@
     }
   },
   "missiles": {
-    "damage": 25,
+    "damage": 35,
     "bullet_speed": 1.5,
     "rate_of_fire": 0.5,
     "max": 2,
@@ -59,10 +59,10 @@
     "regen_interval_seconds": 10.0
   },
   "shield": {
-    "current": 125,
-    "max": 125,
+    "current": 175,
+    "max": 175,
     "recharge_rate": 0.2,
-    "time_to_start_recharge": 10000
+    "time_to_start_recharge": 8000
   },
   "stats": {
     "speed": 2.6,
@@ -83,7 +83,10 @@
       "Missile Count +1",
       "Buster Cannon",
       "Armor Plating",
-      "Shield Generator"
+      "Shield Generator",
+      "Britrate Missiles",
+      "Shield Generator +",
+      "Shield Flash"
     ]
   },
   "ship": {

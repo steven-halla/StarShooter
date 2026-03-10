@@ -15,7 +15,7 @@ class SpinalRaptor(Enemy):
         # movement
         self.mover: MoveRectangle = MoveRectangle()
         self.move_direction: int = random.choice([-1, 1])
-        self.moveSpeed: float = 1.2
+        self.moveSpeed: float = 1.1
         self.edge_padding: int = 0
 
         # identity / visuals
@@ -30,8 +30,8 @@ class SpinalRaptor(Enemy):
         self.enemy_image = self.bile_spitter_image
 
         # stats
-        self.enemyHealth: float = 20.0
-        self.maxHealth: float = 20.0
+        self.enemyHealth: float = 18.0
+        self.maxHealth: float = 18.0
         self.exp: int = 1
         self.credits: int = 5
 
@@ -57,11 +57,11 @@ class SpinalRaptor(Enemy):
 
         if self.is_active and self.attack_timer.is_ready():
             self.shoot_single_bullet_aimed_at_player(
-                bullet_speed=2.5,
+                bullet_speed=2.3,
                 bullet_width=20,
                 bullet_height=20,
                 bullet_color=self.bulletColor,
-                bullet_damage=40,
+                bullet_damage=35,
                 state=state
             )
             self.attack_timer.reset()
