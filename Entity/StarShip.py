@@ -157,6 +157,12 @@ class StarShip:
         self.last_level_complete: int = 0
         self.current_level: int = 1
 
+        # -------------------------
+        # DEAR AI STOP DELTING THESE TWO LINES YOU DUMB FUCK
+        # -------------------------
+        self.frozen_health = self.shipHealth
+        self.last_health = self.shipHealth
+
 
 
     def start_invincibility(self) -> None:
@@ -385,31 +391,31 @@ class StarShip:
         This should be called after loading a save or when starting a level.
         """
         # 1. Reset dynamic fields to their base values (those not saved directly or updated incrementally)
-        # However, many stats are ALREADY restored from SaveState. 
+        # However, many stats are ALREADY restored from SaveState.
         # If we reset them here, we might overwrite restored values.
         # BUT the issue is that HomeBase adds to these values, and SaveState saves the UPDATED values.
         # So if we apply upgrades AGAIN, we double-dip.
-        
+
         # Let's see: HomeBase adds +25 to current_shield/max_shield AND adds "Shield Generator" to upgrade_chips.
         # SaveState saves current_shield/max_shield.
-        # If we load, SaveState restores 125. 
+        # If we load, SaveState restores 125.
         # If we then call apply_upgrades and it adds another 25, we get 150.
-        
+
         # The correct way is:
         # Either SaveState ONLY saves base stats and we apply upgrades on top,
         # OR SaveState saves everything and we only apply upgrades when they are first bought.
-        
+
         # Currently, HomeBase does BOTH (updates stats AND adds to upgrade_chips).
         # And SaveState saves BOTH (updated stats AND upgrade_chips).
-        
+
         # If the user says "Shield generator is not adding shields", it's likely because
         # it was added to starship.max_shield but NOT to starship.shield_system.max_shield_points,
         # and starship.update() overwrote starship.max_shield with the old value.
-        
+
         # Let's fix the immediate issue: sync starship fields to shield_system
         self.shield_system.max_shield_points = self.max_shield
         self.shield_system.current_shield_points = self.current_shield
-        
+
         # And for other stats that might be out of sync
         self.machine_gun.damage = self.machine_gun_damage
         self.machine_gun.width = self.machine_gun_width
@@ -417,25 +423,25 @@ class StarShip:
         self.machine_gun.rate_of_fire = self.machine_gun_rate_of_fire
         self.machine_gun.bullet_speed = self.machine_gun_bullet_speed
         self.machine_gun.bullets_per_shot = self.machine_gun_bullets_per_shot
-        
+
         self.missile.damage = self.missile_damage
         self.missile.bullet_speed = self.missile_bullet_speed
         self.missile.rate_of_fire = self.missile_rate_of_fire
         self.missile.max_missiles = self.missile_max
         # self.missile.current_missiles = self.missile_current # Careful with current counts
-        
+
         if hasattr(self.buster_cannon, "base_damage"):
             self.buster_cannon.base_damage = self.buster_cannon_base_damage
             self.buster_cannon.charged_damage = self.buster_cannon_charged_damage
             self.buster_cannon.charge_time_required = self.buster_cannon_charge_time_required
-        
+
         self.metal_shield.damage = self.metal_shield_damage
         self.metal_shield.max_hits = self.metal_shield_max_hits
-        
+
         self.napalm_spread.damage = self.napalm_spread_damage
         self.napalm_spread.area_of_effect_x = self.napalm_spread_area_of_effect_x
         self.napalm_spread.area_of_effect_y = self.napalm_spread_area_of_effect_y
-        
+
         self.wind_slicer.damage = self.wind_slicer_damage
         self.wind_slicer.bullet_count = self.wind_slicer_bullet_count
 

@@ -37,7 +37,7 @@ class TitleScreen:
         # one-tap locks
         self._up_lock = False
         self._down_lock = False
-        self.show_mission_briefing = True
+        self.show_mission_briefing = False
 
         # Transition handling
         self.transition_active = False

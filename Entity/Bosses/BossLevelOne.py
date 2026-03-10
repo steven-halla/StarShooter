@@ -16,8 +16,8 @@ class BossLevelOne(Enemy):
         self.mover: MoveRectangle = MoveRectangle()
         self.id = 0
         self.name: str = "BossLevelOne"
-        self.width: int = 40
-        self.height: int = 40
+        self.width: int = 160
+        self.height: int = 75
         self.color: tuple[int, int, int] = GlobalConstants.RED
         self.bulletColor: tuple[int, int, int] = GlobalConstants.SKYBLUE
         self.bulletWidth: int = 20
@@ -39,10 +39,9 @@ class BossLevelOne(Enemy):
         # __init__
         self.attack_timer = Timer(3.0)  # 3 seconds
 
-        self.bile_spitter_image = pygame.image.load(
-            "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
+        self.enemy_image = pygame.image.load(
+            "Assets/Pipoya RPG Monster Pack/non shade/pipo-boss003.png"
         ).convert_alpha()
-        self.enemy_image = self.bile_spitter_image
         self.touch_damage: int = 10
         # state machine
         self.is_firing = False
@@ -144,22 +143,39 @@ class BossLevelOne(Enemy):
     def draw(self, surface: pygame.Surface, camera):
         # self.draw_bomb(surface, self.camera)
 
-
         super().draw(surface, camera)
 
-        if not self.is_active:
-            return
-        sprite_rect = pygame.Rect(0, 344, 32, 32)
-        sprite = self.bile_spitter_image.subsurface(sprite_rect)
+        # print(f"DEBUG BossLevelOne.draw: is_active={self.is_active} x={self.x} y={self.y} width={self.width} height={self.height}")
 
         scale = camera.zoom
+
+        if not self.is_active:
+            # Check why it might not be active
+            player_in_vicinity = self.player_in_vicinity()
+            is_on_screen = self.mover.enemy_on_screen(self, camera)
+            # print(f"DEBUG BossLevelOne.draw: is_active is False. player_in_vicinity={player_in_vicinity}, is_on_screen={is_on_screen}")
+            # return # Temporarily comment out to force drawing for debug
+            # pass # Keep it for now to avoid empty block
+
+        # print(f"DEBUG BossLevelOne.draw: RENDERING at {self.x}, {self.y} size {self.width}x{self.height}")
+
+        # Ensure we have valid dimensions to avoid scale errors
+        draw_width = max(1, int(self.width * scale))
+        draw_height = max(1, int(self.height * scale))
+
+        # Frame size is 320x150 (sheet is 1280x600, 4x4 grid)
+        # Using first frame (top-left)
+        sprite_rect = pygame.Rect(300, 0, 600, 600)
+        sprite = self.enemy_image.subsurface(sprite_rect)
+
         scaled_sprite = pygame.transform.scale(
             sprite,
-            (int(self.width * scale), int(self.height * scale))
+            (draw_width, draw_height)
         )
 
         screen_x = camera.world_to_screen_x(self.x)
         screen_y = camera.world_to_screen_y(self.y)
+        # print(f"DEBUG BossLevelOne.draw: screen_x={screen_x} screen_y={screen_y}")
         surface.blit(scaled_sprite, (screen_x, screen_y))
 
     def clamp_vertical(self) -> None:

@@ -28,6 +28,7 @@ class LevelOne(VerticalBattleScreen):
         self.camera.world_height = self.WORLD_HEIGHT
         self.camera_y = self.WORLD_HEIGHT - (window_height / self.camera.zoom)
         self.camera.y = float(self.camera_y)
+        self.camera.y = 99
         self.total_enemies = 40
         self.prev_enemy_count: int = None
 
@@ -173,6 +174,7 @@ class LevelOne(VerticalBattleScreen):
         if not self.playerDead:
             self.starship.draw(state.DISPLAY, self.camera)
         for enemy in state.enemies:
+            # print(f"DEBUG LevelOne.draw: Drawing enemy {enemy.name} at {enemy.x}, {enemy.y}")
             enemy.draw(state.DISPLAY, self.camera)
             enemy.draw_damage_flash(state.DISPLAY, self.camera)
 
@@ -262,8 +264,10 @@ class LevelOne(VerticalBattleScreen):
 
             enemy.x = obj.x
             enemy.y = obj.y
-            enemy.width = obj.width
-            enemy.height = obj.height
+            # 🛑 DO NOT OVERWRITE BOSS DIMENSIONS - BossLevelOne already set them
+            if not isinstance(enemy, BossLevelOne):
+                enemy.width = obj.width
+                enemy.height = obj.height
 
             enemy.camera = self.camera
             enemy.target_player = self.starship
