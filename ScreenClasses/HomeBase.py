@@ -428,8 +428,9 @@ class HomeBase(Screen):
                             state.starship.magic_inventory.append(item)
                             state.starship.equipped_magic[0] = item
                         elif item == "Buster Cannon":
-                            # state.starship.buster_cannon = True  # FIX: Don't overwrite the weapon object
-                            print("Buster Cannon equipped")
+                            state.starship.magic_inventory.append(item)
+                            state.starship.equipped_magic[0] = item
+                            print(f"Buster Cannon purchased and equipped: {state.starship.equipped_magic[0]}")
                         elif item == "Britrate Missiles":
                             state.starship.missile_damage += 10
                             print("Britrate Missiles equipped")

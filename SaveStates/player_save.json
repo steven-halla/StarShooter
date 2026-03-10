@@ -1,24 +1,25 @@
 {
   "version": 1,
   "location": {
-    "screen": "HOME_BASE",
-    "level_id": null,
+    "screen": "Level 5",
+    "level_id": 5,
     "spawn_id": null
   },
   "player": {
-    "shipHealth": 25,
+    "shipHealth": 75,
     "money": 2500,
-    "shipHealthMax": 25,
+    "shipHealthMax": 75,
     "equipped_magic": [
-      "Metal Shield",
+      "Buster Cannon",
       null
     ],
     "magic_inventory": [
       "Metal Shield",
       "Wind Slicer",
-      "Napalm Spread"
+      "Napalm Spread",
+      "Buster Cannon"
     ],
-    "current_level": 4
+    "current_level": 5
   },
   "weapons": {
     "machine_gun": {
@@ -58,8 +59,8 @@
     "regen_interval_seconds": 10.0
   },
   "shield": {
-    "current": 150,
-    "max": 150,
+    "current": 125,
+    "max": 125,
     "recharge_rate": 0.2,
     "time_to_start_recharge": 10000
   },
@@ -81,7 +82,8 @@
       "Napalm Spread",
       "Missile Count +1",
       "Buster Cannon",
-      "Shield Generator +"
+      "Armor Plating",
+      "Shield Generator"
     ]
   },
   "ship": {
