@@ -21,11 +21,11 @@ class MissionBriefingScreenLevelSeven(Screen):
             "Expect extreme heat and literal walls of flame blocking your path.",
             "",
             "Intelligence reports the presence of Spinal Raptors—fast and aggressive units.",
-            "The sector's commander is known for hit-and-run tactics, utilizing teleportation technology.",
+            "The sector's commander is known for hit-and-run tactics, utilizing teleportation Ki Techniques.",
             "",
             "Keep your cool and stay on the move. Don't let the flames trap you.",
             "",
-            "Press F to deploy."
+            "Press A to deploy."
         ]
 
         self.briefing_message: str = "\n".join(self.briefing_text)

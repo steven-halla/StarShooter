@@ -465,7 +465,8 @@ class VerticalBattleScreen:
 
                 for enemy in list(state.enemies):
                     # Skip coins - they should only be collected by starship collision
-                    if isinstance(enemy, Coins) or (hasattr(enemy, "__class__") and enemy.__class__.__name__ == "TimeBomb"):
+                    # and TimeBomb - we don't want the shield to interact with it
+                    if isinstance(enemy, Coins) or (hasattr(enemy, "name") and enemy.name == "TimeBomb"):
                         continue
 
                     if shield_rect.colliderect(enemy.hitbox):
@@ -490,7 +491,8 @@ class VerticalBattleScreen:
 
             for enemy in list(state.enemies):
                 # Skip coins - they should only be collected by starship collision
-                if isinstance(enemy, Coins) or (hasattr(enemy, "__class__") and enemy.__class__.__name__ == "TimeBomb"):
+                # and TimeBomb - we don't want weapons to interact with it
+                if isinstance(enemy, Coins) or (hasattr(enemy, "name") and enemy.name == "TimeBomb"):
                     continue
 
                 if not bullet_rect.colliderect(enemy.hitbox):
@@ -1330,8 +1332,8 @@ class VerticalBattleScreen:
 
         if not self.starship.invincible:
             for enemy in state.enemies:
-                # Skip coins - they should not hurt the player when touched
-                if hasattr(enemy, "__class__") and enemy.__class__.__name__ in ("Coins", "TimeBomb"):
+                # Skip coins and TimeBomb - they should not hurt the player when touched
+                if isinstance(enemy, Coins) or (hasattr(enemy, "name") and enemy.name == "TimeBomb"):
                     continue
 
                 if hasattr(enemy, "hitbox"):

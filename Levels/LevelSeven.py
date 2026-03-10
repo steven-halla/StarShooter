@@ -359,6 +359,10 @@ class LevelSeven(VerticalBattleScreen):
 
         for sx, sy in spawn_tiles:
             raptor = SpinalRaptor()
+            # 🔑 SCALE DOWN SUMMONED ENEMIES (ZOOM IN COMPATIBILITY)
+            summon_scale = 0.5  # 50% of base size
+            raptor.width = int(raptor.width * summon_scale)
+            raptor.height = int(raptor.height * summon_scale)
             raptor.x = sx * self.tile_size + (self.tile_size - raptor.width) // 2
             raptor.y = sy * self.tile_size + (self.tile_size - raptor.height) // 2
             raptor.camera = self.camera

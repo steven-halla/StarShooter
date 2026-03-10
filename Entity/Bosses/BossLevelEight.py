@@ -21,8 +21,8 @@ class BossLevelEight(Enemy):
         self.color: tuple[int, int, int] = GlobalConstants.RED
 
         self.speed: float = 0.4
-        self.enemyHealth: float = 11.0
-        self.maxHealth: float = 11.0
+        self.enemyHealth: float = 1100.0
+        self.maxHealth: float = 1100.0
 
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
         self.moveSpeed: float = 2.2
@@ -46,7 +46,7 @@ class BossLevelEight(Enemy):
 
         # __init__ snippet (Boss / Enemy that will fire acid missiles)
 
-        self.acid_missiles_timer = Timer(9.0)  # fire every 5 seconds
+        self.acid_missiles_timer = Timer(10.0)  # fire every 5 seconds
         # fire immediately (optional)
         self.acid_missiles_timer.last_time_ms -= self.acid_missiles_timer.interval_ms
 
@@ -150,12 +150,12 @@ class BossLevelEight(Enemy):
             if self.acid_missiles_timer.is_ready():
                 self.acid_missiles(
                     state=state,
-                    speed=1.8,
+                    speed=1.7,
                     height=10,
                     width=10,
                     power=20,
-                    life=1,
-                    max_life=1,
+                    life=0.1,
+                    max_life=0.1,
                     number=7,
                     spread=100
                 )
@@ -212,12 +212,12 @@ class BossLevelEight(Enemy):
                 elif self.phase_3_selected_attack == "phase_3_acid_missiles":
                     self.acid_missiles(
                         state=state,
-                        speed=1.8,
+                        speed=1.7,
                         height=10,
                         width=10,
                         power=20,
-                        life=1,
-                        max_life=1,
+                        life=0.1,
+                        max_life=0.1,
                         number=7,
                         spread=100
                     )

@@ -29,8 +29,8 @@ class BossLevelNine(Enemy):
         self.fire_interval_ms: int = 2000
         self.last_shot_time: int = 0
         self.speed: float = 0.4
-        self.enemyHealth: float = 5.0
-        self.maxHealth: float = 5.0
+        self.enemyHealth: float = 1125.0
+        self.maxHealth: float = 1125.0
         self.exp: int = 1
         self.credits: int = 5
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
@@ -54,9 +54,9 @@ class BossLevelNine(Enemy):
         self.fire_phase_timer = Timer(6.0)  # how long FIRE lasts
         self.rest_phase_timer = Timer(12.0)  # how long REST lasts
         self.machine_gun_timer = Timer(0.5)  # fire rate during FIRE
-        self.aimed_shot_timer = Timer(3.0)  # 1 second
+        self.aimed_shot_timer = Timer(3.4)  # 1 second
 
-        self.summon_swarm_timer = Timer(22.0)
+        self.summon_swarm_timer = Timer(23.0)
         self.summon_swarm_timer.reset()
 
         self.boss_alone: bool = False
@@ -148,6 +148,13 @@ class BossLevelNine(Enemy):
 
         for enemy_class in swarm_classes:
             enemy = enemy_class()
+
+            # 🔑 SCALE DOWN SUMMONED ENEMIES (ZOOM IN COMPATIBILITY)
+            # BladeSpinner is already small (16x16), don't scale it further
+            if not isinstance(enemy, BladeSpinner):
+                summon_scale = 0.5  # 50% of base size
+                enemy.width = int(enemy.width * summon_scale)
+                enemy.height = int(enemy.height * summon_scale)
 
             # Placement: Randomly on screen, but with some padding
             padding = 40

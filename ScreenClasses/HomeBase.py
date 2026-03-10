@@ -520,7 +520,7 @@ class HomeBase(Screen):
                             print("I bought more speed")
 
                         elif item == "speed up +":
-                            state.starship.speed += 0.4
+                            state.starship.speed += 0.5
                             print("I bought more speed")
                         elif item == "Ki Up ++":
                             state.starship.player_ki += 50
@@ -539,7 +539,7 @@ class HomeBase(Screen):
                         elif item == "Greater hull":
                             state.starship.shipHealth += 25
                             state.starship.shipHealthMax += 25
-                            state.starship.speed += 0.4
+                            state.starship.speed += 0.3
                         elif item == "Defense Matrix":
                             state.starship.shipHealth += 10
                             state.starship.shipHealthMax += 10
