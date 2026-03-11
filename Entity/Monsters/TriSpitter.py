@@ -114,7 +114,7 @@ class TriSpitter(Enemy):
 
         # Frame size is 120x120 (sheet is 480x480, 4x4 grid)
         # Using first frame (top-left)
-        sprite_rect = pygame.Rect(130, 130, 350, 350)
+        sprite_rect = pygame.Rect(100, 130, 280, 350)
         sprite = self.enemy_image.subsurface(sprite_rect)
 
         scaled_sprite = pygame.transform.scale(
