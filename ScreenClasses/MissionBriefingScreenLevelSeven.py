@@ -16,15 +16,15 @@ class MissionBriefingScreenLevelSeven(Screen):
 
         self.briefing_text = [
             "Mission Briefing: Through the Fire",
-            "",
+
             "The undead legion has established a defensive perimeter in a highly unstable volcanic sector.",
             "Expect extreme heat and literal walls of flame blocking your path.",
-            "",
+
             "Intelligence reports the presence of Spinal Raptors—fast and aggressive units.",
             "The sector's commander is known for hit-and-run tactics, utilizing teleportation Ki Techniques.",
-            "",
+            "Artillery units are set up and will fire non stop plasma barrages once they lock on",
             "Keep your cool and stay on the move. Don't let the flames trap you.",
-            "",
+
             "Press A to deploy."
         ]
 

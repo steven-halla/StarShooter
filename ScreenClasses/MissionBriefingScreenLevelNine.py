@@ -17,7 +17,7 @@ class MissionBriefingScreenLevelNine(Screen):
         self.briefing_text = [
             "Mission Briefing: Gravity Well",
             "",
-            "The undead legion has deployed experimental gravity-manipulation technology in this sector.",
+            "The undead legion has deployed  gravity-manipulation reality fabric in this sector.",
             "Expect strong gravitational pulls to the left and right that will affect your ship's movement.",
             "",
             "Navigating this sector will require precise control and constant adjustment.",
@@ -25,7 +25,7 @@ class MissionBriefingScreenLevelNine(Screen):
             "",
             "Watch your positioning and don't let the gravity well pull you into obstacles or enemy fire.",
             "",
-            "Press F to deploy."
+            "Press A to deploy."
         ]
 
         self.briefing_message: str = "\n".join(self.briefing_text)

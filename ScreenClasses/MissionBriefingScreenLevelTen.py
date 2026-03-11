@@ -17,8 +17,10 @@ class MissionBriefingScreenLevelTen(Screen):
         self.briefing_text = [
             "Mission Briefing: Final Confrontation",
             "This is a timed mission, enemy reinforcements are inbound, destroy their beacons to slow them down.",
+            "Meka shooting blocks have been deployed to take out the beacons and erase their signals.",
+            "Hit the meka blocks with your bullets to  make them take out the beacons.",
             "The enemy is deploying Spine Launchers and spore flower defense units, be sure to take them out.",
-            "The enemy commander of the sector is here, destroy this traitor with extreme prejudice.",
+            "The enemy commander of the sector is here, destroy this traitor and we can end the war in this sector, till they come back...",
             "Press A to deploy."
         ]
 

@@ -16,17 +16,15 @@ class MissionBriefingScreenLevelFive(Screen):
 
         self.briefing_text = [
             "Mission Briefing: Rescue the Civilians",
-            "",
+
             "A civilian-class deluxe luxury cruise liner was destroyed, their escape pods scattered.",
             "The undead legion has sent units to capture them alive.",
             "Rescue the civilians and clear the way for our transport ships.",
-            "",
+            "These civlians belong to the elite ring of society, we cannot afford to let them get converted.",
             "Friendly fire is active; do not hit the civilians.",
             "You must rescue at least 7 escape pods.",
-            "",
-            "Watch out for radiation zones.",
-            "",
-            "Press F to deploy."
+            "Watch out for radiation zones. The legion in this area has modified itself to be immune.",
+            "Press A to deploy."
         ]
 
         self.briefing_message: str = "\n".join(self.briefing_text)

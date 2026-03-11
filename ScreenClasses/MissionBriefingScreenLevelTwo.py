@@ -16,17 +16,17 @@ class MissionBriefingScreenLevelTwo(Screen):
 
         self.briefing_text = [
             "MISSION BRIEFING: Escort the Commander",
-            "",
+
             "Commander Du-point is needing escort to the outer sector. You are the only pilot able to do this",
             "Pockets of Fire Gas are about, avoid these at all cost and do not let any harm come to your escort",
             "Your job is to safely escort the Commander.",
-            "",
+
             "Enemies in this sector are immune to the Fire Gas",
-            "A Slaver bio ship is in the area, which is a high priority target",
-            "",
-            "The commanders life is of upmost importance",
-            "",
-            "Press F to deploy."
+            "A Soul binder  is in the area, which is a high priority target.",
+
+            "The commanders life is of upmost importance.",
+
+            "Press A to deploy."
 
         ]
 

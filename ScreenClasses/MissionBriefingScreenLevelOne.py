@@ -16,17 +16,17 @@ class MissionBriefingScreenLevelOne(Screen):
         self.briefing_text = [
             "The space port of Bakarant is under attack by the undead legion. All fighters have been scrambled.",
             "Bakarant's barrels have all melted, and ammo stores are near depleted.",
-            "The enemy strike force includes a Harvester bio ship.",
+            "The enemy strike force includes a Harvester bio ship. We cannot allow them to capture our civilians alive or dead",
 
             "-Your objective is to destroy all enemies.",
             "- Destroy the Harvester Bio ship.",
             "Do not let the enemies pass you by.",
-            "The reward for the mission is 5000 credits that you can use for upgrades",
+            "The reward for the mission is 20,000 credits that you can use for upgrades",
 
             "Controls:",
             "- D pad/Paddle sticks: Move",
             "- A: Machine gun fire",
-            "- X: Ki Attacks - Ki is limited",
+            "- X: Ki Attacks - Ki is limited(You will buy these later)",
             "- B: Missiles-10 second recharge",
             "",
             "Press A to deploy."

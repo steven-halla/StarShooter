@@ -15,17 +15,12 @@ class MissionBriefingScreenLevelEight(Screen):
         self.save_state = SaveState()
 
         self.briefing_text = [
-            "Mission Briefing: The Heart of Darkness",
-            "",
-            "We've reached the core of the undead legion's territory. Resistance is at its peak.",
-            "Expect waves of their most advanced units, including multiple elite escorts.",
-            "",
-            "A massive bio-organic presence has been detected at the end of this sector.",
-            "This is a high-priority target. Its destruction is vital for our victory.",
-            "",
-            "Stay sharp, pilot. This is where the real fight begins.",
-            "",
-            "Press F to deploy."
+            "Mission Briefing: Diffuse the bombs",
+            "The undead legion is using bio bombs to blow up the area.",
+
+            "Go inside the diffusion radius , your computers will do the work just stay in range until the bomb is de-activated ",
+            "Spikey balls have been detected, they are hard to take out and require extreme firepower to take out fast.",
+            "Press A to deploy."
         ]
 
         self.briefing_message: str = "\n".join(self.briefing_text)
