@@ -16,8 +16,8 @@ class TriSpitter(Enemy):
         self.mover: MoveRectangle = MoveRectangle()
         self.id = 0
         self.name: str = "TriSpitter"
-        self.width: int = 40
-        self.height: int = 40
+        self.width: int = 120
+        self.height: int = 120
         self.color: tuple[int, int, int] = GlobalConstants.RED
         self.bulletColor: tuple[int, int, int] = GlobalConstants.SKYBLUE
         self.bulletWidth: int = 20
@@ -41,7 +41,7 @@ class TriSpitter(Enemy):
         self.attack_timer = Timer(3.0)  # 3 seconds
 
         self.bile_spitter_image = pygame.image.load(
-            "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
+            "Assets/Pipoya RPG Monster Pack/non shade/pipo-enemy028b.png"
         ).convert_alpha()
         self.enemy_image = self.bile_spitter_image
         self.touch_damage: int = 10
@@ -110,13 +110,16 @@ class TriSpitter(Enemy):
 
         super().draw(surface, camera)
 
-        sprite_rect = pygame.Rect(0, 344, 32, 32)
-        sprite = self.bile_spitter_image.subsurface(sprite_rect)
-
         scale = camera.zoom
+
+        # Frame size is 120x120 (sheet is 480x480, 4x4 grid)
+        # Using first frame (top-left)
+        sprite_rect = pygame.Rect(130, 130, 350, 350)
+        sprite = self.enemy_image.subsurface(sprite_rect)
+
         scaled_sprite = pygame.transform.scale(
             sprite,
-            (int(self.width * scale), int(self.height * scale))
+            (int(self.width * scale ), int(self.height * scale))
         )
 
         screen_x = camera.world_to_screen_x(self.x)

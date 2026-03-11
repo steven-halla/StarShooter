@@ -250,7 +250,7 @@
   <object id="144" name="blade_spinner" x="288.142" y="2888.15" width="16" height="16"/>
   <object id="100" name="tri_spitter" x="341.523" y="479.006" width="16" height="16"/>
   <object id="117" name="tri_spitter" x="147.875" y="1991.17" width="16" height="16"/>
-  <object id="110" name="tri_spitter" x="80.0496" y="3230.46" width="16" height="16"/>
+  <object id="110" name="tri_spitter" x="66.5745" y="3532.9" width="16" height="16"/>
   <object id="106" name="tri_spitter" x="39.6672" y="2926.85" width="16" height="16"/>
   <object id="108" name="tri_spitter" x="239.222" y="2033.14" width="16" height="16"/>
   <object id="104" name="tri_spitter" x="98.4983" y="1481.35" width="16" height="16"/>
@@ -271,13 +271,12 @@
   <object id="124" name="bile_spitter" x="76.2788" y="1012.27" width="16" height="16"/>
   <object id="128" name="bile_spitter" x="76.8872" y="2522.57" width="16" height="16"/>
   <object id="122" name="bile_spitter" x="218.237" y="998.695" width="16" height="16"/>
-  <object id="127" name="bile_spitter" x="14.8726" y="3496.98" width="16" height="16"/>
+  <object id="127" name="bile_spitter" x="20.8615" y="3270.9" width="16" height="16"/>
   <object id="120" name="bile_spitter" x="166.391" y="1434.44" width="16" height="16"/>
   <object id="133" name="bile_spitter" x="176.266" y="2586.36" width="16" height="16"/>
   <object id="125" name="bile_spitter" x="24.1998" y="684.485" width="16" height="16"/>
   <object id="129" name="bile_spitter" x="351.9" y="743.921" width="16" height="16"/>
   <object id="9" name="level_1_boss" x="89.0143" y="7.96063" width="140" height="60"/>
-  <object id="154" name="level_1_boss" x="33.6168" y="3532.44" width="140" height="60"/>
  </objectgroup>
  <layer id="7" name="collision" width="25" height="230">
   <data encoding="csv">
