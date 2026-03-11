@@ -382,7 +382,7 @@ class BossLevelThree(Enemy):
 
         # 🔑 USE MELEE HITBOX (ACTIVE PLAYER RECT)
         if rope_rect.colliderect(player.melee_hitbox):
-            print("ROPE HIT PLAYER")
+            # print("ROPE HIT PLAYER")
             self.player_caught = True
         else:
             self.player_caught = False

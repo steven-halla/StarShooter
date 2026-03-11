@@ -79,11 +79,44 @@ class LevelTwo(VerticalBattleScreen):
                 state.currentScreen.start(state)
                 return
 
+        self.clamp_starship_to_screen()
         self.side_rect_shield.update()
         self.update_side_ship()
         self.update_enemy_helper(state)
         # print(len(state.enemies))
         self.update_handle_level_complete(state)
+
+
+    def clamp_starship_to_screen(self):
+        # Override to account for the side rect on the right
+        zoom = self.camera.zoom
+        ship_w = self.starship.width
+        ship_h = self.starship.height
+
+        # --- HORIZONTAL (NO CAMERA X), EASY ---
+        # The side rect is at starship.x + ship_w + 10
+        # Its right edge is at starship.x + ship_w + 10 + side_rect_width
+        # So starship.x + ship_w + 10 + side_rect_width <= window_width / zoom
+        # starship.x <= (window_width / zoom) - ship_w - 10 - side_rect_width
+
+        max_x = (GlobalConstants.BASE_WINDOW_WIDTH / zoom) - ship_w - 10 - self.side_rect_width
+
+        if self.starship.x < 0:
+            self.starship.x = 0
+        elif self.starship.x > max_x:
+            self.starship.x = max_x
+
+        # --- VERTICAL (CAMERA Y ACTIVE) ---
+        cam_y = self.camera.y
+        win_h = GlobalConstants.GAMEPLAY_HEIGHT
+
+        min_y = cam_y
+        max_y = cam_y + (win_h / zoom) - ship_h
+
+        if self.starship.y < min_y:
+            self.starship.y = min_y
+        elif self.starship.y > max_y:
+            self.starship.y = max_y
 
 
     def draw(self, state):
@@ -106,6 +139,30 @@ class LevelTwo(VerticalBattleScreen):
     def update_side_ship(self):
         side_x = self.starship.x + self.starship.width + 10
         side_y = self.starship.y + (self.starship.height // 2) - (self.side_rect_height // 2)
+
+        # Since we've already clamped the starship to ensure the side rect stays on screen,
+        # we don't strictly need to clamp side_x here anymore, but let's keep it for safety
+        # and to handle vertical clamping.
+        zoom = self.camera.zoom
+        win_w = GlobalConstants.BASE_WINDOW_WIDTH
+        win_h = GlobalConstants.GAMEPLAY_HEIGHT
+        cam_y = self.camera.y
+
+        # Horizontal boundaries
+        max_x = win_w / zoom - self.side_rect_width
+        if side_x < 0:
+            side_x = 0
+        elif side_x > max_x:
+            side_x = max_x
+
+        # Vertical boundaries
+        min_y = cam_y
+        max_y = cam_y + (win_h / zoom) - self.side_rect_height
+        if side_y < min_y:
+            side_y = min_y
+        elif side_y > max_y:
+            side_y = max_y
+
         self.side_rect_hitbox.update(
             int(side_x),
             int(side_y),

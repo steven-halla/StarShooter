@@ -135,16 +135,18 @@ class LevelThree(VerticalBattleScreen):
             target_x = self.camera.x
             target_y = self.camera.y
 
-            pull_speed = 2.0  # Adjust this for faster/slower pull
+            pull_speed = 0.5  # Adjust this for faster/slower pull
 
             dx = target_x - self.starship.x
             dy = target_y - self.starship.y
 
             # Move towards target
-            if abs(dx) > 0.5:
+            if abs(dx) > 1.0:
                 self.starship.x += dx * pull_speed * 0.1
-            if abs(dy) > 0.5:
+            if abs(dy) > 1.0:
                 self.starship.y += dy * pull_speed * 0.1
+
+        self.player_roped = False # Reset for next frame
 
 
 

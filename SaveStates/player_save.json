@@ -1,20 +1,25 @@
 {
   "version": 1,
   "location": {
-    "screen": "Level 1",
-    "level_id": 1,
+    "screen": "Level 5",
+    "level_id": 5,
     "spawn_id": null
   },
   "player": {
     "shipHealth": 25,
-    "money": 10000,
+    "money": 2500,
     "shipHealthMax": 25,
     "equipped_magic": [
-      "",
+      "Buster Cannon",
       null
     ],
-    "magic_inventory": [],
-    "current_level": 1
+    "magic_inventory": [
+      "Metal Shield",
+      "Wind Slicer",
+      "Napalm Spread",
+      "Buster Cannon"
+    ],
+    "current_level": 5
   },
   "weapons": {
     "machine_gun": {
@@ -48,28 +53,36 @@
     "damage": 25,
     "bullet_speed": 1.5,
     "rate_of_fire": 0.5,
-    "max": 1,
-    "current": 1,
+    "max": 2,
+    "current": 0,
     "fire_interval_seconds": 0.5,
     "regen_interval_seconds": 10.0
   },
   "shield": {
-    "current": 100,
-    "max": 100,
+    "current": 150,
+    "max": 150,
     "recharge_rate": 0.2,
     "time_to_start_recharge": 10000
   },
   "stats": {
-    "speed": 2.2,
-    "player_ki": 50,
-    "player_max_ki": 50,
+    "speed": 2.6,
+    "player_ki": 75,
+    "player_max_ki": 75,
     "current_heat": 100,
     "max_heat": 100,
     "post_hit_invincibility_duration": 2.0
   },
   "upgrades": {
     "upgrade_chips": [
-      ""
+      "",
+      "Metal Shield",
+      "Ki Efficiency chip",
+      "Wind Slicer",
+      "Speed up",
+      "Napalm Spread",
+      "Missile Count +1",
+      "Buster Cannon",
+      "Shield Generator +"
     ]
   },
   "ship": {

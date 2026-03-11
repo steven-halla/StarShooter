@@ -30,7 +30,7 @@ class BossLevelOne(Enemy):
         self.exp: int = 1
         self.credits: int = 5
         # No longer using self.enemyBullets - using game_state.enemy_bullets instead
-        self.moveSpeed: float = 2.4
+        self.moveSpeed: float = 2.2
         self.edge_padding: int = 0
         self.move_direction: int = random.choice([-1, 1])
         self.move_interval_ms: int = 3000
@@ -49,7 +49,7 @@ class BossLevelOne(Enemy):
         self.fire_phase_timer = Timer(5.0)  # how long FIRE lasts
         self.rest_phase_timer = Timer(10.0)  # how long REST lasts
         self.machine_gun_timer = Timer(0.5)  # fire rate during FIRE
-        self.aimed_shot_timer = Timer(1.0)  # 1 second
+        self.aimed_shot_timer = Timer(2)  # 1 second
 
     def update(self, state) -> None:
         super().update(state)
@@ -71,7 +71,7 @@ class BossLevelOne(Enemy):
             # FIRE PHASE
             if self.machine_gun_timer.is_ready():
                 self.shoot_multiple_down_vertical_y(
-                    bullet_speed=3.7,
+                    bullet_speed=3.6,
                     bullet_width=3,
                     bullet_height=10,
                     bullet_color=self.bulletColor,
@@ -92,7 +92,7 @@ class BossLevelOne(Enemy):
             # REST PHASE — aimed shot every 1 second
             if self.aimed_shot_timer.is_ready():
                 self.shoot_single_bullet_aimed_at_player(
-                    bullet_speed=4.0,
+                    bullet_speed=3.8,
                     bullet_width=20,
                     bullet_height=20,
                     bullet_color=self.bulletColor,

@@ -15,18 +15,18 @@ class MissionBriefingScreenLevelThree(Screen):
         self.save_state = SaveState()
 
         self.briefing_text = [
-            "MISSION BRIEFING: Protect the Grand Master",
-            "",
-            "I am the Grand Master General. I will ride upon your ship.",
-            "You are to direct your ship to block incoming enemy fire.",
-            "I will deflect ALL projectiles, but I can't protect you from melee attacks.",
-            "",
-            "Your ship's slow speed is of no consequence; go as fast as you need.",
+            "MISSION BRIEFING: Protect the Space port Evacuation",
+
+            "I will join you for this mission by riding on top of your ship.",
+            "To protect the space port you must collide your ship into the bullets so I can deflect them back at the enemy.",
+            "While I cannot deflect melee, I can deflect any projectiles including ACID",
+
+            "I can move faster than your ship so your speed is of no concern.",
             "I will take a pure defensive stance; you will need to provide fire support.",
-            "",
-            "A Ship Cracker is in the area; be aware of its presence.",
-            "",
-            "Press F to deploy."
+
+            "This force is led by a an ancient Bio Behemoth, be wary of its tentacle and stay out of it's melee range.",
+
+            "Press A to deploy."
         ]
 
         self.briefing_message: str = "\n".join(self.briefing_text)

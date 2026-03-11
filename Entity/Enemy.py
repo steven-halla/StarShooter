@@ -1973,7 +1973,7 @@ class Enemy:
     #
     #     return False
     def check_rope_collision(self, player) -> None:
-        if player is None or self._rope is None or self.camera is None:
+        if player is None or self._rope is None:
             return
 
         rope = self._rope
@@ -1991,14 +1991,8 @@ class Enemy:
         )
 
         if rope_rect.colliderect(player.hitbox):
-            print("ROPE SLAM ACTIVE")
-
-            # 🔒 FORCE player to top-left EVERY FRAME
-            player.x = self.camera.x
-            player.y = self.camera.y
-
-            # keep hitbox in sync
-            player.update_hitbox()
+            # print("ROPE SLAM ACTIVE")
+            pass
 
 
 class EnemyNapalmBullet(Bullet):

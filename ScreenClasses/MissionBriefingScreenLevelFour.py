@@ -16,16 +16,16 @@ class MissionBriefingScreenLevelFour(Screen):
 
         self.briefing_text = [
             "Mission Briefing: Destroy the Hive",
-            "",
+
             "We have located a hidden hive of the undead legion.",
             "Your mission is to go in and destroy this hive before it increases in size.",
             "Destroy all transport worms.",
-            "",
+
             "Collapse the worms and burn their cargo out with NAPALM.",
-            "If 4 worms survive, we will have to recall the entire mission.",
-            "",
+            "If 2 worms survive, we will have to recall the entire mission.",
+
             "Slavers will come to order the worms to burrow; destroy them beforehand!",
-            "",
+            "A Necro Biomancer has been located, destroy the traitor so it cant create more undead Legion units.Be sure to make it suffer.",
             "Press F to deploy."
         ]
 
