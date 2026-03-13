@@ -36,8 +36,8 @@ class Ravager(Enemy):
         self.napalm_interval_ms = 1000
         self.last_napalm_time = pygame.time.get_ticks()
 
-        self.enemyHealth = 100
-        self.maxHealth = 100
+        self.enemyHealth = 95
+        self.maxHealth = 95
         self.enemyBullets: list[Bullet] = []
         self.name: str = "Ravager"
 

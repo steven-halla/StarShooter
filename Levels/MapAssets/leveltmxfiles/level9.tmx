@@ -3137,7 +3137,6 @@
   <object id="27" name="kamikaze_drone" x="278.206" y="552.397" width="16" height="16"/>
   <object id="28" name="kamikaze_drone" x="314.31" y="1689.88" width="16" height="16"/>
   <object id="29" name="kamikaze_drone" x="204.61" y="4519.91" width="16" height="16"/>
-  <object id="30" name="kamikaze_drone" x="294.589" y="2756.07" width="16" height="16"/>
   <object id="32" name="kamikaze_drone" x="161.469" y="2035.01" width="16" height="16"/>
   <object id="34" name="kamikaze_drone" x="290.891" y="3339.09" width="16" height="16"/>
   <object id="35" name="kamikaze_drone" x="64.0947" y="2396.15" width="16" height="16"/>
@@ -3176,7 +3175,6 @@
   <object id="71" name="wasp_stinger" x="296.989" y="5564.78" width="16" height="16"/>
   <object id="72" name="wasp_stinger" x="50.4302" y="4074.5" width="16" height="16"/>
   <object id="73" name="wasp_stinger" x="301.118" y="2524.12" width="16" height="16"/>
-  <object id="76" name="wasp_stinger" x="50.0736" y="2218.7" width="16" height="16"/>
   <object id="77" name="wasp_stinger" x="296.194" y="1505.93" width="16" height="16"/>
   <object id="78" name="wasp_stinger" x="14.1112" y="1134.9" width="16" height="16"/>
   <object id="79" name="wasp_stinger" x="69.9275" y="1859.71" width="16" height="16"/>
@@ -3187,6 +3185,5 @@
   <object id="86" name="ravager" x="101.493" y="6034.51" width="32" height="32"/>
   <object id="87" name="ravager" x="162.389" y="4443.96" width="32" height="32"/>
   <object id="88" name="ravager" x="272.582" y="5415.4" width="32" height="32"/>
-  <object id="89" name="ravager" x="253.734" y="1794.98" width="32" height="32"/>
  </objectgroup>
 </map>

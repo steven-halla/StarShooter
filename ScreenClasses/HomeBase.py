@@ -12,6 +12,7 @@ class HomeBase(Screen):
         self.textbox = textbox
         self._welcome_shown: bool = False
         self.save_state = SaveState()
+        self.game_difficulty:str = "easy"
 
         # background image (top portion)
         self.hangerbay_image = pygame.image.load("Assets/Images/hangerbay.png").convert()
@@ -30,34 +31,34 @@ class HomeBase(Screen):
         self.menu_items: list[str] = ["W. Shop", "D. Shop", "N. Mission", "Save","pre brief", "Load"]
         self.weapon_shop_descriptions: dict[str, str] = {
             "M. gun damage booster": "Flesh Rotter Rounds that melts the meat right off the bones, does extra damage.",
-            "Missile speed booster": "Missile Speed Booster\nIncreases your missile speed.",
+            "Missile magnetic rail": "Missile Launcher lined with magnetic rail for faster missile speed.",
             "Metal Shield": "Metal Shield\nKi Phase Shield that scrambles bio signatures and Destroys DNA directly.",
-            "Wind Slicer": "Wind Slicer\n Ki 6 shot Micro Bullets laced with nerve shredder chemicals.",
-            "Missile Count +1": "Increases your max missile count.",
-            "Barrel Coolant": "increase ROF of machine gun",
-            "Napalm": "Ki attack that launches Pyrithium fire that burns the targets insides first",
+            "Wind Slicer": "Wind Slicer\n Ki ShotGun attack, payload filled with 'nerve grabbers' , hooks that latch on nerve fibers and inject electric shocks.",
+            "Missile Count +1": "Adds an extra launcher to the ship",
+            "Barrel Coolant": "Floods barrel with nano bots to reduce barrel temps",
+            "Napalm": "Ki attack that launches Pyrithium fire that burns the target from the inside out",
             "Buster Cannon":"Ki Attack that fires molten vibribulated plasma which turns blood into micro glass fibers.rapid fire and charged shot.",
             "Britrate Missiles": "Creates and violently accelerates the growth of living tissue for increased damage",
             "Bullet Caliber +": "Increases bullet caliber by 25%.",
             "Neuro Scrambler Rounds": "Loads bullets with Black Synapse chemicals, corrupting the central nervous system and firing off all pain receptors for added damage.",
-            "Missile Count +2": "Add +2 to max missiles.",
-            "Tactical Missile Array": "Increases missile recharge rate, speed, damage.",
+            "Missile Count +2": "Add 2 missile launchers.",
+            "Tactical Missile Array": "Increases missile recharge rate, speed, damage. Zyton crystals used for missile casings, causing the body to reject it's own internal organs. ",
             "Double Barrel": "Mounts a 2nd machine gun on ship."
         }
         self.defense_shop_descriptions: dict[str, str] = {
-            "Armor Plating": "adds +50 HP to hull.",
-            "Shield Generator": "Provides + 25 shields",
-            "Ki Efficiency chip": "Adds +25 KI to user.",
-            "Shield Charger": "Faster Recharge rate for shields.",
-            "Speed up": "Ship moves faster.",
-            "Ki Up ++": "Adds 50 KI to user",
+            "Armor Plating": "adds +50 HP to hull via titanium plating.",
+            "Shield Generator": "Efficient energy chip Provides + 25 shields",
+            "Ki Efficiency chip": "Adds +25 KI to user via enhanced Ki to machine efficiency.",
+            "Shield Charger": "Faster Recharge rate for shields via an added energy core.",
+            "Speed up": "Ship moves faster via enhnaced thrusters.",
+            "Ki Up ++": "Adds 50 KI to user via enhanced Ki to machine efficiency.",
             "Post hit +": "adds an extra +25% to the timer of post hit emergency shields",
-            "Shield Generator +": "Provides + 50 shields",
-            "Greater hull": "Provides + 25 Hull Points and +1 speed",
+            "Shield Generator +": "Provides + 50 shields via ehnanced power chips",
+            "Greater hull": "Provides + 25 Hull Points and +1 speed via mithral plating to wings",
             "Enemy Drop +": "Increase the value of enemy drops(except missiles)",
-            "Shield Flash": "Shields take less time to start recharging.",
-            "speed up +": "Increases ship movement speed even further.",
-            "Defense Matrix": "Adds hull, shields, and smaller hit box by over 10%.",
+            "Shield Flash": "Shields take less time to start recharging via enhnaced ships.",
+            "speed up +": "Increases ship movement speed even further via a lightweight but durable armor.",
+            "Defense Matrix": "Adds hull, shields, and smaller hit box by over 10% by using fake projections to make the ship look bigger than it is.",
             "Wizards Training": "Increase max ki and improve all 4  ki special attacks."
         }
         # Plasma hot enough to 'ghost ' those hit with a charged shot
@@ -75,18 +76,18 @@ class HomeBase(Screen):
 
         # shop levels data
         self.weapon_shop_levels = {
-            1: ["M. gun damage booster", "Metal Shield"],
+            1: ["Flesh Rotter Rounds", "Metal Shield"],
             2: ["Wind Slicer", "Missile Count +1"],
             3: ["Barrel Coolant", "Napalm Spread"],
             4: ["Buster Cannon", "Britrate Missiles"],
             5: ["Missile speed booster", "Bullet Caliber +"],
-            6: ["M gun D. Breath", "Missile Count +2"],
+            6: ["Neuro Scrambler Rounds", "Missile Count +2"],
             7: ["Tactical Missile Array", "Double Barrel"]
 
 
         }
         self.defense_shop_levels = {
-            1: ["Armor Plating","Ki Efficiency chip"]  ,
+            1: ["Titanium Armor Plating","Ki Efficiency chip"]  ,
             2: [ "Speed up", "Shield Generator"],
             3: ["Ki Up ++" ,"Post hit +"],
             4: ["Greater hull", "Shield Generator +"],
@@ -95,43 +96,85 @@ class HomeBase(Screen):
             7: ["Defense Matrix", "Wizards Training"] # Repairs hull when shields are full
 
         }
-        self.item_prices = {
-            #level 2
-            "M. gun damage booster": 5000,
-            "Metal Shield": 5000,
-            "Armor Plating": 5000,
-            "Ki Efficiency chip": 5000,
-            #level 3
-            "Shield Generator": 7500,
-            "Wind Slicer": 7500,
-            "Missile Count +1": 7500,
-            "Speed up": 7500,
-            #level 4
-            "Barrel Coolant": 10000,
-            "Napalm Spread": 10000,
-            "Ki Up ++": 10000,
-            "Post hit +": 10000,
-            #level 5
-            "Shield Generator +": 12500,
-            "Greater hull": 12500,
-            "Buster Cannon": 12500,
-            "Britrate Missiles": 12500,
-            #level 6,
-            "Bullet Caliber +": 15000,
-            "Enemy Drop +": 15000,
-            "Missile speed booster": 15000,
-            "Shield Charger": 15000,
-            #level 7
-            "M gun D. Breath": 17500,
-            "Missile Count +2": 17500,
-            "Shield Flash": 17500,
-            "speed up +": 17500,
-            #level 8
-            "Tactical Missile Array": 30000,
-            "Double Barrel": 30000,
-            "Defense Matrix": 30000,
-            "Wizards Training": 30000
-        }
+        if self.game_difficulty == "normal":
+            self.item_prices = {
+                #level 2
+                "M. gun damage booster": 5000,
+                "Metal Shield": 5000,
+                "Armor Plating": 5000,
+                "Ki Efficiency chip": 5000,
+                #level 3
+                "Shield Generator": 7500,
+                "Wind Slicer": 7500,
+                "Missile Count +1": 7500,
+                "Speed up": 7500,
+                #level 4
+                "Barrel Coolant": 10000,
+                "Napalm Spread": 10000,
+                "Ki Up ++": 10000,
+                "Post hit +": 10000,
+                #level 5
+                "Shield Generator +": 12500,
+                "Greater hull": 12500,
+                "Buster Cannon": 12500,
+                "Britrate Missiles": 12500,
+                #level 6,
+                "Bullet Caliber +": 15000,
+                "Enemy Drop +": 15000,
+                "Missile speed booster": 15000,
+                "Shield Charger": 15000,
+                #level 7
+                "M gun D. Breath": 17500,
+                "Missile Count +2": 17500,
+                "Shield Flash": 17500,
+                "speed up +": 17500,
+                #level 8
+
+                "Tactical Missile Array": 30000,
+                "Double Barrel": 30000,
+                "Defense Matrix": 30000,
+                "Wizards Training": 30000
+            }
+        elif self.game_difficulty == "easy":
+            self.item_prices = {
+                # level 2
+                "M. gun damage booster": 5000,
+                "Metal Shield": 3000,
+                "Armor Plating": 5000,
+                "Ki Efficiency chip": 5000,
+                # level 3
+                "Shield Generator": 9000,
+                "Wind Slicer": 5000,
+                "Missile Count +1": 7500,
+                "Speed up": 7500,
+                # level 4
+                "Barrel Coolant": 9000,
+                "Napalm Spread": 7500,
+                "Ki Up ++": 9000,
+                "Post hit +": 12000,
+                # level 5
+                "Shield Generator +": 15000,
+                "Greater hull": 12500,
+                "Buster Cannon": 8000,
+                "Britrate Missiles": 12500,
+                # level 6,
+                "Bullet Caliber +": 5000,
+                "Enemy Drop +": 10000,
+                "Missile speed booster": 10000,
+                "Shield Charger": 20000,
+                # level 7
+                "M gun D. Breath": 17500,
+                "Missile Count +2": 17500,
+                "Shield Flash": 17500,
+                "speed up +": 17500,
+                # level 8
+
+                "Tactical Missile Array": 20000,
+                "Double Barrel": 20000,
+                "Defense Matrix": 20000,
+                "Wizards Training": 20000
+            }
+
 
         # input locks
         self._up_lock: bool = False

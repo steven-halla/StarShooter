@@ -19,13 +19,9 @@ class MissionBriefingScreenLevelThree(Screen):
 
             "I will join you for this mission by riding on top of your ship.",
             "To protect the space port you must collide your ship into the bullets so I can deflect them back at the enemy.",
-            "While I cannot deflect melee, I can deflect any projectiles including ACID",
-
-            "I can move faster than your ship so your speed is of no concern.",
+            "While I cannot deflect melee, I can deflect ANY projectiles including ACID",
             "I will take a pure defensive stance; you will need to provide fire support.",
-
             "This force is led by a an ancient Bio Behemoth, be wary of its tentacle and stay out of it's melee range.",
-
             "Press A to deploy."
         ]
 

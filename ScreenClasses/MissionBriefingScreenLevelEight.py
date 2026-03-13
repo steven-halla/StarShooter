@@ -20,6 +20,8 @@ class MissionBriefingScreenLevelEight(Screen):
 
             "Go inside the diffusion radius , your computers will do the work just stay in range until the bomb is de-activated ",
             "Spikey balls have been detected, they are hard to take out and require extreme firepower to take out fast.",
+            "The enemy is led by a Bio Titan with a heavy weapon loadout including BIO Missiles that lock on KI signatures.",
+            "Destroying this creature will be hard, but will provide a moral boost in the sector if destroyed."
             "Press A to deploy."
         ]
 

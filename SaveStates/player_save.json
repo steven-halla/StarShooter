@@ -1,16 +1,16 @@
 {
   "version": 1,
   "location": {
-    "screen": "Level 5",
-    "level_id": 5,
+    "screen": "Level 10",
+    "level_id": 10,
     "spawn_id": null
   },
   "player": {
-    "shipHealth": 25,
-    "money": 2500,
-    "shipHealthMax": 25,
+    "shipHealth": 85,
+    "money": 1500,
+    "shipHealthMax": 85,
     "equipped_magic": [
-      "Buster Cannon",
+      "Wind Slicer",
       null
     ],
     "magic_inventory": [
@@ -19,11 +19,11 @@
       "Napalm Spread",
       "Buster Cannon"
     ],
-    "current_level": 5
+    "current_level": 10
   },
   "weapons": {
     "machine_gun": {
-      "damage": 0.5,
+      "damage": 0.8,
       "width": 4,
       "height": 4,
       "rate_of_fire": 0.1,
@@ -31,43 +31,43 @@
       "bullets_per_shot": 1
     },
     "wind_slicer": {
-      "damage": 5,
+      "damage": 8,
       "bullet_count": 8
     },
     "buster_cannon": {
-      "base_damage": 2,
-      "charged_damage": 35,
-      "charge_time_required": 3.0
+      "base_damage": 3,
+      "charged_damage": 40,
+      "charge_time_required": 2.0
     },
     "metal_shield": {
       "damage": 20,
-      "max_hits": 3
+      "max_hits": 4
     },
     "napalm_spread": {
-      "damage": 35,
-      "area_of_effect_x": 33,
-      "area_of_effect_y": 33
+      "damage": 40,
+      "area_of_effect_x": 66,
+      "area_of_effect_y": 66
     }
   },
   "missiles": {
     "damage": 25,
     "bullet_speed": 1.5,
     "rate_of_fire": 0.5,
-    "max": 2,
-    "current": 0,
+    "max": 4,
+    "current": 2,
     "fire_interval_seconds": 0.5,
     "regen_interval_seconds": 10.0
   },
   "shield": {
-    "current": 150,
-    "max": 150,
-    "recharge_rate": 0.2,
+    "current": 195,
+    "max": 195,
+    "recharge_rate": 0.28,
     "time_to_start_recharge": 10000
   },
   "stats": {
-    "speed": 2.6,
-    "player_ki": 75,
-    "player_max_ki": 75,
+    "speed": 3.1,
+    "player_ki": 100,
+    "player_max_ki": 100,
     "current_heat": 100,
     "max_heat": 100,
     "post_hit_invincibility_duration": 2.0
@@ -82,7 +82,16 @@
       "Napalm Spread",
       "Missile Count +1",
       "Buster Cannon",
-      "Shield Generator +"
+      "Shield Generator +",
+      "M. gun damage booster",
+      "Shield Generator",
+      "Missile Count +2",
+      "speed up +",
+      "Wizards Training",
+      "Shield Charger",
+      "Defense Matrix",
+      "M gun D. Breath",
+      "Armor Plating"
     ]
   },
   "ship": {
