@@ -220,12 +220,10 @@ class Slaver(Enemy):
         nearest = None
         nearest_dist = float("inf")
 
-        # print("SLAVER:", self.x, self.y)
 
         for worm in worms:
             dx = worm.x - self.x
             dy = worm.y - self.y
-            # print("WORM:", worm.x, worm.y, "DIST^2:", dx * dx + dy * dy)
 
 
             dist_sq = dx * dx + dy * dy
@@ -248,15 +246,7 @@ class Slaver(Enemy):
         if dist == 0:
             return
 
-        # Print slaver and worm locations
-        # if hasattr(self, 'camera'):
-        #     slaver_screen_x = self.camera.world_to_screen_x(self.x)
-        #     slaver_screen_y = self.camera.world_to_screen_y(self.y)
-        #     worm_screen_x = self.camera.world_to_screen_x(self.target_worm.x)
-        #     worm_screen_y = self.camera.world_to_screen_y(self.target_worm.y)
-        #     print(f"[SLAVER] World: ({self.x:.1f}, {self.y:.1f}) Screen: ({slaver_screen_x:.1f}, {slaver_screen_y:.1f})")
-        #     print(f"[WORM] World: ({self.target_worm.x:.1f}, {self.target_worm.y:.1f}) Screen: ({worm_screen_x:.1f}, {worm_screen_y:.1f})")
-        #     print(f"[DISTANCE] {dist:.1f} pixels")
+
 
         # normalize
         dx /= dist

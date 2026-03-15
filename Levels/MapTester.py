@@ -46,7 +46,6 @@ class MapTester(VerticalBattleScreen):
         self.napalm_list: list = []
 
     def start(self, state) -> None:
-        print("start fun calledf")
         player_x = None
         player_y = None
 
@@ -112,7 +111,7 @@ class MapTester(VerticalBattleScreen):
                 dy -= 1
             if self.controller.down_button:
                 dy += 1
-            
+
             if dx != 0 or dy != 0:
                 self.mover.move_normalized(self.starship, dx, dy, "speed")
 
@@ -512,7 +511,7 @@ class MapTester(VerticalBattleScreen):
                         enemy.enemyHealth -= damage_to_deal
                         if enemy.enemyHealth <= 0:
                             self.remove_enemy_if_dead(enemy, state)
-                        
+
                         if not bullet.is_active:
                             if bullet in state.player_bullets:
                                 state.player_bullets.remove(bullet)

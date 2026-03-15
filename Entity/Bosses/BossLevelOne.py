@@ -145,7 +145,6 @@ class BossLevelOne(Enemy):
 
         super().draw(surface, camera)
 
-        # print(f"DEBUG BossLevelOne.draw: is_active={self.is_active} x={self.x} y={self.y} width={self.width} height={self.height}")
 
         scale = camera.zoom
 
@@ -153,11 +152,9 @@ class BossLevelOne(Enemy):
             # Check why it might not be active
             player_in_vicinity = self.player_in_vicinity()
             is_on_screen = self.mover.enemy_on_screen(self, camera)
-            # print(f"DEBUG BossLevelOne.draw: is_active is False. player_in_vicinity={player_in_vicinity}, is_on_screen={is_on_screen}")
             # return # Temporarily comment out to force drawing for debug
             # pass # Keep it for now to avoid empty block
 
-        # print(f"DEBUG BossLevelOne.draw: RENDERING at {self.x}, {self.y} size {self.width}x{self.height}")
 
         # Ensure we have valid dimensions to avoid scale errors
         draw_width = max(1, int(self.width * scale))
@@ -175,7 +172,6 @@ class BossLevelOne(Enemy):
 
         screen_x = camera.world_to_screen_x(self.x)
         screen_y = camera.world_to_screen_y(self.y)
-        # print(f"DEBUG BossLevelOne.draw: screen_x={screen_x} screen_y={screen_y}")
         surface.blit(scaled_sprite, (screen_x, screen_y))
 
     def clamp_vertical(self) -> None:

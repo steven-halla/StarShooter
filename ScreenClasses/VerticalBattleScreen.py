@@ -95,7 +95,7 @@ class VerticalBattleScreen:
             "Napalm Spread": 3,
             "Energy Ball": 4,
             "Plasma Blaster": 5,
-            "Metal Shield": 6,
+            "Phase Shield": 6,
             "Beam Saber": 8,
             "Wave Crash": 9,
         }
@@ -168,8 +168,7 @@ class VerticalBattleScreen:
                 d.update(state, state.enemy_drops, self.camera)
 
         self.controller.update()
-        # print("Line 162 and 163 vertical battle screen")
-        # print(state.starship.machine_gun_damage)
+
 
         # THEN: react to input
         if self.textbox.is_visible():
@@ -213,7 +212,6 @@ class VerticalBattleScreen:
                     next_index = 0
 
                 state.starship.equipped_magic[0] = inventory[next_index]
-                print(f"Equipped magic 0: {state.starship.equipped_magic[0]}")
 
         self.rect_helper(state)
         UI_KILL_PADDING = 12  # pixels ABOVE the UI panel (tweak this)
@@ -273,9 +271,6 @@ class VerticalBattleScreen:
             )
 
             if player_rect.colliderect(tile_rect):
-                if not self.save_point_used:
-                    print(f"Save point reached! Player Position: ({player.x}, {player.y})")
-                    print(f"Player Position relative to camera: ({player.x}, {player.y - self.camera_y})")
 
                     level_id = getattr(self.starship, "current_level", 1)
                     screen_name = f"LEVEL_{level_id}"
@@ -300,7 +295,6 @@ class VerticalBattleScreen:
                         json.dump(save_data, f, indent=2)
 
                     self.save_point_used = True
-                    print(f"Saved level_save_point.json to {save_path}")
 
     def draw(self, state) -> None:
         window_width = GlobalConstants.BASE_WINDOW_WIDTH
@@ -451,11 +445,10 @@ class VerticalBattleScreen:
             # -------------------------
             # METAL SHIELD (uses rect, not hitbox)
             # -------------------------
-            if bullet.weapon_name == "Metal Shield":
+            if bullet.weapon_name == "Phase Shield":
                 if self.controller.magic_cycle_just_pressed:
-                    print("R button pressed")
                     for b in list(self.player_bullets):
-                        if getattr(b, "weapon_name", "") == "Metal Shield":
+                        if getattr(b, "weapon_name", "") == "Phase Shield":
                             b.hit_count = 0
                             b.has_blocked = False
                             b.is_active = False  # optional: makes it stop immediately
@@ -1062,8 +1055,8 @@ class VerticalBattleScreen:
         # -------------------------
         # METAL SHIELD (single)
         # -------------------------
-        if state.starship.equipped_magic[0] == "Metal Shield" and not self.playerDead :
-            if self.controller.magic_1_button and not has_active(self, "Metal Shield") and state.starship.player_ki > 15:
+        if state.starship.equipped_magic[0] == "Phase Shield" and not self.playerDead :
+            if self.controller.magic_1_button and not has_active(self, "Phase Shield") and state.starship.player_ki > 15:
                 state.starship.player_ki -= state.starship.metal_shield.ki_cost
 
                 shield = state.starship.metal_shield.fire_metal_shield(
@@ -1080,8 +1073,8 @@ class VerticalBattleScreen:
         if state.starship.equipped_magic[0] == "Napalm Spread" and not self.playerDead:
             ns = state.starship.napalm_spread  # this is your NapalmSpread "weapon" object
             if self.controller.magic_1_button and not has_active(self, "Napalm Spread"):
-                if ns.napalm_timer.is_ready() and state.starship.player_ki >= ns.ki_cost:
-                    state.starship.player_ki -= ns.ki_cost
+                if ns.napalm_timer.is_ready() and state.starship.player_ki >= state.starship.napalm_spread.ki_cost:
+                    state.starship.player_ki -= state.starship.napalm_spread.ki_cost
 
                     napalm = ns.fire_napalm_spread()
                     if napalm is not None:
@@ -1153,7 +1146,7 @@ class VerticalBattleScreen:
                     bullet.target_enemy = self.get_nearest_enemy(bullet)
                 bullet.update()
 
-            elif bullet.weapon_name == "Metal Shield":
+            elif bullet.weapon_name == "Phase Shield":
                 bullet.update_orbit(
                     self.starship.x + self.starship.width / 2,
                     self.starship.y + self.starship.height / 2
@@ -1216,7 +1209,7 @@ class VerticalBattleScreen:
     def metal_shield_helper(self):
         for bullet in list(self.player_bullets):
 
-            if bullet.weapon_name == "Metal Shield":
+            if bullet.weapon_name == "Phase Shield":
                 continue  # never auto-remove shield
 
             screen_x = bullet.x - getattr(self.camera, "x", 0)

@@ -81,7 +81,6 @@ class LevelSix(VerticalBattleScreen):
         if self.boss_death_timer is not None:
             # print(f"[DEBUG LevelSix] boss_death_timer time left: {self.boss_death_timer.get_time_left()}")
             if self.boss_death_timer.is_ready():
-                print("[DEBUG LevelSix] boss_death_timer is ready! Transitioning to HomeBase.")
                 state.starship.money += 1000 * self.coins_collected
                 state.currentScreen = HomeBase(self.textbox)
                 state.currentScreen.start(state)

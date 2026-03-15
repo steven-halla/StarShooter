@@ -118,11 +118,9 @@ class BossLevelSix(Enemy):
     # =====================================================
     # TEMP GRID — KEEP EXACTLY ONE TOP ROW TILE
     def rebuild_active_barrage(self) -> None:
-        # print(f"\n=== REBUILDING ACTIVE BARRAGE ===")
 
         # Check if master grid is built
         if not self._grid_built or len(self.barrage_rects) == 0:
-            # print(f"Cannot rebuild active barrage: master grid not built (grid_built={self._grid_built}, rects={len(self.barrage_rects)})")
             return
 
         self.active_barrage_rects.clear()
@@ -138,7 +136,6 @@ class BossLevelSix(Enemy):
 
             # Safety check to prevent index errors
             if start >= len(self.barrage_rects) or end > len(self.barrage_rects):
-                # print(f"Warning: Invalid indices for row {row_index}: start={start}, end={end}, total rects={len(self.barrage_rects)}")
                 continue
 
             row_rects = self.barrage_rects[start:end]
@@ -187,22 +184,13 @@ class BossLevelSix(Enemy):
             return
 
         if self.barrage_phase == self.PHASE_RED:
-            # print(f"In RED phase, elapsed: {elapsed}ms, threshold: {self.RED_MS}ms")
             if elapsed >= self.RED_MS:
-                # print("\n=== MASTER GRID (ALL COORDS) ===")
                 for i, rect in enumerate(self.barrage_rects):
                     print(f"[{i:02d}] x={rect.x}, y={rect.y}")
 
-                # print("\n=== TEMP GRID (ACTIVE / DRAWN) ===")
                 for i, rect in enumerate(self.active_barrage_rects):
                     print(f"[{i:02d}] x={rect.x}, y={rect.y}")
 
-                # if player:
-                #     print("\n=== PLAYER POSITION ===")
-                #     print(f"Player x={player.x}, y={player.y}")
-                #     print(f"Player hitbox: x={player.hitbox.x}, y={player.hitbox.y}, width={player.hitbox.width}, height={player.hitbox.height}")
-
-                # print("Transitioning from RED to ORANGE phase")
                 self.barrage_phase = self.PHASE_ORANGE
                 self.barrage_timer = now
 

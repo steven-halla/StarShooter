@@ -219,11 +219,9 @@ class BossLevelSeven(Enemy):
                 self.attack_swipe_counter += 1
                 if self.attack_swipe_counter > 3:
                     self.attack_swipe_counter = 0
-                # print(self.attack_swipe_counter)
                 self.attack180_cd_timer.reset()
                 self.attack180_state = 0
                 self.attack180_rect = None
-                # print("ATTACK180 END")
 
             return
 
@@ -252,14 +250,12 @@ class BossLevelSeven(Enemy):
 
     def update(self, state) -> None:
         super().update(state)
-        print("boss level seven line 255 " + str(self.enemyHealth))
         if not self.is_active:
             return
         now = pygame.time.get_ticks()
         time_left_ms = 5000 - (now - self.attack_choice_timer.last_time_ms)
         if time_left_ms < 0:
             time_left_ms = 0
-        # print(time_left_ms)
 
         # fire when countdown hits 0, then reset
         if time_left_ms == 0:
@@ -271,16 +267,13 @@ class BossLevelSeven(Enemy):
             self.attack_sequence_three = False
 
             if attack_chooser_roll <= 30:
-                print("attack 1")  # 50%
                 self.attack_sequence_one = True
 
                 self.is_firing = True
                 self.fire_phase_timer.reset()
             elif attack_chooser_roll <= 60:
-                print("attack 2")  # 30% (51-80)
                 self.attack_sequence_two = True
             else:
-                print("attack 3")  # 20% (81-100)
                 #barrage spray
                 self.attack_sequence_three = True
 

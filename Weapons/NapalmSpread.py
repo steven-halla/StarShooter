@@ -10,12 +10,11 @@ class NapalmSpread(Bullet):
     def __init__(self, x: float, y: float):
         super().__init__(x, y)
 
-        print("[INIT] Napalm created")
 
         self.weapon_name: str = "Napalm Spread"
 
         self.width: int = 11
-        self.ki_cost: int = 20
+        self.ki_cost: int = 14
         self.height: int = 11
 
         self.damage: int = 35
@@ -96,15 +95,12 @@ class NapalmSpread(Bullet):
     # --------------------------------------------------
     def fire_napalm_spread(self):
 
-        print("[FIRE] napalm_active:", NapalmSpread.napalm_active)
-        print("[FIRE] cooldown ready:", self.napalm_timer.is_ready())
+
 
         if NapalmSpread.napalm_active:
-            print("[BLOCKED] Napalm already active")
             return None
 
         if not self.napalm_timer.is_ready():
-            print("[BLOCKED] Cooldown not ready")
             return None
 
         start_x = self.x + self.width / 2

@@ -1589,7 +1589,6 @@ class Enemy:
     def draw_bomb(self, surface: pygame.Surface, camera) -> None:
         if not hasattr(self, "bomb_rect"):
             return
-        print("adfj;safljdsl;fsajf;a")
 
         sx = int(camera.world_to_screen_x(self.bomb_rect.x))
         sy = int(camera.world_to_screen_y(self.bomb_rect.y))

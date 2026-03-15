@@ -30,23 +30,23 @@ class HomeBase(Screen):
         self.menu_font = pygame.font.SysFont("arial", 20)
         self.menu_items: list[str] = ["W. Shop", "D. Shop", "N. Mission", "Save","pre brief", "Load"]
         self.weapon_shop_descriptions: dict[str, str] = {
-            "M. gun damage booster": "Flesh Rotter Rounds that melts the meat right off the bones, does extra damage.",
+            "Flesh Rotter Rounds": "Bullets are injected with Chemicals that melts the meat right off the bones, does extra damage.",
             "Missile magnetic rail": "Missile Launcher lined with magnetic rail for faster missile speed.",
-            "Metal Shield": "Metal Shield\nKi Phase Shield that scrambles bio signatures and Destroys DNA directly.",
-            "Wind Slicer": "Wind Slicer\n Ki ShotGun attack, payload filled with 'nerve grabbers' , hooks that latch on nerve fibers and inject electric shocks.",
+            "Phase Shield": "Phase Shield\nKi Phase Shield that scrambles bio signatures and Destroys DNA.",
+            "Wind Slicer": "Wind Slicer\n Ki ShotGun attack, payload filled with 'nerve grabbers' , nano hooks that latch on nerve fibers and inject electric shocks.",
             "Missile Count +1": "Adds an extra launcher to the ship",
             "Barrel Coolant": "Floods barrel with nano bots to reduce barrel temps",
-            "Napalm": "Ki attack that launches Pyrithium fire that burns the target from the inside out",
-            "Buster Cannon":"Ki Attack that fires molten vibribulated plasma which turns blood into micro glass fibers.rapid fire and charged shot.",
+            "Napalm": "Ki attack that launches Pyrithium fire that burns the target from the inside out, Can be used for defense as well as offense",
+            "Buster Cannon":"Ki Attack that fires molten vibribulated plasma which turns blood into micro glass fibers.rapid fire and charged shot(hold Y to charge).",
             "Britrate Missiles": "Creates and violently accelerates the growth of living tissue for increased damage",
             "Bullet Caliber +": "Increases bullet caliber by 25%.",
             "Neuro Scrambler Rounds": "Loads bullets with Black Synapse chemicals, corrupting the central nervous system and firing off all pain receptors for added damage.",
             "Missile Count +2": "Add 2 missile launchers.",
-            "Tactical Missile Array": "Increases missile recharge rate, speed, damage. Zyton crystals used for missile casings, causing the body to reject it's own internal organs. ",
+            "Tactical Missile Array": "Boosts missile reload speed, flight velocity, and explosive power. Forged with unstable Zyton crystal casings, exposure causes the body to reject its own internal organs.",
             "Double Barrel": "Mounts a 2nd machine gun on ship."
         }
         self.defense_shop_descriptions: dict[str, str] = {
-            "Armor Plating": "adds +50 HP to hull via titanium plating.",
+            "Titanium Armor Plating": "adds +50 HP to hull via titanium plating.",
             "Shield Generator": "Efficient energy chip Provides + 25 shields",
             "Ki Efficiency chip": "Adds +25 KI to user via enhanced Ki to machine efficiency.",
             "Shield Charger": "Faster Recharge rate for shields via an added energy core.",
@@ -76,7 +76,7 @@ class HomeBase(Screen):
 
         # shop levels data
         self.weapon_shop_levels = {
-            1: ["Flesh Rotter Rounds", "Metal Shield"],
+            1: ["Flesh Rotter Rounds", "Phase Shield"],
             2: ["Wind Slicer", "Missile Count +1"],
             3: ["Barrel Coolant", "Napalm Spread"],
             4: ["Buster Cannon", "Britrate Missiles"],
@@ -88,7 +88,7 @@ class HomeBase(Screen):
         }
         self.defense_shop_levels = {
             1: ["Titanium Armor Plating","Ki Efficiency chip"]  ,
-            2: [ "Speed up", "Shield Generator"],
+            2: ["Speed up", "Shield Generator"],
             3: ["Ki Up ++" ,"Post hit +"],
             4: ["Greater hull", "Shield Generator +"],
             5: ["Shield Charger", "Enemy Drop +"],
@@ -100,7 +100,7 @@ class HomeBase(Screen):
             self.item_prices = {
                 #level 2
                 "M. gun damage booster": 5000,
-                "Metal Shield": 5000,
+                "Phase Shield": 5000,
                 "Armor Plating": 5000,
                 "Ki Efficiency chip": 5000,
                 #level 3
@@ -124,7 +124,7 @@ class HomeBase(Screen):
                 "Missile speed booster": 15000,
                 "Shield Charger": 15000,
                 #level 7
-                "M gun D. Breath": 17500,
+                "Neuro Scrambler Rounds": 17500,
                 "Missile Count +2": 17500,
                 "Shield Flash": 17500,
                 "speed up +": 17500,
@@ -139,7 +139,7 @@ class HomeBase(Screen):
             self.item_prices = {
                 # level 2
                 "M. gun damage booster": 5000,
-                "Metal Shield": 3000,
+                "Phase Shield": 3000,
                 "Armor Plating": 5000,
                 "Ki Efficiency chip": 5000,
                 # level 3
@@ -457,7 +457,7 @@ class HomeBase(Screen):
                     if state.starship.money >= price:
                         state.starship.money -= price
                         state.starship.upgrade_chips.append(item)
-                        if item == "Metal Shield":
+                        if item == "Phase Shield":
                             state.starship.magic_inventory.append(item)
                             state.starship.equipped_magic[0] = item
                         elif item == "Wind Slicer":

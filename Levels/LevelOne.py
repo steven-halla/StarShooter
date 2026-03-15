@@ -52,7 +52,6 @@ class LevelOne(VerticalBattleScreen):
 
     def start(self, state) -> None:
         state.enemy_drops.clear()
-        print("I only want to see this one time lleve one")
         state.starship.equipped_magic = ["", None]
         state.starship.current_level = 1
         player_x = None
@@ -161,7 +160,6 @@ class LevelOne(VerticalBattleScreen):
             if enemy.y > screen_bottom:
                 if enemy not in self.missed_enemies:
                     self.missed_enemies.append(enemy)
-                    print(self.missed_enemies)
                     if self.missed_enemies.__len__() > 3:
                         print("GAME OVER!!!")
 

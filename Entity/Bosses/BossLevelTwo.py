@@ -18,13 +18,13 @@ class BossLevelTwo(Enemy):
         self.edge_padding: int = 0
 
         # identity / visuals
-        self.name: str = "BileSpitter"
-        self.width: int = 40
-        self.height: int = 40
+        self.name: str = "BossLevelTwo"
+        self.width: int = 120
+        self.height: int = 120
         self.color = GlobalConstants.RED
 
         self.bile_spitter_image = pygame.image.load(
-            "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
+            "Assets/Pipoya RPG Monster Pack/non shade/pipo-enemy042b.png"
         ).convert_alpha()
         self.enemy_image = self.bile_spitter_image
 
@@ -124,22 +124,50 @@ class BossLevelTwo(Enemy):
 
         super().draw(surface, camera)
 
-        sprite_rect = pygame.Rect(0, 344, 32, 32)
-        sprite = self.bile_spitter_image.subsurface(sprite_rect)
+        sprite_rect = pygame.Rect(0, 0, 480, 480)
+        sprite = self.enemy_image.subsurface(sprite_rect)
 
         scale = camera.zoom
+        scaled_width = int(self.width * scale)
+        scaled_height = int(self.height * scale * 1.50)
+        height_offset = scaled_height - int(self.height * scale)
+
         scaled_sprite = pygame.transform.scale(
             sprite,
-            (int(self.width * scale), int(self.height * scale))
+            (scaled_width, scaled_height)
         )
 
         surface.blit(
             scaled_sprite,
             (
                 camera.world_to_screen_x(self.x),
-                camera.world_to_screen_y(self.y),
+                camera.world_to_screen_y(self.y) - height_offset,
             )
         )
+    # def draw(self, surface: pygame.Surface, camera):
+    #     if not self.is_active:
+    #         return
+    #
+    #     super().draw(surface, camera)
+    #
+    #     # The image is 480x480, and it's a 4x4 grid.
+    #     # Each frame is 120x120.
+    #     sprite_rect = pygame.Rect(0, 0, 480, 480)
+    #     sprite = self.enemy_image.subsurface(sprite_rect)
+    #
+    #     scale = camera.zoom
+    #     scaled_sprite = pygame.transform.scale(
+    #         sprite,
+    #         (int(self.width * scale), int(self.height * scale ))
+    #     )
+    #
+    #     surface.blit(
+    #         scaled_sprite,
+    #         (
+    #             camera.world_to_screen_x(self.x),
+    #             camera.world_to_screen_y(self.y),
+    #         )
+    #     )
 
     def clamp_vertical(self) -> None:
         pass

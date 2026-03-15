@@ -82,7 +82,6 @@ class LevelFive(VerticalBattleScreen):
 
     def update(self, state) -> None:
         super().update(state)
-        print(len(state.enemies))
         self.update_handle_level_complete(state)
 
         self.update_enemy_helper(state)

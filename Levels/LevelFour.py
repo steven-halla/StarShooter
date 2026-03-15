@@ -47,7 +47,6 @@ class LevelFour(VerticalBattleScreen):
 
 
     def start(self, state) -> None:
-        print("Starting Level Four")
         self.starship = state.starship
 
         player_x = None
@@ -179,10 +178,8 @@ class LevelFour(VerticalBattleScreen):
             if isinstance(enemy, Slaver):
                 if self.slaver_player_in_vicinity(enemy, state):
                     enemy.attack_player = True
-                    # print("SLAVER ATTACKING PLAYER")
                 else:
                     enemy.attack_player = False
-                    # print("SLAVER NOT ATTACKING PLAYER")
 
 
     def update_worm_helper(self, state):
@@ -344,15 +341,7 @@ class LevelFour(VerticalBattleScreen):
                 if creep_found_on_screen:
                     break
 
-        # --------------------------------------------------
-        # DEBUG PRINT (YOU ASKED FOR THIS)
-        # --------------------------------------------------
-        # print(
-        #     "player_visible:", player_visible,
-        #     "worm_visible:", worm_visible,
-        #     "creep_found_on_screen:", creep_found_on_screen,
-        #     "creep_near_bottom:", creep_near_bottom
-        # )
+
 
         # --------------------------------------------------
         # SCROLL CONTROL (CREEP DECIDES)

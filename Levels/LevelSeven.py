@@ -77,7 +77,6 @@ class LevelSeven(VerticalBattleScreen):
     def update(self, state) -> None:
         super().update(state)
         # self.starship.last_health = self.starship.shipHealth # REMOVED - This was breaking damage detection in StarShip.py
-        # print(state.enemies)
         self.update_loop_level(state)
         self.update_build_flame_row()
         self.update_enemy_helper(state)
@@ -120,7 +119,6 @@ class LevelSeven(VerticalBattleScreen):
             if self.flame_rows_built < self.max_flame_rows:
                 self.flame_rows_built += 1
                 self.build_flame_grid()
-                print(f"Added flame row #{self.flame_rows_built} at loop start")
 
             if not self.boss_placement:
                 self.set_boss_position_once(state)
@@ -129,12 +127,10 @@ class LevelSeven(VerticalBattleScreen):
             self.end_loop = True
             self.start_loop = False
             self.boss_placement = False  # Reset the boss placement flag when the loop ends
-            print("END LOOP")
 
     def update_enemy_helper(self, state):
 
         for enemy in list(state.enemies):
-            print(state.enemies)
             result = enemy.update(state)
 
             if hasattr(enemy, "update_hitbox"):
@@ -261,7 +257,6 @@ class LevelSeven(VerticalBattleScreen):
             if player_screen_rect.colliderect(rect):
                 if not self.starship.invincible:
                     self.starship.shield_system.take_damage(20)
-                print("🔥 PLAYER COLLIDED WITH ORANGE FLAME")
 
             pygame.draw.rect(surface, color, rect)
 
@@ -331,7 +326,6 @@ class LevelSeven(VerticalBattleScreen):
         return True
 
     def teleport_boss_to_new_point(self) -> None:
-        print("Telepor boss to new point")
         coords: list[tuple[int, int]] = []
         for layer in self.tiled_map.layers:
             if isinstance(layer, pytmx.TiledTileLayer) and layer.name == "boss_appear_point":
@@ -346,7 +340,6 @@ class LevelSeven(VerticalBattleScreen):
         try:
             layer = self.tiled_map.get_layer_by_name("boss_appear_point")
         except (ValueError, KeyError):
-            print("[LEVEL 7] No tile layer named 'boss_appear_point'")
             return
 
         spawn_tiles: list[tuple[int, int]] = [
@@ -354,7 +347,6 @@ class LevelSeven(VerticalBattleScreen):
         ]
 
         if not spawn_tiles:
-            print("[LEVEL 7] 'boss_appear_point' layer has no tiles set")
             return
 
         for sx, sy in spawn_tiles:
@@ -384,7 +376,6 @@ class LevelSeven(VerticalBattleScreen):
         ]
 
         if not spawn_tiles:
-            print("[LEVEL 7] 'boss_appear_point' layer has no tiles set")
             return
 
         # --- spawn boss (same as before) ---

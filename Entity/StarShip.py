@@ -171,7 +171,6 @@ class StarShip:
         self.invincibility_timer.reset()
 
     def update(self) -> None:
-        # print(self.shipHealth)
         self.update_hitbox()
         self.shield_system.update()
         self.current_shield = int(self.shield_system.current_shield_points)

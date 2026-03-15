@@ -20,14 +20,14 @@ class FireLauncher(Enemy):
 
         # identity / visuals
         self.name: str = "FireLauncher"
-        self.width: int = 40
-        self.height: int = 40
+        self.width: int = 160
+        self.height: int = 160
         self.color = GlobalConstants.RED
 
-        self.bile_spitter_image = pygame.image.load(
-            "./Levels/MapAssets/tiles/Asset-Sheet-with-grid.png"
+        self.fire_launcher_image = pygame.image.load(
+            "Assets/Pipoya RPG Monster Pack/non shade/pipo-enemy027.png"
         ).convert_alpha()
-        self.enemy_image = self.bile_spitter_image
+        self.enemy_image = self.fire_launcher_image
 
         # stats
         self.enemyHealth: float = 10.0
@@ -203,8 +203,10 @@ class FireLauncher(Enemy):
 
         super().draw(surface, camera)
 
-        sprite_rect = pygame.Rect(0, 344, 32, 32)
-        sprite = self.bile_spitter_image.subsurface(sprite_rect)
+        # 480x480 sheet, 3 columns x 4 rows -> 160x120 per frame
+        # User wants draw methods similar to bile spitter
+        sprite_rect = pygame.Rect(70, 120, 330, 300)
+        sprite = self.enemy_image.subsurface(sprite_rect)
 
         scale = camera.zoom
         scaled_sprite = pygame.transform.scale(

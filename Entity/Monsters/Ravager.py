@@ -106,7 +106,6 @@ class Ravager(Enemy):
         self.pending_napalm = napalm
         napalm.damage = self.napalm_damage  # ← THIS WAS MISSING
 
-        # print("NAPALM SPAWNED", cx, cy)
 
     def update(self, state) -> None:
         # ⛔ DO NOTHING unless player is on screen

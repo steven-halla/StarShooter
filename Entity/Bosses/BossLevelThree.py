@@ -190,7 +190,6 @@ class BossLevelThree(Enemy):
             if now - self._summon_swarm_last_time >= 12000:
                 self.summon_swarm(state)
                 self._summon_swarm_last_time = now
-                print("yupper")
 
             # arm rush every 3 seconds
             if now - self._rush_last_time >= 2000 and not hasattr(self, "_rush_active"):
@@ -243,7 +242,6 @@ class BossLevelThree(Enemy):
             enemy.update_hitbox()
             state.enemies.append(enemy)
 
-        print("🧟 SUMMON SWARM → +4 SMALL TRI SPITTERS")
     # -------------------------------------------------
     # UNIQUE attack
     # -------------------------------------------------
@@ -382,7 +380,6 @@ class BossLevelThree(Enemy):
 
         # 🔑 USE MELEE HITBOX (ACTIVE PLAYER RECT)
         if rope_rect.colliderect(player.melee_hitbox):
-            # print("ROPE HIT PLAYER")
             self.player_caught = True
         else:
             self.player_caught = False

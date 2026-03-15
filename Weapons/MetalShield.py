@@ -13,7 +13,7 @@ class MetalShield(Bullet):
         self.height: int = 32
 
         # identity
-        self.METAL_SHIELD: str = "Metal Shield"
+        self.METAL_SHIELD: str = "Phase Shield"
 
         # stats
         self.damage: int = damage            # shield does not deal damage
@@ -65,7 +65,7 @@ class MetalShield(Bullet):
 
     def update(self):
         # orbit-only movement; external code supplies center via update_orbit
-        print(str(self.is_active))
+        pass
 
 
     def fire_metal_shield(self, damage: int = 20, max_hits: int = 3):
@@ -76,7 +76,7 @@ class MetalShield(Bullet):
         # Use the current position as the center for the new shield
         # The shield will orbit around this position
         shield = MetalShield(self.x, self.y, damage, max_hits)
-        shield.weapon_name = "Metal Shield"
+        shield.weapon_name = "Phase Shield"
         return shield
 
     def absorb_hit(self) -> bool:
